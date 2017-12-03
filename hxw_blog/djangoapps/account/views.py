@@ -102,7 +102,7 @@ class RegisterView(View):
 
         redirect_url = request.POST.get('redirect_url', '').replace('#', '')
         if redirect_url == '':
-            redirect_url = reverse('account:login')
+            redirect_url = reverse('index')
         return JsonResponse({
             'code': 200,
             'msg': '注册成功',

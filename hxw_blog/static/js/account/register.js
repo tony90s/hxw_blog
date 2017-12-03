@@ -67,8 +67,9 @@ $(function () {
             },
             function (data) {
                 if (data.code == 200) {
-                    layer.msg(data.msg, {time: 1000});
-                    window.location.href = data.redirect_url;
+                    layer.alert('注册成功，马上跳转。', function () {
+                       window.location.href = data.redirect_url;
+                    });
                 }
                 else {
                     show_msg(warning_div, data.msg);
