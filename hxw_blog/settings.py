@@ -35,14 +35,15 @@ sys.path.append(os.path.join(PROJECT_ROOT, 'djangoapps'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '(jewtgm=p#i!meyny@p)$+!_utfidoae(=h!%e0+3u#!8149u^'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 with open(os.path.join(ENV_ROOT, 'hxw_blog.env.json')) as env_file:
     ENV_TOKENS = json.load(env_file)
 
 with open(os.path.join(ENV_ROOT, 'hxw_blog.auth.json')) as auth_file:
     AUTH_TOKENS = json.load(auth_file)
+
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = ENV_TOKENS['DEBUG']
 
 SITE_NAME = ENV_TOKENS['SITE_NAME']
 

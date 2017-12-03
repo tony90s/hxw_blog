@@ -16,7 +16,7 @@ def get_thumbnail(orig, width=128, height=128):
     quality = 95
 
     try:
-        thumb = Image.open(orig)
+        thumb = Image.open(orig).convert('RGB')
         size = (width, height)
         thumb.thumbnail(size, Image.ANTIALIAS)
         thumb_io = io.BytesIO()
