@@ -1,0 +1,164 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body,
+html {
+  background-color: #F5FFFA;
+  overflow-x: hidden; /* Prevent scroll on narrow devices */
+  font-size: 100%;
+}
+
+.header {
+  padding-top:20px;
+  padding-bottom:20px;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body > .container {
+  padding-top:120px;
+}
+
+code {
+  font-size: 80%;
+}
+
+.avator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    display: block;
+    cursor: pointer;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+}
+
+img {
+    vertical-align: middle;
+}
+
+button {
+    outline: none;
+}
+
+/*
+ * Off Canvas
+ * --------------------------------------------------
+ */
+@media screen and (max-width: 767px) {
+  .row-offcanvas {
+    position: relative;
+    -webkit-transition: all .25s ease-out;
+         -o-transition: all .25s ease-out;
+            transition: all .25s ease-out;
+  }
+
+  .row-offcanvas-right {
+    right: 0;
+  }
+
+  .row-offcanvas-left {
+    left: 0;
+  }
+
+  .row-offcanvas-right
+  .sidebar-offcanvas {
+    right: -50%; /* 6 columns */
+  }
+
+  .row-offcanvas-left
+  .sidebar-offcanvas {
+    left: -50%; /* 6 columns */
+  }
+
+  .row-offcanvas-right.active {
+    right: 50%; /* 6 columns */
+  }
+
+  .row-offcanvas-left.active {
+    left: 50%; /* 6 columns */
+  }
+
+  .sidebar-offcanvas {
+    position: absolute;
+    top: 0;
+    width: 50%; /* 6 columns */
+  }
+}
+
+.bs-docs-footer{
+  padding-top:50px;
+  padding-bottom:50px;
+  margin-top:20px;
+  color:#99979c;
+  text-align:center;
+  background-color: #222;
+  border-color: #080808;
+}
+.bs-docs-footer ul{
+  list-style-type: none
+}
+.bs-docs-footer a{
+  color:#fff
+}
+.bs-docs-footer-links{
+  padding-left:0;
+  margin-bottom:20px
+}
+.bs-docs-footer-links li{
+  display:inline-block
+}
+.bs-docs-footer-links li+li{
+  margin-left:15px
+}
+
+@media (min-width:768px){
+  .bs-docs-footer{
+    text-align:left
+  }
+  .bs-docs-footer p{
+    margin-bottom:0
+  }
+}
+
+.fixed-btn {
+    position: fixed;
+    right: 1%;
+    bottom: 5%;
+    width: 55px;
+    background-color: white;
+    font-size: 24px;
+    z-index: 999;
+}
+
+.fixed-btn a{
+    text-align: center;
+    color: #2f2f2f;
+}
+
+.fixed-btn a i {
+    vertical-align: middle;
+}
+
+.iconfont {
+    font-family:"iconfont" !important;
+    font-size: 18px;
+}

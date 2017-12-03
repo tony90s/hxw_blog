@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}<title>兴旺的博客</title>{% endblock %}
+{% block extra_header %}
+    <link href="/static/css/index.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <div class="container index">
+
+        <div class="row row-offcanvas row-offcanvas-right">
+
+            <div class="col-lg-12 col-xs-12 col-sm-12">
+                <p class="pull-right visible-xs">
+                    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
+                </p>
+                <div class="jumbotron">
+                    <h1>Hello, world!</h1>
+                    <p>This is an example to show the potential of an offcanvas layout pattern in Bootstrap. Try some
+                        responsive-range viewport sizes to see it in action.</p>
+                </div>
+                <div class="row">
+                    <div class="col-sm-8 main">
+                        <div class="split-line"></div>
+                        <div id="list-container">
+                            <ul class="note-list">
+                                {% for article_summarization in articles_summarization%}
+                                <li id="article-{{ article_summarization.article_id }}" data-article-id="{{ article_summarization.article_id }}" {% if article_summarization.cover_photo %}class="with-img"{% endif %}>
+                                    {% if article_summarization.cover_photo %}
+                                    <a class="wrap-img" href="{% url 'article:details' article_summarization.article_id %}" target="_blank">
+                                        <img class="img-blur"
+                                             src="{{ article_summarization.cover_photo }}"
+                                             alt="{{ article_summarization.title }}"/>
+                                    </a>
+                                    {% endif %}
+                                    <div class="content">
+                                        <div class="author">
+                                            <a class="avatar" target="_blank" href="">
+                                                <img src="{{ article_summarization.author.avatar }}" alt="{{ article_summarization.author.username }}"/>
+                                            </a>
+                                            <div class="info">
+                                                <a class="nickname" target="_blank" href="">{{ article_summarization.author.username }}</a>
+                                                <span class="time" data-shared-at="{{ article_summarization.release_time }}">{{ article_summarization.release_time }}</span>
+                                            </div>
+                                        </div>
+                                        <a class="title" target="_blank" href="{% url 'article:details' article_summarization.article_id %}">{{ article_summarization.title }}</a>
+                                        <p class="abstract">
+                                            {{ article_summarization.abstract }}
+                                        </p>
+                                        <div class="meta">
+                                            <a class="collection-tag" target="_blank" href="{% url 'article:article_category' article_summarization.type.value %}">{{ article_summarization.type.display_name }}</a>
+                                            <a target="_blank" href="{% url 'article:details' article_summarization.article_id %}">
+                                                <i class="iconfont icon-view"></i> {{ article_summarization.page_views }}
+                                            </a>
+                                            <a target="_blank" href="{% url 'article:details' article_summarization.article_id %}#comments">
+                                                <i class="iconfont icon-comments"></i> {{ article_summarization.comment_times }}
+                                            </a>
+                                            <span><i class="iconfont icon-like"></i> {{ article_summarization.praise_times }}</span>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="read-more col-sm-4 col-sm-offset-4">
+                                <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/row-->
+            </div><!--/.col-xs-12.col-sm-9-->
+
+        </div><!--/row-->
+    </div><!--/.container-->
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+            $(function() {
+                var page_index = 2;
+                $("#btn_read_more").click(function() {
+                    $.getJSON("{% url 'article:articles' %}", {'page_index': page_index}, function(json) {
+                            if (json.data.length > 0) {
+                                var str = "";
+                                $.each(json.data, function(index, array) {
+                                    var article_id = array['article_id'];
+                                    var title = array['title'];
+                                    var type = array['type'];
+                                    var cover_photo = array['cover_photo'];
+                                    var abstract = array['abstract'];
+                                    var comment_times = array['comment_times'];
+                                    var praise_times = array['praise_times'];
+                                    var release_time = array['release_time'];
+                                    var page_views = array['page_views'];
+                                    var author = array['author'];
+                                    var str = '<li id="article-' + article_id + '" data-article-id="' + article_id + '"';
+                                    if (cover_photo) {
+                                        str += 'class="with-img">' +
+                                         '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                         '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>'
+                                    }
+                                    str += '<div class="content">' +
+                                        '<div class="author">' +
+                                            '<a class="avatar" target="_blank" href="">' +
+                                                '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
+                                            '</a>' +
+                                            '<div class="info">' +
+                                                '<a class="nickname" target="_blank" href="">' + author['username'] + '</a>' +
+                                                '<span class="time" data-shared-at="' + release_time + '">' + release_time + '</span>' +
+                                            '</div>' +
+                                        '</div>' +
+                                        '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
+                                        '<p class="abstract">' + abstract + '</p>' +
+                                        '<div class="meta">' +
+                                            '<a class="collection-tag" target="_blank" href="/article/category/' + type['value'] +
+                                            '">' + type['display_name'] + '</a>' +
+                                            '<a target="_blank" href="/article/details/' + article_id + '">' +
+                                                '<i class="iconfont icon-view"></i>' + page_views +
+                                            '</a>' +
+                                            '<a target="_blank" href="/article/details/' + article_id  + '#comments">' +
+                                                '<i class="iconfont icon-comments"></i>' + comment_times +
+                                            '</a>' +
+                                            '<span><i class="iconfont icon-like"></i>' + praise_times + '</span>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</li>';
+                                    $(".note-list").append(str);
+                                });
+                                page_index++;
+                            } else {
+                                layer.msg('没有更多数据', {time: 1000});
+                                return false;
+                            }
+                        });
+                });
+            });
+    </script>
+{% endblock %}

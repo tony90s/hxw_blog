@@ -1,0 +1,567 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ article_details.title }}</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css">
+    <link rel="stylesheet" href="/static/css/article/article_details.css">
+    <script src="/static/ueditor/third-party/SyntaxHighlighter/shCore.js"></script>
+    <script src="/static/ueditor/ueditor.config.js"></script>
+    <script src="/static/ueditor/ueditor.all.min.js"></script>
+    <script src="/static/ueditor/lang/zh-cn/zh-cn.js"></script>
+    <script src="/static/js/jquery.flexText.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-9">
+                <div class="article">
+                    <h1 class="title text-center">{{ article_details.title }}</h1>
+                    <div class="author">
+                        <div class="avatar">
+                            <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
+                        </div>
+                        <div class="info">
+                            <span class="name"><a href="">{{ article_details.author.username }}</a></span>
+                            <!-- 文章数据信息 -->
+                            <div class="meta">
+                                <!-- 如果文章更新时间大于发布时间，那么使用 tooltip 显示更新时间 -->
+                                <span class="release-time" data-toggle="tooltip" data-placement="bottom"
+                                      title="最后更新于 {{ article_details.update_time }}">{{ article_details.release_time }}</span>
+                                <span class="word-count">字数 {{ article_details.word_count }}</span>
+                                <span class="page-views">阅读 {{ article_details.page_views }}</span>
+                                <span class="comment-times">评论 {{ article_details.comment_times }}</span>
+                                <span class="praise-times">点赞 {{ article_details.praise_times }}</span>
+                            </div>
+                        </div>
+                        <!-- 如果是当前作者，加入编辑按钮 -->
+                    </div>
+                    <div class="show-content">
+                        {% if article_details.cover_photo %}
+                            <div class="cover_photo" style="padding-bottom: 50px;">
+                                <img src="{{ article_details.cover_photo }}" style="width: 600px;height: 450px; border-radius: 4px; display: block; margin: 0 auto;">
+                            </div>
+                        {% endif %}
+                        <div class="content-html" data-content='{{ article_details.content_html }}'>
+
+                        </div>
+                    </div>
+
+                    <div class="praise_box">
+                        <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">喜欢&nbsp;<i class="fa fa-heart-o"></i>&nbsp;|&nbsp;<span class="praise_times">{{ article_details.praise_times }}</span></button>
+                    </div>
+
+                    {% if not user.is_authenticated %}
+                    <div class="comment_box clearfix">
+                        <div id="comment_form">
+                            <div class="guest_link">
+                                <span class="log_ico"><i class="fa fa-user-circle fa-3x"></i></span><span class="txt">目前您尚未登录，请 <a href="javascript:void(0)" onclick="ClickLogin(this)">登录</a> 或 <a href="javascript:void(0)" onclick="ClickRegister(this)">注册</a> 后进行评论</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="commentAll" id="comments">
+                        <!--评论区域 begin-->
+                        <div class="reviewArea clearfix">
+                            <textarea class="content comment-input" placeholder="來说点什么吧&hellip;"
+                                      onkeyup="keyUP(this)"></textarea>
+                            <a href="javascript:;" class="plBtn"
+                               data-article_id="{{ article_details.article_id }}">评论</a>
+                        </div>
+                        <!--评论区域 end-->
+                        <!--回复区域 begin-->
+                        <div class="comment-show">
+                            {% for comment in  article_details.comments %}
+                                <div class="comment-show-con clearfix">
+                                    <div class="comment-show-con-img pull-left">
+                                        <img src="{{ comment.commentator.avatar }}"
+                                             alt="{{ comment.commentator.username }}">
+                                    </div>
+                                    <div class="comment-show-con-list pull-left clearfix">
+                                        <div class="pl-text clearfix">
+                                            <a href="#" class="comment-size-name"
+                                               data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}: </a>
+                                            <span class="my-pl-con">&nbsp;{{ comment.content }}</span>
+                                        </div>
+                                        <div class="date-dz">
+                                            <span class="date-dz-left pull-left comment-time">{{ comment.comment_at }}</span>
+                                            <div class="date-dz-right pull-right comment-pl-block">
+                                                {% if user.is_authenticated %}
+                                                    {% ifequal comment.commentator.user_id user.id %}
+                                                        <a href="javascript:;" class="removeBlock"
+                                                           data-comment_id="{{ comment.comment_id }}">删除</a>
+                                                    {% endifequal %}
+                                                {% endif %}
+                                                <a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left"
+                                                   data-comment_id="{{ comment.comment_id }}"
+                                                   data-receiver_id="{{ comment.commentator.user_id }}">回复</a>
+                                                <span class="pull-left date-dz-line">|</span>
+                                                <a href="javascript:;" class="date-dz-z pull-left"
+                                                   data-parent_id="{{ comment.comment_id }}" data-praise_type="2"><i
+                                                        class=" date-dz-z-click-red"></i>赞 (<i
+                                                        class="z-num">{{ comment.praise_times }}</i>)</a>
+                                            </div>
+                                        </div>
+                                        <div class="hf-list-con">
+                                            {% for reply in comment.comment_replies %}
+                                                <div class="all-pl-con">
+                                                    <div class="pl-text hfpl-text clearfix">
+                                                        <a href="#"
+                                                           class="comment-size-name">{{ reply.replier.username }}: </a>
+                                                        <span class="my-pl-con">回复@{{ reply.receiver.username }}:{{ reply.content }}</span>
+                                                    </div>
+                                                    <div class="date-dz">
+                                                        <span class="date-dz-left pull-left comment-time">{{ reply.reply_at }}</span>
+                                                        <div class="date-dz-right pull-right comment-pl-block">
+                                                            {% if user.is_authenticated %}
+                                                                {% ifequal reply.replier.user_id user.id %}
+                                                                    <a href="javascript:;" class="removeBlock"
+                                                                       data-comment_reply_id="{{ reply.comment_reply_id }}">删除</a>
+                                                                {% endifequal %}
+                                                            {% endif %}
+                                                            <a href="javascript:;"
+                                                               class="date-dz-pl pl-hf hf-con-block pull-left"
+                                                               data-comment_id="{{ reply.comment_id }}"
+                                                               data-receiver_id="{{ reply.replier.user_id }}">回复</a>
+                                                            <span class="pull-left date-dz-line">|</span>
+                                                            <a href="javascript:;" class="date-dz-z pull-left"
+                                                               data-parent_id="{{ reply.comment_reply_id }}"
+                                                               data-praise_type="3"><i class="date-dz-z-click-red"></i>赞
+                                                                (<i class="z-num">{{ reply.praise_times }}</i>)</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <!--回复区域 end-->
+                    </div>
+
+                </div>
+
+                <div class="col-sm-3">
+                    <div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        var is_authenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        var login_user_id = {% if user.is_authenticated %}{{ user.id }}{% else %}0{% endif %};
+    </script>
+    <!--textarea高度自适应-->
+    <script type="text/javascript">
+        $(function () {
+            $('.content').flexText();
+        });
+    </script>
+    <!--textarea限制字数-->
+    <script type="text/javascript">
+        function keyUP(t) {
+            var len = $(t).val().length;
+            if (len > 140) {
+                $(t).val($(t).val().substring(0, 140));
+            }
+        }
+    </script>
+    
+    <script>
+        function redirect_to_login() {
+            var next = window.location.href;
+            var login_url = "{% url 'account:login' %}";
+            window.location.href = login_url + '?next=' + next;
+        }
+        function ClickLogin(link) {
+            redirect_to_login()
+        }
+
+        function ClickRegister(link) {
+            var next = window.location.href;
+            var register_url = "{% url 'account:register' %}";
+            window.location.href = register_url + '?next=' + next;
+        }
+    </script>
+    <!--点击评论创建评论条-->
+    <script type="text/javascript">
+        $('.commentAll').on('click', '.plBtn', function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            var $this = $(this);
+            //获取输入内容
+            var comment_content = $this.siblings('.flex-text-wrap').find('.comment-input').val();
+            comment_content = comment_content.replace(/(^\s*)|(\s*$)/g, "");
+
+            //动态创建评论模块
+            if (comment_content != '') {
+                var article_id = this.dataset.article_id;
+                $.post(
+                        "{% url 'article:save_comment' %}",
+                        {
+                            "article_id": article_id,
+                            "comment_content": comment_content
+                        },
+                        function (json) {
+                            if (json.code == 200) {
+                                var avatar = json.data.commentator.avatar;
+                                var username = json.data.commentator.username;
+                                var user_id = json.data.commentator.user_id.toString();
+                                var content = json.data.content;
+                                var comment_id = json.data.comment_id.toString();
+                                var comment_at = json.data.comment_at;
+                                var praise_times = json.data.praise_times.toString();
+                                var comment_html = '<div class="comment-show-con clearfix">' +
+                                        '<div class="comment-show-con-img pull-left">' +
+                                        '<img src="' + avatar + '" alt="' + username + '">' +
+                                        '</div> ' +
+                                        '<div class="comment-show-con-list pull-left clearfix">' +
+                                        '<div class="pl-text clearfix">' +
+                                        '<a href="#" class="comment-size-name" data-commentator_id="' + user_id +
+                                        '">' + username + ': </a>' +
+                                        '<span class="my-pl-con">&nbsp;' + content + '</span>' +
+                                        '</div>' +
+                                        '<div class="date-dz">' +
+                                        '<span class="date-dz-left pull-left comment-time">' + comment_at + '</span>' +
+                                        '<div class="date-dz-right pull-right comment-pl-block">';
+
+                                if (login_user_id.toString() == user_id) {
+                                    comment_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id +
+                                            '">删除</a>';
+                                }
+
+                                comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left" data-comment_id="' + comment_id +
+                                        '" data-receiver_id="' + user_id +
+                                        '">回复</a>' +
+                                        '<span class="pull-left date-dz-line">|</span>' +
+                                        '<a href="javascript:;" class="date-dz-z pull-left" data-parent_id="' + comment_id + '" data-praise_type="2">' +
+                                        '<i class="date-dz-z-click-red"></i>赞 (<i class="z-num">' + praise_times + '</i>)</a>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '<div class="hf-list-con"></div>' +
+                                        '</div>' +
+                                        '</div>';
+                                $this.parents('.reviewArea ').siblings('.comment-show').prepend(comment_html);
+                                $this.siblings('.flex-text-wrap').find('.comment-input').prop('value', '').siblings('pre').find('span').text('');
+                            }
+                            else {
+                                layer.msg(json.msg, {time: 1000});
+                                return false
+                            }
+                        }
+                );
+            }
+            else {
+                layer.msg('请先填写评论', {time: 1000});
+                return false
+            }
+        });
+    </script>
+    <!--点击回复动态创建回复块-->
+    <script type="text/javascript">
+        $('.comment-show').on('click', '.pl-hf', function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            //获取回复人的名字
+            var user_info_span = $(".user-info")[0];
+            var user_id = user_info_span.dataset.user_id;
+            var user_info_div = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.pl-text').find('.comment-size-name');
+            var fhName = user_info_div.html();
+            var receiver_id = this.dataset.receiver_id;
+            var comment_id = this.dataset.comment_id;
+
+            if (user_id == receiver_id) {
+                layer.msg('不能回复自己', {time: 1000});
+                return false
+            }
+            //回复@
+            var fhN = '回复@' + fhName;
+            //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
+            var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
+                    '" onkeyup="keyUP(this)"></textarea> <a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
+                    '" data-comment_id="' + comment_id +
+                    '">评论</a></div>';
+            //显示回复
+            if ($(this).is('.hf-con-block')) {
+                $(this).parents('.date-dz-right').parents('.date-dz').append(fhHtml);
+                $(this).removeClass('hf-con-block');
+                $('.content').flexText();
+                $(this).parents('.date-dz-right').siblings('.hf-con').find('.pre').css('padding', '6px 15px');
+                //console.log($(this).parents('.date-dz-right').siblings('.hf-con').find('.pre'))
+                //input框自动聚焦
+                //$(this).parents('.date-dz-right').siblings('.hf-con').find('.hf-input').val('').focus().val(fhN);
+                $(this).parents('.date-dz-right').siblings('.hf-con').find('.hf-input').val('').focus().val();
+            } else {
+                $(this).addClass('hf-con-block');
+                $(this).parents('.date-dz-right').siblings('.hf-con').remove();
+            }
+        });
+    </script>
+    <!--评论回复块创建-->
+    <script type="text/javascript">
+        $('.comment-show').on('click', '.hf-pl', function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            var user_info_span = $(".user-info")[0];
+            var user_id = user_info_span.dataset.user_id;
+            var oThis = $(this);
+            //获取输入内容
+            var oHfVal = $(this).siblings('.flex-text-wrap').find('.hf-input').val();
+            var oHfName = $(this).parents('.hf-con').parents('.date-dz').siblings('.pl-text').find('.comment-size-name').html();
+            var oAllVal = '回复@' + oHfName;
+
+            var receiver_id = this.dataset.receiver_id;
+            var comment_id = this.dataset.comment_id;
+
+            if (user_id == receiver_id) {
+                layer.msg('不能回复自己', {time: 1000});
+                return false
+            }
+
+            var content = oHfVal.replace(/(^\s*)|(\s*$)/g, "");
+            if (content == '') {
+                layer.msg('请先填写回复内容', {time: 1000});
+                return false
+            }
+            $.post(
+                    "{% url 'article:save_comment_reply' %}",
+                    {
+                        "comment_id": comment_id,
+                        "receiver_id": receiver_id,
+                        "content": content
+                    },
+                    function (json) {
+                        if (json.code == 200) {
+                            var comment_reply_id = json.data.comment_reply_id.toString();
+                            var comment_id = json.data.comment_id.toString();
+                            var replier_username = json.data.replier.username;
+                            var replier_id = json.data.replier.user_id.toString();
+                            var reply_at = json.data.reply_at;
+                            var reply_content = json.data.content;
+                            var praise_times = json.data.praise_times.toString();
+                            var oHtml = '<div class="all-pl-con">' +
+                                    '<div class="pl-text hfpl-text clearfix">' +
+                                    '<a href="#" class="comment-size-name">' + replier_username + ' : </a>' +
+                                    '<span class="my-pl-con">' + oAllVal + reply_content + '</span>' +
+                                    '</div>' +
+                                    '<div class="date-dz">' +
+                                    '<span class="date-dz-left pull-left comment-time">' + reply_at + '</span>' +
+                                    '<div class="date-dz-right pull-right comment-pl-block">';
+                            if (login_user_id.toString() == user_id) {
+                                oHtml += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
+                                        '">删除</a>';
+                            }
+                            oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id +
+                                    '">回复</a>' +
+                                    '<span class="pull-left date-dz-line">|</span> <a href="javascript:;" class="date-dz-z pull-left" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
+                                    '<i class="date-dz-z-click-red"></i>赞 (<i class="z-num">' + praise_times + '</i>)</a> ' +
+                                    '</div> ' +
+                                    '</div>' +
+                                    '</div>';
+                            oThis.parents('.hf-con').parents('.comment-show-con-list').find('.hf-list-con').css('display', 'block').prepend(oHtml);
+                            oThis.parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
+                            oThis.parents('.hf-con').remove();
+                        }
+                        else {
+                            layer.msg(json.msg, {time: 1000});
+                            return false
+                        }
+                    }
+            );
+        });
+    </script>
+    <!--删除评论块-->
+    <script type="text/javascript">
+        $('.commentAll').on('click', '.removeBlock', function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            var $this = $(this);
+            if (this.dataset.comment_id != undefined) {
+                var comment_id = this.dataset.comment_id;
+                var url = "{% url 'article:delete_comment' %}";
+                var post_data = {
+                    "comment_id": comment_id
+                };
+            }
+            else if (this.dataset.comment_reply_id != undefined) {
+                var comment_reply_id = this.dataset.comment_reply_id;
+                var url = "{% url 'article:delete_comment_reply' %}";
+                var post_data = {
+                    "comment_reply_id": comment_reply_id
+                };
+            }
+            else {
+                layer.msg('参数有误，请联系管理员', {time: 1000});
+                return false;
+            }
+            $.post(
+                    url,
+                    post_data,
+                    function (json) {
+                        if (json.code == 200) {
+                            var oT = $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con');
+                            if (oT.siblings('.all-pl-con').length >= 1) {
+                                oT.remove();
+                            } else {
+                                $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con').parents('.hf-list-con').css('display', 'none');
+                                oT.remove();
+                            }
+                            $this.parents('.date-dz-right').parents('.date-dz').parents('.comment-show-con-list').parents('.comment-show-con').remove();
+                        }
+                        else {
+                            layer.msg(json.msg, {time: 1000});
+                            return false
+                        }
+                    }
+            );
+        })
+    </script>
+    <!--点赞-->
+    <script type="text/javascript">
+        $('.comment-show').on('click', '.date-dz-z', function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            var $this = $(this);
+            var parent_id = this.dataset.parent_id;
+            var praise_type = this.dataset.praise_type;
+            if (parent_id == undefined || praise_type == undefined) {
+                layer.msg('参数错误，请联系管理员', {time: 1000});
+                return false;
+            }
+            var zNum = $this.find('.z-num').html();
+            if ($this.is('.date-dz-z-click')) {
+                var url = "{% url 'article:cancel_praise' %}";
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                $.post(
+                        url,
+                        post_data,
+                        function (json) {
+                            if (json.code == 200) {
+                                zNum--;
+                                $this.removeClass('date-dz-z-click red');
+                                $this.find('.z-num').html(zNum);
+                                $this.find('.date-dz-z-click-red').removeClass('red');
+                            }
+                            else {
+                                layer.msg(json.msg, {time: 1000});
+                                return false
+                            }
+                        }
+                );
+            } else {
+                var url = "{% url 'article:save_praise' %}";
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                $.post(
+                        url,
+                        post_data,
+                        function (json) {
+                            if (json.code == 200) {
+                                zNum++;
+                                $this.addClass('date-dz-z-click');
+                                $this.find('.z-num').html(zNum);
+                                $this.find('.date-dz-z-click-red').addClass('red');
+                            }
+                            else {
+                                layer.msg(json.msg, {time: 1000});
+                                return false
+                            }
+                        }
+                );
+            }
+        })
+    </script>
+    <script>
+        $(function () {
+            $("[data-toggle='tooltip']").tooltip();
+            $(".content-html").html($('.content-html')[0].dataset.content);
+        });
+    </script>
+    
+    <script>
+        $("#btn-praise-article").click(function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            var $this = $(this);
+            var like_icon = $this.find('i');
+            var parent_id = this.dataset.parent_id;
+            var praise_type = this.dataset.praise_type;
+            var praise_times = $this.find('.praise_times').html();
+
+            if (like_icon.hasClass('fa-heart')) {
+                var url = "{% url 'article:cancel_praise' %}";
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                $.post(
+                        url,
+                        post_data,
+                        function (json) {
+                            if (json.code == 200) {
+                                praise_times--;
+                                like_icon.removeClass('fa-heart');
+                                like_icon.addClass('fa-heart-o');
+                                $this.removeClass('btn-success');
+                                $this.addClass('btn-default');
+                                $this.find('.praise_times').html(praise_times);
+                            }
+                            else {
+                                layer.msg(json.msg, {time: 1000});
+                                return false
+                            }
+                        }
+                );
+            } else {
+                var url = "{% url 'article:save_praise' %}";
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                $.post(
+                        url,
+                        post_data,
+                        function (json) {
+                            if (json.code == 200) {
+                                praise_times++;
+                                like_icon.removeClass('fa-heart-o');
+                                like_icon.addClass('fa-heart');
+                                $this.removeClass('btn-default');
+                                $this.addClass('btn-success');
+                                $this.find('.praise_times').html(praise_times);
+                            }
+                            else {
+                                layer.msg(json.msg, {time: 1000});
+                                return false
+                            }
+                        }
+                );
+            }
+
+        })
+    </script>
+
+{% endblock %}

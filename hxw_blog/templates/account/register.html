@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="keywords" content="HTML, CSS, JS, JavaScript, Jquery, bootstrap, Python, Django，博客">
+    <meta name="author" content="tony">
+    <link rel="icon" href="/static/images/favicon.ico">
+
+    <title>注册</title>
+    {% include "header.html" %}
+    <link href="/static/css/register_and_login.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+    <form class="form-register" id="form_register">
+        <h2 class="form-register-heading text-center">欢迎注册</h2>
+        <label for="username" class="sr-only">username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="请输入昵称(2-32位中英文字符)" minlength="2" maxlength="32" autofocus>
+        <label for="email" class="sr-only">email</label>
+        <input type="text" id="email" name="email" class="form-control" placeholder="请输入邮箱">
+        <label for="password" class="sr-only">password</label>
+        <input type="password" id="password" name="password" class="form-control" minlength="3" maxlength="32" placeholder="请输入6-32位密码">
+        <label for="confirm_password" class="sr-only">conform password</label>
+        <input type="password" id="confirm_password" name="confirm_password" class="form-control" minlength="3" maxlength="32" placeholder="请确认密码">
+        <button class="btn btn-lg btn-primary btn-block" id="btn_register" data-next="{{ next }}" type="button">注册</button>
+        <p style="margin-bottom: 40px;"><a class="pull-right" href="{% url 'account:login' %}">已有账号？点我登录</a></p>
+        <div class="alert alert-warning fade" id="warning_msg"></div>
+    </form>
+
+</div> <!-- /container -->
+<script>
+    var register_url = '{% url 'account:register' %}'
+</script>
+<script src="/static/js/account/register.js"></script>
+</body>

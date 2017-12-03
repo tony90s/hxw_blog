@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% block title %}<title>个人中心</title>{% endblock %}
+{% block extra_header %}
+    <link href="/static/cropper/cropper.min.css" rel="stylesheet">
+    <link href="/static/css/account/user_info.css" rel="stylesheet">
+    <script src="/static/cropper/cropper.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <div id="crop-avatar" class="col-sm-4 col-sm-offset-5">
+                        <div class="avatar-view" title="更新头像">
+                            <img src="{{ user.profile.avatar.url }}"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-sm-offset-3">
+                        <form class="form-horizontal form-user-info" id="form_update_user_info" role="form" action="" method="post">
+                            <div class="form-group">
+                                <label for="username" class="col-sm-2 control-label">昵称</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="username" name="username"
+                                           value="{{ user.username }}" placeholder="昵称">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender" class="col-sm-2 control-label">性别</label>
+                                <div class="col-sm-10">
+                                    <select class="form-control" id="gender" name="gender">
+                                        <option value="m"
+                                                {% ifequal user.profile.gender 'm' %}selected{% endifequal %}>男
+                                        </option>
+                                        <option value="f"
+                                                {% ifequal user.profile.gender 'f' %}selected{% endifequal %}>女
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!--
+                            <div class="form-group">
+                                <label for="mobile" class="col-sm-2 control-label">手机</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="mobile" name="mobile"
+                                           value="{{ user.profile.mobile }}" placeholder="手机号码">
+                                </div>
+                            </div>
+                            -->
+                            <div class="form-group">
+                                <label for="bio" class="col-sm-2 control-label">个人简介</label>
+                                <div class="col-sm-10">
+                            <textarea id="bio" name="bio" class="form-control" rows="5" maxlength="120"
+                                      placeholder="个人简介">{{ user.profile.bio }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="button" class="btn btn-primary" id="btn_update_user_info">保存</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="blog-link col-sm-4">
+                <div class="btn-group-vertical">
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#update_password">
+                        更新密码
+                    </button>
+                    {% if user.is_superuser %}
+                        <button type="button" class="btn btn-primary" id="create_article"><i class="fa fa-edit fa-lg"></i>&nbsp;写博客</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="avatar-modal" aria-hidden="true" aria-labelledby="avatar-modal-label" role="dialog"
+         tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form class="avatar-form">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal" type="button">&times;</button>
+                        <h4 class="modal-title text-center" id="avatar-modal-label">更新头像</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="avatar-body">
+                            <div class="avatar-upload">
+                                <input class="avatar-src" name="avatar_src" type="hidden">
+                                <input class="avatar-data" name="avatar_data" type="hidden">
+                                <label for="avatarInput" style="line-height: 35px;">图片上传</label>
+                                <button class="btn btn-primary" type="button" style="height: 35px;"
+                                        onclick="$('input[id=avatarInput]').click();">请选择图片
+                                </button>
+                                <span id="avatar-name"></span>
+                                <input class="avatar-input hide" id="avatarInput" name="avatar_file" type="file"></div>
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="avatar-wrapper"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="avatar-preview preview-lg" id="imageHead"></div>
+                                    <div class="avatar-preview preview-md"></div>
+                                    <div class="avatar-preview preview-sm"></div>
+                                </div>
+                            </div>
+                            <div class="row avatar-btns">
+                                <div class="col-md-4">
+                                    <div class="btn-group">
+                                        <button class="btn btn-info fa fa-undo" data-method="rotate" data-option="-90"
+                                                type="button" title="Rotate -90 degrees"> 向左旋转
+                                        </button>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button class="btn btn-info fa fa-repeat" data-method="rotate"
+                                                data-option="90" type="button" title="Rotate 90 degrees"> 向右旋转
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="text-align: right;">
+                                    <button class="btn btn-info fa fa-arrows" data-method="setDragMode"
+                                            data-option="move" type="button" title="移动">
+							            <span class="docs-tooltip" data-toggle="tooltip" title=""
+                                              data-original-title="$().cropper(&quot;setDragMode&quot;, &quot;move&quot;)">
+							            </span>
+                                    </button>
+                                    <button type="button" class="btn btn-info fa fa-search-plus" data-method="zoom"
+                                            data-option="0.1" title="放大图片">
+							            <span class="docs-tooltip" data-toggle="tooltip" title=""
+                                              data-original-title="$().cropper(&quot;zoom&quot;, 0.1)">
+							              <!--<span class="fa fa-search-plus"></span>-->
+							            </span>
+                                    </button>
+                                    <button type="button" class="btn btn-info fa fa-search-minus" data-method="zoom"
+                                            data-option="-0.1" title="缩小图片">
+							            <span class="docs-tooltip" data-toggle="tooltip" title=""
+                                              data-original-title="$().cropper(&quot;zoom&quot;, -0.1)">
+							              <!--<span class="fa fa-search-minus"></span>-->
+							            </span>
+                                    </button>
+                                    <button type="button" class="btn btn-info fa fa-refresh" data-method="reset"
+                                            title="重置图片">
+								            <span class="docs-tooltip" data-toggle="tooltip" title=""
+                                                  data-original-title="$().cropper(&quot;reset&quot;)"
+                                                  aria-describedby="tooltip866214">
+                                            </span>
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button class="btn btn-primary btn-block avatar-save fa fa-save" type="button"
+                                            data-dismiss="modal"> 保存修改
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" aria-label="Loading" role="img" tabindex="-1"></div>
+
+    <div id="update_password" class="modal fade" aria-hidden="true" role="dialog" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    <h4 class="modal-title text-center">更新密码</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-update-password" id="form_update_password">
+                        <label for="password" class="sr-only">password</label>
+                        <input type="password" id="password" name="password" class="form-control" minlength="6"
+                               maxlength="32" placeholder="请输入原密码">
+                        <label for="new_password" class="sr-only">new_password</label>
+                        <input type="password" id="new_password" name="new_password" class="form-control" minlength="6"
+                               maxlength="32" placeholder="请输入新密码(6-32位字母或数字组合)">
+                        <label for="confirm_password" class="sr-only">conform password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                               minlength="6" maxlength="32" placeholder="请确认新密码">
+                        <button class="btn btn-lg btn-primary btn-block" id="btn_update_password" type="button">确认
+                        </button>
+                        <div class="alert alert-warning fade" id="warning_msg"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="/static/cropper/html2canvas.min.js"></script>
+    <script src="/static/js/account/user_info.js"></script>
+    <script type="text/javascript">
+
+        function getBlobBydataURI(dataURI, type) {
+            var binary = atob(dataURI);
+            var array = [];
+            for (var i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i));
+            }
+            return new Blob([new Uint8Array(array)], {type: type});
+        }
+
+        function imagesAjax(formData) {
+            //var data = {};
+            //data.img = img_data;
+            $.ajax({
+                url: "{% url 'account:update_user_avatar' %}",
+                data: formData,
+                type: "POST",
+                processData: false,
+                contentType: false,
+                success: function (re) {
+                    if (re.code == 200) {
+                        $('.avatar-view img').attr('src', re.src);
+                        $('.avator').attr('src', re.src);
+                    }
+                    else {
+                        layer.alert(re.msg)
+                    }
+                }
+            });
+        }
+
+        $(function () {
+            //做个下简易的验证  大小 格式
+            $('#avatarInput').on('change', function (e) {
+                var filemaxsize = 1024 * 5;//5M
+                var target = $(e.target);
+                var Size = target[0].files[0].size / 1024;
+                if (!this.files[0].type.match(/image.*/)) {
+                    layer.alert('请选择正确的图片!');
+                    return false
+                }
+                if (Size > filemaxsize) {
+                    layer.alert('图片过大，请重新选择!');
+                    $(".avatar-wrapper").children().remove();
+                    return false;
+                }
+                else {
+                    var filename = document.querySelector("#avatar-name");
+                    var texts = document.querySelector("#avatarInput").value;
+                    var teststr = texts; //你这里的路径写错了
+                    testend = teststr.match(/[^\\]+\.[^\(]+/i); //直接完整文件名的
+                    filename.innerHTML = testend;
+                }
+
+            });
+
+            $(".avatar-save").on("click", function () {
+                var img_lg = document.getElementById('imageHead');
+                // 截图小的显示框内的内容
+                html2canvas(img_lg, {
+                    allowTaint: true,
+                    taintTest: false,
+                    onrendered: function (canvas) {
+                        canvas.id = "mycanvas";
+                        //生成base64图片数据
+                        var img_data = canvas.toDataURL().split(',')[1];
+                        //var newImg = document.createElement("img");
+                        //newImg.src = dataUrl;
+                        var $Blob = getBlobBydataURI(img_data, 'image/jpeg');
+                        var formData = new FormData();
+                        formData.append("avatar", $Blob);
+                        imagesAjax(formData)
+                    }
+                });
+            });
+
+            var btn_update_password = $("#btn_update_password");
+            var update_password_form_input = $("#form_update_password :input");
+            bind_auto_submit(update_password_form_input, btn_update_password);
+            bind_dismiss_msg_container($("#warning_msg"));
+
+            btn_update_password.click(function (e) {
+                var form = $(this).parent('form');
+                var password = form.find('[name="password"]').val();
+                var new_password = form.find('[name="new_password"]').val();
+                var confirm_password = form.find('[name="confirm_password"]').val();
+                var redirect_url = "{% url 'account:login' %}";
+
+                var reg_password = /^[\.\w@_-]{6,30}$/;
+
+                var msg = '';
+                var warning_div = $("#warning_msg");
+                if ((password == '') || (new_password == '') || (confirm_password == '')) {
+                    msg = '请先完善表单';
+                    show_msg(warning_div, msg);
+                    return false
+                }
+                else if (!reg_password.test(new_password)) {
+                    msg = '新密码格式有误，请重新输入';
+                    show_msg(warning_div, msg);
+                    return false
+                }
+                else if (new_password != confirm_password) {
+                    msg = '密码不一致，请重新输入';
+                    show_msg(warning_div, msg);
+                    return false
+                }
+
+                $.post(
+                        '{% url 'account:update_user_password' %}',
+                        {
+                            "password": password,
+                            "new_password": new_password,
+                            "confirm_password": confirm_password
+                        },
+                        function (data) {
+                            if (data.code == 200) {
+                                layer.alert(data.msg, function () {
+                                    location.href = redirect_url;
+                                });
+
+                            }
+                            else {
+                                show_msg(warning_div, data.msg);
+                                return false
+                            }
+                        }
+                );
+            });
+
+            var btn_update_user_info = $("#btn_update_user_info");
+            var update_user_info_form_input = $("#form_update_user_info :input");
+            bind_auto_submit(update_user_info_form_input, btn_update_user_info);
+            btn_update_user_info.click(function (e) {
+                var form = $(this).parent('div').parent('div').parent('form');
+                var username = form.find('[name="username"]').val();
+                var gender = form.find('[name="gender"]').val();
+                var bio = form.find('[name="bio"]').val();
+
+                var reg_username = /^[\w_\u4e00-\u9fa5]{2,32}$/;
+
+                var msg = '';
+                if (!reg_username.test(username)) {
+                    msg = "昵称格式有误，仅支持2-32位中英文、数字和'_'的组合。";
+                    layer.alert(msg);
+                    return false
+                }
+
+                $.post(
+                        '{% url 'account:update_user_info' %}',
+                        {
+                            "username": username,
+                            "gender": gender,
+                            "bio": bio
+                        },
+                        function (data) {
+                            if (data.code == 200) {
+                                layer.msg(data.msg);
+                                window.location.reload()
+
+                            }
+                            else {
+                                layer.alert(data.msg);
+                                return false
+                            }
+                        }
+                );
+            });
+
+            $("#create_article").click(function (e) {
+                window.location.href = '{% url "article:create_article" %}'
+            })
+        });
+    </script>
+{% endblock %}

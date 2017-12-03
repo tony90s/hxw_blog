@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="keywords" content="HTML, CSS, JS, JavaScript, Jquery, bootstrap, Python, Django，博客">
+    <meta name="author" content="tony">
+    <link rel="icon" href="/static/images/favicon.ico">
+
+    <title>登录</title>
+    {% include "header.html" %}
+    <link href="/static/css/register_and_login.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+    <form class="form-signin" id="form_login">
+        <h2 class="form-signin-heading text-center">欢迎登录</h2>
+        <label for="account" class="sr-only">Account</label>
+        <input type="text" id="account" name="account" class="form-control" placeholder="请输入邮箱" autofocus>
+        <label for="password" class="sr-only">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="请输入6-30位密码">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" name="remember" value="true"> 记住登录
+            </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" id="btn_login" data-next="{{ next }}" type="button">登录</button>
+        <p style="margin-bottom: 40px;">
+            <a class="pull-left" href="/account/forget_password/">忘记密码？</a>
+            <a class="pull-right" href="{% url 'account:register' %}">点我注册</a>
+        </p>
+        <div class="alert alert-warning fade" id="warning_msg"></div>
+    </form>
+
+</div> <!-- /container -->
+<script>
+    var login_url = '{% url 'account:login' %}'
+</script>
+<script src="/static/js/account/login.js"></script>
+</body>

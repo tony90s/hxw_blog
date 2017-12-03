@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+{% include "header.html" %}
+<link rel="stylesheet" type="text/css" href="/static/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css">
+<script type="text/javascript" src="/static/ueditor/third-party/SyntaxHighlighter/shCore.js"></script>
+<script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.all.min.js"> </script>
+<script type="text/javascript" charset="utf-8" src="/static/ueditor/lang/zh-cn/zh-cn.js"></script>
+
+<script type="text/javascript">
+	var ue = UE.getEditor('editor');
+	SyntaxHighlighter.all();
+</script>
+</head>
+<body>
+    <script id="editor" type="text/plain" style="width:800px;height:450px;"></script>
+    <input type="button" onclick="" value="保存"/>
+</body>
+</html>
