@@ -18,7 +18,7 @@ class Article(models.Model):
         (TYPE.LINUX, 'Linux'),
         (TYPE.DJANGO, 'Django'),
         (TYPE.FRONT_END, '前端技术'),
-        (TYPE.NOTE, '杂记')
+        (TYPE.NOTE, '随笔')
     )
     author_id = models.IntegerField(db_index=True, verbose_name='作者', default=0)
     title = models.CharField(max_length=64, default='', verbose_name='标题')
