@@ -24,18 +24,17 @@ from django.views.static import serve
 from index.views import index_views
 from ueditor.views import editor_test
 from ueditor.controller import handler
-admin.autodiscover()
 
 urlpatterns = [
     url(r'^$', index_views, name='index'),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^article/', include('article.urls', namespace='article')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^uetest', editor_test, name='uetest'),
-    url(r'^ueEditorControler', handler),
-    url(r'^upload/(?P<path>.*)$', serve,
-        {'document_root': os.path.join(settings.ENV_ROOT, "upload")})
+    # url(r'^admin/', admin.site.urls),
+    # url(r'^uetest', editor_test, name='uetest'),
+    url(r'^ueEditorControler', handler)
 ]
 
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static('/upload/', document_root=os.path.join(settings.ENV_ROOT, "upload"))
