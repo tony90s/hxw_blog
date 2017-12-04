@@ -11,12 +11,14 @@ class Article(models.Model):
         LINUX = 2
         DJANGO = 3
         FRONT_END = 4
+        NOTE = 5
 
     TYPE_CHOICES = (
         (TYPE.PYTHON, 'Python'),
         (TYPE.LINUX, 'Linux'),
         (TYPE.DJANGO, 'Django'),
-        (TYPE.FRONT_END, 'front end development')
+        (TYPE.FRONT_END, '前端技术'),
+        (TYPE.NOTE, '杂记')
     )
     author_id = models.IntegerField(db_index=True, verbose_name='作者', default=0)
     title = models.CharField(max_length=64, default='', verbose_name='标题')
