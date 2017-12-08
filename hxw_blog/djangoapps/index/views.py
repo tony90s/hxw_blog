@@ -24,6 +24,7 @@ def index_views(request):
     articles_summarization = [article.get_summarization() for article in articles][page_size*(page_index-1):page_size*page_index]
     context = {
         'user': user,
+        'article_type': 0,
         'articles_summarization': articles_summarization
     }
     return render_to_response(template, context)
