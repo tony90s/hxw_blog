@@ -189,8 +189,9 @@ a {
     line-height: 1;
     vertical-align: middle;
     color: #ea6f5a !important;
+    height: 20px;
     border: 1px solid rgba(236, 97, 73, .7);
-    border-radius: 3px
+    border-radius: 10px;
 }
 
 .note-list .collection-tag, .note-list .collection-tag:hover {

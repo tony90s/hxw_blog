@@ -30,7 +30,7 @@
         </div>
         <button class="btn btn-lg btn-primary btn-block" id="btn_login" data-next="{{ next }}" type="button">登录</button>
         <p style="margin-bottom: 40px;">
-            <a class="pull-left" href="/account/forget_password/">忘记密码？</a>
+            <a class="pull-left" href="{% url 'account:reset_password' %}">忘记密码？</a>
             <a class="pull-right" href="{% url 'account:register' %}">点我注册</a>
         </p>
         <div class="alert alert-warning fade" id="warning_msg"></div>
