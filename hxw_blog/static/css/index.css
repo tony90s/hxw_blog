@@ -96,6 +96,10 @@ a {
     vertical-align: middle
 }
 
+.note-list .author .info a {
+    text-decoration: none;
+}
+
 .note-list .author a {
     color: #333
 }
@@ -268,7 +272,8 @@ a {
 
 .note-list .meta a {
     margin-right: 10px;
-    color: #b4b4b4
+    color: #b4b4b4;
+    text-decoration: none;
 }
 
 .note-list .meta a, .note-list .meta a:hover {
