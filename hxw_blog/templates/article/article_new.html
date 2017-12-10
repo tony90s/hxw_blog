@@ -126,7 +126,7 @@
                     }
                     form_data.append('cover_photo', cover_photo)
                 }
-                form_data.append('is_released', 1)
+                form_data.append('is_released', 1);
                 $.ajax({
                     url: "{% url 'article:save_article' %}",
                     type: 'POST',
@@ -134,7 +134,15 @@
                     processData: false,
                     contentType: false,
                     success: function (data) {
-                        layer.alert(data.msg)
+                        if (data.code == 200) {
+                            layer.alert(data.msg, function (index) {
+                                window.location.href = data.redirect_url;
+                            })
+                        }
+                        else {
+                            layer.alert(data.msg);
+                            return false
+                        }
                     }
                 });
             })

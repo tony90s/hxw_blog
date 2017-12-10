@@ -131,6 +131,20 @@ class Article(models.Model):
         context['page_views'] = self.page_views
         return context
 
+    def get_brief(self):
+        context = dict()
+        context['article_id'] = self.id
+        context['title'] = self.title
+        context['type'] = {
+            'value': self.type,
+            'display_name': self.get_type_display()
+        }
+        cover_photo = self.cover_photo
+        context['cover_photo'] = cover_photo.url if cover_photo.name else ''
+        context['author'] = self.get_author_data()
+        context['abstract'] = self.content_txt[0:76] + '...'
+        return context
+
 
 def get_user_articles(user_id):
     articles = Article.objects.using('read').filter(author_id=user_id)

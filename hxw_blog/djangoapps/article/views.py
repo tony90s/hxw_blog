@@ -60,24 +60,28 @@ def save_article(request):
         return JsonResponse({'code': 400, 'msg': '请先编辑内容'})
     if is_released not in ['0', '1']:
         return JsonResponse({'code': 400, 'msg': '参数有误，请联系网站管理员'})
-
-    article = Article()
-    article.author_id = user.id
-    article.title = title
-    article.type = int(article_type)
-    article.content_html = content_html
-    article.content_txt = content_txt
-    if cover_photo is not None:
-        article.cover_photo = cover_photo
-    is_released = int(is_released)
-    article.is_released = is_released
-    article.save(using='write')
-
-    if is_released:
-        article.release_at = timezone.now()
+    try:
+        article = Article()
+        article.author_id = user.id
+        article.title = title
+        article.type = int(article_type)
+        article.content_html = content_html
+        article.content_txt = content_txt
+        if cover_photo is not None:
+            article.cover_photo = cover_photo
+        is_released = int(is_released)
+        article.is_released = is_released
         article.save(using='write')
 
-    return JsonResponse({'code': 200, 'msg': '发布成功。'})
+        if is_released:
+            article.release_at = timezone.now()
+            article.save(using='write')
+    except Exception as e:
+        logger.error(e)
+        return JsonResponse({'code': 500, 'msg': '发布失败，请联系管理员。'})
+
+    redirect_url = reverse('index')
+    return JsonResponse({'code': 200, 'msg': '发布成功。', 'redirect_url': redirect_url})
 
 
 @require_http_methods(['GET'])
@@ -95,10 +99,15 @@ def article_category_index_views(request, article_type):
     template = 'index.html'
     articles = Article.objects.using('read').filter(Q(type=article_type)).order_by('-id')
     articles_summarization = [article.get_summarization() for article in articles][page_size*(page_index-1):page_size*page_index]
+    # get hot articles brief
+    all_articles = Article.objects.using('read').all().order_by('-id')
+    hot_articles = sorted(all_articles, key=lambda article: article.praise_times, reverse=True)
+    hot_articles_briefs = [article.get_brief() for article in hot_articles[:5]]
     context = {
         'user': user,
         'article_type': article_type,
-        'articles_summarization': articles_summarization
+        'articles_summarization': articles_summarization,
+        'hot_articles_briefs': hot_articles_briefs
     }
     return render_to_response(template, context)
 

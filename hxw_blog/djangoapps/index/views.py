@@ -21,10 +21,13 @@ def index_views(request):
     user = request.user
     template = 'index.html'
     articles = Article.objects.using('read').all().order_by('-id')
+    hot_articles = sorted(articles, key=lambda article: article.praise_times, reverse=True)
+    hot_articles_briefs = [article.get_brief() for article in hot_articles[:5]]
     articles_summarization = [article.get_summarization() for article in articles][page_size*(page_index-1):page_size*page_index]
     context = {
         'user': user,
         'article_type': 0,
-        'articles_summarization': articles_summarization
+        'articles_summarization': articles_summarization,
+        'hot_articles_briefs': hot_articles_briefs
     }
     return render_to_response(template, context)
