@@ -39,7 +39,7 @@
 			        <div id="slideshow_2" class="slideshow">
                         {% for hot_articles_brief in hot_articles_briefs %}
                             <div class="slideshow_item">
-					        <div class="image"><a href="{% url 'article:details' hot_articles_brief.article_id %}"><img {% if hot_articles_brief.cover_photo %}src="{{ hot_articles_brief.cover_photo }}"{% else %}src="/media/article/cover/default_cover.jpg"{% endif %} alt="{{ hot_articles_brief.title }}"/></a></div>
+					        <div class="image"><a href="{% url 'article:details' hot_articles_brief.article_id %}" target="_blank"><img {% if hot_articles_brief.cover_photo %}src="{{ hot_articles_brief.cover_photo }}"{% else %}src="/media/article/cover/default_cover.jpg"{% endif %} alt="{{ hot_articles_brief.title }}"/></a></div>
 					            <div class="data">
 						            <h4><a href="#">{{ hot_articles_brief.title }}</a></h4>
 						            <p>{{ hot_articles_brief.abstract }}</p>
