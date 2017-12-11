@@ -39,9 +39,9 @@
 			        <div id="slideshow_2" class="slideshow">
                         {% for hot_articles_brief in hot_articles_briefs %}
                             <div class="slideshow_item">
-					        <div class="image"><a href="{% url 'article:details' hot_articles_brief.article_id %}" target="_blank"><img {% if hot_articles_brief.cover_photo %}src="{{ hot_articles_brief.cover_photo }}"{% else %}src="/media/article/cover/default_cover.jpg"{% endif %} alt="{{ hot_articles_brief.title }}"/></a></div>
+					            <div class="image"><a href="{% url 'article:details' hot_articles_brief.article_id %}" target="_blank"><img {% if hot_articles_brief.cover_photo %}src="{{ hot_articles_brief.cover_photo }}"{% else %}src="/media/article/cover/default_cover.jpg"{% endif %} alt="{{ hot_articles_brief.title }}"/></a></div>
 					            <div class="data">
-						            <h4><a href="#">{{ hot_articles_brief.title }}</a></h4>
+						            <h4><a href="{% url 'article:details' hot_articles_brief.article_id %}" target="_blank">{{ hot_articles_brief.title }}</a></h4>
 						            <p>{{ hot_articles_brief.abstract }}</p>
 					            </div>
 				            </div>
@@ -65,11 +65,11 @@
                                     {% endif %}
                                     <div class="content">
                                         <div class="author">
-                                            <a class="avatar" target="_blank" href="">
+                                            <a class="avatar" target="_blank" href="javascript:void(0)">
                                                 <img src="{{ article_summarization.author.avatar }}" alt="{{ article_summarization.author.username }}"/>
                                             </a>
                                             <div class="info">
-                                                <a class="nickname" target="_blank" href="">{{ article_summarization.author.username }}</a>
+                                                <a class="nickname" target="_blank" href="javascript:void(0)">{{ article_summarization.author.username }}</a>
                                                 <span class="time" data-shared-at="{{ article_summarization.release_time }}">{{ article_summarization.release_time }}</span>
                                             </div>
                                         </div>
@@ -170,11 +170,11 @@
                                     }
                                     str += '<div class="content">' +
                                         '<div class="author">' +
-                                            '<a class="avatar" target="_blank" href="">' +
+                                            '<a class="avatar" target="_blank" href="javascript:void(0)">' +
                                                 '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
                                             '</a>' +
                                             '<div class="info">' +
-                                                '<a class="nickname" target="_blank" href="">' + author['username'] + '</a>' +
+                                                '<a class="nickname" target="_blank" href="javascript:void(0)">' + author['username'] + '</a>' +
                                                 '<span class="time" data-shared-at="' + release_time + '">' + release_time + '</span>' +
                                             '</div>' +
                                         '</div>' +

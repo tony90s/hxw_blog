@@ -74,12 +74,11 @@
                             {% for comment in  article_details.comments %}
                                 <div class="comment-show-con clearfix">
                                     <div class="comment-show-con-img pull-left">
-                                        <img src="{{ comment.commentator.avatar }}"
-                                             alt="{{ comment.commentator.username }}">
+                                        <img src="{{ comment.commentator.avatar }}" alt="{{ comment.commentator.username }}">
                                     </div>
                                     <div class="comment-show-con-list pull-left clearfix">
                                         <div class="pl-text clearfix">
-                                            <a href="#" class="comment-size-name"
+                                            <a href="javascript:void(0)" class="comment-size-name"
                                                data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}: </a>
                                             <span class="my-pl-con">&nbsp;{{ comment.content }}</span>
                                         </div>
@@ -106,7 +105,7 @@
                                             {% for reply in comment.comment_replies %}
                                                 <div class="all-pl-con">
                                                     <div class="pl-text hfpl-text clearfix">
-                                                        <a href="#"
+                                                        <a href="javascript:void(0)"
                                                            class="comment-size-name">{{ reply.replier.username }}: </a>
                                                         <span class="my-pl-con">回复@{{ reply.receiver.username }}:{{ reply.content }}</span>
                                                     </div>
@@ -225,7 +224,7 @@
                                         '</div> ' +
                                         '<div class="comment-show-con-list pull-left clearfix">' +
                                         '<div class="pl-text clearfix">' +
-                                        '<a href="#" class="comment-size-name" data-commentator_id="' + user_id +
+                                        '<a href="javascript:void(0)" class="comment-size-name" data-commentator_id="' + user_id +
                                         '">' + username + ': </a>' +
                                         '<span class="my-pl-con">&nbsp;' + content + '</span>' +
                                         '</div>' +
@@ -353,7 +352,7 @@
                             var praise_times = json.data.praise_times.toString();
                             var oHtml = '<div class="all-pl-con">' +
                                     '<div class="pl-text hfpl-text clearfix">' +
-                                    '<a href="#" class="comment-size-name">' + replier_username + ' : </a>' +
+                                    '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + ' : </a>' +
                                     '<span class="my-pl-con">' + oAllVal + reply_content + '</span>' +
                                     '</div>' +
                                     '<div class="date-dz">' +
