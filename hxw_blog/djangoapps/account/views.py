@@ -22,6 +22,9 @@ from utils import generate_verification_code
 from utils.file_handling import get_thumbnail
 from utils.html_email_utils import send_html_mail
 
+reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
+reg_email = re.compile('^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
+reg_password = re.compile('^[\.\w@_-]{6,32}$')
 logger = logging.getLogger('account.views')
 
 
@@ -62,11 +65,23 @@ class RegisterView(View):
                 'code': 400,
                 'msg': '请输入昵称'
             })
+        if not reg_username.match(username):
+            return JsonResponse({
+                'code': 400,
+                'msg': '昵称格式有误，请重新输入'
+            })
+
         if not email:
             return JsonResponse({
                 'code': 400,
                 'msg': '请输入Email'
             })
+        if not reg_email.match(email):
+            return JsonResponse({
+                'code': 400,
+                'msg': '邮箱格式有误，请重新输入'
+            })
+
         if not password:
             return JsonResponse({
                 'code': 400,
@@ -77,12 +92,17 @@ class RegisterView(View):
                 'code': 400,
                 'msg': '请输入确认密码'
             })
-
+        if not reg_password.match(password):
+            return JsonResponse({
+                'code': 400,
+                'msg': '密码格式有误，请重新输入'
+            })
         if password != confirm_password:
             return JsonResponse({
                 'code': 400,
                 'msg': '密码输入不一致'
             })
+
         users = User.objects.using('read').filter(username=username)
         if users.exists():
             return JsonResponse({
@@ -221,7 +241,7 @@ def update_user_avatar(request):
 
     avatar = request.FILES.get('avatar')
     if avatar is None:
-        return JsonResponse({'code': 400, 'msg': '请先选择图片'})
+        return JsonResponse({'code': 400, 'msg': '请先选择图片。'})
 
     thumbnail, error = get_thumbnail(avatar)
     if thumbnail is None:
@@ -233,7 +253,7 @@ def update_user_avatar(request):
     if original_avatar_path.split('/')[-1] != 'default_avatar.jpg':
         os.remove(original_avatar_path)
 
-    return JsonResponse({'code': 200, 'msg': '更新头像成功', 'src': user_profile.avatar.url})
+    return JsonResponse({'code': 200, 'msg': '更新头像成功。', 'src': user_profile.avatar.url})
 
 
 @login_required
@@ -246,13 +266,15 @@ def update_password(request):
     confirm_password = request.POST.get('confirm_password', '')
 
     if not password or not new_password or not confirm_password:
-        return JsonResponse({'code': 400, 'msg': '请完善表单'})
+        return JsonResponse({'code': 400, 'msg': '请完善表单。'})
 
+    if not reg_password.match(new_password):
+        return JsonResponse({'code': 400, 'msg': '新密码格式有误，请重新输入。'})
     if new_password != confirm_password:
-        return JsonResponse({'code': 400, 'msg': '密码不一致，请重新输入'})
+        return JsonResponse({'code': 400, 'msg': '密码不一致，请重新输入。'})
 
     if not user.check_password(password):
-        return JsonResponse({'code': 400, 'msg': '原密码错误，请重新输入'})
+        return JsonResponse({'code': 400, 'msg': '原密码错误，请重新输入。'})
 
     user.set_password(new_password)
     user.save()
@@ -270,6 +292,8 @@ def update_user_info(request):
     bio = request.POST.get('bio', '')
 
     if username:
+        if not reg_username.match(username):
+            return JsonResponse({'code': 400, 'msg': '昵称格式有误，请重新输入。'})
         users = User.objects.using('read').filter(username=username)
         if username != user.username and users.exists():
             return JsonResponse({'code': 400, 'msg': '昵称已被使用，换一个试试。'})
@@ -292,6 +316,8 @@ def send_email_to_reset_password(request):
     email = request.POST.get('email', '')
     if not email:
         return JsonResponse({'code': 400, 'msg': '请填入邮箱。'})
+    if not reg_email.match(email):
+        return JsonResponse({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
 
     users = User.objects.using('read').filter(email=email)
     if not users.exists():
@@ -339,10 +365,16 @@ class ResetPasswordView(View):
 
         if not email:
             return JsonResponse({'code': 400, 'msg': '请输入邮箱。'})
+        if not reg_email.match(email):
+            return JsonResponse({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
+
         if not verification_code:
             return JsonResponse({'code': 400, 'msg': '请输入验证码。'})
+
         if not password or not confirm_password:
             return JsonResponse({'code': 400, 'msg': '请输入密码。'})
+        if not reg_password.match(password):
+            return JsonResponse({'code': 400, 'msg': '密码格式有误，请重新输入。'})
 
         users = User.objects.using('read').filter(email=email)
         if not users.exists():
@@ -357,7 +389,7 @@ class ResetPasswordView(View):
         if password != confirm_password:
             return JsonResponse({
                 'code': 400,
-                'msg': '密码输入不一致'
+                'msg': '密码输入不一致。'
             })
 
         # set new password
