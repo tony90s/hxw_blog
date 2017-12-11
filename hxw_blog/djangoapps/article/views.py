@@ -115,18 +115,26 @@ def article_category_index_views(request, article_type):
 @require_http_methods(['GET'])
 def articles_list(request):
     page_size = 25
-    article_type = request.GET.get('article_type')
+    article_type = int(request.GET.get('article_type', 0))
     page_index = request.GET.get('page_index', 1)
     page_index = int(page_index)
-    if article_type is not None:
-        article_type = int(article_type)
+    the_last_article_id = int(request.GET.get('the_last_article_id', 0))
+
+    if article_type > 0:
         if article_type not in [value for value, name in Article.TYPE_CHOICES]:
             return JsonResponse({'code': 404, 'msg': '没有此类型的博文'})
-        articles = Article.objects.using('read').filter(Q(type=article_type)).order_by('-id')
+        query_condition = Q(type=article_type)
+        if the_last_article_id > 0:
+            query_condition &= Q(id__lt=the_last_article_id)
+        articles = Article.objects.using('read').filter(query_condition).order_by('-id')
         articles_summarization = [article.get_summarization() for article in articles]
     else:
-        articles = Article.objects.using('read').all().order_by('-id')
+        query_condition = Q()
+        if the_last_article_id > 0:
+            query_condition &= Q(id__lt=the_last_article_id)
+        articles = Article.objects.using('read').filter(query_condition).order_by('-id')
         articles_summarization = [article.get_summarization() for article in articles]
+
     query_articles_summarization = articles_summarization[page_size*(page_index-1):page_size*page_index]
     context = {
         'code': 200,

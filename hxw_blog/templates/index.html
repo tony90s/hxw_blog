@@ -55,7 +55,7 @@
                         <div id="list-container">
                             <ul class="note-list">
                                 {% for article_summarization in articles_summarization%}
-                                <li id="article-{{ article_summarization.article_id }}" data-article-id="{{ article_summarization.article_id }}" {% if article_summarization.cover_photo %}class="with-img"{% endif %}>
+                                <li id="article-{{ article_summarization.article_id }}" data-article_id="{{ article_summarization.article_id }}" {% if article_summarization.cover_photo %}class="with-img"{% endif %}>
                                     {% if article_summarization.cover_photo %}
                                     <a class="wrap-img" href="{% url 'article:details' article_summarization.article_id %}" target="_blank">
                                         <img class="img-blur"
@@ -92,6 +92,7 @@
                                 {% endfor %}
                             </ul>
                             <div class="read-more col-sm-4 col-sm-offset-4">
+                                <input type="hidden" value="{{ article_type }}" id="article_type">
                                 <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
                             </div>
                         </div>
@@ -137,7 +138,17 @@
             $(function() {
                 var page_index = 2;
                 $("#btn_read_more").click(function() {
-                    $.getJSON("{% url 'article:articles' %}", {'page_index': page_index}, function(json) {
+                    var the_last_article = $(".note-list li:last");
+                    var the_last_article_id = 0;
+                    if (the_last_article.length > 0) {
+                        the_last_article_id = the_last_article[0].dataset.article_id;
+                    }
+                    $.getJSON("{% url 'article:articles' %}",
+                            {
+                                'page_index': page_index,
+                                'the_last_article_id': the_last_article_id,
+                                'article_type': $("#article_type").val()
+                            }, function(json) {
                             if (json.data.length > 0) {
                                 var str = "";
                                 $.each(json.data, function(index, array) {
@@ -151,7 +162,7 @@
                                     var release_time = array['release_time'];
                                     var page_views = array['page_views'];
                                     var author = array['author'];
-                                    var str = '<li id="article-' + article_id + '" data-article-id="' + article_id + '"';
+                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '"';
                                     if (cover_photo) {
                                         str += 'class="with-img">' +
                                          '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
@@ -186,7 +197,7 @@
                                 });
                                 page_index++;
                             } else {
-                                layer.msg('没有更多数据', {time: 1000});
+                                layer.msg('更多内容，敬请期待', {time: 1000});
                                 return false;
                             }
                         });
