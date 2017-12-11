@@ -19,6 +19,7 @@ from django.utils import timezone
 
 from account.models import UserProfile
 from article.models import Article, Comment, CommentReply, Praise
+from utils.sensitive_word_handler import sensitive_words_replace
 
 logger = logging.getLogger('article.views')
 
@@ -182,7 +183,7 @@ def save_comment(request):
 
     comment.article_id = article_id
     comment.commentator_id = user.id
-    comment.content = comment_content
+    comment.content = sensitive_words_replace(comment_content)
     comment.save()
 
     return_context = {
@@ -250,7 +251,7 @@ def save_comment_reply(request):
     comment_reply.comment_id = comment_id
     comment_reply.receiver_id = receiver_id
     comment_reply.replier_id = user.id
-    comment_reply.content = content
+    comment_reply.content = sensitive_words_replace(content)
     comment_reply.save(using='write')
 
     return_context = {
