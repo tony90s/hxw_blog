@@ -21,6 +21,7 @@ from account.models import UserProfile
 from article.models import Article, Comment, CommentReply, Praise
 from utils.sensitive_word_handler import sensitive_words_replace
 
+reg_number = re.compile('^\d+$')
 logger = logging.getLogger('article.views')
 
 
@@ -90,13 +91,11 @@ def article_category_index_views(request, article_type):
     page_size = 25
     page_index = 1
     user = request.user
-    try:
-        article_type = int(article_type)
-    except Exception as e:
-        raise Http404
 
+    article_type = int(article_type)
     if article_type not in [value for value, name in Article.TYPE_CHOICES]:
         raise Http404
+
     template = 'index.html'
     articles = Article.objects.using('read').filter(Q(type=article_type)).order_by('-id')
     articles_summarization = [article.get_summarization() for article in articles][page_size*(page_index-1):page_size*page_index]
@@ -116,32 +115,35 @@ def article_category_index_views(request, article_type):
 @require_http_methods(['GET'])
 def articles_list(request):
     page_size = 25
-    article_type = int(request.GET.get('article_type', 0))
-    page_index = request.GET.get('page_index', 1)
-    page_index = int(page_index)
-    the_last_article_id = int(request.GET.get('the_last_article_id', 0))
+    article_type = request.GET.get('article_type')
+    the_last_article_id = request.GET.get('the_last_article_id')
 
+    if not article_type or not the_last_article_id:
+        return JsonResponse({'code': 400, 'msg': '参数缺失'})
+
+    if not reg_number.match(article_type):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
+    if not reg_number.match(the_last_article_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+    article_type = int(article_type)
+    the_last_article_id = int(the_last_article_id)
+
+    query_condition = Q()
     if article_type > 0:
         if article_type not in [value for value, name in Article.TYPE_CHOICES]:
             return JsonResponse({'code': 404, 'msg': '没有此类型的博文'})
         query_condition = Q(type=article_type)
-        if the_last_article_id > 0:
-            query_condition &= Q(id__lt=the_last_article_id)
-        articles = Article.objects.using('read').filter(query_condition).order_by('-id')
-        articles_summarization = [article.get_summarization() for article in articles]
-    else:
-        query_condition = Q()
-        if the_last_article_id > 0:
-            query_condition &= Q(id__lt=the_last_article_id)
-        articles = Article.objects.using('read').filter(query_condition).order_by('-id')
-        articles_summarization = [article.get_summarization() for article in articles]
 
-    query_articles_summarization = articles_summarization[page_size*(page_index-1):page_size*page_index]
+    if the_last_article_id > 0:
+        query_condition &= Q(id__lt=the_last_article_id)
+    articles = Article.objects.using('read').filter(query_condition).order_by('-id')[:page_size]
+    articles_summarization = [article.get_summarization() for article in articles]
+
     context = {
         'code': 200,
         'msg': '查询成功',
-        'data': query_articles_summarization,
-        'has_next': True if (articles.count() > (page_size * page_index)) else False
+        'data': articles_summarization
     }
     return JsonResponse(context)
 
@@ -171,7 +173,9 @@ def save_comment(request):
     comment_content = request.POST.get('comment_content', '')
 
     if not article_id:
-        return JsonResponse({'code': 400, 'msg': '参数有误，请稍后重试'})
+        return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(article_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
     if not comment_content:
         return JsonResponse({'code': 400, 'msg': '请先填写评论内容'})
 
@@ -230,6 +234,8 @@ def save_comment_reply(request):
 
     if not comment_id or not receiver_id:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(comment_id) or not reg_number.match(receiver_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     if not content:
         return JsonResponse({'code': 400, 'msg': '请先填写回复内容'})
@@ -271,6 +277,8 @@ def save_praise(request):
 
     if not praise_type or not parent_id:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(praise_type) or not reg_number.match(parent_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     praise_type = int(praise_type)
     parent_id= int(parent_id)
@@ -314,6 +322,8 @@ def delete_article(request):
 
     if not article_id:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(article_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     article_id = int(article_id)
     articles = Article.objects.using('write').filter(id=article_id)
@@ -335,6 +345,8 @@ def delete_comment(request):
 
     if not comment_id:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(comment_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     comment_id = int(comment_id)
     comments = Comment.objects.using('write').filter(id=comment_id)
@@ -358,6 +370,8 @@ def delete_comment_reply(request):
 
     if not comment_reply_id:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(comment_reply_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     comment_reply_id = int(comment_reply_id)
     comment_replies = CommentReply.objects.using('write').filter(id=comment_reply_id)
@@ -380,6 +394,8 @@ def cancel_praise(request):
 
     if not praise_type or not parent_id:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(praise_type) or not reg_number.match(parent_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     praise_type = int(praise_type)
     parent_id = int(parent_id)

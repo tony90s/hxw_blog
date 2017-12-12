@@ -136,7 +136,6 @@
 
     <script type="text/javascript">
             $(function() {
-                var page_index = 2;
                 $("#btn_read_more").click(function() {
                     var the_last_article = $(".note-list li:last");
                     var the_last_article_id = 0;
@@ -145,7 +144,6 @@
                     }
                     $.getJSON("{% url 'article:articles' %}",
                             {
-                                'page_index': page_index,
                                 'the_last_article_id': the_last_article_id,
                                 'article_type': $("#article_type").val()
                             }, function(json) {
@@ -195,7 +193,6 @@
                                         '</li>';
                                     $(".note-list").append(str);
                                 });
-                                page_index++;
                             } else {
                                 layer.msg('更多内容，敬请期待', {time: 1000});
                                 return false;
