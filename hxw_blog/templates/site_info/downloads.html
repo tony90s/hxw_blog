@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}<title>资料下载</title>{% endblock %}
+{% block extra_header %}
+<link href="/static/css/site_info/site_info.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="sidebar-box">
+                    <div class="list-group">
+                        <a class="list-group-item" href="{% url 'aboutus' %}" title="关于我们">关于我们</a>
+                        <a class="list-group-item" href="{% url 'disclaimer' %}">免责声明</a>
+                        <a class="list-group-item active" href="{% url 'downloads' %}" title="资料下载">资料下载</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="article">
+                    <div class="article-heading">
+                        <h2>资料下载</h2>
+                    </div>
+                    <div class="article-body">
+                        <h3>Python学习资料</h3>
+                        <hr>
+                            <ul>
+                                <li><a href="/downloads/python/Data-Structures-and-Algorithms-with-Python-2015.pdf">Data Structures and Algorithms with Python</a></li>
+                                <li><a href="/downloads/python/python基础编程(第二版).pdf">python基础编程(第二版)</a></li>
+                                <li><a href="/downloads/python/Python核心编程(第二版).pdf">Python核心编程(第二版)</a></li>
+                            </ul>
+                        <hr>
+                        <h3>Django学习资料</h3>
+                        <hr>
+                            <ul>
+                                <li><a href="/downloads/django/Django-1.10.9官方文档.pdf">Django-1.10.9官方文档</a></li>
+                                <li><a href="/downloads/django/Django-1.10.8.tar.gz">Django-1.10.8源码</a></li>
+                            </ul>
+                        <hr>
+                        <h3>前端资料</h3>
+                        <hr>
+                            <ul>
+                                <li>
+                                    jquery
+                                    <ul>
+                                        <li><a href="/downloads/front_end/jquery/jquery-3.2.1.zip">jquery-3.2.1</a></li>
+                                        <li><a href="/downloads/front_end/jquery/jquery-2.1.4.zip">jquery-2.1.4</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    bootstrap
+                                    <ul>
+                                        <li><a href="/downloads/front_end/bootstrap/bootstrap-3.3.7-dist.zip">bootstrap-3.3.7</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="/downloads/front_end/layer-v3.0.3.zip">layer-v3.0.3</a></li>
+
+                            </ul>
+                        <hr>
+                        <h3>其它资料</h3>
+                        <hr>
+                            <p>暂无其它资料</p>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div><!--/.container-->
+{% endblock %}

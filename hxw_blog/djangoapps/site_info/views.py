@@ -19,3 +19,10 @@ def about_us_views(request):
     user = request.user
     context = {'user': user}
     return render_to_response(template, context)
+
+
+def downloads_views(request):
+    template = 'site_info/downloads.html'
+    user = request.user
+    context = {'user': user}
+    return render_to_response(template, context)

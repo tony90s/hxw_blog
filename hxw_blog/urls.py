@@ -24,12 +24,13 @@ from django.views.static import serve
 from index.views import index_views
 from ueditor.views import editor_test
 from ueditor.controller import handler
-from site_info.views import disclaimer_views, about_us_views
+from site_info.views import disclaimer_views, about_us_views, downloads_views
 
 urlpatterns = [
     url(r'^$', index_views, name='index'),
     url(r'^aboutus$', about_us_views, name='aboutus'),
     url(r'^disclaimer$', disclaimer_views, name='disclaimer'),
+    url(r'^downloads$', downloads_views, name='downloads'),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^article/', include('article.urls', namespace='article')),
     # url(r'^admin/', admin.site.urls),
@@ -41,3 +42,4 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static('/upload/', document_root=os.path.join(settings.ENV_ROOT, "upload"))
+    urlpatterns += static('/downloads/', document_root=os.path.join(settings.ENV_ROOT, "downloads"))
