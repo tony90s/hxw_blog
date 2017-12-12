@@ -30,6 +30,10 @@
     margin: 8px 0;
 }
 
+.article-body ul {
+    list-style: none;
+}
+
 .article-body p {
     font-size: 14px;
     line-height: 1.8em;
