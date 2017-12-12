@@ -12,3 +12,10 @@ def disclaimer_views(request):
     user = request.user
     context = {'user': user}
     return render_to_response(template, context)
+
+
+def about_us_views(request):
+    template = 'site_info/aboutus.html'
+    user = request.user
+    context = {'user': user}
+    return render_to_response(template, context)

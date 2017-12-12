@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}<title>关于我们</title>{% endblock %}
+{% block extra_header %}
+<link href="/static/css/site_info/site_info.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="sidebar-box">
+                    <div class="list-group">
+                        <a class="list-group-item active" href="{% url 'aboutus' %}" title="关于我们">关于我们</a>
+                        <a class="list-group-item" href="{% url 'disclaimer' %}" title="免责声明">免责声明</a>
+                        <a class="list-group-item" href="javascript:void(0)" target="_blank" title="资料下载">资料下载</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="article">
+                    <div class="article-heading">
+                        <h2>关于我们</h2>
+                    </div>
+                    <div class="article-body">
+                        <p>LOVEITERS为个人网站，主要提供编程技术、历史、数码资讯、读书笔记等内容的分享。</p>
+                        <p>LOVEITERS的 Slogan 为：爱IT，爱生活</p>
+                        <p>本站域名为 loveiters.com, loveiters为Love IT ers的缩写，意为：热爱IT的小伙伴们。</p>
+                        <p>本站热衷于分享各种编程语言技术，所有资源是完全免费的，并且会根据互联网技术的发展实时更新本站内容。</p>
+                        <p>由于站主个人精力有限，本站内容有不足的地方，欢迎广大编程爱好者反馈建议。</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div><!--/.container-->
+{% endblock %}
