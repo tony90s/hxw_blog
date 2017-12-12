@@ -24,9 +24,11 @@ from django.views.static import serve
 from index.views import index_views
 from ueditor.views import editor_test
 from ueditor.controller import handler
+from site_info.views import disclaimer_views
 
 urlpatterns = [
     url(r'^$', index_views, name='index'),
+    url(r'^disclaimer$', disclaimer_views, name='disclaimer'),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^article/', include('article.urls', namespace='article')),
     # url(r'^admin/', admin.site.urls),

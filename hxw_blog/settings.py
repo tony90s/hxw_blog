@@ -64,7 +64,8 @@ INSTALLED_APPS = [
     'ueditor',
     'account',
     'index',
-    'article'
+    'article',
+    'site_info'
 ]
 
 MIDDLEWARE = [
