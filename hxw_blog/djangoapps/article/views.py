@@ -105,7 +105,7 @@ def article_category_index_views(request, article_type):
     hot_articles_briefs = [article.get_brief() for article in hot_articles[:5]]
     context = {
         'user': user,
-        'article_type': article_type,
+        'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)},
         'articles_summarization': articles_summarization,
         'hot_articles_briefs': hot_articles_briefs
     }

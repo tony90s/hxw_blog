@@ -62,6 +62,11 @@ class Article(models.Model):
     def word_count(self):
         return len(self.content_txt)
 
+    @staticmethod
+    def get_type_name(value):
+        type_dict = dict(Article.TYPE_CHOICES)
+        return type_dict[value] if value in type_dict else ''
+
     def get_author_data(self):
         author = User.objects.using('read').get(id=self.author_id)
         author_data = {

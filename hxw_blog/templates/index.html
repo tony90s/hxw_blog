@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}<title>兴旺的博客</title>{% endblock %}
+{% block title %}<title>LOVEITERS{% ifnotequal article_type.value 0 %} | {{ article_type.display_name }}{% endifnotequal %}</title>{% endblock %}
 {% block extra_header %}
     <link href="/static/css/index.css" rel="stylesheet">
 
@@ -92,7 +92,7 @@
                                 {% endfor %}
                             </ul>
                             <div class="read-more col-sm-4 col-sm-offset-4">
-                                <input type="hidden" value="{{ article_type }}" id="article_type">
+                                <input type="hidden" value="{{ article_type.value }}" id="article_type">
                                 <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
                             </div>
                         </div>
