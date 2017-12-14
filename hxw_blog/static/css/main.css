@@ -59,6 +59,17 @@ button {
     outline: none;
 }
 
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 100;
+}
+
 /*
  * Off Canvas
  * --------------------------------------------------
