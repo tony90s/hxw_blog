@@ -88,7 +88,7 @@ def save_article(request):
 
 @require_http_methods(['GET'])
 def article_category_index_views(request, article_type):
-    page_size = 25
+    page_size = settings.DEFAULT_PAGE_SIZE
     page_index = 1
     user = request.user
 
@@ -114,7 +114,7 @@ def article_category_index_views(request, article_type):
 
 @require_http_methods(['GET'])
 def articles_list(request):
-    page_size = 25
+    page_size = settings.DEFAULT_PAGE_SIZE
     article_type = request.GET.get('article_type')
     the_last_article_id = request.GET.get('the_last_article_id')
 
@@ -200,26 +200,30 @@ def save_comment(request):
 
 @require_http_methods(['GET'])
 def article_comments_list(request):
-    article_id = request.GET.get('article_id', 0)
-    if not article_id:
+    page_size = settings.DEFAULT_PAGE_SIZE
+    article_id = request.GET.get('article_id')
+    the_last_comment_id = request.GET.get('the_last_comment_id')
+    if not article_id or not the_last_comment_id:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(article_id) or not reg_number.match(the_last_comment_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
     article_id = int(article_id)
-
-    page_size = 20
-    page_index = request.GET.get('page_index', 1)
-    page_index = int(page_index)
+    the_last_comment_id = int(the_last_comment_id)
 
     articles = Article.objects.using('read').filter(id=article_id)
     if not articles.exists():
         return JsonResponse({'code': 404, 'msg': '博文不存在'})
-    article = articles[0]
-    comments = article.get_comments_json()
-    query_comments = comments[page_size*(page_index-1):page_size*page_index]
+
+    query_condition = Q(article_id=article_id)
+    if the_last_comment_id > 0:
+        query_condition &= Q(id__lt=the_last_comment_id)
+    comments = Comment.objects.using('read').filter(query_condition).order_by('-id')[:page_size]
+    comments_data = [comment.render_json() for comment in comments]
+
     context = {
         'code': 200,
         'msg': '查询成功',
-        'data': query_comments,
-        'has_next': True if (len(comments) > (page_size * page_index)) else False
+        'data': comments_data
     }
     return JsonResponse(context)
 

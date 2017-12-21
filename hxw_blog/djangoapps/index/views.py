@@ -16,7 +16,7 @@ logger = logging.getLogger('index.views')
 @ensure_csrf_cookie
 @require_http_methods(['GET'])
 def index_views(request):
-    page_size = 25
+    page_size = settings.DEFAULT_PAGE_SIZE
     page_index = 1
     user = request.user
     template = 'index.html'
