@@ -4,7 +4,7 @@ import re
 
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.shortcuts import redirect
 from django.http import JsonResponse, HttpResponseForbidden, Http404
 from django.views.decorators.csrf import csrf_exempt
@@ -34,11 +34,10 @@ def create_article(request):
 
     type_choices = Article.TYPE_CHOICES
     context = {
-        'user': user,
         'type_choices': type_choices
     }
 
-    return render_to_response(template_name, context)
+    return render(request, template_name, context)
 
 
 @login_required
@@ -90,7 +89,6 @@ def save_article(request):
 def article_category_index_views(request, article_type):
     page_size = settings.DEFAULT_PAGE_SIZE
     page_index = 1
-    user = request.user
 
     article_type = int(article_type)
     if article_type not in [value for value, name in Article.TYPE_CHOICES]:
@@ -104,12 +102,11 @@ def article_category_index_views(request, article_type):
     hot_articles = sorted(all_articles, key=lambda article: article.praise_times, reverse=True)
     hot_articles_briefs = [article.get_brief() for article in hot_articles[:5]]
     context = {
-        'user': user,
         'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)},
         'articles_summarization': articles_summarization,
         'hot_articles_briefs': hot_articles_briefs
     }
-    return render_to_response(template, context)
+    return render(request, template, context)
 
 
 @require_http_methods(['GET'])
@@ -149,7 +146,6 @@ def articles_list(request):
 
 
 def article_details(request, article_id):
-    user = request.user
     template_name = 'article/article_detail.html'
     articles = Article.objects.using('read').filter(id=article_id)
     if not articles.exists():
@@ -159,10 +155,9 @@ def article_details(request, article_id):
     article.save(using='write')
     article_details = article.render_json()
     context = {
-        'user': user,
         'article_details': article_details
     }
-    return render_to_response(template_name, context)
+    return render(request, template_name, context)
 
 
 @login_required

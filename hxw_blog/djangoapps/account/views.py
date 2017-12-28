@@ -6,7 +6,7 @@ import string
 import random
 
 from django.conf import settings
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.shortcuts import redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -223,12 +223,7 @@ def logout_view(request):
 @login_required
 def user_info(request):
     template_name = 'account/user_info.html'
-    user = request.user
-    context = {
-        'user': user
-    }
-
-    return render_to_response(template_name, context)
+    return render(request, template_name)
 
 
 @login_required

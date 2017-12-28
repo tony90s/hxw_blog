@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
@@ -25,9 +25,8 @@ def index_views(request):
     hot_articles_briefs = [article.get_brief() for article in hot_articles[:5]]
     articles_summarization = [article.get_summarization() for article in articles][page_size*(page_index-1):page_size*page_index]
     context = {
-        'user': user,
         'article_type': {'value': 0, 'display_name': Article.get_type_name(0)},
         'articles_summarization': articles_summarization,
         'hot_articles_briefs': hot_articles_briefs
     }
-    return render_to_response(template, context)
+    return render(request, template, context)
