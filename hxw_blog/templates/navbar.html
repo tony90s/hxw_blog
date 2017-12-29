@@ -13,14 +13,14 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li {% ifequal article_type 1%}class="active"{% endifequal %}><a href="{% url 'article:article_category' 1 %}">Python</a></li>
-                <li {% ifequal article_type 2 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 2 %}">Linux</a></li>
-                <li {% ifequal article_type 3 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 3 %}">Django</a></li>
-                <li {% ifequal article_type 4 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 4 %}">前端技术</a></li>
-                <li {% ifequal article_type 5 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 5 %}">随笔</a></li>
-                <li {% ifequal article_type 6 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 6 %}">历史</a></li>
-                <li {% ifequal article_type 7 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 7 %}">数码资讯</a></li>
-                <li {% ifequal article_type 8 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 8 %}">读书</a></li>
+                <li {% ifequal article_type.value 1%}class="active"{% endifequal %}><a href="{% url 'article:article_category' 1 %}">Python</a></li>
+                <li {% ifequal article_type.value 2 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 2 %}">Linux</a></li>
+                <li {% ifequal article_type.value 3 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 3 %}">Django</a></li>
+                <li {% ifequal article_type.value 4 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 4 %}">前端技术</a></li>
+                <li {% ifequal article_type.value 5 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 5 %}">随笔</a></li>
+                <li {% ifequal article_type.value 6 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 6 %}">历史</a></li>
+                <li {% ifequal article_type.value 7 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 7 %}">数码资讯</a></li>
+                <li {% ifequal article_type.value 8 %}class="active"{% endifequal %}><a href="{% url 'article:article_category' 8 %}">读书</a></li>
             </ul>
 
             {% if user.is_authenticated %}

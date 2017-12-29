@@ -127,9 +127,25 @@ label {
 .bs-docs-footer ul{
   list-style-type: none
 }
+
 .bs-docs-footer a{
-  color:#fff
+  color:#878B91;
+  text-decoration:none;
 }
+
+.bs-docs-footer a:hover{
+  color: #fff;
+}
+
+.bs-docs-footer .footer-message{
+    margin-top: 20px;
+    color:#878B91;
+}
+
+.bs-docs-footer .footer-message a{
+  font-size: 80%;
+}
+
 .bs-docs-footer-links{
   padding-left:0;
   margin-bottom:20px
