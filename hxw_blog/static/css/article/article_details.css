@@ -165,8 +165,9 @@
 .hf-list-con {
     float: left;
     width: 100%;
-    background-color: #eaeaec;
+    /*background-color: #eaeaec;*/
     margin-top: 7px;
+    border-left: 3px solid #F5F5F5;
 }
 
 .comment-size-name {
@@ -294,7 +295,7 @@
 }
 
 .hf-list-con .all-pl-con {
-    border-top: 1px solid #d9d9d9;
+    border-top: 1px solid #F5F5F5;
     padding-bottom: 12px;
 }
 
