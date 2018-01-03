@@ -181,6 +181,10 @@ label {
     color: #2f2f2f;
 }
 
+.fixed-btn a:hover{
+    color: #2f2f2f;
+}
+
 .fixed-btn a i {
     vertical-align: middle;
 }
