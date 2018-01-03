@@ -174,23 +174,27 @@ def save_comment(request):
     if not comment_content:
         return JsonResponse({'code': 400, 'msg': '请先填写评论内容'})
 
-    comment = Comment()
-    article_id = int(article_id)
-    articles = Article.objects.using('read').filter(id=article_id)
-    if not articles.exists():
-        return JsonResponse({'code': 404, 'msg': '所评论的博文不存在，请联系管理员'})
+    try:
+        comment = Comment()
+        article_id = int(article_id)
+        articles = Article.objects.using('read').filter(id=article_id)
+        if not articles.exists():
+            return JsonResponse({'code': 404, 'msg': '所评论的博文不存在，请联系管理员'})
 
-    comment.article_id = article_id
-    comment.commentator_id = user.id
-    comment.content = sensitive_words_replace(comment_content)
-    comment.save()
+        comment.article_id = article_id
+        comment.commentator_id = user.id
+        comment.content = sensitive_words_replace(comment_content)
+        comment.save()
 
-    return_context = {
-        'code': 200,
-        'msg': '评论创建成功',
-        'data': comment.render_json()
-    }
-    return JsonResponse(return_context)
+        return_context = {
+            'code': 200,
+            'msg': '评论创建成功',
+            'data': comment.render_json()
+        }
+        return JsonResponse(return_context)
+    except Exception as e:
+        logger.error(e)
+        return JsonResponse({'code': 500, 'msg': '保存失败，请联系管理员。'})
 
 
 @require_http_methods(['GET'])
