@@ -253,8 +253,10 @@ def save_comment_reply(request):
     if not receivers.exists():
         return JsonResponse({'code': 404, 'msg': '所回复的童鞋不存在，请联系管理员'})
 
+    """
     if user.id == receiver_id:
         return JsonResponse({'code': 400, 'msg': '不能回复自己'})
+    """
 
     comment_reply = CommentReply()
     comment_reply.comment_id = comment_id

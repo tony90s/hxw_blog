@@ -275,10 +275,11 @@
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
 
+            /*
             if (user_id == receiver_id) {
                 layer.msg('不能回复自己', {time: 1000});
                 return false
-            }
+            }*/
             //回复@
             var fhN = '回复@' + fhName;
             //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
@@ -320,10 +321,11 @@
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
 
+            /*
             if (user_id == receiver_id) {
                 layer.msg('不能回复自己', {time: 1000});
                 return false
-            }
+            }*/
 
             var content = oHfVal.replace(/(^\s*)|(\s*$)/g, "");
             if (content == '') {
