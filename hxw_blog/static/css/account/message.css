@@ -82,18 +82,17 @@
     font-size: 14px;
     color: #8b8b8b;
     display: block;
-    padding-top: 18px;
+    margin: 12px 0 12px;
 }
 
 .praise-type {
     font-size: 14px;
     display: block;
-    padding-top: 7px;
-    margin-bottom: -2px;
+    margin: 12px 0 12px;
 }
 
 .my-pl-con, .comment-pl-block {
-    padding-top: 7px;
+   margin: 12px 0 12px;
 }
 
 .comment-pl-block {
@@ -327,7 +326,7 @@ textarea,
     position: relative;
     width: 100%;
     padding: 10px;
-    margin: 40px 0 5px;
+    margin: 0 0 8px;
     background-color: #F5F5F5;
 }
 

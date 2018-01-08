@@ -64,6 +64,7 @@
                             <a href="javascript:;" class="plBtn"
                                data-article_id="{{ article_details.article_id }}">评论</a>
                         </div>
+                        <hr>
                         <!--评论区域 end-->
                         <!--回复区域 begin-->
                         <div class="comment-show">
@@ -75,11 +76,11 @@
                                     <div class="comment-show-con-list pull-left clearfix">
                                         <div class="pl-text clearfix">
                                             <a href="javascript:void(0)" class="comment-size-name"
-                                               data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}: </a>
-                                            <span class="my-pl-con">&nbsp;{{ comment.content }}</span>
+                                               data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}</a>
+                                            <span class="comment-time">&nbsp;&nbsp;{{ comment.comment_at }}</span>
                                         </div>
                                         <div class="date-dz">
-                                            <span class="date-dz-left pull-left comment-time">{{ comment.comment_at }}</span>
+                                            <span class="date-dz-left pull-left my-pl-con">{{ comment.content }}</span>
                                             <div class="date-dz-right pull-right comment-pl-block">
                                                 {% if user.is_authenticated %}
                                                     {% ifequal comment.commentator.user_id user.id %}
@@ -102,11 +103,11 @@
                                                 <div class="all-pl-con" id="comment-reply-{{ reply.comment_reply_id }}">
                                                     <div class="pl-text hfpl-text clearfix">
                                                         <a href="javascript:void(0)"
-                                                           class="comment-size-name">{{ reply.replier.username }}: </a>
-                                                        <span class="my-pl-con">回复@{{ reply.receiver.username }}:{{ reply.content }}</span>
+                                                           class="comment-size-name">{{ reply.replier.username }}</a>
+                                                        <span class="comment-time">&nbsp;&nbsp;{{ reply.reply_at }}</span>
                                                     </div>
                                                     <div class="date-dz">
-                                                        <span class="date-dz-left pull-left comment-time">{{ reply.reply_at }}</span>
+                                                        <span class="date-dz-left pull-left my-pl-con">回复@{{ reply.receiver.username }}:{{ reply.content }}</span>
                                                         <div class="date-dz-right pull-right comment-pl-block">
                                                             {% if user.is_authenticated %}
                                                                 {% ifequal reply.replier.user_id user.id %}
@@ -221,11 +222,11 @@
                                         '<div class="comment-show-con-list pull-left clearfix">' +
                                         '<div class="pl-text clearfix">' +
                                         '<a href="javascript:void(0)" class="comment-size-name" data-commentator_id="' + user_id +
-                                        '">' + username + ': </a>' +
-                                        '<span class="my-pl-con">&nbsp;' + content + '</span>' +
+                                        '">' + username + '</a>' +
+                                        '<span class="comment-time">&nbsp;&nbsp;' + comment_at + '</span>' +
                                         '</div>' +
                                         '<div class="date-dz">' +
-                                        '<span class="date-dz-left pull-left comment-time">' + comment_at + '</span>' +
+                                        '<span class="date-dz-left pull-left my-pl-con">' + content + '</span>' +
                                         '<div class="date-dz-right pull-right comment-pl-block">';
 
                                 if (login_user_id.toString() == user_id) {
@@ -246,6 +247,7 @@
                                         '</div>';
                                 $this.parents('.reviewArea ').siblings('.comment-show').prepend(comment_html);
                                 $this.siblings('.flex-text-wrap').find('.comment-input').prop('value', '').siblings('pre').find('span').text('');
+                                layer.msg(json.msg, {time: 1000});
                             }
                             else {
                                 layer.msg(json.msg, {time: 1000});
@@ -281,7 +283,7 @@
                 return false
             }*/
             //回复@
-            var fhN = '回复@' + fhName;
+            var fhN = '回复@' + fhName + ':';
             //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
             var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
                     '" onkeyup="keyUP(this)"></textarea> <a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
@@ -316,7 +318,7 @@
             //获取输入内容
             var oHfVal = $(this).siblings('.flex-text-wrap').find('.hf-input').val();
             var oHfName = $(this).parents('.hf-con').parents('.date-dz').siblings('.pl-text').find('.comment-size-name').html();
-            var oAllVal = '回复@' + oHfName;
+            var oAllVal = '回复@' + oHfName + ':';
 
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
@@ -350,11 +352,11 @@
                             var praise_times = json.data.praise_times.toString();
                             var oHtml = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
                                     '<div class="pl-text hfpl-text clearfix">' +
-                                    '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + ' : </a>' +
-                                    '<span class="my-pl-con">' + oAllVal + reply_content + '</span>' +
+                                    '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + '</a>' +
+                                    '<span class="comment-time">&nbsp;&nbsp;' + reply_at + '</span>' +
                                     '</div>' +
                                     '<div class="date-dz">' +
-                                    '<span class="date-dz-left pull-left comment-time">' + reply_at + '</span>' +
+                                    '<span class="date-dz-left pull-left my-pl-con">' + oAllVal + reply_content  + '</span>' +
                                     '<div class="date-dz-right pull-right comment-pl-block">';
                             if (login_user_id.toString() == user_id) {
                                 oHtml += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
@@ -370,6 +372,7 @@
                             oThis.parents('.hf-con').parents('.comment-show-con-list').find('.hf-list-con').css('display', 'block').prepend(oHtml);
                             oThis.parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
                             oThis.parents('.hf-con').remove();
+                            layer.msg(json.msg, {time: 1000});
                         }
                         else {
                             layer.msg(json.msg, {time: 1000});
@@ -418,6 +421,7 @@
                                 oT.remove();
                             }
                             $this.parents('.date-dz-right').parents('.date-dz').parents('.comment-show-con-list').parents('.comment-show-con').remove();
+                            layer.msg(json.msg, {time: 1000});
                         }
                         else {
                             layer.msg(json.msg, {time: 1000});

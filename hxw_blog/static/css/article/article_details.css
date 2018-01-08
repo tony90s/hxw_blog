@@ -84,7 +84,7 @@
 }
 
 .commentAll {
-    padding: 20px;
+    padding: 40px;
     border: 1px solid #ededed;
     margin: 20px auto;
 }
@@ -130,7 +130,7 @@
 
 .comment-show-con {
     width: 100%;
-    border-top: 1px solid #EDEDED;
+    /*border-top: 1px solid #EDEDED;*/
     padding: 10px 0;
 }
 
@@ -148,6 +148,8 @@
 .comment-show-con-list {
     width: 85%;
     margin-left: 3%;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #EDEDED;
 }
 
 .pl-text {
@@ -165,6 +167,7 @@
 .hf-list-con {
     float: left;
     width: 100%;
+    padding-left: 10px;
     /*background-color: #eaeaec;*/
     margin-top: 7px;
     border-left: 3px solid #F5F5F5;
@@ -175,7 +178,7 @@
     color: #339b53;
 }
 
-.my-pl-con {
+.comment-time {
     font-size: 14px;
     color: #8b8b8b;
     width: 100%;
@@ -185,21 +188,17 @@
     font-size: 14px;
     color: #8b8b8b;
     display: block;
-    padding-top: 18px;
+    margin: 12px 0 12px;
 }
 
-.comment-time, .comment-pl-block {
-    padding-top: 7px;
-}
-
-.comment-pl-block {
-    margin-top: 0;
+.my-pl-con, .comment-pl-block {
+    margin: 12px 0 12px;
 }
 
 .date-dz-right {
     display: block;
-    padding-top: 6px;
     padding-right: 18px;
+    margin: 12px 0 12px;
     position: relative;
     overflow: hidden;
 }

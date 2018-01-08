@@ -42,7 +42,7 @@
                                    data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>&nbsp;&nbsp;<span class="comment-time">{{ comment.reply_at }}</span>
                             </div>
                             <div class="date-dz">
-                                <span class="date-dz-left pull-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</span>
+                                <span class="date-dz-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</span>
                                 <div {% if comment.article_info.cover_photo %}class="article with-img"{% else %}class="article"{% endif %}>
                                     {% if comment.article_info.cover_photo %}
                                     <a class="wrap-img" href="{% url 'article:details' comment.article_info.article_id %}" target="_blank">
@@ -309,7 +309,7 @@
                                             '&nbsp;&nbsp;<span class="comment-time">' + reply_at + '</span>' +
                                             '</div>';
                                     str += '<div class="date-dz">' +
-                                           '<span class="date-dz-left pull-left my-pl-con">';
+                                           '<span class="date-dz-left my-pl-con">';
                                     if (receiver_user_id >0) {
                                         str += '回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                                     }
