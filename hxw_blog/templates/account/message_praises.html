@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}<title>消息中心-赞</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/account/message.css">
+    <script src="/static/js/jquery.flexText.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="sidebar-box">
+                    <div class="list-group">
+                        <a class="list-group-item comments" href="{% url 'account:user_message_comments' %}">
+                            <!--<span class="badge">6</span>-->
+                            评论
+                        </a>
+                        <a class="list-group-item praises active" href="{% url 'account:user_message_praises' %}">
+                            <!--<span class="badge">5</span>-->
+                            赞
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-7 col-sm-offset-1 comments-list">
+                <div class="comment-show">
+                    {% for praise in praises %}
+                    <div class="comment-show-con clearfix">
+                        <div class="comment-show-con-img pull-left">
+                            <img src="{{ praise.user.avatar }}" alt="{{ praise.user.username }}">
+                        </div>
+                        <div class="comment-show-con-list pull-left clearfix">
+                            <div class="pl-text clearfix">
+                                <a href="javascript:void(0)" class="comment-size-name"
+                                   data-replier_id="{{ praise.user.user_id }}">{{ praise.user.username }}</a>&nbsp;&nbsp;<span class="comment-time">{{ praise.praise_at }}</span>
+                            </div>
+                            <div class="date-dz">
+                                <p class="praise-type">
+                                    {% if praise.type == 1 %}
+                                        赞了你的文章
+                                    {% elif praise.type == 2 %}
+                                        赞了你的评论
+                                    {% else %}
+                                        赞了你的回复
+                                    {% endif %}
+                                </p>
+
+                                <p class="date-dz-left pull-left my-pl-con">{% if praise.receiver_info.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{  praise.receiver_info.username }}</a>:{% endif %}{{ praise.content }}</p>
+                                <div class="article{% if praise.article_info.cover_photo %} with-img{% endif %}">
+                                    {% if praise.article_info.cover_photo %}
+                                    <a class="wrap-img" href="{% url 'article:details' praise.article_info.article_id %}" target="_blank">
+                                        <img class="img-blur" src="{{ praise.article_info.cover_photo }}" alt="{{ praise.article_info.title }}"/>
+                                    </a>
+                                    {% endif %}
+                                    <div class="info">
+                                        <a class="title" target="_blank" href="{% url 'article:details' praise.article_info.article_id %}">{{ praise.article_info.title }}</a>
+                                        <p class="abstract">
+                                            {{ praise.article_info.abstract }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="loading-animation">
+                    <i class="fa fa-2x fa-spinner fa-pulse"></i>
+                </div>
+                <div class="read-more col-sm-4 col-sm-offset-4">
+                    <input type="hidden" value="{{ page_size }}" id="page_size">
+                    <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">获取更多</button>
+                    <p class="text-center not-more-content">没有更多内容</p>
+                </div>
+            </div>
+        </div>
+    </div><!--/.container-->
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        var user_id = {{ user.id }};
+    </script>
+    <script>
+        $(function () {
+            var page_size = $("#page_size").val();
+            var comments = $(".comment-show .comment-show-con");
+            if (comments.length < parseInt(page_size)) {
+                $("#btn_read_more").hide();
+                $(".read-more .not-more-content").show();
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+            $(function() {
+                var page_index = 2;
+                var page_size = $("#page_size").val();
+                $("#btn_read_more").click(function() {
+                    $(".loading-animation").show();
+                    $.getJSON("{% url 'account:user_message_praises_pagination' %}",
+                            {
+                                'user_id': user_id,
+                                'page_index': page_index
+                            }, function(json) {
+                            $(".loading-animation").hide();
+                            if (json.data.length > 0) {
+                                var str = "";
+                                $.each(json.data, function(index, array) {
+                                    var type = array['type'];
+                                    var article_id = array['article_info']['article_id'];
+                                    var title = array['article_info']['title'];
+                                    var cover_photo = array['article_info']['cover_photo'];
+                                    var abstract = array['article_info']['abstract'];
+
+                                    var replier_user_id = array['user']['user_id'];
+                                    var replier_username = array['user']['username'];
+                                    var replier_avatar = array['user']['avatar'];
+                                    var receiver_user_id = array['receiver_info']['user_id'];
+                                    var receiver_username = array['receiver_info']['username'];
+                                    var reply_at = array['praise_at'];
+                                    var content = array['content'];
+
+                                    var str = '<div class="comment-show-con clearfix">';
+                                    str += '<div class="comment-show-con clearfix">' +
+                                            '<div class="comment-show-con-img pull-left">' +
+                                                '<img src="' + replier_avatar + '" alt="' + replier_username + '">' +
+                                            '</div>';
+                                    str += '<div class="comment-show-con-list pull-left clearfix">' +
+                                            '<div class="pl-text clearfix">' +
+                                            '<a href="javascript:void(0)" class="comment-size-name"' +
+                                             'data-replier_id="' + replier_user_id +
+                                            '">' + replier_username + '</a>' +
+                                            '&nbsp;&nbsp;<span class="comment-time">' + reply_at + '</span>' +
+                                            '</div>';
+                                    str += '<div class="date-dz">' +
+                                            '<p class="praise-type">';
+                                    if (type == 1) {
+                                        str += '赞了你的文章'
+                                    }
+                                    else if (type = 2) {
+                                        str += '赞了你的评论'
+                                    }
+                                    else {
+                                        str += '赞了你的回复'
+                                    }
+                                    str += '</p>';
+                                    str += '<p class="date-dz-left pull-left my-pl-con">';
+                                    if (receiver_user_id >0) {
+                                        str += '回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
+                                    }
+                                    str += content + '</p>';
+                                    str += '<div class="article';
+                                    if (cover_photo) {
+                                        str += ' with-img';
+                                    }
+                                    str += '">';
+                                    if (cover_photo) {
+                                        str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                                '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                                '</a>';
+                                    }
+
+                                    str += '<div class="info">' +
+                                            '<a class="title" target="_blank" href="/article/details/' + article_id + '">' + title + '</a>' +
+                                            '<p class="abstract">' + abstract + '</p>' +
+                                            '</div>' +
+                                            '</div>';
+                                    $(".comment-show").append(str);
+                                });
+                                if (json.data.length < page_size) {
+                                    $("#btn_read_more").hide();
+                                    $(".read-more .not-more-content").show();
+                                    return false;
+                                }
+                                page_index++;
+                            } else {
+                                $("#btn_read_more").hide();
+                                $(".read-more .not-more-content").show();
+                                return false;
+                            }
+                        });
+                });
+            });
+    </script>
+{% endblock %}

@@ -1,4 +1,5 @@
 import datetime
+import time
 import logging
 import os
 import re
@@ -6,10 +7,12 @@ import string
 import random
 
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import render, render_to_response
 from django.shortcuts import redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest, Http404
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -18,6 +21,7 @@ from django.views import View
 
 from account.cookies import set_logged_in_cookies, delete_logged_in_cookies
 from account.models import UserProfile
+from article.models import Article, Comment, CommentReply, get_user_article_comments, get_user_comments, get_user_be_praised
 from utils import generate_verification_code
 from utils.file_handling import get_thumbnail
 from utils.html_email_utils import send_html_mail
@@ -25,6 +29,7 @@ from utils.html_email_utils import send_html_mail
 reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
 reg_email = re.compile('^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
 reg_password = re.compile('^[\.\w@_-]{6,32}$')
+reg_number = re.compile('^\d+$')
 logger = logging.getLogger('account.views')
 
 
@@ -398,3 +403,132 @@ class ResetPasswordView(View):
             'msg': '密码重置成功，马上登录。',
             'redirect_url': redirect_url
         })
+
+
+@login_required
+def message_comments(request):
+    page_size = 10
+    template_name = 'account/message_comments.html'
+    user = request.user
+
+    comment_type = request.GET.get('type', '0')     # 0 received comments  1 sent comments
+    if not reg_number.match(comment_type):
+        return HttpResponseBadRequest('参数有误。')
+    comment_type = int(comment_type)
+    if comment_type not in [0, 1]:
+        raise Http404
+
+    if comment_type == 0:
+        comments = get_user_article_comments(user.id)
+        comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-reply_at')
+    else:
+        comments = get_user_comments(user.id)
+        comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user.id)).order_by('-reply_at')
+    comments_info_list = [comment.get_unified_comment_info() for comment in comments]
+    comment_replies_info_list = [comment_reply.get_unified_comment_info() for comment_reply in comment_replies]
+    unified_comment_info_list = comments_info_list + comment_replies_info_list
+    unified_comment_info_list.sort(
+        key=lambda comment_info: time.mktime(time.strptime(comment_info['reply_at'], '%Y-%m-%d %H:%M:%S')),
+        reverse=True)
+    context = {
+        'unified_comment_info_list': unified_comment_info_list[:page_size],
+        'comment_type': comment_type,
+        'page_size': page_size
+    }
+    return render(request, template_name, context)
+
+
+@require_http_methods(['GET'])
+def user_unified_comment_info_pagination(request):
+    page_size = 10
+    user_id = request.GET.get('user_id')
+    comment_type = request.GET.get('comment_type', '0')   # 0 received comments  1 sent comments
+    page_index = request.GET.get('page_index')
+
+    if not user_id or not page_index:
+        return JsonResponse({'code': 400, 'msg': '参数缺失。'})
+
+    if not reg_number.match(user_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+    user_id = int(user_id)
+    if user_id <= 0:
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+
+    if not reg_number.match(comment_type):
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+    comment_type = int(comment_type)
+    if comment_type not in [0, 1]:
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+
+    if not reg_number.match(page_index):
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+    page_index = int(page_index)
+    if page_index <= 0:
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+
+    if comment_type == 0:
+        comments = get_user_article_comments(user_id)
+        comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user_id)).order_by('-reply_at')
+    else:
+        comments = get_user_comments(user_id)
+        comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user_id)).order_by('-reply_at')
+    comments_info_list = [comment.get_unified_comment_info() for comment in comments]
+    comment_replies_info_list = [comment_reply.get_unified_comment_info() for comment_reply in comment_replies]
+    unified_comment_info_list = comments_info_list + comment_replies_info_list
+    unified_comment_info_list.sort(
+        key=lambda comment_info: time.mktime(time.strptime(comment_info['reply_at'], '%Y-%m-%d %H:%M:%S')),
+        reverse=True)
+    query_comments_info = unified_comment_info_list[page_size*(page_index-1):page_size*page_index]
+    context = {
+        'code': 200,
+        'msg': '查询成功',
+        'data': query_comments_info
+    }
+    return JsonResponse(context)
+
+
+@login_required
+def message_praises(request):
+    page_size = 10
+    template_name = 'account/message_praises.html'
+    user = request.user
+
+    praises = get_user_be_praised(user.id)[:page_size]
+    praises_info = [praise.get_praise_info() for praise in praises]
+    context = {
+        'praises': praises_info,
+        'page_size': page_size
+    }
+    return render(request, template_name, context)
+
+
+@require_http_methods(['GET'])
+def user_praises_info_pagination(request):
+    page_size = 10
+    user_id = request.GET.get('user_id')
+    page_index = request.GET.get('page_index')
+
+    if not user_id or not page_index:
+        return JsonResponse({'code': 400, 'msg': '参数缺失。'})
+
+    if not reg_number.match(user_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+    user_id = int(user_id)
+    if user_id <= 0:
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+
+    if not reg_number.match(page_index):
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+    page_index = int(page_index)
+    if page_index <= 0:
+        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+
+    praises = get_user_be_praised(user_id)[page_size*(page_index-1):page_size*page_index]
+    praises_info = [praise.get_praise_info() for praise in praises]
+
+    context = {
+        'code': 200,
+        'msg': '查询成功',
+        'data': praises_info
+    }
+    return JsonResponse(context)

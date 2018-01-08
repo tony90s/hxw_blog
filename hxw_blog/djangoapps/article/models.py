@@ -146,7 +146,7 @@ class Article(models.Model):
         }
         cover_photo = self.cover_photo
         context['cover_photo'] = cover_photo.url if cover_photo.name else ''
-        context['author'] = self.get_author_data()
+        # context['author'] = self.get_author_data()
         context['abstract'] = self.content_txt[0:76] + '...'
         return context
 
@@ -171,6 +171,15 @@ class Comment(models.Model):
     class Meta:
         verbose_name = _('comment')
         verbose_name_plural = _('comments')
+
+    def get_commentator_info(self):
+        commentator = User.objects.using('read').get(id=self.commentator_id)
+        commentator_info = {
+            'user_id': commentator.id,
+            'username': commentator.get_username(),
+            'avatar': commentator.profile.avatar.url
+        }
+        return commentator_info
 
     def render_json(self):
         context = dict()
@@ -197,6 +206,46 @@ class Comment(models.Model):
 
         return context
 
+    def get_article_author_info(self):
+        article = Article.objects.using('read').get(id=self.article_id)
+        return article.get_author_data()
+
+    def get_article_author_id(self):
+        article = Article.objects.using('read').get(id=self.article_id)
+        return article.author_id
+
+    def get_article_info(self):
+        article = Article.objects.using('read').get(id=self.article_id)
+        return article.get_brief()
+
+    def get_unified_comment_info(self):
+        context = dict()
+        context['comment_id'] = self.id
+        context['comment_reply_id'] = 0
+        context['article_info'] = self.get_article_info()
+        context['replier'] = self.get_commentator_info()
+        context['receiver'] = {
+            'user_id': 0,
+            'username': '',
+            'avatar': ''
+        }
+        context['reply_at'] = timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")
+        context['content'] = self.content
+
+        return context
+
+
+def get_user_article_comments(user_id):
+    articles = Article.objects.using('read').filter(author_id=user_id)
+    article_ids = [article.id for article in articles]
+    comments = Comment.objects.using('read').filter(article_id__in=article_ids).order_by('-comment_at')
+    return comments
+
+
+def get_user_comments(user_id):
+    comments = list(Comment.objects.using('read').filter(commentator_id=user_id).order_by('-comment_at'))
+    return comments
+
 
 class CommentReply(models.Model):
     comment_id = models.IntegerField(db_index=True, verbose_name='所属评论', default=0)
@@ -208,6 +257,30 @@ class CommentReply(models.Model):
     class Meta:
         verbose_name = _('comment_reply')
         verbose_name_plural = _('comment_replies')
+
+    def get_replier_info(self):
+        replier = User.objects.using('read').get(id=self.replier_id)
+        replier_data = {
+            'user_id': replier.id,
+            'username': replier.get_username(),
+            'avatar': replier.profile.avatar.url
+        }
+        return replier_data
+
+    def get_receiver_info(self):
+        receiver = User.objects.using('read').get(id=self.receiver_id)
+        receiver_data = {
+            'user_id': receiver.id,
+            'username': receiver.username,
+            'avatar': receiver.profile.avatar.url
+        }
+        return receiver_data
+
+    def get_article_info(self):
+        comment = Comment.objects.using('read').get(id=self.comment_id)
+        article_id = comment.article_id
+        article = Article.objects.using('read').get(id=article_id)
+        return article.get_brief()
 
     def render_json(self):
         context = dict()
@@ -233,6 +306,17 @@ class CommentReply(models.Model):
         context['praise_times'] = praises.count()
         return context
 
+    def get_unified_comment_info(self):
+        context = dict()
+        context['comment_id'] = self.comment_id
+        context['comment_reply_id'] = self.id
+        context['article_info'] = self.get_article_info()
+        context['replier'] = self.get_replier_info()
+        context['receiver'] = self.get_receiver_info()
+        context['reply_at'] = timezone.localtime(self.reply_at).strftime("%Y-%m-%d %H:%M:%S")
+        context['content'] = self.content
+        return context
+
 
 class Praise(models.Model):
     class TYPE:
@@ -253,3 +337,85 @@ class Praise(models.Model):
     class Meta:
         verbose_name = _('praise')
         verbose_name_plural = _('praises')
+
+    def get_user_info(self):
+        user = User.objects.using('read').get(id=self.user_id)
+        user_data = {
+            'user_id': user.id,
+            'username': user.get_username(),
+            'avatar': user.profile.avatar.url
+        }
+        return user_data
+
+    def get_article_info(self):
+        praise_type = self.praise_type
+        parent_id = self.parent_id
+        if praise_type == self.TYPE.ARTICLE:
+            article_id = parent_id
+        elif praise_type == self.TYPE.COMMENT:
+            comment = Comment.objects.using('read').get(id=parent_id)
+            article_id = comment.article_id
+        else:
+            comment_reply = CommentReply.objects.using('read').get(id=parent_id)
+            comment_id = comment_reply.comment_id
+            comment = Comment.objects.using('read').get(id=comment_id)
+            article_id = comment.article_id
+        article = Article.objects.using('read').get(id=article_id)
+        return article.get_brief()
+
+    def get_comment_content(self):
+        praise_type = self.praise_type
+        parent_id = self.parent_id
+        if praise_type == self.TYPE.ARTICLE:
+            content = ''
+        elif praise_type == self.TYPE.COMMENT:
+            comment = Comment.objects.using('read').get(id=parent_id)
+            content = comment.content
+        else:
+            comment_reply = CommentReply.objects.using('read').get(id=parent_id)
+            content = comment_reply.content
+        return content
+
+    def get_receiver_info(self):
+        praise_type = self.praise_type
+        parent_id = self.parent_id
+        receiver_info = {
+            'user_id': 0,
+            'username': '',
+            'avatar': ''
+        }
+        if praise_type == self.TYPE.COMMENT_REPLY:
+            comment_reply = CommentReply.objects.using('read').get(id=parent_id)
+            receiver_info = comment_reply.get_receiver_info()
+        return receiver_info
+
+    def get_praise_info(self):
+        context = dict()
+        context['praise_id'] = self.id
+        context['type'] = self.praise_type
+        context['user'] = self.get_user_info()
+        context['praise_at'] = timezone.localtime(self.praise_at).strftime("%Y-%m-%d %H:%M:%S")
+        context['article_info'] = self.get_article_info()
+        context['receiver_info'] = self.get_receiver_info()
+        context['content'] = self.get_comment_content()
+        return context
+
+
+def get_user_be_praised(user_id):
+    articles = Article.objects.using('read').filter(author_id=user_id)
+    article_ids = [article.id for article in articles]
+    user_article_praises = list(Praise.objects.using('read').filter(
+        Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id__in=article_ids)))
+
+    comments = Comment.objects.using('read').filter(commentator_id=user_id)
+    comment_ids = [comment.id for comment in comments]
+    user_comment_praises = list(Praise.objects.using('read').filter(
+        Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comment_ids)))
+
+    comment_replies = CommentReply.objects.using('read').filter(replier_id=user_id)
+    comment_reply_ids = [comment_reply.id for comment_reply in comment_replies]
+    user_comment_reply_praises = list(Praise.objects.using('read').filter(
+        Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_reply_ids)))
+    praises = user_article_praises + user_comment_praises + user_comment_reply_praises
+    praises.sort(key=lambda praise: praise.id, reverse=True)
+    return praises

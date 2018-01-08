@@ -34,6 +34,7 @@
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'account:user_info' %}">个人中心</a></li>
+                        <li><a id="user_message_link" href="{% url 'account:user_message_comments' %}">我的消息</a></li>
                         <li class="divider"></li>
                         <li><a href="{% url 'account:logout' %}">退出登录</a></li>
                     </ul>

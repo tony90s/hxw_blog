@@ -7,7 +7,11 @@ from account.views import (
     update_password,
     update_user_info,
     ResetPasswordView,
-    send_email_to_reset_password
+    send_email_to_reset_password,
+    message_comments,
+    user_unified_comment_info_pagination,
+    message_praises,
+    user_praises_info_pagination
 )
 
 urlpatterns = [
@@ -19,5 +23,9 @@ urlpatterns = [
     url(r'^password/update/$', update_password, name='update_user_password'),
     url(r'^info/update/$', update_user_info, name='update_user_info'),
     url(r'^password/reset/$', ResetPasswordView.as_view(), name='reset_password'),
-    url(r'^password/reset/send_email/$', send_email_to_reset_password, name='send_email_to_reset_password')
+    url(r'^password/reset/send_email/$', send_email_to_reset_password, name='send_email_to_reset_password'),
+    url(r'^message/comments$', message_comments, name='user_message_comments'),
+    url(r'^message/comments/pagination$', user_unified_comment_info_pagination, name='user_message_comments_pagination'),
+    url(r'^message/praises$', message_praises, name='user_message_praises'),
+    url(r'^message/praises/pagination$', user_praises_info_pagination, name='user_message_praises_pagination'),
 ]

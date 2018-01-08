@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% block title %}<title>消息中心-评论</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/account/message.css">
+    <script src="/static/js/jquery.flexText.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="sidebar-box">
+                    <div class="list-group">
+                        <a class="list-group-item comments active" href="{% url 'account:user_message_comments' %}">
+                            <!--<span class="badge">6</span>-->
+                            评论
+                        </a>
+                        <a class="list-group-item praises" href="{% url 'account:user_message_praises' %}">
+                            <!--<span class="badge">5</span>-->
+                            赞
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-7 col-sm-offset-1 comments-list">
+                <div class="tab-button-group">
+                    <button {% ifequal comment_type 0 %}class="btn btn-default tab-button active"{% else %}class="btn btn-default tab-button"{% endifequal %} id="received_comments" style="outline: none">收到的评论</button>
+                    <button {% ifequal comment_type 1 %}class="btn btn-default tab-button active"{% else %}class="btn btn-default tab-button"{% endifequal %} id="sent_comments" style="outline: none">发出的评论</button>
+                </div>
+                <div class="tab-animation">
+                    <i class="fa fa-2x fa-circle-o-notch fa-spin"></i>
+                </div>
+                <div class="comment-show">
+                    {% for comment in unified_comment_info_list %}
+                    <div class="comment-show-con clearfix">
+                        <div class="comment-show-con-img pull-left">
+                            <img src="{{ comment.replier.avatar }}" alt="{{ comment.replier.username }}">
+                        </div>
+                        <div class="comment-show-con-list pull-left clearfix">
+                            <div class="pl-text clearfix">
+                                <a href="javascript:void(0)" class="comment-size-name"
+                                   data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>&nbsp;&nbsp;<span class="comment-time">{{ comment.reply_at }}</span>
+                            </div>
+                            <div class="date-dz">
+                                <span class="date-dz-left pull-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</span>
+                                <div {% if comment.article_info.cover_photo %}class="article with-img"{% else %}class="article"{% endif %}>
+                                    {% if comment.article_info.cover_photo %}
+                                    <a class="wrap-img" href="{% url 'article:details' comment.article_info.article_id %}" target="_blank">
+                                        <img class="img-blur" src="{{ comment.article_info.cover_photo }}" alt="{{ comment.article_info.title }}"/>
+                                    </a>
+                                    {% endif %}
+                                    <div class="info">
+                                        <a class="title" target="_blank" href="{% url 'article:details' comment.article_info.article_id %}">{{ comment.article_info.title }}</a>
+                                        <p class="abstract">
+                                            {{ comment.article_info.abstract }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="date-dz-right pull-right comment-pl-block">
+                                    {% ifequal comment.replier.user_id user.id %}
+                                        <a href="javascript:;" class="removeBlock" {% if comment.comment_reply_id > 0 %}data-comment_reply_id="{{ comment.comment_reply_id }}"{% else %}data-comment_id="{{ comment.comment_id }}"{% endif %}>删除</a>
+                                    {% endifequal %}
+                                    <a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block pull-left"
+                                       data-comment_id="{{ comment.comment_id}}" data-receiver_id="{{ comment.replier.user_id }}">回复</a>
+                                    <span class="pull-left date-dz-line">|</span>
+                                    <a href="{% url 'article:details' comment.article_info.article_id %}{% if comment.receiver.user_id > 0 %}#comment-reply-{{ comment.comment_reply_id }}{% else %}#comment-{{ comment.comment_id }}{% endif %}" target="_blank" class="date-dz-pl hf-con-block pull-left">查看详情</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="loading-animation">
+                    <i class="fa fa-2x fa-spinner fa-pulse"></i>
+                </div>
+                <div class="read-more col-sm-4 col-sm-offset-4">
+                    <input type="hidden" value="{{ comment_type }}" id="comment_type">
+                    <input type="hidden" value="{{ page_size }}" id="page_size">
+                    <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">获取更多</button>
+                    <p class="text-center not-more-content">没有更多内容</p>
+                </div>
+            </div>
+        </div>
+    </div><!--/.container-->
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        var user_id = {{ user.id }};
+    </script>
+    <script>
+        $(function () {
+            var page_size = $("#page_size").val();
+            var comments = $(".comment-show .comment-show-con");
+            if (comments.length < parseInt(page_size)) {
+                $("#btn_read_more").hide();
+                $(".read-more .not-more-content").show();
+            }
+        });
+    </script>
+
+    <!--textarea高度自适应-->
+    <script type="text/javascript">
+        $(function () {
+            $('.content').flexText();
+        });
+    </script>
+    <!--textarea限制字数-->
+    <script type="text/javascript">
+        function keyUP(t) {
+            var len = $(t).val().length;
+            if (len > 140) {
+                $(t).val($(t).val().substring(0, 140));
+            }
+        }
+    </script>
+    <!--点击回复动态创建回复块-->
+    <script type="text/javascript">
+        $('.comment-show').on('click', '.pl-hf', function () {
+            //获取回复人的名字
+            var user_info_span = $(".user-info")[0];
+            var user_id = user_info_span.dataset.user_id;
+            var user_info_div = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.pl-text').find('.comment-size-name');
+            var fhName = user_info_div.html();
+            var receiver_id = this.dataset.receiver_id;
+            var comment_id = this.dataset.comment_id;
+
+            /*
+            if (user_id == receiver_id) {
+                layer.msg('不能回复自己', {time: 1000});
+                return false
+            }*/
+            //回复@
+            var fhN = '回复@' + fhName + ':';
+            //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
+            var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
+                    '" onkeyup="keyUP(this)"></textarea> <a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
+                    '" data-comment_id="' + comment_id +
+                    '">回复</a></div>';
+            //显示回复
+            if ($(this).is('.hf-con-block')) {
+                $(this).parents('.date-dz-right').parents('.date-dz').append(fhHtml);
+                $(this).removeClass('hf-con-block');
+                $('.content').flexText();
+                $(this).parents('.date-dz-right').siblings('.hf-con').find('.pre').css('padding', '6px 15px');
+                //console.log($(this).parents('.date-dz-right').siblings('.hf-con').find('.pre'))
+                //input框自动聚焦
+                //$(this).parents('.date-dz-right').siblings('.hf-con').find('.hf-input').val('').focus().val(fhN);
+                $(this).parents('.date-dz-right').siblings('.hf-con').find('.hf-input').val('').focus().val();
+            } else {
+                $(this).addClass('hf-con-block');
+                $(this).parents('.date-dz-right').siblings('.hf-con').remove();
+            }
+        });
+    </script>
+    <!--评论回复块创建-->
+    <script type="text/javascript">
+        $('.comment-show').on('click', '.hf-pl', function () {
+            var user_info_span = $(".user-info")[0];
+            var user_id = user_info_span.dataset.user_id;
+            var oThis = $(this);
+            //获取输入内容
+            var oHfVal = $(this).siblings('.flex-text-wrap').find('.hf-input').val();
+            var oHfName = $(this).parents('.hf-con').parents('.date-dz').siblings('.pl-text').find('.comment-size-name').html();
+            var oAllVal = '回复@' + oHfName + ':';
+
+            var receiver_id = this.dataset.receiver_id;
+            var comment_id = this.dataset.comment_id;
+
+            /*
+            if (user_id == receiver_id) {
+                layer.msg('不能回复自己', {time: 1000});
+                return false
+            }*/
+
+            var content = oHfVal.replace(/(^\s*)|(\s*$)/g, "");
+            if (content == '') {
+                layer.msg('请先填写回复内容', {time: 1000});
+                return false
+            }
+            $.post(
+                    "{% url 'article:save_comment_reply' %}",
+                    {
+                        "comment_id": comment_id,
+                        "receiver_id": receiver_id,
+                        "content": content
+                    },
+                    function (json) {
+                        if (json.code == 200) {
+                            oThis.parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
+                            oThis.parents('.hf-con').remove();
+                            layer.msg(json.msg, {time: 1000});
+                        }
+                        else {
+                            layer.msg(json.msg, {time: 1000});
+                            return false
+                        }
+                    }
+            );
+        });
+    </script>
+    <!--删除评论块-->
+    <script type="text/javascript">
+        $('.comment-show').on('click', '.removeBlock', function () {
+            var $this = $(this);
+            if (this.dataset.comment_id != undefined) {
+                var comment_id = this.dataset.comment_id;
+                var url = "{% url 'article:delete_comment' %}";
+                var post_data = {
+                    "comment_id": comment_id
+                };
+            }
+            else if (this.dataset.comment_reply_id != undefined) {
+                var comment_reply_id = this.dataset.comment_reply_id;
+                var url = "{% url 'article:delete_comment_reply' %}";
+                var post_data = {
+                    "comment_reply_id": comment_reply_id
+                };
+            }
+            else {
+                layer.msg('参数有误，请联系管理员', {time: 1000});
+                return false;
+            }
+            $.post(
+                    url,
+                    post_data,
+                    function (json) {
+                        if (json.code == 200) {
+                            var oT = $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con');
+                            if (oT.siblings('.all-pl-con').length >= 1) {
+                                oT.remove();
+                            } else {
+                                $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con').parents('.hf-list-con').css('display', 'none');
+                                oT.remove();
+                            }
+                            $this.parents('.date-dz-right').parents('.date-dz').parents('.comment-show-con-list').parents('.comment-show-con').remove();
+                            layer.msg(json.msg, {time: 1000});
+                        }
+                        else {
+                            layer.msg(json.msg, {time: 1000});
+                            return false
+                        }
+                    }
+            );
+        })
+    </script>
+
+    <!--切换收到的评论和发送的评论-->
+    <script>
+        $("#received_comments").click(function () {
+            $(".tab-animation").show();
+            var url = "{% url 'account:user_message_comments' %}" + "?type=0";
+            window.location.href = url;
+        })
+
+        $("#sent_comments").click(function () {
+            $(".tab-animation").show();
+            var url = "{% url 'account:user_message_comments' %}" + "?type=1";
+            window.location.href = url;
+        })
+    </script>
+
+    <script type="text/javascript">
+            $(function() {
+                var page_index = 2;
+                var comment_type = $("#comment_type").val();
+                var page_size = $("#page_size").val();
+                $("#btn_read_more").click(function() {
+                    /*
+                    var comments = $(".comment-show .comment-show-con");
+                    if (comments.length < page_size) {
+                        window.location.reload()
+                    }*/
+                    $(".loading-animation").show();
+                    $.getJSON("{% url 'account:user_message_comments_pagination' %}",
+                            {
+                                'user_id': user_id,
+                                'comment_type': comment_type,
+                                'page_index': page_index
+                            }, function(json) {
+                            $(".loading-animation").hide();
+                            if (json.data.length > 0) {
+                                var str = "";
+                                $.each(json.data, function(index, array) {
+                                    var article_id = array['article_info']['article_id'];
+                                    var title = array['article_info']['title'];
+                                    var cover_photo = array['article_info']['cover_photo'];
+                                    var abstract = array['article_info']['abstract'];
+                                    var comment_id = array['comment_id'];
+                                    var comment_reply_id = array['comment_reply_id'];
+                                    var replier_user_id = array['replier']['user_id'];
+                                    var replier_username = array['replier']['username'];
+                                    var replier_avatar = array['replier']['avatar'];
+                                    var receiver_user_id = array['receiver']['user_id'];
+                                    var receiver_username = array['receiver']['username'];
+                                    var reply_at = array['reply_at'];
+                                    var content = array['content'];
+
+                                    var str = '<div class="comment-show-con clearfix">';
+                                    str += '<div class="comment-show-con clearfix">' +
+                                            '<div class="comment-show-con-img pull-left">' +
+                                                '<img src="' + replier_avatar + '" alt="' + replier_username + '">' +
+                                            '</div>';
+                                    str += '<div class="comment-show-con-list pull-left clearfix">' +
+                                            '<div class="pl-text clearfix">' +
+                                            '<a href="javascript:void(0)" class="comment-size-name"' +
+                                             'data-replier_id="' + replier_user_id +
+                                            '">' + replier_username + '</a>' +
+                                            '&nbsp;&nbsp;<span class="comment-time">' + reply_at + '</span>' +
+                                            '</div>';
+                                    str += '<div class="date-dz">' +
+                                           '<span class="date-dz-left pull-left my-pl-con">';
+                                    if (receiver_user_id >0) {
+                                        str += '回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
+                                    }
+                                    str += content + '</span>';
+                                    str += '<div class="article';
+                                    if (cover_photo) {
+                                        str += ' with-img';
+                                    }
+                                    str += '">';
+                                    if (cover_photo) {
+                                        str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                                '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                                '</a>';
+                                    }
+
+                                    str += '<div class="info">' +
+                                            '<a class="title" target="_blank" href="/article/details/' + article_id + '">' + title + '</a>' +
+                                            '<p class="abstract">' + abstract + '</p>' +
+                                            '</div>' +
+                                            '</div>';
+                                    str += '<div class="date-dz-right pull-right comment-pl-block">';
+                                    if (comment_reply_id == user_id) {
+                                        var delete_var = '<a href="javascript:;" class="removeBlock"';
+                                        if (comment_reply_id > 0) {
+                                            delete_var += 'data-comment_reply_id="' + comment_reply_id + '"'
+                                        }
+                                        else {
+                                            delete_var += 'data-comment_id="' + comment_id + '"'
+                                        }
+                                        delete_var += '>删除</a>'
+                                    }
+
+                                    var check_detail_url = '/article/details/' + article_id;
+                                    if (comment_reply_id > 0) {
+                                        check_detail_url += '#comment-reply-' + comment_reply_id;
+                                    }
+                                    else {
+                                        check_detail_url += '#comment-' + comment_id;
+                                    }
+                                    str += '<a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block pull-left"' +
+                                        'data-comment_id="' + comment_id + '" data-receiver_id="' + replier_user_id + '">回复</a>' +
+                                        '<span class="pull-left date-dz-line">|</span>' +
+                                        '<a href="' + check_detail_url + '" target="_blank" class="date-dz-pl hf-con-block pull-left">查看详情</a>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>';
+                                    $(".comment-show").append(str);
+                                });
+                                if (json.data.length < page_size) {
+                                    $("#btn_read_more").hide();
+                                    $(".read-more .not-more-content").show();
+                                    return false;
+                                }
+                                page_index++;
+                            } else {
+                                $("#btn_read_more").hide();
+                                $(".read-more .not-more-content").show();
+                                return false;
+                            }
+                        });
+                });
+            });
+    </script>
+{% endblock %}
