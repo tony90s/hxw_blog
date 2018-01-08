@@ -104,7 +104,8 @@ def article_category_index_views(request, article_type):
     context = {
         'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)},
         'articles_summarization': articles_summarization,
-        'hot_articles_briefs': hot_articles_briefs
+        'hot_articles_briefs': hot_articles_briefs,
+        'page_size': page_size
     }
     return render(request, template, context)
 
@@ -113,28 +114,27 @@ def article_category_index_views(request, article_type):
 def articles_list(request):
     page_size = settings.DEFAULT_PAGE_SIZE
     article_type = request.GET.get('article_type')
-    the_last_article_id = request.GET.get('the_last_article_id')
+    page_index = request.GET.get('page_index')
 
-    if not article_type or not the_last_article_id:
+    if not article_type or not page_index:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
 
     if not reg_number.match(article_type):
         return JsonResponse({'code': 400, 'msg': '参数有误'})
-    if not reg_number.match(the_last_article_id):
+    if not reg_number.match(page_index):
         return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     article_type = int(article_type)
-    the_last_article_id = int(the_last_article_id)
+    page_index = int(page_index)
 
-    query_condition = Q()
-    if article_type > 0:
-        if article_type not in [value for value, name in Article.TYPE_CHOICES]:
-            return JsonResponse({'code': 404, 'msg': '没有此类型的博文'})
-        query_condition = Q(type=article_type)
+    if page_index <= 0:
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
+    if article_type not in [value for value, name in Article.TYPE_CHOICES]:
+        return JsonResponse({'code': 404, 'msg': '没有此类型的博文'})
+    query_condition = Q(type=article_type)
 
-    if the_last_article_id > 0:
-        query_condition &= Q(id__lt=the_last_article_id)
-    articles = Article.objects.using('read').filter(query_condition).order_by('-id')[:page_size]
+    articles = Article.objects.using('read').filter(query_condition).order_by('-id')[
+               page_size * (page_index - 1):page_size * page_index]
     articles_summarization = [article.get_summarization() for article in articles]
 
     context = {
@@ -201,22 +201,23 @@ def save_comment(request):
 def article_comments_list(request):
     page_size = settings.DEFAULT_PAGE_SIZE
     article_id = request.GET.get('article_id')
-    the_last_comment_id = request.GET.get('the_last_comment_id')
-    if not article_id or not the_last_comment_id:
+    page_index = request.GET.get('page_index')
+    if not article_id or not page_index:
         return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(article_id) or not reg_number.match(the_last_comment_id):
+    if not reg_number.match(article_id) or not reg_number.match(page_index):
         return JsonResponse({'code': 400, 'msg': '参数有误'})
     article_id = int(article_id)
-    the_last_comment_id = int(the_last_comment_id)
+    page_index = int(page_index)
 
+    if page_index <= 0:
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
     articles = Article.objects.using('read').filter(id=article_id)
     if not articles.exists():
         return JsonResponse({'code': 404, 'msg': '博文不存在'})
 
     query_condition = Q(article_id=article_id)
-    if the_last_comment_id > 0:
-        query_condition &= Q(id__lt=the_last_comment_id)
-    comments = Comment.objects.using('read').filter(query_condition).order_by('-id')[:page_size]
+    comments = Comment.objects.using('read').filter(query_condition).order_by('-id')[
+               page_size * (page_index - 1):page_size * page_index]
     comments_data = [comment.render_json() for comment in comments]
 
     context = {

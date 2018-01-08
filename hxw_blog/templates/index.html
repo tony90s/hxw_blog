@@ -93,7 +93,9 @@
                             </ul>
                             <div class="read-more col-sm-4 col-sm-offset-4">
                                 <input type="hidden" value="{{ article_type.value }}" id="article_type">
+                                <input type="hidden" value="{{ page_size }}" id="page_size">
                                 <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
+                                <p class="text-center not-more-content">更多内容，敬请期待...</p>
                             </div>
                         </div>
                     </div>
@@ -134,17 +136,25 @@
         });
     </script>
 
+    <script>
+        $(function () {
+            var page_size = $("#page_size").val();
+            var comments = $(".note-list li");
+            if (comments.length < parseInt(page_size)) {
+                $("#btn_read_more").hide();
+                $(".read-more .not-more-content").show();
+            }
+        });
+    </script>
+
     <script type="text/javascript">
             $(function() {
+                var page_index = 2;
+                var page_size = $("#page_size").val();
                 $("#btn_read_more").click(function() {
-                    var the_last_article = $(".note-list li:last");
-                    var the_last_article_id = 0;
-                    if (the_last_article.length > 0) {
-                        the_last_article_id = the_last_article[0].dataset.article_id;
-                    }
                     $.getJSON("{% url 'article:articles' %}",
                             {
-                                'the_last_article_id': the_last_article_id,
+                                'page_index': page_index,
                                 'article_type': $("#article_type").val()
                             }, function(json) {
                             if (json.data.length > 0) {
@@ -193,8 +203,15 @@
                                         '</li>';
                                     $(".note-list").append(str);
                                 });
+                                if (json.data.length < page_size) {
+                                    $("#btn_read_more").hide();
+                                    $(".read-more .not-more-content").show();
+                                    return false;
+                                }
+                                page_index++;
                             } else {
-                                layer.msg('更多内容，敬请期待', {time: 1000});
+                                $("#btn_read_more").hide();
+                                $(".read-more .not-more-content").show();
                                 return false;
                             }
                         });
