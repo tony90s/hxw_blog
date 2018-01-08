@@ -45,7 +45,7 @@
                                     {% endif %}
                                 </p>
 
-                                <p class="date-dz-left my-pl-con">{% if praise.receiver_info.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{  praise.receiver_info.username }}</a>:{% endif %}{{ praise.content }}</p>
+                                <p class="date-dz-left my-pl-con small-size">{% if praise.receiver_info.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{  praise.receiver_info.username }}</a>:{% endif %}{{ praise.content }}</p>
                                 <div class="article{% if praise.article_info.cover_photo %} with-img{% endif %}">
                                     {% if praise.article_info.cover_photo %}
                                     <a class="wrap-img" href="{% url 'article:details' praise.article_info.article_id %}" target="_blank">
@@ -145,7 +145,7 @@
                                         str += '赞了你的回复'
                                     }
                                     str += '</p>';
-                                    str += '<p class="date-dz-left my-pl-con">';
+                                    str += '<p class="date-dz-left my-pl-con small-size">';
                                     if (receiver_user_id >0) {
                                         str += '回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                                     }

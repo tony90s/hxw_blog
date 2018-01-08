@@ -330,13 +330,14 @@ class Praise(models.Model):
         (TYPE.COMMENT_REPLY, '评论回复')
     )
     praise_type = models.IntegerField(choices=TYPE_CHOICES, default=TYPE.ARTICLE, verbose_name='点赞类型')
-    parent_id = models.IntegerField(db_index=True, verbose_name='点赞对象id', default=0)
+    parent_id = models.IntegerField(verbose_name='点赞对象id', default=0)
     user_id = models.IntegerField(db_index=True, verbose_name='点赞人', default=0)
     praise_at = models.DateTimeField(auto_now_add=timezone.now, verbose_name='点赞时间')
 
     class Meta:
         verbose_name = _('praise')
         verbose_name_plural = _('praises')
+        index_together = [('praise_type', 'parent_id')]
 
     def get_user_info(self):
         user = User.objects.using('read').get(id=self.user_id)
