@@ -68,7 +68,7 @@
                         <!--回复区域 begin-->
                         <div class="comment-show">
                             {% for comment in  article_details.comments %}
-                                <div class="comment-show-con clearfix">
+                                <div class="comment-show-con clearfix" id="comment-{{ comment.comment_id }}">
                                     <div class="comment-show-con-img pull-left">
                                         <img src="{{ comment.commentator.avatar }}" alt="{{ comment.commentator.username }}">
                                     </div>
@@ -99,7 +99,7 @@
                                         </div>
                                         <div class="hf-list-con">
                                             {% for reply in comment.comment_replies %}
-                                                <div class="all-pl-con">
+                                                <div class="all-pl-con" id="comment-reply-{{ reply.comment_reply_id }}">
                                                     <div class="pl-text hfpl-text clearfix">
                                                         <a href="javascript:void(0)"
                                                            class="comment-size-name">{{ reply.replier.username }}: </a>
@@ -214,7 +214,7 @@
                                 var comment_id = json.data.comment_id.toString();
                                 var comment_at = json.data.comment_at;
                                 var praise_times = json.data.praise_times.toString();
-                                var comment_html = '<div class="comment-show-con clearfix">' +
+                                var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
                                         '<div class="comment-show-con-img pull-left">' +
                                         '<img src="' + avatar + '" alt="' + username + '">' +
                                         '</div> ' +
@@ -348,7 +348,7 @@
                             var reply_at = json.data.reply_at;
                             var reply_content = json.data.content;
                             var praise_times = json.data.praise_times.toString();
-                            var oHtml = '<div class="all-pl-con">' +
+                            var oHtml = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
                                     '<div class="pl-text hfpl-text clearfix">' +
                                     '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + ' : </a>' +
                                     '<span class="my-pl-con">' + oAllVal + reply_content + '</span>' +
