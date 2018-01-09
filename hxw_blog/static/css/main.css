@@ -30,6 +30,15 @@ code {
   font-size: 80%;
 }
 
+.dropdown-menu {
+    min-width: 100%;
+}
+
+.dropdown-menu a {
+    text-align: center;
+    margin: 8px 0 8px;
+}
+
 .avator {
     width: 32px;
     height: 32px;
