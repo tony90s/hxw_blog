@@ -190,13 +190,7 @@ class Comment(models.Model):
         context = dict()
         context['article_id'] = self.article_id
         context['comment_id'] = self.id
-        commentator = User.objects.using('read').get(id=self.commentator_id)
-        commentator_data = {
-            'user_id': commentator.id,
-            'username': commentator.get_username(),
-            'avatar': commentator.profile.avatar.url
-        }
-        context['commentator'] = commentator_data
+        context['commentator'] = self.get_commentator_info()
         context['comment_at'] = timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")
         context['content'] = self.content
 
@@ -307,20 +301,8 @@ class CommentReply(models.Model):
         context = dict()
         context['comment_reply_id'] = self.id
         context['comment_id'] = self.comment_id
-        replier = User.objects.using('read').get(id=self.replier_id)
-        receiver = User.objects.using('read').get(id=self.receiver_id)
-        replier_data = {
-            'user_id': replier.id,
-            'username': replier.get_username(),
-            'avatar': replier.profile.avatar.url
-        }
-        receiver_data = {
-            'user_id': receiver.id,
-            'username': receiver.username,
-            'avatar': receiver.profile.avatar.url
-        }
-        context['replier'] = replier_data
-        context['receiver'] = receiver_data
+        context['replier'] = self.get_replier_info()
+        context['receiver'] = self.get_receiver_info()
         context['reply_at'] = timezone.localtime(self.reply_at).strftime("%Y-%m-%d %H:%M:%S")
         context['content'] = self.content
         praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id=self.id))
