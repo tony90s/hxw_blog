@@ -164,8 +164,6 @@ class Comment(models.Model):
     commentator_id = models.IntegerField(db_index=True, verbose_name='评论人', default=0)
     comment_at = models.DateTimeField(auto_now_add=timezone.now, verbose_name='评论时间')
     content = models.CharField(max_length=140, default='', verbose_name='评论内容')
-    __user_cache = dict()
-    __article_cache = dict()
 
     def __str__(self):
         return '%s %s' % (self.article.title, self.content[0:10])
@@ -175,15 +173,12 @@ class Comment(models.Model):
         verbose_name_plural = _('comments')
 
     def get_commentator_info(self):
-        if self.commentator_id in self.__user_cache:
-            return self.__user_cache[self.commentator_id]
         commentator = User.objects.using('read').get(id=self.commentator_id)
         commentator_info = {
             'user_id': commentator.id,
             'username': commentator.get_username(),
             'avatar': commentator.profile.avatar.url
         }
-        self.__user_cache.update({self.commentator_id: commentator_info})
         return commentator_info
 
     def render_json(self):
@@ -214,11 +209,8 @@ class Comment(models.Model):
         return article.author_id
 
     def get_article_info(self):
-        if self.article_id in self.__article_cache:
-            return self.__article_cache[self.article_id]
         article = Article.objects.using('read').get(id=self.article_id)
         article_info = article.get_brief()
-        self.__article_cache.update({article_info['article_id']: article_info})
         return article_info
 
     def get_unified_comment_info(self):
@@ -256,45 +248,34 @@ class CommentReply(models.Model):
     receiver_id = models.IntegerField(db_index=True, verbose_name='接受者', default=0)
     reply_at = models.DateTimeField(auto_now_add=timezone.now, verbose_name='回复时间')
     content = models.CharField(max_length=140, default='', verbose_name='回复内容')
-    __user_cache = dict()
-    __article_cache = dict()
 
     class Meta:
         verbose_name = _('comment_reply')
         verbose_name_plural = _('comment_replies')
 
     def get_replier_info(self):
-        if self.replier_id in self.__user_cache:
-            return self.__user_cache[self.replier_id]
         replier = User.objects.using('read').get(id=self.replier_id)
         replier_data = {
             'user_id': replier.id,
             'username': replier.get_username(),
             'avatar': replier.profile.avatar.url
         }
-        self.__user_cache.update({self.replier_id: replier_data})
         return replier_data
 
     def get_receiver_info(self):
-        if self.receiver_id in self.__user_cache:
-            return self.__user_cache[self.receiver_id]
         receiver = User.objects.using('read').get(id=self.receiver_id)
         receiver_data = {
             'user_id': receiver.id,
             'username': receiver.username,
             'avatar': receiver.profile.avatar.url
         }
-        self.__user_cache.update({self.receiver_id: receiver_data})
         return receiver_data
 
     def get_article_info(self):
         comment = Comment.objects.using('read').get(id=self.comment_id)
         article_id = comment.article_id
-        if article_id in self.__article_cache:
-            return self.__article_cache[article_id]
         article = Article.objects.using('read').get(id=article_id)
         article_info = article.get_brief()
-        self.__article_cache.update({article_info['article_id']: article_info})
         return article_info
 
     def render_json(self):
@@ -336,8 +317,6 @@ class Praise(models.Model):
     parent_id = models.IntegerField(verbose_name='点赞对象id', default=0)
     user_id = models.IntegerField(db_index=True, verbose_name='点赞人', default=0)
     praise_at = models.DateTimeField(auto_now_add=timezone.now, verbose_name='点赞时间')
-    __user_cache = dict()
-    __article_cache = dict()
 
     class Meta:
         verbose_name = _('praise')
@@ -345,15 +324,12 @@ class Praise(models.Model):
         index_together = [('praise_type', 'parent_id')]
 
     def get_user_info(self):
-        if self.user_id in self.__user_cache:
-            return self.__user_cache[self.user_id]
         user = User.objects.using('read').get(id=self.user_id)
         user_data = {
             'user_id': user.id,
             'username': user.get_username(),
             'avatar': user.profile.avatar.url
         }
-        self.__user_cache.update({self.user_id: user_data})
         return user_data
 
     def get_article_info(self):
@@ -370,11 +346,8 @@ class Praise(models.Model):
             comment = Comment.objects.using('read').get(id=comment_id)
             article_id = comment.article_id
 
-        if article_id in self.__article_cache:
-            return self.__article_cache[article_id]
         article = Article.objects.using('read').get(id=article_id)
         article_info = article.get_brief()
-        self.__article_cache.update({article_info['article_id']: article_info})
         return article_info
 
     def get_comment_content(self):
