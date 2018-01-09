@@ -68,7 +68,7 @@
 }
 
 .comment-size-name {
-    font-size: 12px;
+    font-size: 14px;
     color: #339b53;
 }
 
@@ -96,9 +96,12 @@
 }
 
 .my-pl-con {
-    font-size: 12px;
+    font-size: 14px;
 }
 
+.small-size {
+    font-size: 12px;
+}
 .comment-pl-block {
     margin-top: 0;
 }
