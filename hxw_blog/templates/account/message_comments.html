@@ -3,6 +3,7 @@
 {% block extra_header %}
     <link rel="stylesheet" href="/static/css/account/message.css">
     <script src="/static/js/jquery.flexText.js"></script>
+    <script src="/static/js/time_desc.js"></script>
 {% endblock %}
 {% block content %}
     <div class="container">
@@ -39,7 +40,7 @@
                         <div class="comment-show-con-list pull-left clearfix">
                             <div class="pl-text clearfix">
                                 <a href="javascript:void(0)" class="comment-size-name"
-                                   data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>&nbsp;&nbsp;<span class="comment-time">{{ comment.reply_at }}</span>
+                                   data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>&nbsp;&nbsp;<span class="comment-time" data-reply_at="{{ comment.reply_at }}"></span>
                             </div>
                             <div class="date-dz">
                                 <span class="date-dz-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</span>
@@ -88,6 +89,21 @@
     <script>
         var user_id = {{ user.id }};
     </script>
+
+    <!--评论时间描述-->
+    <script>
+        function timeDesc() {
+            $("span.comment-time").each(function () {
+                var time_str = this.dataset.reply_at;
+                var time_desc = getDateDiff(time_str);
+                $(this).text(time_desc)
+            })
+        }
+        $(function () {
+            timeDesc()
+        });
+    </script>
+
     <script>
         $(function () {
             var page_size = $("#page_size").val();
@@ -306,7 +322,8 @@
                                             '<a href="javascript:void(0)" class="comment-size-name"' +
                                              'data-replier_id="' + replier_user_id +
                                             '">' + replier_username + '</a>' +
-                                            '&nbsp;&nbsp;<span class="comment-time">' + reply_at + '</span>' +
+                                            '&nbsp;&nbsp;<span class="comment-time" data-reply_at="' + reply_at +
+                                            '">' + '</span>' +
                                             '</div>';
                                     str += '<div class="date-dz">' +
                                            '<span class="date-dz-left my-pl-con">';
@@ -358,6 +375,7 @@
                                         '</div>' +
                                         '</div>';
                                     $(".comment-show").append(str);
+                                    timeDesc()
                                 });
                                 if (json.data.length < page_size) {
                                     $("#btn_read_more").hide();

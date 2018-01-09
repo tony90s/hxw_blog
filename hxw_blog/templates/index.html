@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="/static/css/slideshows.css" />
     <script src="/static/js/jquery.cycle.all.js"></script>
     <script src="/static/js/jquery.easing.1.3.js"></script>
+    <script src="/static/js/time_desc.js"></script>
 {% endblock %}
 {% block content %}
     <div class="container index">
@@ -70,7 +71,7 @@
                                             </a>
                                             <div class="info">
                                                 <a class="nickname" target="_blank" href="javascript:void(0)">{{ article_summarization.author.username }}</a>
-                                                <span class="time" data-shared-at="{{ article_summarization.release_time }}">{{ article_summarization.release_time }}</span>
+                                                <span class="time" data-release_at="{{ article_summarization.release_time }}"></span>
                                             </div>
                                         </div>
                                         <a class="title" target="_blank" href="{% url 'article:details' article_summarization.article_id %}">{{ article_summarization.title }}</a>
@@ -136,6 +137,20 @@
         });
     </script>
 
+    <!--发布时间描述-->
+    <script>
+        function timeDesc() {
+            $("span.time").each(function () {
+                var time_str = this.dataset.release_at;
+                var time_desc = getDateDiff(time_str);
+                $(this).text(time_desc)
+            })
+        }
+        $(function () {
+            timeDesc()
+        });
+    </script>
+
     <script>
         $(function () {
             var page_size = $("#page_size").val();
@@ -183,7 +198,7 @@
                                             '</a>' +
                                             '<div class="info">' +
                                                 '<a class="nickname" target="_blank" href="javascript:void(0)">' + author['username'] + '</a>' +
-                                                '<span class="time" data-shared-at="' + release_time + '">' + release_time + '</span>' +
+                                                '<span class="time" data-release_at="' + release_time + '">' + '</span>' +
                                             '</div>' +
                                         '</div>' +
                                         '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
@@ -202,6 +217,7 @@
                                         '</div>' +
                                         '</li>';
                                     $(".note-list").append(str);
+                                    timeDesc()
                                 });
                                 if (json.data.length < page_size) {
                                     $("#btn_read_more").hide();

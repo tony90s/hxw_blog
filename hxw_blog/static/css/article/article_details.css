@@ -197,7 +197,7 @@
 
 .date-dz-right {
     display: block;
-    padding-right: 18px;
+    /*padding-right: 18px;*/
     margin: 12px 0 12px;
     position: relative;
     overflow: hidden;
