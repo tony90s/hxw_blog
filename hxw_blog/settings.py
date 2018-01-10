@@ -236,7 +236,6 @@ DEFAULT_FROM_EMAIL_DISPLAY = '{alias} <{from_address}>'.format(alias=EMAIL_INFO_
 DEFAULT_PAGE_SIZE = 25
 
 # Cache settings
-"""
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
@@ -244,6 +243,5 @@ CACHES = {
     }
 }
 
-CACHE_MIDDLEWARE_SECONDS = 60 * 5
-CACHE_MIDDLEWARE_KEY_PREFIX = ""
-"""
+# CACHE_MIDDLEWARE_SECONDS = 60 * 5
+# CACHE_MIDDLEWARE_KEY_PREFIX = ""
