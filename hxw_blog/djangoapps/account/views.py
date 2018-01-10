@@ -18,7 +18,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.views import View
-from django.views.decorators.cache import cache_page
+# from django.views.decorators.cache import cache_page
 
 from account.cookies import set_logged_in_cookies, delete_logged_in_cookies
 from account.models import UserProfile

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from django.template import RequestContext
-from django.views.decorators.cache import cache_page
+# from django.views.decorators.cache import cache_page
 
 from account.models import UserProfile
 from article.models import Article, Comment, CommentReply, Praise

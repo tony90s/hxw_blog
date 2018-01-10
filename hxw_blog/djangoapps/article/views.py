@@ -16,7 +16,7 @@ from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse
 from django.views import View
 from django.utils import timezone
-from django.views.decorators.cache import cache_page
+# from django.views.decorators.cache import cache_page
 
 from account.models import UserProfile
 from article.models import Article, Comment, CommentReply, Praise
