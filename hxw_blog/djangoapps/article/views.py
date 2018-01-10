@@ -16,6 +16,7 @@ from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse
 from django.views import View
 from django.utils import timezone
+from django.views.decorators.cache import cache_page
 
 from account.models import UserProfile
 from article.models import Article, Comment, CommentReply, Praise
@@ -95,8 +96,9 @@ def article_category_index_views(request, article_type):
         raise Http404
 
     template = 'index.html'
-    articles = Article.objects.using('read').filter(Q(type=article_type)).order_by('-id')
-    articles_summarization = [article.get_summarization() for article in articles][page_size*(page_index-1):page_size*page_index]
+    articles = Article.objects.using('read').filter(Q(type=article_type)).order_by('-id')[
+               page_size * (page_index - 1):page_size * page_index]
+    articles_summarization = [article.get_summarization() for article in articles]
     # get hot articles brief
     all_articles = Article.objects.using('read').all().order_by('-id')
     hot_articles = sorted(all_articles, key=lambda article: article.praise_times, reverse=True)
@@ -157,6 +159,12 @@ def article_details(request, article_id):
     context = {
         'article_details': article_details
     }
+    Comment._Comment__user_cache = dict()
+    Comment._Comment__article_info_cache = dict()
+    CommentReply._CommentReply__user_cache = dict()
+    CommentReply._CommentReply__article_info_cache = dict()
+    Praise._Praise__user_cache = dict()
+    Praise._Praise__article_info_cache = dict()
     return render(request, template_name, context)
 
 
@@ -415,3 +423,44 @@ def cancel_praise(request):
 
     praises.delete()
     return JsonResponse({'code': 200, 'msg': '取消点赞成功'})
+
+
+@csrf_exempt
+def update_is_viewed_status(request):
+    object_type = request.POST.get('object_type')   # 1 comment  2 comment_reply   3 praise
+    parent_id = request.POST.get('parent_id')
+
+    if not object_type or not parent_id:
+        return JsonResponse({'code': 400, 'msg': '参数缺失'})
+
+    if not reg_number.match(object_type) or not reg_number.match(parent_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+    object_type = int(object_type)
+    parent_id = int(parent_id)
+
+    if object_type not in [1, 2, 3]:
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+    if object_type == 1:
+        comments = Comment.objects.using('read').filter(id=parent_id)
+        if not comments.exists():
+            return JsonResponse({'code': 404, 'msg': '对象不存在'})
+        comment = comments[0]
+        comment.is_viewed = 1
+        comment.save(using='write')
+    elif object_type == 2:
+        comment_replies = CommentReply.objects.using('read').filter(id=parent_id)
+        if not comment_replies.exists():
+            return JsonResponse({'code': 404, 'msg': '对象不存在'})
+        comment_reply = comment_replies[0]
+        comment_reply.is_viewed = 1
+        comment_reply.save(using='write')
+    else:
+        praises = Praise.objects.using('read').filter(id=parent_id)
+        if not praises.exists():
+            return JsonResponse({'code': 404, 'msg': '对象不存在'})
+        praise = praises[0]
+        praise.is_viewed = 1
+        praise.save(using='write')
+    return JsonResponse({'code': 200, 'msg': '更新成功'})

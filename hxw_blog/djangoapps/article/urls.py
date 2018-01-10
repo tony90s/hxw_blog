@@ -12,7 +12,8 @@ from article.views import (
     cancel_praise,
     article_category_index_views,
     articles_list,
-    article_comments_list
+    article_comments_list,
+    update_is_viewed_status
 )
 
 urlpatterns = [
@@ -29,4 +30,5 @@ urlpatterns = [
     url(r'^category/(?P<article_type>\d+)$', article_category_index_views, name='article_category'),
     url(r'^articles$', articles_list, name='articles'),
     url(r'^comments$', article_comments_list, name='comments'),
+    url(r'^is_viewed_status/update$', update_is_viewed_status, name='update_is_viewed_status'),
 ]

@@ -18,10 +18,19 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.views import View
+from django.views.decorators.cache import cache_page
 
 from account.cookies import set_logged_in_cookies, delete_logged_in_cookies
 from account.models import UserProfile
-from article.models import Article, Comment, CommentReply, get_user_article_comments, get_user_comments, get_user_be_praised
+from article.models import (
+    Article,
+    Comment,
+    CommentReply,
+    Praise,
+    get_user_article_comments,
+    get_user_comments,
+    get_user_be_praised
+)
 from utils import generate_verification_code
 from utils.file_handling import get_thumbnail
 from utils.html_email_utils import send_html_mail
@@ -418,10 +427,12 @@ def message_comments(request):
     if comment_type not in [0, 1]:
         raise Http404
 
-    if comment_type == 0:
-        comments = get_user_article_comments(user.id)
-        comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-reply_at')
-    else:
+    comments = get_user_article_comments(user.id)
+    comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-reply_at')
+    not_viewed_comment_count = comments.filter(is_viewed=0).count() + comment_replies.filter(is_viewed=0).count()
+    praises = get_user_be_praised(user.id)
+    not_viewed_praises_count = praises.filter(is_viewed=0).count()
+    if comment_type == 1:
         comments = get_user_comments(user.id)
         comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user.id)).order_by('-reply_at')
     comments_info_list = [comment.get_unified_comment_info() for comment in comments]
@@ -433,8 +444,16 @@ def message_comments(request):
     context = {
         'unified_comment_info_list': unified_comment_info_list[:page_size],
         'comment_type': comment_type,
-        'page_size': page_size
+        'page_size': page_size,
+        'not_viewed_comment_count': not_viewed_comment_count,
+        'not_viewed_praises_count': not_viewed_praises_count
     }
+    Comment._Comment__user_cache = dict()
+    Comment._Comment__article_info_cache = dict()
+    CommentReply._CommentReply__user_cache = dict()
+    CommentReply._CommentReply__article_info_cache = dict()
+    Praise._Praise__user_cache = dict()
+    Praise._Praise__article_info_cache = dict()
     return render(request, template_name, context)
 
 
@@ -478,12 +497,18 @@ def user_unified_comment_info_pagination(request):
     unified_comment_info_list.sort(
         key=lambda comment_info: time.mktime(time.strptime(comment_info['reply_at'], '%Y-%m-%d %H:%M:%S')),
         reverse=True)
-    query_comments_info = unified_comment_info_list[page_size*(page_index-1):page_size*page_index]
+    query_comments_info = unified_comment_info_list[page_size * (page_index - 1):page_size * page_index]
     context = {
         'code': 200,
         'msg': '查询成功',
         'data': query_comments_info
     }
+    Comment._Comment__user_cache = dict()
+    Comment._Comment__article_info_cache = dict()
+    CommentReply._CommentReply__user_cache = dict()
+    CommentReply._CommentReply__article_info_cache = dict()
+    Praise._Praise__user_cache = dict()
+    Praise._Praise__article_info_cache = dict()
     return JsonResponse(context)
 
 
@@ -493,12 +518,29 @@ def message_praises(request):
     template_name = 'account/message_praises.html'
     user = request.user
 
-    praises = get_user_be_praised(user.id)[:page_size]
+    all_praises = get_user_be_praised(user.id)
+    not_viewed_praises_count = all_praises.filter(is_viewed=0).count()
+    praises = all_praises[:page_size]
     praises_info = [praise.get_praise_info() for praise in praises]
+
+    comments = get_user_article_comments(user.id)
+    comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-reply_at')
+    not_viewed_comment_count = comments.filter(is_viewed=0).count() + comment_replies.filter(is_viewed=0).count()
+
     context = {
         'praises': praises_info,
-        'page_size': page_size
+        'page_size': page_size,
+        'not_viewed_praises_count': not_viewed_praises_count,
+        'not_viewed_comment_count': not_viewed_comment_count
+
     }
+    Comment._Comment__user_cache = dict()
+    Comment._Comment__article_info_cache = dict()
+    CommentReply._CommentReply__user_cache = dict()
+    CommentReply._CommentReply__article_info_cache = dict()
+    Praise._Praise__user_cache = dict()
+    Praise._Praise__article_info_cache = dict()
+
     return render(request, template_name, context)
 
 
@@ -523,7 +565,7 @@ def user_praises_info_pagination(request):
     if page_index <= 0:
         return JsonResponse({'code': 400, 'msg': '参数有误。'})
 
-    praises = get_user_be_praised(user_id)[page_size*(page_index-1):page_size*page_index]
+    praises = get_user_be_praised(user_id)[page_size * (page_index - 1):page_size * page_index]
     praises_info = [praise.get_praise_info() for praise in praises]
 
     context = {
@@ -531,4 +573,10 @@ def user_praises_info_pagination(request):
         'msg': '查询成功',
         'data': praises_info
     }
+    Comment._Comment__user_cache = dict()
+    Comment._Comment__article_info_cache = dict()
+    CommentReply._CommentReply__user_cache = dict()
+    CommentReply._CommentReply__article_info_cache = dict()
+    Praise._Praise__user_cache = dict()
+    Praise._Praise__article_info_cache = dict()
     return JsonResponse(context)

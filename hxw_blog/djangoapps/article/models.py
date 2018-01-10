@@ -16,6 +16,7 @@ class Article(models.Model):
         DIGITAL_INFO = 7
         READING = 8
         QUESTIONS_AND_ANSWERS = 9
+        TOPIC = 10
 
     TYPE_CHOICES = (
         (TYPE.PYTHON, 'Python'),
@@ -26,7 +27,8 @@ class Article(models.Model):
         (TYPE.HISTORY, '历史'),
         (TYPE.DIGITAL_INFO, '数码资讯'),
         (TYPE.READING, '读书'),
-        (TYPE.QUESTIONS_AND_ANSWERS, '问答')
+        (TYPE.QUESTIONS_AND_ANSWERS, '问答'),
+        (TYPE.TOPIC, '话题')
     )
     author_id = models.IntegerField(db_index=True, verbose_name='作者', default=0)
     title = models.CharField(max_length=64, default='', verbose_name='标题')
@@ -164,6 +166,9 @@ class Comment(models.Model):
     commentator_id = models.IntegerField(db_index=True, verbose_name='评论人', default=0)
     comment_at = models.DateTimeField(auto_now_add=timezone.now, verbose_name='评论时间')
     content = models.CharField(max_length=140, default='', verbose_name='评论内容')
+    is_viewed = models.BooleanField(default=0, verbose_name='是否已查看')
+    __user_cache = dict()
+    __article_info_cache = dict()
 
     def __str__(self):
         return '%s %s' % (self.article.title, self.content[0:10])
@@ -173,12 +178,15 @@ class Comment(models.Model):
         verbose_name_plural = _('comments')
 
     def get_commentator_info(self):
+        if self.commentator_id in self.__user_cache:
+            return self.__user_cache[self.commentator_id]
         commentator = User.objects.using('read').get(id=self.commentator_id)
         commentator_info = {
             'user_id': commentator.id,
             'username': commentator.get_username(),
             'avatar': commentator.profile.avatar.url
         }
+        self.__user_cache.update({self.commentator_id: commentator_info})
         return commentator_info
 
     def render_json(self):
@@ -209,8 +217,11 @@ class Comment(models.Model):
         return article.author_id
 
     def get_article_info(self):
+        if self.article_id in self.__article_info_cache:
+            return self.__article_info_cache[self.article_id]
         article = Article.objects.using('read').get(id=self.article_id)
         article_info = article.get_brief()
+        self.__article_info_cache.update({self.article_id: article_info})
         return article_info
 
     def get_unified_comment_info(self):
@@ -226,6 +237,7 @@ class Comment(models.Model):
         }
         context['reply_at'] = timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")
         context['content'] = self.content
+        context['is_viewed'] = int(self.is_viewed)
 
         return context
 
@@ -238,7 +250,7 @@ def get_user_article_comments(user_id):
 
 
 def get_user_comments(user_id):
-    comments = list(Comment.objects.using('read').filter(commentator_id=user_id).order_by('-comment_at'))
+    comments = Comment.objects.using('read').filter(commentator_id=user_id).order_by('-comment_at')
     return comments
 
 
@@ -248,34 +260,46 @@ class CommentReply(models.Model):
     receiver_id = models.IntegerField(db_index=True, verbose_name='接受者', default=0)
     reply_at = models.DateTimeField(auto_now_add=timezone.now, verbose_name='回复时间')
     content = models.CharField(max_length=140, default='', verbose_name='回复内容')
+    is_viewed = models.BooleanField(default=0, verbose_name='是否已查看')
+    __user_cache = dict()
+    __article_info_cache = dict()
 
     class Meta:
         verbose_name = _('comment_reply')
         verbose_name_plural = _('comment_replies')
 
     def get_replier_info(self):
+        if self.replier_id in self.__user_cache:
+            return self.__user_cache[self.replier_id]
         replier = User.objects.using('read').get(id=self.replier_id)
         replier_data = {
             'user_id': replier.id,
             'username': replier.get_username(),
             'avatar': replier.profile.avatar.url
         }
+        self.__user_cache.update({self.replier_id: replier_data})
         return replier_data
 
     def get_receiver_info(self):
+        if self.receiver_id in self.__user_cache:
+            return self.__user_cache[self.receiver_id]
         receiver = User.objects.using('read').get(id=self.receiver_id)
         receiver_data = {
             'user_id': receiver.id,
             'username': receiver.username,
             'avatar': receiver.profile.avatar.url
         }
+        self.__user_cache.update({self.receiver_id: receiver_data})
         return receiver_data
 
     def get_article_info(self):
         comment = Comment.objects.using('read').get(id=self.comment_id)
         article_id = comment.article_id
+        if article_id in self.__article_info_cache:
+            return self.__article_info_cache[article_id]
         article = Article.objects.using('read').get(id=article_id)
         article_info = article.get_brief()
+        self.__article_info_cache.update({article_id: article_info})
         return article_info
 
     def render_json(self):
@@ -299,6 +323,7 @@ class CommentReply(models.Model):
         context['receiver'] = self.get_receiver_info()
         context['reply_at'] = timezone.localtime(self.reply_at).strftime("%Y-%m-%d %H:%M:%S")
         context['content'] = self.content
+        context['is_viewed'] = int(self.is_viewed)
         return context
 
 
@@ -317,6 +342,9 @@ class Praise(models.Model):
     parent_id = models.IntegerField(verbose_name='点赞对象id', default=0)
     user_id = models.IntegerField(db_index=True, verbose_name='点赞人', default=0)
     praise_at = models.DateTimeField(auto_now_add=timezone.now, verbose_name='点赞时间')
+    is_viewed = models.BooleanField(default=0, verbose_name='是否已查看')
+    __user_cache = dict()
+    __article_info_cache = dict()
 
     class Meta:
         verbose_name = _('praise')
@@ -324,12 +352,15 @@ class Praise(models.Model):
         index_together = [('praise_type', 'parent_id')]
 
     def get_user_info(self):
+        if self.user_id in self.__user_cache:
+            return self.__user_cache[self.user_id]
         user = User.objects.using('read').get(id=self.user_id)
         user_data = {
             'user_id': user.id,
             'username': user.get_username(),
             'avatar': user.profile.avatar.url
         }
+        self.__user_cache.update({self.user_id: user_data})
         return user_data
 
     def get_article_info(self):
@@ -346,8 +377,11 @@ class Praise(models.Model):
             comment = Comment.objects.using('read').get(id=comment_id)
             article_id = comment.article_id
 
+        if article_id in self.__article_info_cache:
+            return self.__article_info_cache[article_id]
         article = Article.objects.using('read').get(id=article_id)
         article_info = article.get_brief()
+        self.__article_info_cache.update({article_id: article_info})
         return article_info
 
     def get_comment_content(self):
@@ -385,24 +419,22 @@ class Praise(models.Model):
         context['article_info'] = self.get_article_info()
         context['receiver_info'] = self.get_receiver_info()
         context['content'] = self.get_comment_content()
+        context['is_viewed'] = int(self.is_viewed)
         return context
 
 
 def get_user_be_praised(user_id):
     articles = Article.objects.using('read').filter(author_id=user_id)
     article_ids = [article.id for article in articles]
-    user_article_praises = list(Praise.objects.using('read').filter(
-        Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id__in=article_ids)))
+    query_condition = (Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id__in=article_ids))
 
     comments = Comment.objects.using('read').filter(commentator_id=user_id)
     comment_ids = [comment.id for comment in comments]
-    user_comment_praises = list(Praise.objects.using('read').filter(
-        Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comment_ids)))
+    query_condition |= (Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comment_ids))
 
     comment_replies = CommentReply.objects.using('read').filter(replier_id=user_id)
     comment_reply_ids = [comment_reply.id for comment_reply in comment_replies]
-    user_comment_reply_praises = list(Praise.objects.using('read').filter(
-        Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_reply_ids)))
-    praises = user_article_praises + user_comment_praises + user_comment_reply_praises
-    praises.sort(key=lambda praise: praise.id, reverse=True)
+    query_condition |= (Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_reply_ids))
+
+    praises = Praise.objects.using('read').filter(query_condition).order_by('-id')
     return praises

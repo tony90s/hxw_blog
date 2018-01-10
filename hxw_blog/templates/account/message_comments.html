@@ -13,11 +13,15 @@
                 <div class="sidebar-box">
                     <div class="list-group">
                         <a class="list-group-item comments active" href="{% url 'account:user_message_comments' %}">
-                            <!--<span class="badge">6</span>-->
+                            {% if not_viewed_comment_count %}
+                                <span class="badge">{{ not_viewed_comment_count }}</span>
+                            {% endif %}
                             评论
                         </a>
                         <a class="list-group-item praises" href="{% url 'account:user_message_praises' %}">
-                            <!--<span class="badge">5</span>-->
+                            {% if not_viewed_praises_count %}
+                                <span class="badge">{{ not_viewed_praises_count }}</span>
+                            {% endif %}
                             赞
                         </a>
                     </div>
@@ -33,7 +37,7 @@
                 </div>
                 <div class="comment-show">
                     {% for comment in unified_comment_info_list %}
-                    <div class="comment-show-con clearfix">
+                    <div class="comment-show-con clearfix" data-comment_reply_id="{{ comment.comment_reply_id }}" data-comment_id="{{ comment.comment_id }}" data-is_viewed="{{ comment.is_viewed }}">
                         <div class="comment-show-con-img pull-left">
                             <img src="{{ comment.replier.avatar }}" alt="{{ comment.replier.username }}">
                         </div>
@@ -111,6 +115,58 @@
             if (comments.length < parseInt(page_size)) {
                 $("#btn_read_more").hide();
                 $(".read-more .not-more-content").show();
+            }
+        });
+    </script>
+
+    <script>
+        function AjaxUpdateViewStatus() {
+            $(".comment-show-con").each(function () {
+                var $this = this;
+                var comment_reply_id =  this.dataset.comment_reply_id;
+                var comment_id = this.dataset.comment_id;
+                var is_viewed = this.dataset.is_viewed;
+                var object_type = 1;
+                var parent_id = comment_id;
+                if (parseInt(comment_reply_id) > 0) {
+                    object_type = 2;
+                    parent_id = comment_reply_id;
+                }
+                if (parseInt(is_viewed) == 0) {
+                    $.post(
+                        "{% url 'article:update_is_viewed_status' %}",
+                        {
+                            "object_type": object_type,
+                            "parent_id": parent_id
+                        },
+                        function (json) {
+                            if (json.code == 200) {
+
+                                var badge = $(".list-group-item.comments .badge");
+                                var not_is_viewed_count = parseInt(badge.text());
+                                $this.dataset.is_viewed = 1;
+                                not_is_viewed_count--;
+                                if (not_is_viewed_count > 0) {
+                                    badge.text(not_is_viewed_count);
+                                }
+                                else {
+                                    badge.remove()
+                                }
+                                console.log(json.msg)
+                            }
+                            else {
+                                console.log(json.msg);
+                                return false
+                            }
+                        }
+                    );
+                }
+            })
+        }
+        $(function () {
+            var comment_type = $("#comment_type").val();
+            if (parseInt(comment_type) == 0) {
+                AjaxUpdateViewStatus()
             }
         });
     </script>
@@ -311,10 +367,13 @@
                                     var receiver_username = array['receiver']['username'];
                                     var reply_at = array['reply_at'];
                                     var content = array['content'];
+                                    var is_viewed = array['is_viewed'];
 
-                                    var str = '<div class="comment-show-con clearfix">';
-                                    str += '<div class="comment-show-con clearfix">' +
-                                            '<div class="comment-show-con-img pull-left">' +
+                                    var str = '<div class="comment-show-con clearfix" data-comment_reply_id="' + comment_reply_id +
+                                            '" data-comment_id="' + comment_id +
+                                            '" data-is_viewed="' + is_viewed +
+                                            '">';
+                                    str += '<div class="comment-show-con-img pull-left">' +
                                                 '<img src="' + replier_avatar + '" alt="' + replier_username + '">' +
                                             '</div>';
                                     str += '<div class="comment-show-con-list pull-left clearfix">' +
@@ -375,8 +434,11 @@
                                         '</div>' +
                                         '</div>';
                                     $(".comment-show").append(str);
-                                    timeDesc()
                                 });
+                                timeDesc();
+                                if (parseInt(comment_type) == 0) {
+                                    AjaxUpdateViewStatus()
+                                }
                                 if (json.data.length < page_size) {
                                     $("#btn_read_more").hide();
                                     $(".read-more .not-more-content").show();
