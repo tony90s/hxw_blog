@@ -30,11 +30,15 @@ code {
   font-size: 80%;
 }
 
-.dropdown-menu {
+.navbar .nav > li .dropdown-menu {
     min-width: 100%;
 }
 
-.dropdown-menu a {
+.navbar .nav > li:hover .dropdown-menu {
+    display: block;
+}
+
+.navbar .nav > li .dropdown-menu a {
     text-align: center;
     margin: 8px 0 8px;
 }
