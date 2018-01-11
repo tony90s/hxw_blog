@@ -29,9 +29,9 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <img class="avator" src="{{ user.profile.avatar.url }}">
                         <span class="user-info" data-user_id="{{ user.id }}">
-								{{user.username}}
                         </span>
-                        <span class="caret"></span></a>
+                        <span class="caret"></span>
+                    </a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'account:user_info' %}">个人中心</a></li>
                         <li><a id="user_message_link" href="{% url 'account:user_message_comments' %}">我的消息</a></li>
