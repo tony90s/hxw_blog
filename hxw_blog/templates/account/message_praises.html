@@ -16,12 +16,14 @@
                             {% if not_viewed_comment_count > 0 %}
                                 <span class="badge">{{ not_viewed_comment_count }}</span>
                             {% endif %}
+                            <i class="iconfont icon-comments"></i>
                             评论
                         </a>
                         <a class="list-group-item praises active" href="{% url 'account:user_message_praises' %}">
                             {% if not_viewed_praises_count > 0 %}
                                 <span class="badge">{{ not_viewed_praises_count }}</span>
                             {% endif %}
+                            <i class="iconfont icon-like"></i>
                             赞
                         </a>
                     </div>
