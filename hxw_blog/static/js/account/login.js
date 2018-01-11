@@ -12,7 +12,7 @@ $(function () {
         var form = $(this).parent('form');
         var account = form.find('[name="account"]').val();
         var password = form.find('[name="password"]').val();
-        var remember = form.find('[name="remember"]').val();
+        var remember = form.find('[name="remember"]').prop("checked");
         var redirect_url = this.dataset.next;
 
         var reg_email = /^([\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
