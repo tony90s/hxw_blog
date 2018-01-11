@@ -245,12 +245,12 @@ class Comment(models.Model):
 def get_user_article_comments(user_id):
     articles = Article.objects.using('read').filter(author_id=user_id)
     article_ids = [article.id for article in articles]
-    comments = Comment.objects.using('read').filter(article_id__in=article_ids).order_by('-comment_at')
+    comments = Comment.objects.using('read').filter(article_id__in=article_ids).order_by('-id')
     return comments
 
 
 def get_user_comments(user_id):
-    comments = Comment.objects.using('read').filter(commentator_id=user_id).order_by('-comment_at')
+    comments = Comment.objects.using('read').filter(commentator_id=user_id).order_by('-id')
     return comments
 
 

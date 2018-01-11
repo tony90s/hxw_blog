@@ -428,13 +428,13 @@ def message_comments(request):
         raise Http404
 
     comments = get_user_article_comments(user.id)
-    comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-reply_at')
+    comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-id')
     not_viewed_comment_count = comments.filter(is_viewed=0).count() + comment_replies.filter(is_viewed=0).count()
     praises = get_user_be_praised(user.id)
     not_viewed_praises_count = praises.filter(is_viewed=0).count()
     if comment_type == 1:
         comments = get_user_comments(user.id)
-        comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user.id)).order_by('-reply_at')
+        comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user.id)).order_by('-id')
     comments_info_list = [comment.get_unified_comment_info() for comment in comments]
     comment_replies_info_list = [comment_reply.get_unified_comment_info() for comment_reply in comment_replies]
     unified_comment_info_list = comments_info_list + comment_replies_info_list
@@ -487,10 +487,10 @@ def user_unified_comment_info_pagination(request):
 
     if comment_type == 0:
         comments = get_user_article_comments(user_id)
-        comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user_id)).order_by('-reply_at')
+        comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user_id)).order_by('-id')
     else:
         comments = get_user_comments(user_id)
-        comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user_id)).order_by('-reply_at')
+        comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user_id)).order_by('-id')
     comments_info_list = [comment.get_unified_comment_info() for comment in comments]
     comment_replies_info_list = [comment_reply.get_unified_comment_info() for comment_reply in comment_replies]
     unified_comment_info_list = comments_info_list + comment_replies_info_list
@@ -524,7 +524,7 @@ def message_praises(request):
     praises_info = [praise.get_praise_info() for praise in praises]
 
     comments = get_user_article_comments(user.id)
-    comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-reply_at')
+    comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-id')
     not_viewed_comment_count = comments.filter(is_viewed=0).count() + comment_replies.filter(is_viewed=0).count()
 
     context = {

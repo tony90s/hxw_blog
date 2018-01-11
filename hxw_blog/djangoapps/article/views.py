@@ -443,24 +443,18 @@ def update_is_viewed_status(request):
         return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     if object_type == 1:
-        comments = Comment.objects.using('read').filter(id=parent_id)
+        comments = Comment.objects.using('write').filter(id=parent_id)
         if not comments.exists():
             return JsonResponse({'code': 404, 'msg': '对象不存在'})
-        comment = comments[0]
-        comment.is_viewed = 1
-        comment.save(using='write')
+        comments.update(is_viewed=1)
     elif object_type == 2:
-        comment_replies = CommentReply.objects.using('read').filter(id=parent_id)
+        comment_replies = CommentReply.objects.using('write').filter(id=parent_id)
         if not comment_replies.exists():
             return JsonResponse({'code': 404, 'msg': '对象不存在'})
-        comment_reply = comment_replies[0]
-        comment_reply.is_viewed = 1
-        comment_reply.save(using='write')
+        comment_replies.update(is_viewed=1)
     else:
-        praises = Praise.objects.using('read').filter(id=parent_id)
+        praises = Praise.objects.using('write').filter(id=parent_id)
         if not praises.exists():
             return JsonResponse({'code': 404, 'msg': '对象不存在'})
-        praise = praises[0]
-        praise.is_viewed = 1
-        praise.save(using='write')
+        praises.update(is_viewed=1)
     return JsonResponse({'code': 200, 'msg': '更新成功'})
