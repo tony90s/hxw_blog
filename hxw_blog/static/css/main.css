@@ -202,3 +202,20 @@ label {
     font-family:"iconfont" !important;
     font-size: 18px;
 }
+
+.read-more {
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.read-more button {
+    width: 150px;
+    height: 40px;
+    border-radius: 20px;
+}
+
+.read-more .not-more-content {
+    color: #8b8b8b;
+    display: none;
+    font-size: 90%;
+}

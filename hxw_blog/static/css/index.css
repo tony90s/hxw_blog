@@ -812,20 +812,3 @@ footer .icp img {
     border-color: #2f2f2f;
     background-color: #4a4a4a
 }
-
-.read-more {
-    margin-top: 20px;
-    margin-bottom: 50px;
-}
-
-.read-more button {
-    width: 150px;
-    height: 40px;
-    border-radius: 20px;
-}
-
-.read-more .not-more-content {
-    color: #8b8b8b;
-    display: none;
-    font-size: 90%;
-}
