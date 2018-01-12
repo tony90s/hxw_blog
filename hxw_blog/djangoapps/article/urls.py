@@ -13,7 +13,7 @@ from article.views import (
     article_category_index_views,
     articles_list,
     article_comments_list,
-    update_is_viewed_status
+    update_is_viewed_status,
 )
 
 urlpatterns = [

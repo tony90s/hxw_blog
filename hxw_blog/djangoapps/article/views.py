@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 import os
 import re
@@ -19,7 +20,7 @@ from django.utils import timezone
 # from django.views.decorators.cache import cache_page
 
 from account.models import UserProfile
-from article.models import Article, Comment, CommentReply, Praise
+from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
 from utils.sensitive_word_handler import sensitive_words_replace
 
 reg_number = re.compile('^\d+$')
@@ -101,8 +102,10 @@ def article_category_index_views(request, article_type):
     articles_summarization = [article.get_summarization() for article in articles]
     # get hot articles brief
     all_articles = Article.objects.using('read').all().order_by('-id')
-    hot_articles = sorted(all_articles, key=lambda article: article.praise_times, reverse=True)
-    hot_articles_briefs = [article.get_brief() for article in hot_articles[:5]]
+    now = timezone.now()
+    hot_articles = sorted(all_articles.filter(Q(is_released=1) & Q(release_at__gte=(now + timedelta(days=-30)))),
+                          key=lambda article: article.praise_times, reverse=True)[:5]
+    hot_articles_briefs = [article.get_brief() for article in hot_articles]
     context = {
         'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)},
         'articles_summarization': articles_summarization,
@@ -131,9 +134,12 @@ def articles_list(request):
 
     if page_index <= 0:
         return JsonResponse({'code': 400, 'msg': '参数有误'})
-    if article_type not in [value for value, name in Article.TYPE_CHOICES]:
+    if article_type == 0:
+        query_condition = Q()
+    elif article_type not in [value for value, name in Article.TYPE_CHOICES]:
         return JsonResponse({'code': 404, 'msg': '没有此类型的博文'})
-    query_condition = Q(type=article_type)
+    else:
+        query_condition = Q(type=article_type)
 
     articles = Article.objects.using('read').filter(query_condition).order_by('-id')[
                page_size * (page_index - 1):page_size * page_index]

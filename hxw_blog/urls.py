@@ -35,7 +35,8 @@ urlpatterns = [
     url(r'^article/', include('article.urls', namespace='article')),
     # url(r'^admin/', admin.site.urls),
     # url(r'^uetest', editor_test, name='uetest'),
-    url(r'^ueEditorControler', handler)
+    url(r'^ueEditorControler', handler),
+    url(r'^api/v1/', include('restful_api.urls', namespace='api')),
 ]
 
 if settings.DEBUG:

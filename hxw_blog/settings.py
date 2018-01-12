@@ -60,12 +60,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'utils',
     'ueditor',
     'account',
     'index',
     'article',
-    'site_info'
+    'site_info',
+    'restful_api'
 ]
 
 MIDDLEWARE = [
@@ -245,3 +247,9 @@ CACHES = {
 
 # CACHE_MIDDLEWARE_SECONDS = 60 * 5
 # CACHE_MIDDLEWARE_KEY_PREFIX = ""
+
+# Django rest framework
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'utils.paginators.StandardResultsSetPagination',
+    'PAGE_SIZE': 10
+}
