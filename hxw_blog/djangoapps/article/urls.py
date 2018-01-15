@@ -14,6 +14,9 @@ from article.views import (
     articles_list,
     article_comments_list,
     update_is_viewed_status,
+    drafts,
+    user_articles,
+    update_article_release_status
 )
 
 urlpatterns = [
@@ -31,4 +34,7 @@ urlpatterns = [
     url(r'^articles$', articles_list, name='articles'),
     url(r'^comments$', article_comments_list, name='comments'),
     url(r'^is_viewed_status/update$', update_is_viewed_status, name='update_is_viewed_status'),
+    url(r'^drafts$', drafts, name='user_drafts'),
+    url(r'^user_articles$', user_articles, name='user_articles'),
+    url(r'^release$', update_article_release_status, name='update_article_release_status'),
 ]

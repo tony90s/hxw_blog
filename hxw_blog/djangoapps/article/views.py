@@ -118,28 +118,33 @@ def article_category_index_views(request, article_type):
 @require_http_methods(['GET'])
 def articles_list(request):
     page_size = settings.DEFAULT_PAGE_SIZE
-    article_type = request.GET.get('article_type')
-    page_index = request.GET.get('page_index')
+    article_type = request.GET.get('article_type', '0')
+    page_index = request.GET.get('page_index', '1')
+    author_id = request.GET.get('author_id', '0')
+    is_released = request.GET.get('is_released', '1')
 
-    if not article_type or not page_index:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-
-    if not reg_number.match(article_type):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-    if not reg_number.match(page_index):
+    if not reg_number.match(article_type) or not reg_number.match(page_index) or not reg_number.match(
+            author_id) or not reg_number.match(is_released):
         return JsonResponse({'code': 400, 'msg': '参数有误'})
 
     article_type = int(article_type)
     page_index = int(page_index)
+    author_id = int(author_id)
+    is_released = int(is_released)
 
     if page_index <= 0:
         return JsonResponse({'code': 400, 'msg': '参数有误'})
+    if is_released not in [0, 1]:
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
 
-    query_condition = Q(is_released=1)
+    query_condition = Q(is_released=is_released)
     if article_type > 0:
         if article_type not in [value for value, name in Article.TYPE_CHOICES]:
             return JsonResponse({'code': 404, 'msg': '没有此类型的博文'})
         query_condition &= Q(type=article_type)
+
+    if author_id > 0:
+        query_condition &= Q(author_id=author_id)
 
     articles = Article.objects.using('read').filter(query_condition).order_by('-id')[
                page_size * (page_index - 1):page_size * page_index]
@@ -464,3 +469,54 @@ def update_is_viewed_status(request):
             return JsonResponse({'code': 404, 'msg': '对象不存在'})
         praises.update(is_viewed=1)
     return JsonResponse({'code': 200, 'msg': '更新成功'})
+
+
+@login_required()
+def drafts(request):
+    page_size = settings.DEFAULT_PAGE_SIZE
+    user = request.user
+
+    drafts = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=0)).order_by('-id')[:page_size]
+    drafts_info = [draft.get_summarization() for draft in drafts]
+    context = {
+        'drafts_info': drafts_info,
+        'page_size': page_size
+    }
+    return render(request, 'article/user_drafts.html', context)
+
+
+@login_required()
+def user_articles(request):
+    page_size = settings.DEFAULT_PAGE_SIZE
+    user = request.user
+
+    articles = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=1)).order_by('-id')[:page_size]
+    articles_info = [article.get_summarization() for article in articles]
+    context = {
+        'articles_info': articles_info,
+        'page_size': page_size
+    }
+    return render(request, 'article/user_articles.html', context)
+
+
+@login_required
+@csrf_exempt
+def update_article_release_status(request):
+    user = request.user
+    article_id = request.POST.get('article_id')
+
+    if not article_id:
+        return JsonResponse({'code': 400, 'msg': '参数缺失'})
+    if not reg_number.match(article_id):
+        return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+    article_id = int(article_id)
+    articles = Article.objects.using('write').filter(id=article_id)
+    if not articles.exists():
+        return JsonResponse({'code': 404, 'msg': '博文不存在'})
+
+    if user.id != articles[0].author_id:
+        return JsonResponse({'code': 403, 'msg': '不能发布其它童鞋的博文'})
+
+    articles.update(is_released=True)
+    return JsonResponse({'code': 200, 'msg': '博文发布成功'})

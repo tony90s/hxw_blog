@@ -179,7 +179,11 @@
                                     if (cover_photo) {
                                         str += 'class="with-img">' +
                                          '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
-                                         '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>'
+                                         '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                         '</a>'
+                                    }
+                                    else {
+                                        str += '>'
                                     }
                                     str += '<div class="content">' +
                                         '<div class="author">' +

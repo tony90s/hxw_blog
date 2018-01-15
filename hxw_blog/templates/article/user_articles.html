@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}<title>LOVEITERS-我的文章</title>{% endblock %}
+{% block extra_header %}
+    <link href="/static/css/index.css" rel="stylesheet">
+    <script src="/static/js/time_desc.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="container index">
+
+        <div class="row row-offcanvas row-offcanvas-right">
+
+            <div class="col-lg-12 col-xs-12 col-sm-12">
+
+                <div class="row">
+                    <div class="col-sm-8 main">
+                        <div class="split-line"></div>
+                        <div id="list-container">
+                            <ul class="note-list">
+                                {% for article in articles_info %}
+                                <li id="article-{{ article.article_id }}" data-article_id="{{ article.article_id }}" {% if article.cover_photo %}class="with-img"{% endif %}>
+                                    {% if article.cover_photo %}
+                                    <a class="wrap-img" href="{% url 'article:details' article.article_id %}" target="_blank">
+                                        <img class="img-blur"
+                                             src="{{ article.cover_photo }}"
+                                             alt="{{ article.title }}"/>
+                                    </a>
+                                    {% endif %}
+                                    <div class="content">
+                                        <a class="title" target="_blank" href="{% url 'article:details' article.article_id %}">{{ article.title }}</a>
+                                        <p class="abstract">
+                                            {{ article.abstract }}
+                                        </p>
+                                        <div class="meta">
+                                            <a href="javascript:void(0);" onclick="remove(this)" data-article_id="{{ article.article_id }}">
+                                                <i class="iconfont icon-remove"></i> 删除
+                                            </a>
+                                            <a target="_blank" href="{% url 'article:details' article.article_id %}">
+                                                <i class="iconfont icon-magnifylinemtui"></i> 查看
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="read-more col-sm-4 col-sm-offset-4">
+                                <input type="hidden" value="{{ page_size }}" id="page_size">
+                                <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
+                                <p class="text-center not-more-content">没有更多内容...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2 col-sm-offset-2">
+                        <div class="sidebar-box">
+                             <div class="list-group">
+                                <a class="list-group-item active" href="{% url "article:user_drafts" %}" title="草稿箱">
+                                    草稿箱
+                                </a>
+                                <a class="list-group-item" href="{% url "article:create_article" %}" title="写博客" target="_blank">
+                                    写博客
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/row-->
+            </div><!--/.col-xs-12.col-sm-9-->
+
+        </div><!--/row-->
+    </div><!--/.container-->
+{% endblock %}
+
+{% block extra_js %}
+
+    <!--发布时间描述-->
+    <script>
+        function timeDesc() {
+            $("span.time").each(function () {
+                var time_str = this.dataset.release_at;
+                var time_desc = getDateDiff(time_str);
+                $(this).text(time_desc)
+            })
+        }
+        $(function () {
+            timeDesc()
+        });
+    </script>
+
+    <script>
+        $(function () {
+            var page_size = $("#page_size").val();
+            var articles = $(".note-list li");
+            if (articles.length < parseInt(page_size)) {
+                $("#btn_read_more").hide();
+                $(".read-more .not-more-content").show();
+            }
+        });
+    </script>
+
+    <!--删除博文-->
+    <script>
+        function remove(obj) {
+            var article_id = obj.dataset.article_id;
+            layer.confirm('确定删除这篇文章吗？', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                $.post(
+                    "{% url 'article:delete_article' %}",
+                    {
+                        'article_id': article_id
+                    },
+                    function (json) {
+                        if (json.code == 200) {
+                            var article = $(obj).parent('div').parent('div').parent('li');
+                            article.remove();
+                            layer.msg(json.msg, {time: 1500})
+                        }
+                        else {
+                            layer.msg(json.msg, {time: 1500});
+                            return false
+                        }
+                    }
+                );
+            }, function(index){
+                layer.close(index);
+            });
+        }
+    </script>
+
+    <script type="text/javascript">
+            $(function() {
+                var page_index = 2;
+                var page_size = $("#page_size").val();
+                var user_info_span = $(".user-info")[0];
+                var user_id = user_info_span.dataset.user_id;
+                $("#btn_read_more").click(function() {
+                    $.getJSON("{% url 'article:articles' %}",
+                            {
+                                'page_index': page_index,
+                                'author_id': user_id,
+                                'is_released': 1
+                            }, function(json) {
+                            if (json.data.length > 0) {
+                                var str = "";
+                                $.each(json.data, function(index, array) {
+                                    var article_id = array['article_id'];
+                                    var title = array['title'];
+                                    var type = array['type'];
+                                    var cover_photo = array['cover_photo'];
+                                    var abstract = array['abstract'];
+                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '"';
+                                    if (cover_photo) {
+                                        str += 'class="with-img">' +
+                                         '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                         '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                         '</a>'
+                                    }
+                                    else {
+                                        str += '>';
+                                    }
+                                    str += '<div class="content">' +
+                                        '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
+                                        '<p class="abstract">' + abstract + '</p>' +
+                                        '<div class="meta">' +
+                                            '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id + '">' +
+                                                '<i class="iconfont icon-remove"></i> 删除' +
+                                            '</a>' +
+                                            '<a target="_blank" href="/article/details/' + article_id  + '">' +
+                                                '<i class="iconfont icon-magnifylinemtui"></i> 查看' +
+                                            '</a>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</li>';
+                                    $(".note-list").append(str);
+                                });
+                                timeDesc();
+                                if (json.data.length < page_size) {
+                                    $("#btn_read_more").hide();
+                                    $(".read-more .not-more-content").show();
+                                    return false;
+                                }
+                                page_index++;
+                            } else {
+                                $("#btn_read_more").hide();
+                                $(".read-more .not-more-content").show();
+                                return false;
+                            }
+                        });
+                });
+            });
+    </script>
+{% endblock %}
