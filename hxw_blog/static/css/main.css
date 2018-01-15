@@ -43,6 +43,15 @@ code {
     margin: 8px 0 8px;
 }
 
+.sidebar-box .list-group-item{
+    font-size: 14px;
+    padding: 8px 14px;
+}
+
+.sidebar-box .list-group-item i{
+    padding-right: 4px;
+}
+
 .avator {
     width: 32px;
     height: 32px;

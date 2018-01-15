@@ -12,15 +12,6 @@ a {
     box-sizing: border-box;
 }
 
-.sidebar-box .list-group-item{
-    font-size: 14px;
-    padding: 8px 14px;
-}
-
-.sidebar-box .list-group-item i{
-    padding-right: 4px;
-}
-
 .note-list .author a {
     color: #333;
 }

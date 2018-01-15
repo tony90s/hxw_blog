@@ -358,6 +358,16 @@ def delete_article(request):
     if user.id != articles[0].author_id:
         return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的博文'})
 
+    comments = Comment.objects.using('write').filter(article_id=article_id)
+    comments_id = [comment.id for comment in comments]
+    comment_replies = CommentReply.objects.using('write').filter(comment_id__in=comments_id)
+    comment_replies_id = [comment_reply.id for comment_reply in comment_replies]
+    praises = Praise.objects.using('write').filter((Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id=article_id)) | (
+        Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comments_id)) | (
+        Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_replies_id)))
+    praises.delete()
+    comment_replies.delete()
+    comments.delete()
     articles.delete()
     return JsonResponse({'code': 200, 'msg': '删除博文成功'})
 
@@ -381,9 +391,13 @@ def delete_comment(request):
     if user.id != comments[0].commentator_id:
         return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的评论'})
 
-    comments.delete()
     comment_replies = CommentReply.objects.using('write').filter(comment_id=comment_id)
+    comment_replies_id = [comment_reply.id for comment_reply in comment_replies]
+    praises = Praise.objects.using('write').filter((Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id=comment_id)) | (
+        Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_replies_id)))
+    praises.delete()
     comment_replies.delete()
+    comments.delete()
     return JsonResponse({'code': 200, 'msg': '删除评论成功'})
 
 
@@ -406,6 +420,8 @@ def delete_comment_reply(request):
     if user.id != comment_replies[0].replier_id:
         return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的回复'})
 
+    praises = Praise.objects.using('write').filter(Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id=comment_reply_id))
+    praises.delete()
     comment_replies.delete()
     return JsonResponse({'code': 200, 'msg': '删除回复成功'})
 

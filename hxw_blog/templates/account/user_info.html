@@ -67,14 +67,17 @@
 
                 </div>
             </div>
-            <div class="blog-link col-sm-2">
-                <div class="btn-group-vertical">
-                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#update_password">
-                        更新密码
-                    </button>
-                    {% if user.is_superuser %}
-                        <button type="button" class="btn btn-primary" id="create_article"><i class="fa fa-edit fa-lg"></i>&nbsp;写博客</button>
-                    {% endif %}
+            <div class="col-sm-2">
+                <div class="sidebar-box">
+                    <div class="list-group">
+                        <a class="list-group-item" data-toggle="modal" data-target="#update_password">
+                            更新密码
+                        </a>
+                        {% if user.is_superuser %}
+                            <a class="list-group-item" href="{% url "article:user_articles" %}">我的文章</a>
+                            <a class="list-group-item" href="{% url "article:create_article" %}"><i class="fa fa-edit fa-lg"></i>&nbsp;写博客</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -369,9 +372,6 @@
                 );
             });
 
-            $("#create_article").click(function (e) {
-                window.location.href = '{% url "article:create_article" %}'
-            })
         });
     </script>
 {% endblock %}
