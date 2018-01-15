@@ -24,9 +24,9 @@ def index_views(request):
     page_index = 1
     user = request.user
     template = 'index.html'
-    articles = Article.objects.using('read').all().order_by('-id')
+    articles = Article.objects.using('read').filter(Q(is_released=1)).order_by('-id')
     now = timezone.now()
-    hot_articles = sorted(articles.filter(Q(is_released=1) & Q(release_at__gte=(now + timedelta(days=-30)))),
+    hot_articles = sorted(articles.filter(Q(release_at__gte=(now + timedelta(days=-60)))),
                           key=lambda article: article.praise_times, reverse=True)[:5]
     hot_articles_briefs = [article.get_brief() for article in hot_articles]
     articles_summarization = [article.get_summarization() for article in

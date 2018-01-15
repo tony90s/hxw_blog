@@ -14,18 +14,7 @@
         <div class="row row-offcanvas row-offcanvas-right">
 
             <div class="col-lg-12 col-xs-12 col-sm-12">
-                <!--
-                <p class="pull-right visible-xs">
-                    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Banner</button>
-                </p>
-                <div class="jumbotron">
-                    <h2 class="text-center">May the force be with you</h2>
-                    <p>
-                        各位盆友好，欢迎来到我的博客，在这里，你可以寻找海量的技术博文，畅所欲言(tǔ cáo)。
-                    </p>
-                </div>
-                -->
-
+                {% if hot_articles_briefs %}
                 <div class="ss2_wrapper">
 			        <a href="#" class="slideshow_prev"><span>Previous</span></a>
 			        <a href="#" class="slideshow_next"><span>Next</span></a>
@@ -49,6 +38,7 @@
                         {% endfor %}
 			        </div>
 		        </div><!-- .ss2_wrapper -->
+                {% endif %}
 
                 <div class="row">
                     <div class="col-sm-8 main">
