@@ -43,13 +43,18 @@ code {
     margin: 8px 0 8px;
 }
 
+.navbar .nav > li .dropdown-menu i {
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
 .sidebar-box .list-group-item{
     font-size: 14px;
     padding: 8px 14px;
 }
 
 .sidebar-box .list-group-item i{
-    padding-right: 4px;
+    margin-right: 4px;
 }
 
 .avator {
