@@ -32,7 +32,7 @@ def create_article(request):
     template_name = 'article/article_new.html'
     user = request.user
     if not user.is_superuser:
-        return HttpResponseForbidden()
+        return HttpResponseForbidden('权限不足')
 
     type_choices = Article.TYPE_CHOICES
     context = {
@@ -48,7 +48,7 @@ def edit_article(request, article_id):
     template_name = 'article/article_new.html'
     user = request.user
     if not user.is_superuser:
-        return HttpResponseForbidden()
+        return HttpResponseForbidden('权限不足')
 
     articles = Article.objects.using('read').filter(id=article_id)
     if not articles.exists():
@@ -69,7 +69,7 @@ def edit_article(request, article_id):
 def save_article(request):
     user = request.user
     if not user.is_superuser:
-        return HttpResponseForbidden()
+        return HttpResponseForbidden('权限不足')
 
     article_id = request.POST.get('article_id', '0')
     title = request.POST.get('title', '')
