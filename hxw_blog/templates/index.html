@@ -74,7 +74,7 @@
                                                 <i class="iconfont icon-view"></i> {{ article_summarization.page_views }}
                                             </a>
                                             <a target="_blank" href="{% url 'article:details' article_summarization.article_id %}#comments">
-                                                <i class="iconfont icon-comments"></i> {{ article_summarization.comment_times }}
+                                                <i class="iconfont icon-message"></i> {{ article_summarization.comment_times }}
                                             </a>
                                             <span><i class="iconfont icon-like"></i> {{ article_summarization.praise_times }}</span>
                                         </div>
@@ -204,7 +204,7 @@
                                                 '<i class="iconfont icon-view"></i>' + page_views +
                                             '</a>' +
                                             '<a target="_blank" href="/article/details/' + article_id  + '#comments">' +
-                                                '<i class="iconfont icon-comments"></i>' + comment_times +
+                                                '<i class="iconfont icon-message"></i>' + comment_times +
                                             '</a>' +
                                             '<span><i class="iconfont icon-like"></i>' + praise_times + '</span>' +
                                         '</div>' +

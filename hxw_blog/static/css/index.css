@@ -275,6 +275,7 @@ a {
     margin-right: 10px;
     color: #b4b4b4;
     text-decoration: none;
+    vertical-align: middle;
 }
 
 .note-list .meta a, .note-list .meta a:hover {
@@ -287,6 +288,10 @@ a {
 
 .note-list .meta a:hover {
     color: #787878
+}
+
+.note-list .meta i {
+    vertical-align: middle;
 }
 
 .note-list .meta span {

@@ -91,9 +91,9 @@ class Article(models.Model):
     def comment_times(self):
         comments = Comment.objects.using('read').filter(Q(article_id=self.id))
         comments_count = comments.count()
-        for comment in comments:
-            comment_replies = CommentReply.objects.using('read').filter(Q(comment_id=comment.id))
-            comments_count += comment_replies.count()
+        # comments_id = [comment.id for comment in comments]
+        # comment_replies = CommentReply.objects.using('read').filter(Q(comment_id__in=comments_id))
+        # comments_count += comment_replies.count()
         return comments_count
 
     @property

@@ -36,7 +36,7 @@
                                                 <i class="iconfont icon-send"></i> 发布
                                             </a>
                                             <a href="javascript:void(0);" onclick="remove(this)" data-article_id="{{ draft.article_id }}">
-                                                <i class="iconfont icon-remove"></i> 删除
+                                                <i class="iconfont icon-shanchu"></i> 删除
                                             </a>
                                             <a href="{% url 'article:edit_article' draft.article_id %}" target="_blank">
                                                 <i class="iconfont icon-edit"></i> 编辑
@@ -190,7 +190,7 @@
                                                 '<i class="iconfont icon-send"></i> 发布' +
                                             '</a>' +
                                             '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id + '">' +
-                                                '<i class="iconfont icon-remove"></i> 删除' +
+                                                '<i class="iconfont icon-shanchu"></i> 删除' +
                                             '</a>' +
                                             '<a href="/article/edit/' + article_id + '" target="_blank">' +
                                                 '<i class="iconfont icon-edit"></i> 编辑' +
