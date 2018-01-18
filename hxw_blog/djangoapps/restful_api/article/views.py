@@ -15,16 +15,19 @@ class ArticleList(generics.ListAPIView):
     serializer_class = ArticleSerializer
 
     def get_queryset(self):
-        article_type = self.request.GET.get('article_type', '0')
-        author_id = self.request.GET.get('author_id')
-        article_type = int(article_type)
-        if article_type == 0:
-            query_condition = Q()
-        else:
-            query_condition = Q(type=article_type)
+        article_type = self.request.query_params.get('article_type', '0')
+        is_released = self.request.query_params.get('is_released', '1')
+        author_id = self.request.query_params.get('author_id', '0')
 
-        if author_id:
-            author_id = int(author_id)
+        article_type = int(article_type)
+        author_id = int(author_id)
+        is_released = int(is_released)
+
+        query_condition = Q(is_released=is_released)
+        if article_type > 0:
+            query_condition &= Q(type=article_type)
+
+        if author_id > 0:
             query_condition &= Q(author_id=author_id)
 
         articles = Article.objects.using('read').filter(query_condition).order_by('-id')

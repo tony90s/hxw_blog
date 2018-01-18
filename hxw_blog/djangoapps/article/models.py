@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -99,6 +101,12 @@ class Article(models.Model):
         praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id=self.id))
         return praises.count()
 
+    @property
+    def article_cover(self):
+        img_pattern = '<img[^>]+src="([^"]*)"'
+        covers = re.findall(img_pattern, self.content_html, re.M)
+        return covers[0] if covers else ''
+
     def render_json(self):
         context = dict()
         context['article_id'] = self.id
@@ -107,8 +115,7 @@ class Article(models.Model):
             'value': self.type,
             'display_name': self.get_type_display()
         }
-        cover_photo = self.cover_photo
-        context['cover_photo'] = cover_photo.url if cover_photo.name else ''
+        context['cover_photo'] = self.article_cover
         context['content_html'] = self.content_html
         context['author'] = self.get_author_data()
         context['comment_times'] = self.comment_times
@@ -128,8 +135,7 @@ class Article(models.Model):
             'value': self.type,
             'display_name': self.get_type_display()
         }
-        cover_photo = self.cover_photo
-        context['cover_photo'] = cover_photo.url if cover_photo.name else ''
+        context['cover_photo'] = self.article_cover
         context['author'] = self.get_author_data()
         context['abstract'] = self.content_txt[0:91] + '...'
         context['comment_times'] = self.comment_times
@@ -146,8 +152,7 @@ class Article(models.Model):
             'value': self.type,
             'display_name': self.get_type_display()
         }
-        cover_photo = self.cover_photo
-        context['cover_photo'] = cover_photo.url if cover_photo.name else ''
+        context['cover_photo'] = self.article_cover
         # context['author'] = self.get_author_data()
         context['abstract'] = self.content_txt[0:76] + '...'
         return context

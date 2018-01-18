@@ -27,7 +27,7 @@
                                     {% endif %}
                                     <div class="content">
 
-                                        <a class="title" target="_blank" href="{% url 'article:details' draft.article_id %}">{{ draft.title }}</a>
+                                        <a class="title" target="_blank" href="{% url 'article:edit_article' draft.article_id %}">{{ draft.title }}</a>
                                         <p class="abstract">
                                             {{ draft.abstract }}
                                         </p>
@@ -38,7 +38,7 @@
                                             <a href="javascript:void(0);" onclick="remove(this)" data-article_id="{{ draft.article_id }}">
                                                 <i class="iconfont icon-remove"></i> 删除
                                             </a>
-                                            <a href="javascript:void(0);" target="_blank">
+                                            <a href="{% url 'article:edit_article' draft.article_id %}" target="_blank">
                                                 <i class="iconfont icon-edit"></i> 编辑
                                             </a>
                                         </div>
@@ -49,16 +49,17 @@
                             <div class="read-more col-sm-4 col-sm-offset-4">
                                 <input type="hidden" value="{{ page_size }}" id="page_size">
                                 <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
-                                <p class="text-center not-more-content">草稿箱空空如也...</p>
+                                <p class="text-center not-more-content">没有更多内容...</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-sm-2">
+                    <div class="col-sm-2 col-sm-offset-2">
                         <div class="sidebar-box">
                              <div class="list-group">
-                                <a class="list-group-item active" href="{% url "article:user_articles" %}" title="我的文章">我的文章</a>
-                                <a class="list-group-item" href="{% url "article:create_article" %}" title="写博客" target="_blank">写博客</a>
+                                 <a class="list-group-item" href="{% url "article:user_articles" %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
+                                 <a class="list-group-item active" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
+                                 <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
                             </div>
                         </div>
                     </div>
@@ -138,7 +139,7 @@
                             article.remove();
                             layer.alert(json.msg, function () {
                                 var detail_url = '/article/details/' + article_id;
-                                window.open(detail_url)
+                                window.location.href = detail_url
                             })
                         }
                         else {
@@ -182,7 +183,7 @@
                                         str += '>';
                                     }
                                     str += '<div class="content">' +
-                                        '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
+                                        '<a class="title" target="_blank" href="/article/edit/' + article_id  + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
                                         '<div class="meta">' +
                                             '<a href="javascript:void(0);" onclick="release(this)" data-article_id="' + article_id + '">' +
@@ -191,7 +192,7 @@
                                             '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id + '">' +
                                                 '<i class="iconfont icon-remove"></i> 删除' +
                                             '</a>' +
-                                            '<a href="javascript:void(0);" target="_blank">' +
+                                            '<a href="/article/edit/' + article_id + '" target="_blank">' +
                                                 '<i class="iconfont icon-edit"></i> 编辑' +
                                             '</a>' +
                                         '</div>' +

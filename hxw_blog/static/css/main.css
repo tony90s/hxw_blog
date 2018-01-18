@@ -44,7 +44,7 @@ code {
 }
 
 .navbar .nav > li .dropdown-menu i {
-    margin-right: 4px;
+    margin-right: 10px;
     vertical-align: middle;
 }
 
@@ -53,8 +53,9 @@ code {
     padding: 8px 14px;
 }
 
-.sidebar-box .list-group-item i{
-    margin-right: 4px;
+.sidebar-box .list-group-item i {
+    margin-right: 10px;
+    vertical-align: middle;
 }
 
 .avator {
@@ -88,6 +89,19 @@ button {
 
 .form-group {
     margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 14px;
+}
+
+.form-group button {
+    margin-right: 20px;
+}
+
+.form-group i {
+    margin-right: 6px;
+    vertical-align: middle;
 }
 
 label {
@@ -197,7 +211,7 @@ label {
     position: fixed;
     right: 1%;
     bottom: 5%;
-    width: 55px;
+    /*width: 55px;*/
     background-color: white;
     font-size: 24px;
     z-index: 999;

@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from article.views import (
     create_article,
+    edit_article,
     save_article,
     article_details,
     save_comment,
@@ -22,6 +23,7 @@ from article.views import (
 urlpatterns = [
     url(r'^new/$', create_article, name='create_article'),
     url(r'^save/$', save_article, name='save_article'),
+    url(r'^edit/(?P<article_id>\d+)$', edit_article, name='edit_article'),
     url(r'^details/(?P<article_id>\d+)$', article_details, name='details'),
     url(r'^comment/save$', save_comment, name='save_comment'),
     url(r'^comment/reply/save$', save_comment_reply, name='save_comment_reply'),

@@ -1,32 +1,23 @@
 {% extends "base.html" %}
-{% block title %}<title>新建博客</title>{% endblock %}
+{% block title %}<title>LOVEITERS-编辑文章</title>{% endblock %}
 {% block extra_header %}
     <link rel="stylesheet" type="text/css" href="/static/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css">
     <script type="text/javascript" src="/static/ueditor/third-party/SyntaxHighlighter/shCore.js"></script>
     <script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.config.js"></script>
     <script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.all.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="/static/ueditor/lang/zh-cn/zh-cn.js"></script>
-    <link href="/static/css/article/article.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
     <div class="container">
         <div class="row">
-           <!--
-            <div class="col-sm-3">
-                <div class="list-group text-center">
-                    <a class="list-group-item active" href="">草稿箱</a>
-                    <a class="list-group-item" href="">我的博客</a>
-                </div>
-            </div>
-            -->
+
             <div class="col-sm-10">
-                <form class="form-horizontal" id="form_create_article" role="form" action=""
-                      method="post">
+                <form class="form-horizontal" id="form_create_article" role="form" action="" method="post">
                     <div class="form-group">
                         <label for="title" class="col-sm-2 control-label">标题</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="title'" name="title" placeholder="标题(32个字以内)">
+                            <input type="text" class="form-control" id="title" name="title" value="{{ article.title }}" placeholder="标题(32个字以内)">
                         </div>
                     </div>
                     <div class="form-group">
@@ -34,100 +25,114 @@
                         <div class="col-sm-10">
                             <select class="form-control" id="type" name="type">
                                 {% for value, name in type_choices %}
-                                    <option value="{{ value }}">{{ name }}</option>
+                                    <option value="{{ value }}" {% ifequal article.type value %}selected{% endifequal %}>{{ name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
 
+                    <!--
                     <div class="form-group">
                         <label for="cover_photo" class="col-sm-2 control-label">封面(可选)</label>
                         <div class="col-sm-10">
                             <input id="cover_photo" class="file" type="file" name="cover_photo" multiple>
                         </div>
                     </div>
+                    -->
 
                     <div class="form-group">
                         <label for="content_html" class="col-sm-2 control-label">内容</label>
                         <div class="col-sm-10">
+                            <input type="hidden" id="content_html" name="content_html" value="{{ article.content_html }}">
                             <script id="editor" type="text/plain"></script>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
-                            <button type="button" class="btn btn-primary" id="btn_release_article">发布</button>
+                            <input type="hidden" id="article_id" name="article_id" value="{{ article_id }}">
+                            <button type="button" class="btn btn-info save_article" id="save_as_draft" data-is_released="0"><i class="iconfont icon-drafts"></i>存为草稿</button>
+                            <button type="button" class="btn btn-success save_article" id="release_article" data-is_released="1"><i class="iconfont icon-send"></i>立即发布</button>
                         </div>
                     </div>
                 </form>
             </div>
+
+            <div class="col-sm-2">
+                <div class="sidebar-box">
+                    <div class="list-group">
+                        <a class="list-group-item" href="{% url "article:user_articles" %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
+                        <a class="list-group-item" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
 {% endblock %}
 
 {% block extra_js %}
+    <!--
     <script>
         $("#cover_photo").fileinput({
             showUpload: false,
             allowedFileExtensions: ['jpg', 'png', 'gif', 'bmp'],
-            overwriteInitial: false,
+            overwriteInitial: true,
             maxFileSize: 1024 * 10,
             maxFilesNum: 1,
             allowedFileTypes: ['image'],
-
+            initialPreview: [
+                '<img src="/media/article/cover/cnicg.jpg" class="file-preview-image" alt="test" title="test">'
+            ]
         });
     </script>
+    -->
     <script type="text/javascript">
         var ue = UE.getEditor('editor');
         SyntaxHighlighter.all();
+        var article_content = $("#content_html").val();
+        ue.ready(function(){
+            ue.setContent(article_content);
+        });
     </script>
+
+    <script>
+        $(window).unload(function(){
+            layer.alert("Goodbye!");
+        });
+    </script>
+
     <script>
         $(function () {
-            var btn_release_article = $("#btn_release_article");
-            var create_article_form_input = $("#form_create_article :input");
-            bind_auto_submit(create_article_form_input, btn_release_article);
-
-            btn_release_article.click(function (e) {
+            $(".save_article").click(function (e) {
                 var form = $(this).parent('div').parent('div').parent('form');
+                var article_id = $("#article_id").val();
                 var title = form.find('[name="title"]').val();
                 var type = form.find('[name="type"]').val();
-                var content_html = ue.getContent()
-                var content_txt = ue.getContentTxt()
+                var content_html = ue.getContent();
+                var content_txt = ue.getContentTxt();
+                var is_released = this.dataset.is_released;
 
                 if (title == '') {
-                    layer.msg('请输入标题', {time: 1000})
+                    layer.msg('请输入标题', {time: 1000});
                     return false
                 }
                 if (type == '') {
-                    layer.msg('请先选择一个类别', {time: 1000})
+                    layer.msg('请先选择一个类别', {time: 1000});
                     return false
                 }
                 if (content_html == '') {
-                    layer.msg('请先编辑内容', {time: 1000})
+                    layer.msg('请先编辑内容', {time: 1000});
                     return false
                 }
 
                 var form_data = new FormData();
+                form_data.append('article_id', article_id);
                 form_data.append('title', title);
                 form_data.append('type', type);
-                form_data.append('content_html', content_html)
-                form_data.append('content_txt', content_txt)
-
-                var cover_photo = $('#cover_photo')[0].files[0];
-                var file_maxsize = 1024 * 10;
-                if (cover_photo != undefined) {
-                    var size = cover_photo.size / 1024;
-                    if (!cover_photo.type.match(/image.*/)) {
-                        layer.msg('请选择正确的图片格式!', {time: 1000});
-                        return false
-                    }
-                    if (size > file_maxsize) {
-                        layer.msg('图片过大，请重新选择!', {time: 1000});
-                        return false
-                    }
-                    form_data.append('cover_photo', cover_photo)
-                }
-                form_data.append('is_released', 1);
+                form_data.append('content_html', content_html);
+                form_data.append('content_txt', content_txt);
+                form_data.append('is_released', is_released);
                 $.ajax({
                     url: "{% url 'article:save_article' %}",
                     type: 'POST',

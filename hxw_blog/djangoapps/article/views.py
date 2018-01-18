@@ -36,7 +36,29 @@ def create_article(request):
 
     type_choices = Article.TYPE_CHOICES
     context = {
+        'article_id': 0,
         'type_choices': type_choices
+    }
+
+    return render(request, template_name, context)
+
+
+@login_required
+def edit_article(request, article_id):
+    template_name = 'article/article_new.html'
+    user = request.user
+    if not user.is_superuser:
+        return HttpResponseForbidden()
+
+    articles = Article.objects.using('read').filter(id=article_id)
+    if not articles.exists():
+        raise Http404
+    article = articles[0]
+    type_choices = Article.TYPE_CHOICES
+    context = {
+        'article_id': article_id,
+        'type_choices': type_choices,
+        'article': article
     }
 
     return render(request, template_name, context)
@@ -48,9 +70,10 @@ def save_article(request):
     user = request.user
     if not user.is_superuser:
         return HttpResponseForbidden()
+
+    article_id = request.POST.get('article_id', '0')
     title = request.POST.get('title', '')
     article_type = request.POST.get('type')
-    cover_photo = request.FILES.get('cover_photo')
     content_txt = request.POST.get('content_txt', '')
     content_html = request.POST.get('content_html', '')
     is_released = request.POST.get('is_released')
@@ -59,32 +82,44 @@ def save_article(request):
         return JsonResponse({'code': 400, 'msg': '请输入标题'})
     if not article_type:
         return JsonResponse({'code': 400, 'msg': '请先选择一个类别'})
-    if not content_html or not content_txt:
+    if not content_html:
         return JsonResponse({'code': 400, 'msg': '请先编辑内容'})
     if is_released not in ['0', '1']:
         return JsonResponse({'code': 400, 'msg': '参数有误，请联系网站管理员'})
+
+    article_id = int(article_id)
+    is_released = int(is_released)
+    article_type = int(article_type)
+    now = timezone.now()
     try:
-        article = Article()
+        update_article = False
+        try:
+            article = Article.objects.using('read').get(id=article_id)
+            update_article = True
+        except Exception as e:
+            article = Article()
         article.author_id = user.id
         article.title = title
-        article.type = int(article_type)
+        article.type = article_type
         article.content_html = content_html
         article.content_txt = content_txt
-        if cover_photo is not None:
-            article.cover_photo = cover_photo
-        is_released = int(is_released)
         article.is_released = is_released
-        article.save(using='write')
-
+        if not update_article:
+            article.created_at = now
+        else:
+            article.update_at = now
         if is_released:
-            article.release_at = timezone.now()
-            article.save(using='write')
+            article.release_at = now
+        article.save(using='write')
     except Exception as e:
         logger.error(e)
         return JsonResponse({'code': 500, 'msg': '发布失败，请联系管理员。'})
 
     redirect_url = reverse('index')
-    return JsonResponse({'code': 200, 'msg': '发布成功。', 'redirect_url': redirect_url})
+    msg = '发布成功'
+    if not is_released:
+        msg = '草稿保存成功'
+    return JsonResponse({'code': 200, 'msg': msg, 'redirect_url': redirect_url})
 
 
 @require_http_methods(['GET'])
@@ -164,6 +199,8 @@ def article_details(request, article_id):
     if not articles.exists():
         raise Http404
     article = articles[0]
+    if not article.is_released:
+        raise Http404
     article.page_views += 1
     article.save(using='write')
     article_details = article.render_json()
@@ -534,5 +571,6 @@ def update_article_release_status(request):
     if user.id != articles[0].author_id:
         return JsonResponse({'code': 403, 'msg': '不能发布其它童鞋的博文'})
 
-    articles.update(is_released=True)
+    now = timezone.now()
+    articles.update(is_released=True, release_at=now)
     return JsonResponse({'code': 200, 'msg': '博文发布成功'})
