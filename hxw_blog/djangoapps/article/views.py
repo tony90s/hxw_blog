@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, render_to_response
 from django.shortcuts import redirect
 from django.http import JsonResponse, HttpResponseForbidden, Http404
+from django.core.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -32,7 +33,7 @@ def create_article(request):
     template_name = 'article/article_new.html'
     user = request.user
     if not user.is_superuser:
-        return HttpResponseForbidden('权限不足')
+        raise PermissionDenied
 
     type_choices = Article.TYPE_CHOICES
     context = {
@@ -48,7 +49,7 @@ def edit_article(request, article_id):
     template_name = 'article/article_new.html'
     user = request.user
     if not user.is_superuser:
-        return HttpResponseForbidden('权限不足')
+        raise PermissionDenied
 
     articles = Article.objects.using('read').filter(id=article_id)
     if not articles.exists():
@@ -69,7 +70,7 @@ def edit_article(request, article_id):
 def save_article(request):
     user = request.user
     if not user.is_superuser:
-        return HttpResponseForbidden('权限不足')
+        raise PermissionDenied
 
     article_id = request.POST.get('article_id', '0')
     title = request.POST.get('title', '')
