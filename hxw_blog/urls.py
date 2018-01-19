@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
 
+from error_handler.views import page_forbidden, page_not_found, page_error
 from index.views import index_views
 from ueditor.views import editor_test
 from ueditor.controller import handler
@@ -44,3 +45,7 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static('/upload/', document_root=os.path.join(settings.ENV_ROOT, "upload"))
     urlpatterns += static('/downloads/', document_root=os.path.join(settings.ENV_ROOT, "downloads"))
+
+handler403 = page_forbidden
+handler404 = page_not_found
+handler500 = page_error
