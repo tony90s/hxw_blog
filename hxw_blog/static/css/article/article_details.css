@@ -137,6 +137,9 @@
 .comment-show-con-img {
     overflow: hidden;
     margin-top: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
 }
 
 .comment-show-con-img img {
@@ -146,17 +149,19 @@
 }
 
 .comment-show-con-list {
-    width: 85%;
-    margin-left: 3%;
+    /*width: 100%;
+    margin-left: 3%;*/
     padding-bottom: 18px;
     border-bottom: 1px solid #EDEDED;
 }
 
 .pl-text {
-    width: 100%;
-    margin-top: 7px;
+    /*width: 100%;*/
+    margin-top: 5px;
     word-wrap: break-word;
     overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .date-dz {
@@ -176,6 +181,7 @@
 .comment-size-name {
     font-size: 14px;
     color: #339b53;
+    margin-right: 6px;
 }
 
 .comment-time {

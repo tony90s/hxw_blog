@@ -10,7 +10,7 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-sm-9">
+            <div class="col-sm-7 col-sm-offset-3">
                 <div class="article">
                     <h1 class="title text-center">{{ article_details.title }}</h1>
                     <div class="author">
@@ -24,7 +24,7 @@
                                 <!-- 如果文章更新时间大于发布时间，那么使用 tooltip 显示更新时间 -->
                                 <span class="release-time" data-toggle="tooltip" data-placement="bottom"
                                       title="最后更新于 {{ article_details.update_time }}">{{ article_details.release_time }}</span>
-                                <span class="word-count">字数 {{ article_details.word_count }}</span>
+                                <!--<span class="word-count">字数 {{ article_details.word_count }}</span>-->
                                 <span class="page-views">阅读 {{ article_details.page_views }}</span>
                                 <span class="comment-times">评论 {{ article_details.comment_times }}</span>
                                 <span class="praise-times">点赞 {{ article_details.praise_times }}</span>
@@ -73,16 +73,16 @@
                         <div class="comment-show">
                             {% for comment in  article_details.comments %}
                                 <div class="comment-show-con clearfix" id="comment-{{ comment.comment_id }}">
-                                    <div class="comment-show-con-img pull-left">
+                                    <div class="comment-show-con-img">
                                         <img src="{{ comment.commentator.avatar }}" alt="{{ comment.commentator.username }}">
                                     </div>
-                                    <div class="comment-show-con-list pull-left clearfix">
-                                        <div class="pl-text clearfix">
-                                            <a href="javascript:void(0)" class="comment-size-name"
-                                               data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}</a>&nbsp;&nbsp;<span class="comment-time" data-comment_at="{{ comment.comment_at }}"></span>
-                                        </div>
+                                    <div class="pl-text clearfix">
+                                        <a href="javascript:void(0)" class="comment-size-name" data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}</a>
+                                        <span class="comment-time" data-comment_at="{{ comment.comment_at }}"></span>
+                                    </div>
+                                    <div class="comment-show-con-list clearfix">
                                         <div class="date-dz">
-                                            <span class="date-dz-left pull-left my-pl-con">{{ comment.content }}</span>
+                                            <p class="date-dz-left my-pl-con">{{ comment.content }}</p>
                                             <div class="date-dz-right pull-right comment-pl-block">
                                                 {% if user.is_authenticated %}
                                                     {% ifequal comment.commentator.user_id user.id %}
@@ -92,7 +92,7 @@
                                                 {% endif %}
                                                 <a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left"
                                                    data-comment_id="{{ comment.comment_id }}"
-                                                   data-receiver_id="{{ comment.commentator.user_id }}">回复</a>
+                                                   data-receiver_id="{{ comment.commentator.user_id }}" data-receiver_name="{{ comment.commentator.username }}">回复</a>
                                                 <span class="pull-left date-dz-line">|</span>
                                                 <a href="javascript:;" class="date-dz-z pull-left"
                                                    data-parent_id="{{ comment.comment_id }}" data-praise_type="2"><i
@@ -104,11 +104,11 @@
                                             {% for reply in comment.comment_replies %}
                                                 <div class="all-pl-con" id="comment-reply-{{ reply.comment_reply_id }}">
                                                     <div class="pl-text hfpl-text clearfix">
-                                                        <a href="javascript:void(0)"
-                                                           class="comment-size-name">{{ reply.replier.username }}</a>&nbsp;&nbsp;<span class="comment-time" data-comment_at="{{ reply.reply_at }}"></span>
+                                                        <a href="javascript:void(0)" class="comment-size-name">{{ reply.replier.username }}</a>
+                                                        <span class="comment-time" data-comment_at="{{ reply.reply_at }}"></span>
                                                     </div>
                                                     <div class="date-dz">
-                                                        <span class="date-dz-left pull-left my-pl-con">回复@{{ reply.receiver.username }}:{{ reply.content }}</span>
+                                                        <p class="date-dz-left my-pl-con">回复@{{ reply.receiver.username }}:{{ reply.content }}</p>
                                                         <div class="date-dz-right pull-right comment-pl-block">
                                                             {% if user.is_authenticated %}
                                                                 {% ifequal reply.replier.user_id user.id %}
@@ -119,7 +119,7 @@
                                                             <a href="javascript:;"
                                                                class="date-dz-pl pl-hf hf-con-block pull-left"
                                                                data-comment_id="{{ reply.comment_id }}"
-                                                               data-receiver_id="{{ reply.replier.user_id }}">回复</a>
+                                                               data-receiver_id="{{ reply.replier.user_id }}" data-receiver_name="{{ reply.replier.username }}">回复</a>
                                                             <span class="pull-left date-dz-line">|</span>
                                                             <a href="javascript:;" class="date-dz-z pull-left"
                                                                data-parent_id="{{ reply.comment_reply_id }}"
@@ -231,18 +231,18 @@
                                 var comment_at = json.data.comment_at;
                                 var praise_times = json.data.praise_times.toString();
                                 var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
-                                        '<div class="comment-show-con-img pull-left">' +
+                                        '<div class="comment-show-con-img">' +
                                         '<img src="' + avatar + '" alt="' + username + '">' +
                                         '</div> ' +
-                                        '<div class="comment-show-con-list pull-left clearfix">' +
                                         '<div class="pl-text clearfix">' +
                                         '<a href="javascript:void(0)" class="comment-size-name" data-commentator_id="' + user_id +
-                                        '">' + username + '</a>' + '&nbsp;&nbsp;' +
+                                        '">' + username + '</a>' +
                                         '<span class="comment-time" data-comment_at="' + comment_at +
                                         '">' + '</span>' +
                                         '</div>' +
+                                        '<div class="comment-show-con-list clearfix">' +
                                         '<div class="date-dz">' +
-                                        '<span class="date-dz-left pull-left my-pl-con">' + content + '</span>' +
+                                        '<p class="date-dz-left my-pl-con">' + content + '</p>' +
                                         '<div class="date-dz-right pull-right comment-pl-block">';
 
                                 if (login_user_id.toString() == user_id) {
@@ -251,7 +251,7 @@
                                 }
 
                                 comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left" data-comment_id="' + comment_id +
-                                        '" data-receiver_id="' + user_id +
+                                        '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
                                         '">回复</a>' +
                                         '<span class="pull-left date-dz-line">|</span>' +
                                         '<a href="javascript:;" class="date-dz-z pull-left" data-parent_id="' + comment_id + '" data-praise_type="2">' +
@@ -289,22 +289,22 @@
             //获取回复人的名字
             var user_info_span = $(".user-info")[0];
             var user_id = user_info_span.dataset.user_id;
-            var user_info_div = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.pl-text').find('.comment-size-name');
-            var fhName = user_info_div.html();
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
-
+            var receiver_name = this.dataset.receiver_name;
+            //var user_info_div = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.pl-text').find('.comment-size-name');
+            //var fhName = user_info_div.html();
             /*
             if (user_id == receiver_id) {
                 layer.msg('不能回复自己', {time: 1000});
                 return false
             }*/
             //回复@
-            var fhN = '回复@' + fhName + ':';
+            var fhN = '回复@' + receiver_name + ':';
             //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
             var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
                     '" onkeyup="keyUP(this)"></textarea> <a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
-                    '" data-comment_id="' + comment_id +
+                    '" data-comment_id="' + comment_id + '" data-receiver_name="' + receiver_name +
                     '">评论</a></div>';
             //显示回复
             if ($(this).is('.hf-con-block')) {
@@ -334,18 +334,9 @@
             var oThis = $(this);
             //获取输入内容
             var oHfVal = $(this).siblings('.flex-text-wrap').find('.hf-input').val();
-            var oHfName = $(this).parents('.hf-con').parents('.date-dz').siblings('.pl-text').find('.comment-size-name').html();
-            var oAllVal = '回复@' + oHfName + ':';
-
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
-
-            /*
-            if (user_id == receiver_id) {
-                layer.msg('不能回复自己', {time: 1000});
-                return false
-            }*/
-
+            //var oHfName = $(this).parents('.hf-con').parents('.date-dz').siblings('.pl-text').find('.comment-size-name').html();
             var content = oHfVal.replace(/(^\s*)|(\s*$)/g, "");
             if (content == '') {
                 layer.msg('请先填写回复内容', {time: 1000});
@@ -363,24 +354,26 @@
                             var comment_reply_id = json.data.comment_reply_id.toString();
                             var comment_id = json.data.comment_id.toString();
                             var replier_username = json.data.replier.username;
+                            var receiver_username = json.data.receiver.username;
                             var replier_id = json.data.replier.user_id.toString();
                             var reply_at = json.data.reply_at;
                             var reply_content = json.data.content;
                             var praise_times = json.data.praise_times.toString();
+                            var oAllVal = '回复@' + receiver_username + ':';
                             var oHtml = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
                                     '<div class="pl-text hfpl-text clearfix">' +
-                                    '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + '</a>' + '&nbsp;&nbsp;' +
+                                    '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + '</a>' +
                                     '<span class="comment-time" data-comment_at="' + reply_at +
                                     '">' + '</span>' +
                                     '</div>' +
                                     '<div class="date-dz">' +
-                                    '<span class="date-dz-left pull-left my-pl-con">' + oAllVal + reply_content  + '</span>' +
+                                    '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content  + '</p>' +
                                     '<div class="date-dz-right pull-right comment-pl-block">';
                             if (login_user_id.toString() == user_id) {
                                 oHtml += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
                                         '">删除</a>';
                             }
-                            oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id +
+                            oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
                                     '">回复</a>' +
                                     '<span class="pull-left date-dz-line">|</span> <a href="javascript:;" class="date-dz-z pull-left" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
                                     '<i class="date-dz-z-click-red"></i>赞 (<i class="z-num">' + praise_times + '</i>)</a> ' +

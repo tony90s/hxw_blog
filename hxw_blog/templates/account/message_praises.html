@@ -33,14 +33,14 @@
                 <div class="comment-show">
                     {% for praise in praises %}
                     <div class="comment-show-con clearfix" data-praise_id="{{ praise.praise_id }}" data-is_viewed="{{ praise.is_viewed }}">
-                        <div class="comment-show-con-img pull-left">
+                        <div class="comment-show-con-img">
                             <img src="{{ praise.user.avatar }}" alt="{{ praise.user.username }}">
                         </div>
-                        <div class="comment-show-con-list pull-left clearfix">
-                            <div class="pl-text clearfix">
-                                <a href="javascript:void(0)" class="comment-size-name"
-                                   data-replier_id="{{ praise.user.user_id }}">{{ praise.user.username }}</a>&nbsp;&nbsp;<span class="comment-time" data-reply_at="{{ praise.praise_at }}"></span>
-                            </div>
+                        <div class="pl-text clearfix">
+                            <a href="javascript:void(0)" class="comment-size-name" data-replier_id="{{ praise.user.user_id }}">{{ praise.user.username }}</a>
+                            <span class="comment-time" data-reply_at="{{ praise.praise_at }}"></span>
+                        </div>
+                        <div class="comment-show-con-list clearfix">
                             <div class="date-dz">
                                 <p class="praise-type">
                                     {% if praise.type == 1 %}
@@ -191,18 +191,18 @@
                                     var str = '<div class="comment-show-con clearfix" data-praise_id="' + praise_id +
                                             '" data-is_viewed="' + is_viewed +
                                             '">';
-                                    str += '<div class="comment-show-con-img pull-left">' +
+                                    str += '<div class="comment-show-con-img">' +
                                                 '<img src="' + replier_avatar + '" alt="' + replier_username + '">' +
-                                            '</div>';
-                                    str += '<div class="comment-show-con-list pull-left clearfix">' +
+                                            '</div>' +
                                             '<div class="pl-text clearfix">' +
                                             '<a href="javascript:void(0)" class="comment-size-name"' +
                                              'data-replier_id="' + replier_user_id +
                                             '">' + replier_username + '</a>' +
-                                            '&nbsp;&nbsp;<span class="comment-time" data-reply_at="' + reply_at +
+                                            '<span class="comment-time" data-reply_at="' + reply_at +
                                             '">'  + '</span>' +
                                             '</div>';
-                                    str += '<div class="date-dz">' +
+                                    str += '<div class="comment-show-con-list clearfix">' +
+                                           '<div class="date-dz">' +
                                             '<p class="praise-type">';
                                     if (type == 1) {
                                         str += '赞了你的文章'

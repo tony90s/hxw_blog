@@ -122,7 +122,7 @@ class Article(models.Model):
         context['praise_times'] = self.praise_times
         context['comments'] = self.get_comments_json()
         context['word_count'] = self.word_count
-        context['release_time'] = self.release_time
+        context['release_time'] = timezone.localtime(self.release_at).strftime("%Y-%m-%d %H:%M")
         context['update_time'] = self.update_time
         context['page_views'] = self.page_views
         return context

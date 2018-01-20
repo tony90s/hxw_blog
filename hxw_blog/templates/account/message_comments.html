@@ -40,16 +40,16 @@
                 <div class="comment-show">
                     {% for comment in unified_comment_info_list %}
                     <div class="comment-show-con clearfix" data-comment_reply_id="{{ comment.comment_reply_id }}" data-comment_id="{{ comment.comment_id }}" data-is_viewed="{{ comment.is_viewed }}">
-                        <div class="comment-show-con-img pull-left">
+                        <div class="comment-show-con-img">
                             <img src="{{ comment.replier.avatar }}" alt="{{ comment.replier.username }}">
                         </div>
-                        <div class="comment-show-con-list pull-left clearfix">
-                            <div class="pl-text clearfix">
-                                <a href="javascript:void(0)" class="comment-size-name"
-                                   data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>&nbsp;&nbsp;<span class="comment-time" data-reply_at="{{ comment.reply_at }}"></span>
-                            </div>
+                        <div class="pl-text clearfix">
+                            <a href="javascript:void(0)" class="comment-size-name" data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>
+                            <span class="comment-time" data-reply_at="{{ comment.reply_at }}"></span>
+                        </div>
+                        <div class="comment-show-con-list clearfix">
                             <div class="date-dz">
-                                <span class="date-dz-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</span>
+                                <p class="date-dz-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</p>
                                 <div {% if comment.article_info.cover_photo %}class="article with-img"{% else %}class="article"{% endif %}>
                                     {% if comment.article_info.cover_photo %}
                                     <a class="wrap-img" href="{% url 'article:details' comment.article_info.article_id %}" target="_blank">
@@ -68,7 +68,7 @@
                                         <a href="javascript:;" class="removeBlock" {% if comment.comment_reply_id > 0 %}data-comment_reply_id="{{ comment.comment_reply_id }}"{% else %}data-comment_id="{{ comment.comment_id }}"{% endif %}>删除</a>
                                     {% endifequal %}
                                     <a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block pull-left"
-                                       data-comment_id="{{ comment.comment_id}}" data-receiver_id="{{ comment.replier.user_id }}">回复</a>
+                                       data-comment_id="{{ comment.comment_id}}" data-receiver_id="{{ comment.replier.user_id }}" data-receiver_name="{{ comment.replier.username }}">回复</a>
                                     <span class="pull-left date-dz-line">|</span>
                                     <a href="{% url 'article:details' comment.article_info.article_id %}{% if comment.receiver.user_id > 0 %}#comment-reply-{{ comment.comment_reply_id }}{% else %}#comment-{{ comment.comment_id }}{% endif %}" target="_blank" class="date-dz-pl hf-con-block pull-left">查看详情</a>
                                 </div>
@@ -194,18 +194,11 @@
             //获取回复人的名字
             var user_info_span = $(".user-info")[0];
             var user_id = user_info_span.dataset.user_id;
-            var user_info_div = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.pl-text').find('.comment-size-name');
-            var fhName = user_info_div.html();
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
+            var receiver_name = this.dataset.receiver_name;
 
-            /*
-            if (user_id == receiver_id) {
-                layer.msg('不能回复自己', {time: 1000});
-                return false
-            }*/
-            //回复@
-            var fhN = '回复@' + fhName + ':';
+            var fhN = '回复@' + receiver_name + ':';
             //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
             var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
                     '" onkeyup="keyUP(this)"></textarea> <a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
@@ -235,17 +228,9 @@
             var oThis = $(this);
             //获取输入内容
             var oHfVal = $(this).siblings('.flex-text-wrap').find('.hf-input').val();
-            var oHfName = $(this).parents('.hf-con').parents('.date-dz').siblings('.pl-text').find('.comment-size-name').html();
-            var oAllVal = '回复@' + oHfName + ':';
 
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
-
-            /*
-            if (user_id == receiver_id) {
-                layer.msg('不能回复自己', {time: 1000});
-                return false
-            }*/
 
             var content = oHfVal.replace(/(^\s*)|(\s*$)/g, "");
             if (content == '') {
@@ -375,23 +360,23 @@
                                             '" data-comment_id="' + comment_id +
                                             '" data-is_viewed="' + is_viewed +
                                             '">';
-                                    str += '<div class="comment-show-con-img pull-left">' +
+                                    str += '<div class="comment-show-con-img">' +
                                                 '<img src="' + replier_avatar + '" alt="' + replier_username + '">' +
-                                            '</div>';
-                                    str += '<div class="comment-show-con-list pull-left clearfix">' +
+                                            '</div>'+
                                             '<div class="pl-text clearfix">' +
                                             '<a href="javascript:void(0)" class="comment-size-name"' +
                                              'data-replier_id="' + replier_user_id +
                                             '">' + replier_username + '</a>' +
-                                            '&nbsp;&nbsp;<span class="comment-time" data-reply_at="' + reply_at +
+                                            '<span class="comment-time" data-reply_at="' + reply_at +
                                             '">' + '</span>' +
                                             '</div>';
-                                    str += '<div class="date-dz">' +
-                                           '<span class="date-dz-left my-pl-con">';
+                                    str += '<div class="comment-show-con-list clearfix">' +
+                                            '<div class="date-dz">' +
+                                            '<p class="date-dz-left my-pl-con">';
                                     if (receiver_user_id >0) {
                                         str += '回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                                     }
-                                    str += content + '</span>';
+                                    str += content + '</p>';
                                     str += '<div class="article';
                                     if (cover_photo) {
                                         str += ' with-img';
@@ -428,7 +413,7 @@
                                         check_detail_url += '#comment-' + comment_id;
                                     }
                                     str += '<a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block pull-left"' +
-                                        'data-comment_id="' + comment_id + '" data-receiver_id="' + replier_user_id + '">回复</a>' +
+                                        'data-comment_id="' + comment_id + '" data-receiver_id="' + replier_user_id + '" data-receiver_name="' + replier_username + '">回复</a>' +
                                         '<span class="pull-left date-dz-line">|</span>' +
                                         '<a href="' + check_detail_url + '" target="_blank" class="date-dz-pl hf-con-block pull-left">查看详情</a>' +
                                         '</div>' +
