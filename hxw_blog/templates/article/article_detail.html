@@ -90,11 +90,11 @@
                                                            data-comment_id="{{ comment.comment_id }}">删除</a>
                                                     {% endifequal %}
                                                 {% endif %}
-                                                <a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left"
+                                                <a href="javascript:;" class="date-dz-pl pl-hf hf-con-block"
                                                    data-comment_id="{{ comment.comment_id }}"
                                                    data-receiver_id="{{ comment.commentator.user_id }}" data-receiver_name="{{ comment.commentator.username }}">回复</a>
-                                                <span class="pull-left date-dz-line">|</span>
-                                                <a href="javascript:;" class="date-dz-z pull-left"
+                                                <span class="date-dz-line">|</span>
+                                                <a href="javascript:;" class="date-dz-z"
                                                    data-parent_id="{{ comment.comment_id }}" data-praise_type="2"><i
                                                         class="iconfont icon-communityiconpraise4"></i><span
                                                         class="z-num">{{ comment.praise_times }}</span></a>
@@ -117,11 +117,11 @@
                                                                 {% endifequal %}
                                                             {% endif %}
                                                             <a href="javascript:;"
-                                                               class="date-dz-pl pl-hf hf-con-block pull-left"
+                                                               class="date-dz-pl pl-hf hf-con-block"
                                                                data-comment_id="{{ reply.comment_id }}"
                                                                data-receiver_id="{{ reply.replier.user_id }}" data-receiver_name="{{ reply.replier.username }}">回复</a>
-                                                            <span class="pull-left date-dz-line">|</span>
-                                                            <a href="javascript:;" class="date-dz-z pull-left"
+                                                            <span class="date-dz-line">|</span>
+                                                            <a href="javascript:;" class="date-dz-z"
                                                                data-parent_id="{{ reply.comment_reply_id }}"
                                                                data-praise_type="3"><i class="iconfont icon-communityiconpraise4"></i><span class="z-num">{{ reply.praise_times }}</span></a>
                                                         </div>
@@ -245,11 +245,11 @@
                                             '">删除</a>';
                                 }
 
-                                comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left" data-comment_id="' + comment_id +
+                                comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id +
                                         '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
                                         '">回复</a>' +
-                                        '<span class="pull-left date-dz-line">|</span>' +
-                                        '<a href="javascript:;" class="date-dz-z pull-left" data-parent_id="' + comment_id + '" data-praise_type="2">' +
+                                        '<span class="date-dz-line">|</span>' +
+                                        '<a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
                                         '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a>' +
                                         '</div>' +
                                         '</div>' +
@@ -368,9 +368,9 @@
                                 oHtml += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
                                         '">删除</a>';
                             }
-                            oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
+                            oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
                                     '">回复</a>' +
-                                    '<span class="pull-left date-dz-line">|</span> <a href="javascript:;" class="date-dz-z pull-left" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
+                                    '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
                                     '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
                                     '</div> ' +
                                     '</div>' +

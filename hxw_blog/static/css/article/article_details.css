@@ -174,7 +174,7 @@
 }
 
 .date-dz i {
-    font-size: 125%;
+    font-size: 16px;
     margin-right: 4px;
     vertical-align: middle;
 }
@@ -220,25 +220,27 @@
 }
 
 .removeBlock {
-    float: left;
     font-size: 12px;
     color: #8b8b8b;
     margin-right: 24px;
-    display: block;
+    display: inline-block;
+    vertical-align: middle;
     opacity: 0;
 }
 
 .hf-con-block {
-    display: block;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .date-dz-pl, .date-dz-line, .date-dz-z {
     font-size: 12px;
     color: #8b8b8b;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .date-dz-line {
-    display: block;
     padding: 0 20px;
 }
 

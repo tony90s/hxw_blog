@@ -67,10 +67,10 @@
                                     {% ifequal comment.replier.user_id user.id %}
                                         <a href="javascript:;" class="removeBlock" {% if comment.comment_reply_id > 0 %}data-comment_reply_id="{{ comment.comment_reply_id }}"{% else %}data-comment_id="{{ comment.comment_id }}"{% endif %}>删除</a>
                                     {% endifequal %}
-                                    <a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block pull-left"
+                                    <a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block"
                                        data-comment_id="{{ comment.comment_id}}" data-receiver_id="{{ comment.replier.user_id }}" data-receiver_name="{{ comment.replier.username }}">回复</a>
-                                    <span class="pull-left date-dz-line">|</span>
-                                    <a href="{% url 'article:details' comment.article_info.article_id %}{% if comment.receiver.user_id > 0 %}#comment-reply-{{ comment.comment_reply_id }}{% else %}#comment-{{ comment.comment_id }}{% endif %}" target="_blank" class="date-dz-pl hf-con-block pull-left">查看详情</a>
+                                    <span class="date-dz-line">|</span>
+                                    <a href="{% url 'article:details' comment.article_info.article_id %}{% if comment.receiver.user_id > 0 %}#comment-reply-{{ comment.comment_reply_id }}{% else %}#comment-{{ comment.comment_id }}{% endif %}" target="_blank" class="date-dz-pl hf-con-block">查看详情</a>
                                 </div>
                             </div>
                         </div>
@@ -412,10 +412,10 @@
                                     else {
                                         check_detail_url += '#comment-' + comment_id;
                                     }
-                                    str += '<a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block pull-left"' +
+                                    str += '<a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block"' +
                                         'data-comment_id="' + comment_id + '" data-receiver_id="' + replier_user_id + '" data-receiver_name="' + replier_username + '">回复</a>' +
-                                        '<span class="pull-left date-dz-line">|</span>' +
-                                        '<a href="' + check_detail_url + '" target="_blank" class="date-dz-pl hf-con-block pull-left">查看详情</a>' +
+                                        '<span class="date-dz-line">|</span>' +
+                                        '<a href="' + check_detail_url + '" target="_blank" class="date-dz-pl hf-con-block">查看详情</a>' +
                                         '</div>' +
                                         '</div>' +
                                         '</div>' +
