@@ -10,23 +10,19 @@
 {% endblock %}
 {% block content %}
     <div class="container index">
-
-        <div class="row row-offcanvas row-offcanvas-right">
-
-            <div class="col-lg-12 col-xs-12 col-sm-12">
+        <div class="row">
+            <div class="col-sm-8">
                 {% if hot_articles_briefs %}
-                <div class="ss2_wrapper">
-			        <a href="#" class="slideshow_prev"><span>Previous</span></a>
-			        <a href="#" class="slideshow_next"><span>Next</span></a>
-			        <!--
-			            <div class="slideshow_paging"></div>
-			        -->
+                <div class="row">
+                    <div class="ss2_wrapper">
+			            <a href="#" class="slideshow_prev"><span>Previous</span></a>
+			            <a href="#" class="slideshow_next"><span>Next</span></a>
 
-			        <div class="slideshow_box">
-				        <div class="data"></div>
-			        </div>
+			            <div class="slideshow_box">
+				            <div class="data"></div>
+			            </div>
 
-			        <div id="slideshow_2" class="slideshow">
+			            <div id="slideshow_2" class="slideshow">
                         {% for hot_articles_brief in hot_articles_briefs %}
                             <div class="slideshow_item">
 					            <div class="image"><a href="{% url 'article:details' hot_articles_brief.article_id %}" target="_blank"><img {% if hot_articles_brief.cover_photo %}src="{{ hot_articles_brief.cover_photo }}"{% else %}src="/media/article/cover/default_cover.jpg"{% endif %} alt="{{ hot_articles_brief.title }}"/></a></div>
@@ -36,12 +32,12 @@
 					            </div>
 				            </div>
                         {% endfor %}
-			        </div>
-		        </div><!-- .ss2_wrapper -->
+			            </div>
+		            </div><!-- .ss2_wrapper -->
+                </div>
                 {% endif %}
-
                 <div class="row">
-                    <div class="col-sm-8 main">
+                    <div class="col-sm-12 main">
                         <div class="split-line"></div>
                         <div id="list-container">
                             <ul class="note-list">
@@ -90,8 +86,12 @@
                             </div>
                         </div>
                     </div>
-                </div><!--/row-->
-            </div><!--/.col-xs-12.col-sm-9-->
+                </div>
+            </div><!--/col-sm-8-->
+
+            <div class="col-sm-2 col-sm-offset-2">
+
+            </div>
 
         </div><!--/row-->
     </div><!--/.container-->

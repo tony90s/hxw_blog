@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="praise_box">
-                        <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">喜欢&nbsp;<i class="fa fa-heart-o"></i>&nbsp;|&nbsp;<span class="praise_times">{{ article_details.praise_times }}</span></button>
+                        <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">喜欢<i class="iconfont icon-communityiconpraise4"></i><span class="praise_times">{{ article_details.praise_times }}</span></button>
                     </div>
 
                     {% if not user.is_authenticated %}
@@ -96,8 +96,8 @@
                                                 <span class="pull-left date-dz-line">|</span>
                                                 <a href="javascript:;" class="date-dz-z pull-left"
                                                    data-parent_id="{{ comment.comment_id }}" data-praise_type="2"><i
-                                                        class="date-dz-z-click-red"></i>赞 (<i
-                                                        class="z-num">{{ comment.praise_times }}</i>)</a>
+                                                        class="iconfont icon-communityiconpraise4"></i><span
+                                                        class="z-num">{{ comment.praise_times }}</span></a>
                                             </div>
                                         </div>
                                         <div class="hf-list-con">
@@ -123,8 +123,7 @@
                                                             <span class="pull-left date-dz-line">|</span>
                                                             <a href="javascript:;" class="date-dz-z pull-left"
                                                                data-parent_id="{{ reply.comment_reply_id }}"
-                                                               data-praise_type="3"><i class="date-dz-z-click-red"></i>赞
-                                                                (<i class="z-num">{{ reply.praise_times }}</i>)</a>
+                                                               data-praise_type="3"><i class="iconfont icon-communityiconpraise4"></i><span class="z-num">{{ reply.praise_times }}</span></a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -139,10 +138,6 @@
 
                 </div>
 
-                <div class="col-sm-3">
-                    <div>
-                    </div>
-                </div>
             </div>
 
         </div>
@@ -255,7 +250,7 @@
                                         '">回复</a>' +
                                         '<span class="pull-left date-dz-line">|</span>' +
                                         '<a href="javascript:;" class="date-dz-z pull-left" data-parent_id="' + comment_id + '" data-praise_type="2">' +
-                                        '<i class="date-dz-z-click-red"></i>赞 (<i class="z-num">' + praise_times + '</i>)</a>' +
+                                        '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a>' +
                                         '</div>' +
                                         '</div>' +
                                         '<div class="hf-list-con"></div>' +
@@ -376,7 +371,7 @@
                             oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
                                     '">回复</a>' +
                                     '<span class="pull-left date-dz-line">|</span> <a href="javascript:;" class="date-dz-z pull-left" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
-                                    '<i class="date-dz-z-click-red"></i>赞 (<i class="z-num">' + praise_times + '</i>)</a> ' +
+                                    '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
                                     '</div> ' +
                                     '</div>' +
                                     '</div>';
@@ -451,6 +446,7 @@
                 return false;
             }
             var $this = $(this);
+            var like_icon = $this.find('i');
             var parent_id = this.dataset.parent_id;
             var praise_type = this.dataset.praise_type;
             if (parent_id == undefined || praise_type == undefined) {
@@ -458,7 +454,7 @@
                 return false;
             }
             var zNum = $this.find('.z-num').html();
-            if ($this.is('.date-dz-z-click')) {
+            if (like_icon.hasClass('icon-communityiconpraisesel')) {
                 var url = "{% url 'article:cancel_praise' %}";
                 var post_data = {
                     "parent_id": parent_id,
@@ -470,9 +466,9 @@
                         function (json) {
                             if (json.code == 200) {
                                 zNum--;
-                                $this.removeClass('date-dz-z-click red');
+                                like_icon.removeClass('icon-communityiconpraisesel');
+                                like_icon.addClass('icon-communityiconpraise4');
                                 $this.find('.z-num').html(zNum);
-                                $this.find('.date-dz-z-click-red').removeClass('red');
                             }
                             else {
                                 layer.msg(json.msg, {time: 1000});
@@ -492,9 +488,9 @@
                         function (json) {
                             if (json.code == 200) {
                                 zNum++;
-                                $this.addClass('date-dz-z-click');
+                                like_icon.removeClass('icon-communityiconpraise4');
+                                like_icon.addClass('icon-communityiconpraisesel');
                                 $this.find('.z-num').html(zNum);
-                                $this.find('.date-dz-z-click-red').addClass('red');
                             }
                             else {
                                 layer.msg(json.msg, {time: 1000});
@@ -524,7 +520,7 @@
             var praise_type = this.dataset.praise_type;
             var praise_times = $this.find('.praise_times').html();
 
-            if (like_icon.hasClass('fa-heart')) {
+            if (like_icon.hasClass('icon-communityiconpraisesel')) {
                 var url = "{% url 'article:cancel_praise' %}";
                 var post_data = {
                     "parent_id": parent_id,
@@ -536,8 +532,8 @@
                         function (json) {
                             if (json.code == 200) {
                                 praise_times--;
-                                like_icon.removeClass('fa-heart');
-                                like_icon.addClass('fa-heart-o');
+                                like_icon.removeClass('icon-communityiconpraisesel');
+                                like_icon.addClass('icon-communityiconpraise4');
                                 $this.removeClass('btn-success');
                                 $this.addClass('btn-default');
                                 $this.find('.praise_times').html(praise_times);
@@ -560,8 +556,8 @@
                         function (json) {
                             if (json.code == 200) {
                                 praise_times++;
-                                like_icon.removeClass('fa-heart-o');
-                                like_icon.addClass('fa-heart');
+                                like_icon.removeClass('icon-communityiconpraise4');
+                                like_icon.addClass('icon-communityiconpraisesel');
                                 $this.removeClass('btn-default');
                                 $this.addClass('btn-success');
                                 $this.find('.praise_times').html(praise_times);

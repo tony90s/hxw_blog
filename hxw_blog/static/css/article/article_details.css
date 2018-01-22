@@ -123,6 +123,10 @@
     border-radius: 25px;
 }
 
+.praise_box button i {
+    margin: 0 6px 0;
+}
+
 /*----------评论区域 begin----------*/
 .comment-show {
     margin-top: 20px;
@@ -167,6 +171,12 @@
 .date-dz {
     width: 100%;
     float: left;
+}
+
+.date-dz i {
+    font-size: 125%;
+    margin-right: 4px;
+    vertical-align: middle;
 }
 
 .hf-list-con {
@@ -244,7 +254,8 @@
 }
 
 .z-num {
-    font-style: normal;
+    /*font-style: normal;*/
+    margin-left: 4px;
 }
 
 .date-dz-z-click {

@@ -470,8 +470,7 @@ a {
 }
 
 .index .main {
-    padding-top: 40px;
-    padding-right: 0
+    padding: 30px 10px 0;
 }
 
 .index .main .split-line {
