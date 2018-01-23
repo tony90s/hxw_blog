@@ -75,7 +75,7 @@ class Article(models.Model):
         author = User.objects.using('read').get(id=self.author_id)
         author_data = {
             'user_id': author.id,
-            'username': author.username,
+            'username': author.username if len(author.username) <= 10 else (author.username[:10] + '...'),
             'avatar': author.profile.avatar.url
         }
         return author_data
@@ -159,10 +159,8 @@ class Article(models.Model):
 
 
 def get_user_articles(user_id):
-    articles = Article.objects.using('read').filter(author_id=user_id)
-    articles_summarization = list()
-    for article in articles:
-        articles_summarization.append(article.get_summarization)
+    articles = Article.objects.using('read').filter(author_id=user_id).order_by('-id')
+    articles_summarization = [article.get_summarization() for article in articles]
     return articles_summarization
 
 
@@ -188,7 +186,7 @@ class Comment(models.Model):
         commentator = User.objects.using('read').get(id=self.commentator_id)
         commentator_info = {
             'user_id': commentator.id,
-            'username': commentator.get_username(),
+            'username': commentator.username if len(commentator.username) <= 10 else (commentator.username[:10] + '...'),
             'avatar': commentator.profile.avatar.url
         }
         self.__user_cache.update({self.commentator_id: commentator_info})
@@ -279,7 +277,7 @@ class CommentReply(models.Model):
         replier = User.objects.using('read').get(id=self.replier_id)
         replier_data = {
             'user_id': replier.id,
-            'username': replier.get_username(),
+            'username': replier.username if len(replier.username) <= 10 else (replier.username[:10] + '...'),
             'avatar': replier.profile.avatar.url
         }
         self.__user_cache.update({self.replier_id: replier_data})
@@ -291,7 +289,7 @@ class CommentReply(models.Model):
         receiver = User.objects.using('read').get(id=self.receiver_id)
         receiver_data = {
             'user_id': receiver.id,
-            'username': receiver.username,
+            'username': receiver.username if len(receiver.username) <= 10 else (receiver.username[:10] + '...'),
             'avatar': receiver.profile.avatar.url
         }
         self.__user_cache.update({self.receiver_id: receiver_data})
@@ -362,7 +360,7 @@ class Praise(models.Model):
         user = User.objects.using('read').get(id=self.user_id)
         user_data = {
             'user_id': user.id,
-            'username': user.get_username(),
+            'username': user.username if len(user.username) <= 10 else (user.username[:10] + '...'),
             'avatar': user.profile.avatar.url
         }
         self.__user_cache.update({self.user_id: user_data})
