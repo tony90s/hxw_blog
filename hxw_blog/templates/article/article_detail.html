@@ -298,9 +298,10 @@
             var fhN = '回复@' + receiver_name + ':';
             //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
             var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
-                    '" onkeyup="keyUP(this)"></textarea> <a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
+                    '" onkeyup="keyUP(this)"></textarea> ' +
+                    '<a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
                     '" data-comment_id="' + comment_id + '" data-receiver_name="' + receiver_name +
-                    '">评论</a></div>';
+                    '">回复</a><a href="javascript:;" class="hf-cancel">取消</a></div>';
             //显示回复
             if ($(this).is('.hf-con-block')) {
                 $(this).parents('.date-dz-right').parents('.date-dz').append(fhHtml);
@@ -389,6 +390,15 @@
             );
         });
     </script>
+
+    <!--评论回复块取消-->
+    <script type="text/javascript">
+        $('.comment-show').on('click', '.hf-cancel', function () {
+            $(this).parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
+            $(this).parents('.hf-con').remove()
+        })
+    </script>
+
     <!--删除评论块-->
     <script type="text/javascript">
         $('.commentAll').on('click', '.removeBlock', function () {

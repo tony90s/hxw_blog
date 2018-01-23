@@ -203,7 +203,7 @@
             var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
                     '" onkeyup="keyUP(this)"></textarea> <a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
                     '" data-comment_id="' + comment_id +
-                    '">回复</a></div>';
+                    '">回复</a><a href="javascript:;" class="hf-cancel">取消</a></div>';
             //显示回复
             if ($(this).is('.hf-con-block')) {
                 $(this).parents('.date-dz-right').parents('.date-dz').append(fhHtml);
@@ -220,6 +220,15 @@
             }
         });
     </script>
+
+    <!--评论回复块取消-->
+    <script type="text/javascript">
+        $('.comment-show').on('click', '.hf-cancel', function () {
+            $(this).parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
+            $(this).parents('.hf-con').remove()
+        })
+    </script>
+
     <!--评论回复块创建-->
     <script type="text/javascript">
         $('.comment-show').on('click', '.hf-pl', function () {

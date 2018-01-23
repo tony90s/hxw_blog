@@ -184,6 +184,20 @@
     border-radius: 6px;
 }
 
+.hf-cancel {
+    width: 70px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #6dbfff;
+    text-align: center;
+    display: block;
+    float: right;
+    color: #FFFFFF;
+    font-size: 12px;
+    border-radius: 6px;
+    margin-right: 20px;
+}
+
 .hf-con {
     width: 100%;
     margin-top: 15px;
