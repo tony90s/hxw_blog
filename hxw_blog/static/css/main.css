@@ -181,16 +181,27 @@ label {
 .bs-docs-footer .footer-message{
     margin-top: 20px;
     color:#878B91;
+    font-size: 14px;
+    line-height: 1.5em;
 }
 
-.bs-docs-footer .footer-message a{
-  font-size: 80%;
+.bs-docs-footer .footer-message .on-file-img {
+    margin-right: 5px;
+    border: 0;
+    vertical-align: middle;
+}
+
+.bs-docs-footer .footer-message .authorities>a+a:before {
+    padding: 0 10px;
+    color:#878B91;
+    content: "|";
 }
 
 .bs-docs-footer-links{
   padding-left:0;
   margin-bottom:20px
 }
+
 .bs-docs-footer-links li{
   display:inline-block
 }
