@@ -53,7 +53,7 @@
                     <div class="comment_box clearfix">
                         <div id="comment_form">
                             <div class="guest_link">
-                                <span class="log_ico"><i class="fa fa-user-circle fa-3x"></i></span><span class="txt">目前您尚未登录，请 <a href="javascript:void(0)" onclick="ClickLogin(this)">登录</a> 或 <a href="javascript:void(0)" onclick="ClickRegister(this)">注册</a> 后进行评论</span>
+                                <span class="log_ico"><a href="javascript:void(0)" onclick="clickLogin(this)"><i class="fa fa-user-circle fa-3x"></i></a></span><span class="txt">目前您尚未登录，请 <a href="javascript:void(0)" onclick="clickLogin(this)">登录</a> 或 <a href="javascript:void(0)" onclick="clickRegister(this)">注册</a> 后进行评论</span>
                             </div>
                         </div>
                     </div>
@@ -185,11 +185,11 @@
             var login_url = "{% url 'account:login' %}";
             window.location.href = login_url + '?next=' + next;
         }
-        function ClickLogin(link) {
+        function clickLogin(link) {
             redirect_to_login()
         }
 
-        function ClickRegister(link) {
+        function clickRegister(link) {
             var next = window.location.href;
             var register_url = "{% url 'account:register' %}";
             window.location.href = register_url + '?next=' + next;
