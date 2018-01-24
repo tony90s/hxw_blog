@@ -273,14 +273,16 @@ def article_comments_list(request):
         return JsonResponse({'code': 404, 'msg': '博文不存在'})
 
     query_condition = Q(article_id=article_id)
-    comments = Comment.objects.using('read').filter(query_condition).order_by('-id')[
-               page_size * (page_index - 1):page_size * page_index]
-    comments_data = [comment.render_json() for comment in comments]
+    comments = Comment.objects.using('read').filter(query_condition).order_by('-id')
+    query_comments = comments[page_size * (page_index - 1):page_size * page_index]
+    comments_data = [comment.render_json() for comment in query_comments]
 
     context = {
         'code': 200,
         'msg': '查询成功',
-        'data': comments_data
+        'count': len(comments),
+        'data': comments_data,
+        'has_next': len(comments) > (page_index * page_size)
     }
     return JsonResponse(context)
 
