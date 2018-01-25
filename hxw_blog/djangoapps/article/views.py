@@ -541,16 +541,30 @@ def drafts(request):
     return render(request, 'article/user_drafts.html', context)
 
 
-@login_required()
-def user_articles(request):
+def user_articles(request, author_id):
     page_size = settings.DEFAULT_PAGE_SIZE
-    user = request.user
 
-    articles = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=1)).order_by('-id')[:page_size]
-    articles_info = [article.get_summarization() for article in articles]
+    authors = User.objects.using('read').filter(id=author_id)
+    if not authors.exists():
+        raise Http404
+
+    author = authors[0]
+    author_data = {
+        'user_id': author.id,
+        'username': author.username if len(author.username) <= 10 else (author.username[:10] + '...'),
+        'avatar': author.profile.avatar.url,
+        'bio': author.profile.bio
+    }
+
+    articles = Article.objects.using('read').filter(Q(author_id=author.id) & Q(is_released=1)).order_by('-id')
+    articles_info = [article.get_summarization() for article in articles[:page_size]]
+    author_praises = get_user_be_praised(author.id)
     context = {
         'articles_info': articles_info,
-        'page_size': page_size
+        'page_size': page_size,
+        'author_data': author_data,
+        'article_count': articles.count(),
+        'praises_count': author_praises.count()
     }
     return render(request, 'article/user_articles.html', context)
 

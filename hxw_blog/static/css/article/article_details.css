@@ -445,17 +445,33 @@ textarea,
     width: 140px;
 }
 
+.more-comment a {
+    color: #8b8b8b;
+}
+
+.more-comment .prev-page {
+    margin-right: 20px;
+}
+
+.more-comment a i {
+    font-size: 3em;
+}
+
 @media only screen and (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
     html {
         background-size: 51px auto;
     }
 }
 
-.comment_box {
+.comment-box {
     margin-top: 20px;
     border: 1px solid #ededed;
     padding: 18px 20px 0 20px;
     /*background-color: #fff;*/
+}
+
+.comment-box a i {
+    color: #8b8b8b;
 }
 
 .guest_link {

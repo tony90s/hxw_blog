@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}<title>LOVEITERS-我的文章</title>{% endblock %}
+{% block title %}<title>{{ author_data.username }}</title>{% endblock %}
 {% block extra_header %}
     <link href="/static/css/index.css" rel="stylesheet">
     <script src="/static/js/time_desc.js"></script>
@@ -8,6 +8,19 @@
     <div class="container index">
         <div class="row">
             <div class="col-sm-8 main">
+                <div class="author-info">
+                        <a class="avatar" target="_blank" href="javascript:void(0)">
+                            <img src="{{ author_data.avatar }}" alt="{{ author_data.username }}"/>
+                        </a>
+                        <div class="info">
+                            <a class="nickname" target="_blank" href="javascript:void(0)">{{ author_data.username }}</a>
+                            <span>个人简介： {{ author_data.bio }}</span>
+                            <div class="meta">
+                                <span><i class="iconfont icon-article"></i> {{ article_count }}</span>
+                                <span><i class="iconfont icon-like"></i> {{ praises_count }}</span>
+                            </div>
+                        </div>
+                </div>
                 <div class="split-line"></div>
                 <div id="list-container">
                     <ul class="note-list">
@@ -29,6 +42,7 @@
                                                 <a class="nickname" target="_blank" href="javascript:void(0)">{{ article.author.username }}</a>
                                                 <span class="time" data-release_at="{{ article.release_time }}"></span>
                                             </div>
+                                            {% if user.is_authenticated and user.id == author_data.user_id %}
                                             <div class="dropdown">
                                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                                     <span class="caret"></span>
@@ -46,6 +60,7 @@
                                                     </li>
                                                 </ul>
                                             </div>
+                                            {% endif %}
                                         </div>
                                         <a class="title" target="_blank" href="{% url 'article:details' article.article_id %}">{{ article.title }}</a>
                                         <p class="abstract">
@@ -67,27 +82,34 @@
                     </ul>
                     <div class="read-more text-center">
                         <input type="hidden" value="{{ page_size }}" id="page_size">
+                        <input type="hidden" value="{{ author_data.user_id }}" id="author_id">
                         <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
                         <p class="text-center not-more-content">没有更多内容...</p>
                     </div>
                 </div>
             </div>
 
+            {% if user.is_authenticated and user.id == author_data.user_id %}
             <div class="col-sm-2 col-sm-offset-2">
                 <div class="sidebar-box">
                     <div class="list-group">
-                        <a class="list-group-item active" href="{% url "article:user_articles" %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
+                        <a class="list-group-item active" href="{% url "article:user_articles" user.id %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
                         <a class="list-group-item" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
                         <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div><!--/row-->
     </div><!--/.container-->
 {% endblock %}
 
 {% block extra_js %}
 
+    <script>
+        var is_authenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        var login_user_id = {% if user.is_authenticated %}{{ user.id }}{% else %}0{% endif %};
+    </script>
     <!--发布时间描述-->
     <script>
         function timeDesc() {
@@ -147,13 +169,12 @@
             $(function() {
                 var page_index = 2;
                 var page_size = $("#page_size").val();
-                var user_info_span = $(".user-info")[0];
-                var user_id = user_info_span.dataset.user_id;
+                var author_id = $("#author_id").val();
                 $("#btn_read_more").click(function() {
                     $.getJSON("{% url 'article:articles' %}",
                             {
                                 'page_index': page_index,
-                                'author_id': user_id,
+                                'author_id': author_id,
                                 'is_released': 1
                             }, function(json) {
                             if (json.data.length > 0) {
@@ -187,8 +208,10 @@
                                             '<div class="info">' +
                                                 '<a class="nickname" target="_blank" href="javascript:void(0)">' + author['username'] + '</a>' +
                                                 '<span class="time" data-release_at="' + release_time + '">' + '</span>' +
-                                            '</div>' +
-                                            '<div class="dropdown">' +
+                                            '</div>';
+
+                                    if (is_authenticated && login_user_id == author_id) {
+                                        str += '<div class="dropdown">' +
                                                 '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
                                                     '<span class="caret"></span>' +
                                                 '</a>' +
@@ -204,8 +227,10 @@
                                                         '</a>' +
                                                     '</li>' +
                                                 '</ul>' +
-                                            '</div>' +
-                                        '</div>' +
+                                            '</div>';
+                                    }
+
+                                    str += '</div>' +
                                         '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
                                         '<div class="meta">' +

@@ -63,7 +63,7 @@
             <div class="col-sm-2">
                 <div class="sidebar-box">
                     <div class="list-group">
-                        <a class="list-group-item" href="{% url "article:user_articles" %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
+                        <a class="list-group-item" href="{% url "article:user_articles" user.id %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
                         <a class="list-group-item" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
                     </div>
                 </div>

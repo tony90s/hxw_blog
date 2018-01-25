@@ -16,6 +16,81 @@ a {
     color: #333;
 }
 
+.author-info {
+    margin: 0 auto 40px;
+    padding: 25px 30px;
+    border: 1px solid #f0f0f0;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.author-info .avatar, .author-info .info {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.author-info .avatar {
+    width: 80px;
+    height: 80px;
+    margin-right: 20px;
+}
+
+.author-info .info {
+    margin-top: 6px;
+}
+
+.author-info .info .nickname {
+    display: block;
+    font-size: 18px;
+}
+
+.author-info .info span {
+    font-size: 13px;
+    color: #969696;
+    margin-top: 6px;
+}
+
+.author-info .info a {
+    text-decoration: none;
+}
+
+.author-info .meta  {
+    margin-top: 32px;
+    padding-right: 0 !important;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 20px
+}
+
+.author-info .meta a {
+    margin-right: 16px;
+    color: #b4b4b4;
+    text-decoration: none;
+    vertical-align: middle;
+}
+
+.author-info .meta a, .author-info .meta a:hover {
+    transition: .1s ease-in;
+    -webkit-transition: .1s ease-in;
+    -moz-transition: .1s ease-in;
+    -o-transition: .1s ease-in;
+    -ms-transition: .1s ease-in
+}
+
+.author-info .meta a:hover {
+    color: #787878
+}
+
+.author-info .meta i {
+    vertical-align: middle;
+}
+
+.author-info .meta span {
+    display: inline-block;
+    margin-right: 16px;
+    color: #b4b4b4
+}
+
 .note-list {
     margin: 0;
     padding: 0;

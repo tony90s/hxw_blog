@@ -75,7 +75,7 @@
                         </a>
                         <a class="list-group-item" href="{% url 'account:user_message_comments' %}"><i class="iconfont icon-message"></i>我的消息</a>
                         {% if user.is_superuser %}
-                            <a class="list-group-item" href="{% url "article:user_articles" %}"><i class="iconfont icon-article"></i>我的文章</a>
+                            <a class="list-group-item" href="{% url "article:user_articles" user.id %}"><i class="iconfont icon-article"></i>我的文章</a>
                             <a class="list-group-item" href="{% url "article:user_drafts" %}"><i class="iconfont icon-drafts"></i>草稿箱</a>
                             <a class="list-group-item" href="{% url "article:create_article" %}"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
                         {% endif %}

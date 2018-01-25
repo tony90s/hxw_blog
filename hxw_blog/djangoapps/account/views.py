@@ -312,6 +312,8 @@ def update_user_info(request):
             return JsonResponse({'code': 400, 'msg': '性别参数有误，请重试。'})
         user_profile.gender = gender
     if bio:
+        if len(bio) > 120:
+            return JsonResponse({'code': 400, 'msg': '个人简介字数至多为120，请重试。'})
         user_profile.bio = bio
 
     user.save(using='write')

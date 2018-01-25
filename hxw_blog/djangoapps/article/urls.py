@@ -37,6 +37,6 @@ urlpatterns = [
     url(r'^comments$', article_comments_list, name='comments'),
     url(r'^is_viewed_status/update$', update_is_viewed_status, name='update_is_viewed_status'),
     url(r'^drafts$', drafts, name='user_drafts'),
-    url(r'^user_articles$', user_articles, name='user_articles'),
+    url(r'^author/(?P<author_id>\d+)$', user_articles, name='user_articles'),
     url(r'^release$', update_article_release_status, name='update_article_release_status'),
 ]
