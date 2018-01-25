@@ -6,17 +6,12 @@
 {% endblock %}
 {% block content %}
     <div class="container index">
-
-        <div class="row row-offcanvas row-offcanvas-right">
-
-            <div class="col-lg-12 col-xs-12 col-sm-12">
-
-                <div class="row">
-                    <div class="col-sm-8 main">
-                        <div class="split-line"></div>
-                        <div id="list-container">
-                            <ul class="note-list">
-                                {% for article in articles_info %}
+        <div class="row">
+            <div class="col-sm-8 main">
+                <div class="split-line"></div>
+                <div id="list-container">
+                    <ul class="note-list">
+                        {% for article in articles_info %}
                                 <li id="article-{{ article.article_id }}" data-article_id="{{ article.article_id }}" {% if article.cover_photo %}class="with-img"{% endif %}>
                                     {% if article.cover_photo %}
                                     <a class="wrap-img" href="{% url 'article:details' article.article_id %}" target="_blank">
@@ -26,42 +21,67 @@
                                     </a>
                                     {% endif %}
                                     <div class="content">
+                                        <div class="author">
+                                            <a class="avatar" target="_blank" href="javascript:void(0)">
+                                                <img src="{{ article.author.avatar }}" alt="{{ article.author.username }}"/>
+                                            </a>
+                                            <div class="info">
+                                                <a class="nickname" target="_blank" href="javascript:void(0)">{{ article.author.username }}</a>
+                                                <span class="time" data-release_at="{{ article.release_time }}"></span>
+                                            </div>
+                                            <div class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                    <span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-right">
+                                                    <li>
+                                                        <a href="javascript:void(0);" onclick="remove(this)" data-article_id="{{ article.article_id }}">
+                                                            <i class="iconfont icon-shanchu"></i> 删除
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a target="_blank" href="{% url 'article:details' article.article_id %}">
+                                                            <i class="iconfont icon-chakan"></i> 查看
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
                                         <a class="title" target="_blank" href="{% url 'article:details' article.article_id %}">{{ article.title }}</a>
                                         <p class="abstract">
                                             {{ article.abstract }}
                                         </p>
                                         <div class="meta">
-                                            <a href="javascript:void(0);" onclick="remove(this)" data-article_id="{{ article.article_id }}">
-                                                <i class="iconfont icon-shanchu"></i> 删除
-                                            </a>
+                                            <a class="collection-tag" target="_blank" href="{% url 'article:article_category' article.type.value %}">{{ article.type.display_name }}</a>
                                             <a target="_blank" href="{% url 'article:details' article.article_id %}">
-                                                <i class="iconfont icon-chakan"></i> 查看
+                                                <i class="iconfont icon-view"></i> {{ article.page_views }}
                                             </a>
+                                            <a target="_blank" href="{% url 'article:details' article.article_id %}#comments">
+                                                <i class="iconfont icon-message"></i> {{ article.comment_times }}
+                                            </a>
+                                            <span><i class="iconfont icon-like"></i> {{ article.praise_times }}</span>
                                         </div>
                                     </div>
                                 </li>
-                                {% endfor %}
-                            </ul>
-                            <div class="read-more text-center">
-                                <input type="hidden" value="{{ page_size }}" id="page_size">
-                                <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
-                                <p class="text-center not-more-content">没有更多内容...</p>
-                            </div>
-                        </div>
+                        {% endfor %}
+                    </ul>
+                    <div class="read-more text-center">
+                        <input type="hidden" value="{{ page_size }}" id="page_size">
+                        <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
+                        <p class="text-center not-more-content">没有更多内容...</p>
                     </div>
+                </div>
+            </div>
 
-                    <div class="col-sm-2 col-sm-offset-2">
-                        <div class="sidebar-box">
-                             <div class="list-group">
-                                <a class="list-group-item active" href="{% url "article:user_articles" %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
-                                <a class="list-group-item" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
-                                <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
-                            </div>
-                        </div>
+            <div class="col-sm-2 col-sm-offset-2">
+                <div class="sidebar-box">
+                    <div class="list-group">
+                        <a class="list-group-item active" href="{% url "article:user_articles" %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
+                        <a class="list-group-item" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
+                        <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
                     </div>
-                </div><!--/row-->
-            </div><!--/.col-xs-12.col-sm-9-->
-
+                </div>
+            </div>
         </div><!--/row-->
     </div><!--/.container-->
 {% endblock %}
@@ -144,6 +164,11 @@
                                     var type = array['type'];
                                     var cover_photo = array['cover_photo'];
                                     var abstract = array['abstract'];
+                                    var comment_times = array['comment_times'];
+                                    var praise_times = array['praise_times'];
+                                    var release_time = array['release_time'];
+                                    var page_views = array['page_views'];
+                                    var author = array['author'];
                                     var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '"';
                                     if (cover_photo) {
                                         str += 'class="with-img">' +
@@ -155,15 +180,44 @@
                                         str += '>';
                                     }
                                     str += '<div class="content">' +
+                                        '<div class="author">' +
+                                            '<a class="avatar" target="_blank" href="javascript:void(0)">' +
+                                                '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
+                                            '</a>' +
+                                            '<div class="info">' +
+                                                '<a class="nickname" target="_blank" href="javascript:void(0)">' + author['username'] + '</a>' +
+                                                '<span class="time" data-release_at="' + release_time + '">' + '</span>' +
+                                            '</div>' +
+                                            '<div class="dropdown">' +
+                                                '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+                                                    '<span class="caret"></span>' +
+                                                '</a>' +
+                                                '<ul class="dropdown-menu dropdown-menu-right">' +
+                                                    '<li>' +
+                                                        '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id  + '">' +
+                                                            '<i class="iconfont icon-shanchu"></i> 删除' +
+                                                        '</a>' +
+                                                    '</li>' +
+                                                    '<li>' +
+                                                        '<a target="_blank" href="/article/details/' + article_id  + '">' +
+                                                            '<i class="iconfont icon-chakan"></i> 查看' +
+                                                        '</a>' +
+                                                    '</li>' +
+                                                '</ul>' +
+                                            '</div>' +
+                                        '</div>' +
                                         '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
                                         '<div class="meta">' +
-                                            '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id + '">' +
-                                                '<i class="iconfont icon-shanchu"></i> 删除' +
+                                            '<a class="collection-tag" target="_blank" href="/article/category/' + type['value'] +
+                                            '">' + type['display_name'] + '</a>' +
+                                            '<a target="_blank" href="/article/details/' + article_id + '">' +
+                                                '<i class="iconfont icon-view"></i>' + page_views +
                                             '</a>' +
-                                            '<a target="_blank" href="/article/details/' + article_id  + '">' +
-                                                '<i class="iconfont icon-chakan"></i> 查看' +
+                                            '<a target="_blank" href="/article/details/' + article_id  + '#comments">' +
+                                                '<i class="iconfont icon-message"></i>' + comment_times +
                                             '</a>' +
+                                            '<span><i class="iconfont icon-like"></i>' + praise_times + '</span>' +
                                         '</div>' +
                                         '</div>' +
                                         '</li>';

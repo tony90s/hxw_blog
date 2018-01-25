@@ -6,17 +6,12 @@
 {% endblock %}
 {% block content %}
     <div class="container index">
-
-        <div class="row row-offcanvas row-offcanvas-right">
-
-            <div class="col-lg-12 col-xs-12 col-sm-12">
-
-                <div class="row">
-                    <div class="col-sm-8 main">
-                        <div class="split-line"></div>
-                        <div id="list-container">
-                            <ul class="note-list">
-                                {% for draft in drafts_info%}
+        <div class="row">
+            <div class="col-sm-8 main">
+                <div class="split-line"></div>
+                <div id="list-container">
+                    <ul class="note-list">
+                        {% for draft in drafts_info%}
                                 <li id="article-{{ draft.article_id }}" data-article_id="{{ draft.article_id }}" {% if draft.cover_photo %}class="with-img"{% endif %}>
                                     {% if draft.cover_photo %}
                                     <a class="wrap-img" href="{% url 'article:details' draft.article_id %}" target="_blank">
@@ -26,7 +21,15 @@
                                     </a>
                                     {% endif %}
                                     <div class="content">
-
+                                        <div class="author">
+                                            <a class="avatar" target="_blank" href="javascript:void(0)">
+                                                <img src="{{ draft.author.avatar }}" alt="{{ draft.author.username }}"/>
+                                            </a>
+                                            <div class="info">
+                                                <a class="nickname" target="_blank" href="javascript:void(0)">{{ draft.author.username }}</a>
+                                                <span class="time" data-update_at="{{ draft.update_time }}"></span>
+                                            </div>
+                                        </div>
                                         <a class="title" target="_blank" href="{% url 'article:edit_article' draft.article_id %}">{{ draft.title }}</a>
                                         <p class="abstract">
                                             {{ draft.abstract }}
@@ -44,28 +47,25 @@
                                         </div>
                                     </div>
                                 </li>
-                                {% endfor %}
-                            </ul>
-                            <div class="read-more text-center">
-                                <input type="hidden" value="{{ page_size }}" id="page_size">
-                                <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
-                                <p class="text-center not-more-content">没有更多内容...</p>
-                            </div>
-                        </div>
+                        {% endfor %}
+                    </ul>
+                    <div class="read-more text-center">
+                        <input type="hidden" value="{{ page_size }}" id="page_size">
+                        <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
+                        <p class="text-center not-more-content">没有更多内容...</p>
                     </div>
+                </div>
+            </div>
 
-                    <div class="col-sm-2 col-sm-offset-2">
-                        <div class="sidebar-box">
-                             <div class="list-group">
-                                 <a class="list-group-item" href="{% url "article:user_articles" %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
-                                 <a class="list-group-item active" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
-                                 <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
-                            </div>
-                        </div>
+            <div class="col-sm-2 col-sm-offset-2">
+                <div class="sidebar-box">
+                    <div class="list-group">
+                        <a class="list-group-item" href="{% url "article:user_articles" %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
+                        <a class="list-group-item active" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
+                        <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
                     </div>
-                </div><!--/row-->
-            </div><!--/.col-xs-12.col-sm-9-->
-
+                </div>
+            </div>
         </div><!--/row-->
     </div><!--/.container-->
 {% endblock %}
@@ -76,7 +76,7 @@
     <script>
         function timeDesc() {
             $("span.time").each(function () {
-                var time_str = this.dataset.release_at;
+                var time_str = this.dataset.update_at;
                 var time_desc = getDateDiff(time_str);
                 $(this).text(time_desc)
             })
@@ -172,6 +172,8 @@
                                     var type = array['type'];
                                     var cover_photo = array['cover_photo'];
                                     var abstract = array['abstract'];
+                                    var author = array['author'];
+                                    var update_time = array['update_time'];
                                     var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '"';
                                     if (cover_photo) {
                                         str += 'class="with-img">' +
@@ -183,6 +185,15 @@
                                         str += '>';
                                     }
                                     str += '<div class="content">' +
+                                        '<div class="author">' +
+                                            '<a class="avatar" target="_blank" href="javascript:void(0)">' +
+                                                '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
+                                            '</a>' +
+                                            '<div class="info">' +
+                                                '<a class="nickname" target="_blank" href="javascript:void(0)">' + author['username'] + '</a>' +
+                                                '<span class="time" data-update_at="' + update_time + '">' + '</span>' +
+                                            '</div>' +
+                                        '</div>' +
                                         '<a class="title" target="_blank" href="/article/edit/' + article_id  + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
                                         '<div class="meta">' +

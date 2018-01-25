@@ -60,7 +60,7 @@ class Article(models.Model):
         if self.update_at:
             return timezone.localtime(self.update_at).strftime("%Y-%m-%d %H:%M:%S")
         else:
-            return self.release_time
+            return timezone.localtime(self.created_at).strftime("%Y-%m-%d %H:%M:%S")
 
     @property
     def word_count(self):
@@ -122,7 +122,7 @@ class Article(models.Model):
         context['praise_times'] = self.praise_times
         context['comments'] = self.get_comments_json()
         context['word_count'] = self.word_count
-        context['release_time'] = timezone.localtime(self.release_at).strftime("%Y-%m-%d %H:%M")
+        context['release_time'] = self.release_time
         context['update_time'] = self.update_time
         context['page_views'] = self.page_views
         return context
@@ -141,6 +141,7 @@ class Article(models.Model):
         context['comment_times'] = self.comment_times
         context['praise_times'] = self.praise_times
         context['release_time'] = self.release_time
+        context['update_time'] = self.update_time
         context['page_views'] = self.page_views
         return context
 

@@ -103,6 +103,28 @@ a {
     text-decoration: none;
 }
 
+.note-list .author .dropdown {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.note-list .author .dropdown-menu {
+    min-width: 100%;
+}
+
+.note-list .author .dropdown-menu li {
+    text-align: center;
+    border: none;
+    margin: 4px 0;
+    padding: 4px 0;
+}
+
+.note-list .author .dropdown-menu i {
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
 .note-list .author a {
     color: #333
 }
