@@ -149,7 +149,7 @@
                     },
                     function (json) {
                         if (json.code == 200) {
-                            var article = $(obj).parent('div').parent('div').parent('li');
+                            var article = $(obj).parent('li').parent('ul').parent('div').parent('div').parent('div').parent('li');
                             article.remove();
                             layer.msg(json.msg, {time: 1500})
                         }

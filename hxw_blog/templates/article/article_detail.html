@@ -50,7 +50,7 @@
                     </div>
 
                     {% if not user.is_authenticated %}
-                    <div class="comment_box clearfix">
+                    <div class="comment-box">
                         <div id="comment_form">
                             <div class="guest_link">
                                 <span class="log_ico"><a href="javascript:void(0)" onclick="clickLogin(this)"><i class="fa fa-user-circle fa-3x"></i></a></span><span class="txt">目前您尚未登录，请 <a href="javascript:void(0)" onclick="clickLogin(this)">登录</a> 或 <a href="javascript:void(0)" onclick="clickRegister(this)">注册</a> 后进行评论</span>
@@ -134,6 +134,14 @@
                             {% endfor %}
                         </div>
                         <!--回复区域 end-->
+                        <!--
+                        <div class="more-comment text-center">
+                                <input type="hidden" value="{{article_details.article_id }}" id="article_type">
+                                <input type="hidden" value="{{ page_size }}" id="page_size">
+                                <a class="prev-page" href="javascript:void(0)"><i class="iconfont icon-shangyiyehoutuifanhui-yuankuang"></i></a>
+                                <a class="next-page" href="javascript:void(0)"><i class="iconfont icon-xiayiyeqianjinchakangengduo-yuankuang"></i></a>
+                        </div>
+                        -->
                     </div>
 
                 </div>
