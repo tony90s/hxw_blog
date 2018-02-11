@@ -448,7 +448,8 @@ def message_comments(request):
         'comment_type': comment_type,
         'page_size': page_size,
         'not_viewed_comment_count': not_viewed_comment_count,
-        'not_viewed_praises_count': not_viewed_praises_count
+        'not_viewed_praises_count': not_viewed_praises_count,
+        'has_next': int(len(unified_comment_info_list) > page_size)
     }
     Comment._Comment__user_cache = dict()
     Comment._Comment__article_info_cache = dict()
@@ -503,7 +504,8 @@ def user_unified_comment_info_pagination(request):
     context = {
         'code': 200,
         'msg': '查询成功',
-        'data': query_comments_info
+        'data': query_comments_info,
+        'has_next': int(len(unified_comment_info_list) > (page_index * page_size))
     }
     Comment._Comment__user_cache = dict()
     Comment._Comment__article_info_cache = dict()
@@ -533,7 +535,8 @@ def message_praises(request):
         'praises': praises_info,
         'page_size': page_size,
         'not_viewed_praises_count': not_viewed_praises_count,
-        'not_viewed_comment_count': not_viewed_comment_count
+        'not_viewed_comment_count': not_viewed_comment_count,
+        'has_next': int(len(all_praises) > page_size)
 
     }
     Comment._Comment__user_cache = dict()
@@ -567,13 +570,14 @@ def user_praises_info_pagination(request):
     if page_index <= 0:
         return JsonResponse({'code': 400, 'msg': '参数有误。'})
 
-    praises = get_user_be_praised(user_id)[page_size * (page_index - 1):page_size * page_index]
-    praises_info = [praise.get_praise_info() for praise in praises]
+    praises = get_user_be_praised(user_id)
+    praises_info = [praise.get_praise_info() for praise in praises[page_size * (page_index - 1):page_size * page_index]]
 
     context = {
         'code': 200,
         'msg': '查询成功',
-        'data': praises_info
+        'data': praises_info,
+        'has_next': int(len(praises) > (page_index * page_size))
     }
     Comment._Comment__user_cache = dict()
     Comment._Comment__article_info_cache = dict()

@@ -81,6 +81,7 @@
                             <div class="read-more text-center">
                                 <input type="hidden" value="{{ article_type.value }}" id="article_type">
                                 <input type="hidden" value="{{ page_size }}" id="page_size">
+                                <input type="hidden" value="{{ has_next }}" id="has_next">
                                 <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
                                 <p class="text-center not-more-content">更多内容，敬请期待...</p>
                             </div>
@@ -143,9 +144,8 @@
 
     <script>
         $(function () {
-            var page_size = $("#page_size").val();
-            var comments = $(".note-list li");
-            if (comments.length < parseInt(page_size)) {
+            var has_next = parseInt($("#has_next").val());
+            if (!has_next) {
                 $("#btn_read_more").hide();
                 $(".read-more .not-more-content").show();
             }
@@ -213,7 +213,7 @@
                                     $(".note-list").append(str);
                                 });
                                 timeDesc();
-                                if (json.data.length < page_size) {
+                                if (!json.has_next) {
                                     $("#btn_read_more").hide();
                                     $(".read-more .not-more-content").show();
                                     return false;

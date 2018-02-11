@@ -35,6 +35,7 @@ def index_views(request):
         'article_type': {'value': 0, 'display_name': Article.get_type_name(0)},
         'articles_summarization': articles_summarization,
         'hot_articles_briefs': hot_articles_briefs,
-        'page_size': page_size
+        'page_size': page_size,
+        'has_next': int(len(articles) > page_size)
     }
     return render(request, template, context)

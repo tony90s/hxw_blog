@@ -134,9 +134,9 @@ def article_category_index_views(request, article_type):
 
     template = 'index.html'
     all_articles = Article.objects.using('read').filter(Q(is_released=1))
-    articles = all_articles.filter(Q(type=article_type)).order_by('-id')[
-               page_size * (page_index - 1):page_size * page_index]
-    articles_summarization = [article.get_summarization() for article in articles]
+    articles = all_articles.filter(Q(type=article_type)).order_by('-id')
+    articles_summarization = [article.get_summarization() for article in
+                              articles[page_size * (page_index - 1):page_size * page_index]]
     # get hot articles brief
     now = timezone.now()
     hot_articles = sorted(all_articles.filter(Q(release_at__gte=(now + timedelta(days=-60)))),
@@ -146,7 +146,8 @@ def article_category_index_views(request, article_type):
         'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)},
         'articles_summarization': articles_summarization,
         'hot_articles_briefs': hot_articles_briefs,
-        'page_size': page_size
+        'page_size': page_size,
+        'has_next': len(articles) > page_size
     }
     return render(request, template, context)
 
@@ -182,14 +183,15 @@ def articles_list(request):
     if author_id > 0:
         query_condition &= Q(author_id=author_id)
 
-    articles = Article.objects.using('read').filter(query_condition).order_by('-id')[
-               page_size * (page_index - 1):page_size * page_index]
-    articles_summarization = [article.get_summarization() for article in articles]
+    articles = Article.objects.using('read').filter(query_condition).order_by('-id')
+    articles_summarization = [article.get_summarization() for article in
+                              articles[page_size * (page_index - 1):page_size * page_index]]
 
     context = {
         'code': 200,
         'msg': '查询成功',
-        'data': articles_summarization
+        'data': articles_summarization,
+        'has_next': int(len(articles) > (page_index * page_size))
     }
     return JsonResponse(context)
 
@@ -534,11 +536,12 @@ def drafts(request):
     page_size = settings.DEFAULT_PAGE_SIZE
     user = request.user
 
-    drafts = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=0)).order_by('-id')[:page_size]
-    drafts_info = [draft.get_summarization() for draft in drafts]
+    drafts = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=0)).order_by('-id')
+    drafts_info = [draft.get_summarization() for draft in drafts[:page_size]]
     context = {
         'drafts_info': drafts_info,
-        'page_size': page_size
+        'page_size': page_size,
+        'has_next': int(len(drafts) > page_size)
     }
     return render(request, 'article/user_drafts.html', context)
 
@@ -566,7 +569,8 @@ def user_articles(request, author_id):
         'page_size': page_size,
         'author_data': author_data,
         'article_count': articles.count(),
-        'praises_count': author_praises.count()
+        'praises_count': author_praises.count(),
+        'has_next': int(len(articles) > page_size)
     }
     return render(request, 'article/user_articles.html', context)
 

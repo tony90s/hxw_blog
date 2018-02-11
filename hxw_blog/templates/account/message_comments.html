@@ -83,6 +83,7 @@
                 <div class="read-more text-center">
                     <input type="hidden" value="{{ comment_type }}" id="comment_type">
                     <input type="hidden" value="{{ page_size }}" id="page_size">
+                    <input type="hidden" value="{{ has_next }}" id="has_next">
                     <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">获取更多</button>
                     <p class="text-center not-more-content">没有更多内容...</p>
                 </div>
@@ -112,9 +113,8 @@
 
     <script>
         $(function () {
-            var page_size = $("#page_size").val();
-            var comments = $(".comment-show .comment-show-con");
-            if (comments.length < parseInt(page_size)) {
+            var has_next = parseInt($("#has_next").val());
+            if (!has_next) {
                 $("#btn_read_more").hide();
                 $(".read-more .not-more-content").show();
             }
@@ -334,11 +334,6 @@
                 var comment_type = $("#comment_type").val();
                 var page_size = $("#page_size").val();
                 $("#btn_read_more").click(function() {
-                    /*
-                    var comments = $(".comment-show .comment-show-con");
-                    if (comments.length < page_size) {
-                        window.location.reload()
-                    }*/
                     $(".loading-animation").show();
                     $.getJSON("{% url 'account:user_message_comments_pagination' %}",
                             {
@@ -403,15 +398,16 @@
                                             '</div>' +
                                             '</div>';
                                     str += '<div class="date-dz-right pull-right comment-pl-block">';
-                                    if (comment_reply_id == user_id) {
+                                    if (replier_user_id == user_id) {
                                         var delete_var = '<a href="javascript:;" class="removeBlock"';
                                         if (comment_reply_id > 0) {
-                                            delete_var += 'data-comment_reply_id="' + comment_reply_id + '"'
+                                            delete_var += ' data-comment_reply_id="' + comment_reply_id + '"'
                                         }
                                         else {
-                                            delete_var += 'data-comment_id="' + comment_id + '"'
+                                            delete_var += ' data-comment_id="' + comment_id + '"'
                                         }
-                                        delete_var += '>删除</a>'
+                                        delete_var += '>删除</a>';
+                                        str += delete_var;
                                     }
 
                                     var check_detail_url = '/article/details/' + article_id;
@@ -435,7 +431,7 @@
                                 if (parseInt(comment_type) == 0) {
                                     AjaxUpdateViewStatus()
                                 }
-                                if (json.data.length < page_size) {
+                                if (!json.has_next) {
                                     $("#btn_read_more").hide();
                                     $(".read-more .not-more-content").show();
                                     return false;
