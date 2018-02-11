@@ -535,12 +535,20 @@ def update_is_viewed_status(request):
 def drafts(request):
     page_size = settings.DEFAULT_PAGE_SIZE
     user = request.user
+    user_data = {
+        'user_id': user.id,
+        'username': user.username if len(user.username) <= 10 else (user.username[:10] + '...'),
+        'avatar': user.profile.avatar.url,
+        'bio': user.profile.bio
+    }
 
     drafts = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=0)).order_by('-id')
     drafts_info = [draft.get_summarization() for draft in drafts[:page_size]]
     context = {
         'drafts_info': drafts_info,
         'page_size': page_size,
+        'user_data': user_data,
+        'drafts_count': len(drafts),
         'has_next': int(len(drafts) > page_size)
     }
     return render(request, 'article/user_drafts.html', context)

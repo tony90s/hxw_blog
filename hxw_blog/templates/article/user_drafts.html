@@ -8,6 +8,18 @@
     <div class="container index">
         <div class="row">
             <div class="col-sm-8 main">
+                <div class="author-info">
+                        <a class="avatar" target="_blank" href="javascript:void(0)">
+                            <img src="{{ user_data.avatar }}" alt="{{ user_data.username }}"/>
+                        </a>
+                        <div class="info">
+                            <a class="nickname" target="_blank" href="javascript:void(0)">{{ user_data.username }}</a>
+                            <span>个人简介： {{ user_data.bio }}</span>
+                            <div class="meta">
+                                <span><i class="iconfont icon-drafts"></i> {{ drafts_count }}</span>
+                            </div>
+                        </div>
+                </div>
                 <div class="split-line"></div>
                 <div id="list-container">
                     <ul class="note-list">
