@@ -27,26 +27,26 @@ function bind_dismiss_msg_container(container) {
 }
 
 $(document).ready(function () {
-    // -- 繁简体 --
-    /*
-     $('.timepicker').datetimepicker({
-     dateFormat: "yy-mm-dd",
-     timeFormat: "HH:mm:ss",
-     timeInput: true,
-     showSecond: true,
-     stepHour: 1,
-     stepMinute: 1,
-     stepSecond: 1,
-     changeMonth: true,
-     changeYear: true,
-     firstDay: 1,
-     monthNamesShort: [ "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月" ],
-     dayNamesMin: [ "日","一","二","三","四","五","六"]
-     });
-     */
 
     $(".back-to-top").click(function (event) {
         $('html,body').animate({scrollTop: 0}, 100);
         return false;
+    });
+
+    var back_to_top_link = $(".fixed-btn .back-to-top");
+
+    $(window).scroll(function () {
+        var targetPercentage = 10;
+        var scrollTo = $(window).scrollTop(),
+        docHeight = $(document).height(),
+        windowHeight = $(window).height();
+        var scrollPercent = (scrollTo / (docHeight-windowHeight)) * 100;
+        scrollPercent = scrollPercent.toFixed(1);
+        if (scrollPercent >= targetPercentage) {
+            back_to_top_link.css('display','block');
+        }
+        else {
+            back_to_top_link.css('display','none');
+        }
     });
 });

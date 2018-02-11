@@ -228,6 +228,10 @@ label {
     z-index: 999;
 }
 
+.fixed-btn .back-to-top {
+    display: none;
+}
+
 .fixed-btn a{
     text-align: center;
     color: #2f2f2f;
