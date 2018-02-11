@@ -25,7 +25,7 @@
                 <div id="list-container">
                     <ul class="note-list">
                         {% for article in articles_info %}
-                                <li id="article-{{ article.article_id }}" data-article_id="{{ article.article_id }}" {% if article.cover_photo %}class="with-img"{% endif %}>
+                                <li id="article-{{ article.article_id }}" data-article_id="{{ article.article_id }}" class="note{% if article.cover_photo %} with-img{% endif %}">
                                     {% if article.cover_photo %}
                                     <a class="wrap-img" href="{% url 'article:details' article.article_id %}" target="_blank">
                                         <img class="img-blur"
@@ -127,7 +127,7 @@
     <script>
         $(function () {
             var page_size = $("#page_size").val();
-            var articles = $(".note-list li");
+            var articles = $(".note-list .note");
             if (articles.length < parseInt(page_size)) {
                 $("#btn_read_more").hide();
                 $(".read-more .not-more-content").show();
@@ -190,15 +190,15 @@
                                     var release_time = array['release_time'];
                                     var page_views = array['page_views'];
                                     var author = array['author'];
-                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '"';
+                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '" class="note';
                                     if (cover_photo) {
-                                        str += 'class="with-img">' +
+                                        str += ' with-img">' +
                                          '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
                                          '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
                                          '</a>'
                                     }
                                     else {
-                                        str += '>';
+                                        str += '">';
                                     }
                                     str += '<div class="content">' +
                                         '<div class="author">' +
