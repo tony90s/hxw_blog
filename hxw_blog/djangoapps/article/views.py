@@ -195,6 +195,7 @@ def articles_list(request):
 
 
 def article_details(request, article_id):
+    page_size = settings.DEFAULT_PAGE_SIZE
     template_name = 'article/article_detail.html'
     articles = Article.objects.using('read').filter(id=article_id)
     if not articles.exists():
@@ -206,7 +207,8 @@ def article_details(request, article_id):
     article.save(using='write')
     article_details = article.render_json()
     context = {
-        'article_details': article_details
+        'article_details': article_details,
+        'page_size': page_size
     }
     Comment._Comment__user_cache = dict()
     Comment._Comment__article_info_cache = dict()

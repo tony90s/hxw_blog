@@ -237,7 +237,7 @@ EMAIL_USE_SSL = ENV_TOKENS['EMAIL_USE_SSL']
 DEFAULT_FROM_EMAIL_DISPLAY = '{alias} <{from_address}>'.format(alias=EMAIL_INFO_ALIAS, from_address=DEFAULT_FROM_EMAIL)
 
 # Pagination settings
-DEFAULT_PAGE_SIZE = 25
+DEFAULT_PAGE_SIZE = ENV_TOKENS['DEFAULT_PAGE_SIZE']
 
 # Cache settings
 CACHES = {

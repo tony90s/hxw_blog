@@ -1,5 +1,6 @@
 import re
 
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -81,7 +82,8 @@ class Article(models.Model):
         return author_data
 
     def get_comments_json(self):
-        comments = Comment.objects.using('read').filter(Q(article_id=self.id)).order_by("-id")
+        page_size = settings.DEFAULT_PAGE_SIZE
+        comments = Comment.objects.using('read').filter(Q(article_id=self.id)).order_by("-id")[:page_size]
         comments_data = list()
         for comment in comments:
             comments_data.append(comment.render_json())

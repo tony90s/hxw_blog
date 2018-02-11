@@ -134,14 +134,16 @@
                             {% endfor %}
                         </div>
                         <!--回复区域 end-->
-                        <!--
+                        {% if article_details.comment_times > 0 %}
                         <div class="more-comment text-center">
-                                <input type="hidden" value="{{article_details.article_id }}" id="article_type">
-                                <input type="hidden" value="{{ page_size }}" id="page_size">
-                                <a class="prev-page" href="javascript:void(0)"><i class="iconfont icon-shangyiyehoutuifanhui-yuankuang"></i></a>
-                                <a class="next-page" href="javascript:void(0)"><i class="iconfont icon-xiayiyeqianjinchakangengduo-yuankuang"></i></a>
+                            <input type="hidden" value="{{article_details.article_id }}" id="article_id">
+                            <input type="hidden" value="{{ page_size }}" id="page_size">
+                            <ul class="pager">
+                                <li><a class="btn btn-info prev-page disabled" href="javascript:void(0)">上一页</a></li>
+                                <li><a class="btn btn-success next-page{% if article_details.comment_times <= page_size %} disabled{% endif %}" href="javascript:void(0)">下一页</a></li>
+                            </ul>
                         </div>
-                        -->
+                        {% endif %}
                     </div>
 
                 </div>
@@ -289,20 +291,10 @@
                 redirect_to_login();
                 return false;
             }
-            //获取回复人的名字
-            var user_info_span = $(".user-info")[0];
-            var user_id = user_info_span.dataset.user_id;
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
             var receiver_name = this.dataset.receiver_name;
-            //var user_info_div = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.pl-text').find('.comment-size-name');
-            //var fhName = user_info_div.html();
-            /*
-            if (user_id == receiver_id) {
-                layer.msg('不能回复自己', {time: 1000});
-                return false
-            }*/
-            //回复@
+
             var fhN = '回复@' + receiver_name + ':';
             //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
             var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
@@ -333,8 +325,6 @@
                 redirect_to_login();
                 return false;
             }
-            var user_info_span = $(".user-info")[0];
-            var user_id = user_info_span.dataset.user_id;
             var oThis = $(this);
             //获取输入内容
             var oHfVal = $(this).siblings('.flex-text-wrap').find('.hf-input').val();
@@ -373,7 +363,7 @@
                                     '<div class="date-dz">' +
                                     '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content  + '</p>' +
                                     '<div class="date-dz-right pull-right comment-pl-block">';
-                            if (login_user_id.toString() == user_id) {
+                            if (login_user_id.toString() == replier_id) {
                                 oHtml += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
                                         '">删除</a>';
                             }
@@ -589,6 +579,131 @@
             }
 
         })
+    </script>
+
+    <script type="text/javascript">
+            function ajaxGetComment(article_id, page_index) {
+                $.getJSON("{% url 'article:comments' %}",
+                            {
+                                'page_index': page_index,
+                                'article_id': article_id
+                            }, function(json) {
+                            if (json.data.length > 0) {
+                                $(".comment-show").html('');
+                                $.each(json.data, function(index, array) {
+                                    var article_id = array['article_id'];
+                                    var comment_id = array['comment_id'];
+                                    //var commentator = array['commentator'];
+                                    var avatar = array['commentator']['avatar'];
+                                    var username = array['commentator']['username'];
+                                    var user_id = array['commentator']['user_id'];
+                                    var comment_at = array['comment_at'];
+                                    var content = array['content'];
+                                    var praise_times = array['praise_times'];
+                                    var comment_replies = array['comment_replies'];
+                                    var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
+                                        '<div class="comment-show-con-img">' +
+                                        '<img src="' + avatar + '" alt="' + username + '">' +
+                                        '</div> ' +
+                                        '<div class="pl-text clearfix">' +
+                                        '<a href="javascript:void(0)" class="comment-size-name" data-commentator_id="' + user_id +
+                                        '">' + username + '</a>' +
+                                        '<span class="comment-time" data-comment_at="' + comment_at +
+                                        '">' + '</span>' +
+                                        '</div>' +
+                                        '<div class="comment-show-con-list clearfix">' +
+                                        '<div class="date-dz">' +
+                                        '<p class="date-dz-left my-pl-con">' + content + '</p>' +
+                                        '<div class="date-dz-right pull-right comment-pl-block">';
+
+                                    if (login_user_id.toString() == user_id) {
+                                        comment_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id + '">删除</a>';
+                                    }
+
+                                    comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id +
+                                        '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
+                                        '">回复</a>' +
+                                        '<span class="date-dz-line">|</span>' +
+                                        '<a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
+                                        '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '<div class="hf-list-con">';
+
+                                    $.each(comment_replies, function(index, reply) {
+                                        var comment_reply_id = reply['comment_reply_id'].toString();
+                                        var comment_id = reply['comment_id'].toString();
+                                        var replier_username = reply['replier']['username'];
+                                        var receiver_username = reply['receiver']['username'];
+                                        var replier_id = reply['replier']['user_id'].toString();
+                                        var reply_at = reply['reply_at'];
+                                        var reply_content = reply['content'];
+                                        var praise_times = reply['praise_times'].toString();
+                                        var oAllVal = '回复@' + receiver_username + ':';
+                                        var reply_html = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
+                                            '<div class="pl-text hfpl-text clearfix">' +
+                                            '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + '</a>' +
+                                            '<span class="comment-time" data-comment_at="' + reply_at +
+                                            '">' + '</span>' +
+                                            '</div>' +
+                                            '<div class="date-dz">' +
+                                            '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content  + '</p>' +
+                                            '<div class="date-dz-right pull-right comment-pl-block">';
+                                        if (login_user_id.toString() == replier_id) {
+                                            reply_html += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
+                                                '">删除</a>';
+                                        }
+                                        reply_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
+                                            '">回复</a>' +
+                                            '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
+                                            '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
+                                            '</div> ' +
+                                            '</div>' +
+                                            '</div>';
+                                        comment_html += reply_html;
+                                    });
+
+                                    comment_html +=  '</div>' + '</div>' + '</div>';
+                                    $(".comment-show").append(comment_html);
+                                });
+                                timeDesc();
+                                if (!json.has_next) {
+                                    $(".next-page").addClass("disabled");
+                                }
+                                else {
+                                    $(".next-page").removeClass("disabled");
+                                }
+                                if (page_index == 1) {
+                                    $(".prev-page").addClass("disabled");
+                                }
+                                else {
+                                    $(".prev-page").removeClass("disabled");
+                                }
+                            }
+                            else {
+                                $(".next-page").addClass("disabled");
+                                return false
+                            }
+                        });
+            }
+            $(function() {
+                var page_index = 1;
+                var page_size = $("#page_size").val();
+                var article_id = $("#article_id").val();
+                $(".next-page").click(function() {
+                    page_index ++;
+                    ajaxGetComment(article_id, page_index);
+                    location.href = "#comments";
+                    //$("html,body").animate({scrollTop: $(".comment-show").offset().top}, 500);
+                });
+
+                $(".prev-page").click(function() {
+                    page_index --;
+                    ajaxGetComment(article_id, page_index);
+                    location.href = "#comments";
+                    //$("html,body").animate({scrollTop: $(".comment-show").offset().top}, 500);
+                });
+            });
     </script>
 
 {% endblock %}
