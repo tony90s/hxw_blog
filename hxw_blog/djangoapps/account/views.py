@@ -418,7 +418,7 @@ class ResetPasswordView(View):
 
 @login_required
 def message_comments(request):
-    page_size = 10
+    page_size = settings.DEFAULT_PAGE_SIZE
     template_name = 'account/message_comments.html'
     user = request.user
 
@@ -461,7 +461,7 @@ def message_comments(request):
 
 @require_http_methods(['GET'])
 def user_unified_comment_info_pagination(request):
-    page_size = 10
+    page_size = settings.DEFAULT_PAGE_SIZE
     user_id = request.GET.get('user_id')
     comment_type = request.GET.get('comment_type', '0')   # 0 received comments  1 sent comments
     page_index = request.GET.get('page_index')
@@ -516,7 +516,7 @@ def user_unified_comment_info_pagination(request):
 
 @login_required
 def message_praises(request):
-    page_size = 10
+    page_size = settings.DEFAULT_PAGE_SIZE
     template_name = 'account/message_praises.html'
     user = request.user
 
@@ -548,7 +548,7 @@ def message_praises(request):
 
 @require_http_methods(['GET'])
 def user_praises_info_pagination(request):
-    page_size = 10
+    page_size = settings.DEFAULT_PAGE_SIZE
     user_id = request.GET.get('user_id')
     page_index = request.GET.get('page_index')
 
