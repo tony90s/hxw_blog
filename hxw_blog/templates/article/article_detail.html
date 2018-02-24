@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ article_details.title }}</title>{% endblock %}
 {% block extra_header %}
+
     <link rel="stylesheet" href="/static/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css">
     <link rel="stylesheet" href="/static/css/article/article_details.css">
     <script src="/static/js/jquery.flexText.js"></script>
@@ -23,7 +24,7 @@
                             <div class="meta">
                                 <!-- 如果文章更新时间大于发布时间，那么使用 tooltip 显示更新时间 -->
                                 <span class="release-time" data-toggle="tooltip" data-placement="bottom"
-                                      title="最后更新于 {{ article_details.update_time }}">{{ article_details.release_time }}</span>
+                                      data-original-title="最后更新于 {{ article_details.update_time }}">{{ article_details.release_time }}</span>
                                 <!--<span class="word-count">字数 {{ article_details.word_count }}</span>-->
                                 <span class="page-views">阅读 {{ article_details.page_views }}</span>
                                 <span class="comment-times">评论 {{ article_details.comment_times }}</span>
@@ -45,10 +46,16 @@
                         </div>
                     </div>
 
-                    <div class="praise_box">
-                        <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">喜欢<i class="iconfont icon-communityiconpraise4"></i><span class="praise_times">{{ article_details.praise_times }}</span></button>
+                    <div class="social">
+                        <div class="praise_box">
+                            <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">喜欢<i class="iconfont icon-communityiconpraise4"></i><span class="praise_times">{{ article_details.praise_times }}</span></button>
+                        </div>
+                        <div class="share-buttons">
+                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到微博" onclick="openShareWeibo();">
+                                <i class="iconfont icon-weibo"></i>
+                            </a>
+                        </div>
                     </div>
-
                     {% if not user.is_authenticated %}
                     <div class="comment-box">
                         <div id="comment_form">
@@ -179,6 +186,31 @@
             $('.content').flexText();
         });
     </script>
+
+    <script language="JavaScript">
+		var article_title = encodeURIComponent(document.title);
+		var article_link = encodeURIComponent(location.href);
+
+		function getSocialLink(s){
+			switch(s){
+				case "weibo":
+				    return "http://v.t.sina.com.cn/share/share.php?appkey=4164482519&ralateUid=2728305845&url=" + article_link + "&title=" + article_title;
+			}
+		}
+
+        function openShareWeibo() {
+            var url = getSocialLink("weibo");
+            var name='';                             //网页名称，可为空;
+            var iWidth=450;                          //弹出窗口的宽度;
+            var iHeight=440;                         //弹出窗口的高度;
+            //获得窗口的垂直位置
+            var iTop = (window.screen.availHeight - 60 - iHeight) / 2;
+            //获得窗口的水平位置
+            var iLeft = (window.screen.availWidth - 20 - iWidth) / 2;
+            window.open(url, name, 'height=' + iHeight + ',innerHeight=' + iHeight + ',width=' + iWidth + ',innerWidth=' + iWidth + ',top=' + iTop + ',left=' + iLeft + ',status=no,toolbar=no,menubar=no,location=no,resizable=no,scrollbars=0,titlebar=no');
+       }
+	</script>
+
     <!--textarea限制字数-->
     <script type="text/javascript">
         function keyUP(t) {
