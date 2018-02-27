@@ -117,7 +117,7 @@ WSGI_APPLICATION = 'hxw_blog.wsgi.application'
 
 DATABASES = AUTH_TOKENS['DATABASES']
 
-# SESSION_COOKIE_DOMAIN = 'http://127.0.0.1:8000'
+SESSION_COOKIE_DOMAIN = ENV_TOKENS['SESSION_COOKIE_DOMAIN']
 SESSION_SAVE_EVERY_REQUEST = True
 
 ######################### MARKETING SITE ###############################
