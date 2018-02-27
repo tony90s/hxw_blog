@@ -50,24 +50,25 @@ def get_access_token(request, code):
         'client_secret': WEIBO_APP_SECRET,
         'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code'
-    })
+    }).encode('utf-8')
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     req = urllib_request.Request(auth_url, data=body, headers=headers)
     resp = urllib_request.urlopen(req)
 
-    data = json.loads(resp.read())
+    data = json.loads(resp.read().decode('utf-8'))
 
     return data
 
 
 def get_user_info(access_info):
     user_info_url = 'https://api.weibo.com/2/users/show.json'
-    query_string = parse.urlencode({'access_token': access_info['access_token'], 'uid': access_info['uid']})
+    query_string = parse.urlencode({'access_token': access_info['access_token'], 'uid': access_info['uid']}).encode(
+        'utf-8')
 
     resp = urllib_request.urlopen("%s?%s" % (user_info_url, query_string))
-    data = json.loads(resp.read())
+    data = json.loads(resp.read().decode('utf-8'))
     return data
 
 
