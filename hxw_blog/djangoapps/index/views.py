@@ -17,12 +17,9 @@ from article.models import Article, Comment, CommentReply, Praise
 logger = logging.getLogger('index.views')
 
 
-@ensure_csrf_cookie
-@require_http_methods(['GET'])
 def index_views(request):
     page_size = settings.DEFAULT_PAGE_SIZE
     page_index = 1
-    user = request.user
     template = 'index.html'
     articles = Article.objects.using('read').filter(Q(is_released=1)).order_by('-id')
     now = timezone.now()
@@ -32,7 +29,6 @@ def index_views(request):
     articles_summarization = [article.get_summarization() for article in
                               articles[page_size * (page_index - 1):page_size * page_index]]
     context = {
-        'user': user,
         'article_type': {'value': 0, 'display_name': Article.get_type_name(0)},
         'articles_summarization': articles_summarization,
         'hot_articles_briefs': hot_articles_briefs,
