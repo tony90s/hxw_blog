@@ -15,6 +15,7 @@ from utils import generate_verification_code
 WEIBO_APP_KEY = settings.WEIBO_APP_KEY
 WEIBO_APP_SECRET = settings.WEIBO_APP_SECRET
 WEIBO_LOGIN_REDIRECT_URI = settings.WEIBO_LOGIN_REDIRECT_URI
+HOST = 'www.loveiters.com'
 
 logger = logging.getLogger('account.oauth_weibo')
 
@@ -29,7 +30,7 @@ def get_referer_url(request):
 
 def weibo_login(request):
     authorize_url = 'https://api.weibo.com/oauth2/authorize'
-    redirect_uri = 'http://' + request.META['HTTP_HOST'] + WEIBO_LOGIN_REDIRECT_URI
+    redirect_uri = 'http://' + HOST + WEIBO_LOGIN_REDIRECT_URI
     context = {
         'client_id': WEIBO_APP_KEY,
         'redirect_uri': redirect_uri,
@@ -44,7 +45,7 @@ def weibo_login(request):
 
 def get_access_token(request, code):
     auth_url = 'https://api.weibo.com/oauth2/access_token'
-    redirect_uri = 'http://' + request.META['HTTP_HOST'] + WEIBO_LOGIN_REDIRECT_URI
+    redirect_uri = 'http://' + HOST + WEIBO_LOGIN_REDIRECT_URI
     context = {
         'code': code,  # authorization_code
         'client_id': WEIBO_APP_KEY,
