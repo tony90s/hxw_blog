@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import logout, authenticate, login
 
 from account.models import UserProfile, OauthLogin
+from account.cookies import set_logged_in_cookies
 from utils import generate_verification_code
 
 
@@ -135,11 +136,14 @@ def weibo_auth(request):
     code = request.GET['code']
     try:
         access_token = get_access_token(request, code)
-        blog_user = get_blog_user(request, access_token)
-        login(request, blog_user)
-        request.session['blog_user'] = blog_user.id
+        user = get_blog_user(request, access_token)
+
+        login(request, user)
+        request.session['blog_user'] = user.id
         request.session.set_expiry(604800)
+        response = HttpResponseRedirect(redirect_url)
+        response = set_logged_in_cookies(request, response, user)
+        return response
     except Exception as e:
         logger.error(e)
-
-    return HttpResponseRedirect(redirect_url)
+        return HttpResponseRedirect(redirect_url)

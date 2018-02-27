@@ -141,11 +141,13 @@ class RegisterView(View):
         redirect_url = request.POST.get('redirect_url', '').replace('#', '')
         if redirect_url == '':
             redirect_url = reverse('index')
-        return JsonResponse({
+        response = JsonResponse({
             'code': 200,
             'msg': '注册成功',
             'redirect_url': redirect_url
         })
+        response = set_logged_in_cookies(request, response, user)
+        return response
 
 
 class LoginView(View):
