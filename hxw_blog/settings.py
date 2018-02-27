@@ -46,6 +46,7 @@ with open(os.path.join(ENV_ROOT, 'hxw_blog.auth.json')) as auth_file:
 DEBUG = ENV_TOKENS['DEBUG']
 
 SITE_NAME = ENV_TOKENS['SITE_NAME']
+HOST = ENV_TOKENS['HOST']
 
 ALLOWED_HOSTS = [
     '*'

@@ -98,7 +98,9 @@ def set_logged_in_cookies(request, response, user):
 
     user_info = {
         'version': settings.USER_INFO_COOKIE_VERSION,
+        'user_id': user.id,
         'username': user.username,
+        'avatar': user.profile.avatar.url,
         'email': user.email,
         'header_urls': header_urls,
     }

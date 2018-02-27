@@ -16,7 +16,7 @@ from utils import generate_verification_code
 WEIBO_APP_KEY = settings.WEIBO_APP_KEY
 WEIBO_APP_SECRET = settings.WEIBO_APP_SECRET
 WEIBO_LOGIN_REDIRECT_URI = settings.WEIBO_LOGIN_REDIRECT_URI
-HOST = 'www.loveiters.com'
+HOST = settings.HOST
 
 logger = logging.getLogger('account.oauth_weibo')
 
