@@ -30,11 +30,12 @@ def get_referer_url(request):
 def weibo_login(request):
     authorize_url = 'https://api.weibo.com/oauth2/authorize'
     redirect_uri = 'http://' + request.META['HTTP_HOST'] + WEIBO_LOGIN_REDIRECT_URI
-    url_params = parse.urlencode({
+    context = {
         'client_id': WEIBO_APP_KEY,
         'redirect_uri': redirect_uri,
         'response_type': 'code'
-    })
+    }
+    url_params = "&".join("{}={}".format(k, v) for k, v in context.items())
     weibo_auth_url = '%s?%s' % (authorize_url, url_params)
     logger.info(weibo_auth_url)
     request.session['redirect_uri'] = get_referer_url(request)
@@ -44,13 +45,14 @@ def weibo_login(request):
 def get_access_token(request, code):
     auth_url = 'https://api.weibo.com/oauth2/access_token'
     redirect_uri = 'http://' + request.META['HTTP_HOST'] + WEIBO_LOGIN_REDIRECT_URI
-    body = parse.urlencode({
+    context = {
         'code': code,  # authorization_code
         'client_id': WEIBO_APP_KEY,
         'client_secret': WEIBO_APP_SECRET,
         'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code'
-    }).encode('utf-8')
+    }
+    body = "&".join("{}={}".format(k, v) for k, v in context.items()).encode('utf-8')
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
@@ -64,8 +66,8 @@ def get_access_token(request, code):
 
 def get_user_info(access_info):
     user_info_url = 'https://api.weibo.com/2/users/show.json'
-    query_string = parse.urlencode({'access_token': access_info['access_token'], 'uid': access_info['uid']}).encode(
-        'utf-8')
+    context = {'access_token': access_info['access_token'], 'uid': access_info['uid']}
+    query_string = "&".join("{}={}".format(k, v) for k, v in context.items()).encode('utf-8')
 
     resp = urllib_request.urlopen("%s?%s" % (user_info_url, query_string))
     data = json.loads(resp.read().decode('utf-8'))
