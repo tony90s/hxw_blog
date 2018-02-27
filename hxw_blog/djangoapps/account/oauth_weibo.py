@@ -1,6 +1,6 @@
 import logging
 import json
-from urllib import parse, request as urllib_request
+import requests
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -53,14 +53,8 @@ def get_access_token(request, code):
         'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code'
     }
-    body = "&".join("{}={}".format(k, v) for k, v in context.items()).encode('utf-8')
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
-    req = urllib_request.Request(auth_url, data=body, headers=headers)
-    resp = urllib_request.urlopen(req)
-
-    data = json.loads(resp.read().decode('utf-8'))
+    req = requests.post(auth_url, data=context)
+    data = json.loads(req.text)
 
     return data
 
@@ -68,10 +62,8 @@ def get_access_token(request, code):
 def get_user_info(access_info):
     user_info_url = 'https://api.weibo.com/2/users/show.json'
     context = {'access_token': access_info['access_token'], 'uid': access_info['uid']}
-    query_string = "&".join("{}={}".format(k, v) for k, v in context.items()).encode('utf-8')
-
-    resp = urllib_request.urlopen("%s?%s" % (user_info_url, query_string))
-    data = json.loads(resp.read().decode('utf-8'))
+    resp = requests.get(user_info_url, context)
+    data = json.loads(resp.text)
     return data
 
 
