@@ -255,3 +255,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'utils.paginators.StandardResultsSetPagination',
     'PAGE_SIZE': 10
 }
+
+# Social login
+WEIBO_APP_KEY = AUTH_TOKENS['WEIBO_APP_KEY']
+WEIBO_APP_SECRET = AUTH_TOKENS['WEIBO_APP_SECRET']
+WEIBO_LOGIN_REDIRECT_URI = '/account/weibo/login/done'

@@ -20,3 +20,20 @@ class UserProfile(models.Model):
 
     class Meta:
         db_table = "auth_userprofile"
+
+
+class OauthLogin(models.Model):
+    class TYPE:
+        WEIBO = 1
+
+    TYPE_CHOICES = (
+        (TYPE.WEIBO, 'weibo'),
+    )
+    auth_type = models.IntegerField(choices=TYPE_CHOICES, default=TYPE.WEIBO, verbose_name='授权类别')
+    user_id = models.IntegerField(db_index=True, verbose_name='用户id')
+    oauth_id = models.CharField(max_length=128, default='')
+    oauth_access_token = models.CharField(max_length=128, default='')
+    oauth_expires = models.IntegerField(default=0, verbose_name='token有效期')
+
+    class Meta:
+        db_table = "auth_oauth_login"
