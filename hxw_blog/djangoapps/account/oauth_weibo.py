@@ -14,6 +14,8 @@ from utils import generate_verification_code
 
 logger = logging.getLogger('account.oauth_weibo')
 
+HTTP_HEAD = 'https://' if settings.HTTPS else 'http://'
+
 
 class OauthWeibo(object):
     def __init__(self, client_id, client_secret, redirect_uri):
@@ -23,8 +25,7 @@ class OauthWeibo(object):
 
     def get_auth_url(self):
         authorize_url = 'https://api.weibo.com/oauth2/authorize'
-        http_head = 'https' if settings.HTTPS else 'http'
-        redirect_uri = http_head + settings.HOST + self.redirect_uri
+        redirect_uri = HTTP_HEAD + settings.HOST + self.redirect_uri
         context = {
             'client_id': self.client_id,
             'redirect_uri': redirect_uri,
@@ -36,8 +37,7 @@ class OauthWeibo(object):
 
     def get_access_token(self, code):
         auth_url = 'https://api.weibo.com/oauth2/access_token'
-        http_head = 'https' if settings.HTTPS else 'http'
-        redirect_uri = http_head + settings.HOST + self.redirect_uri
+        redirect_uri = HTTP_HEAD + settings.HOST + self.redirect_uri
         context = {
             'code': code,  # authorization_code
             'client_id': self.client_id,
