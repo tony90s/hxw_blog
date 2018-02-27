@@ -3,7 +3,7 @@ import json
 import requests
 
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import logout, authenticate, login
@@ -118,7 +118,6 @@ def get_blog_user(request, access_token):
             oauth_login.user_id = user.id
 
     login(request, user)
-    request.session.set_expiry(604800)
     # update access token
     oauth_login.oauth_access_token = oauth_access_token
     oauth_login.oauth_expires = oauth_expires
@@ -139,10 +138,11 @@ def weibo_auth(request):
         access_token = get_access_token(request, code)
         blog_user = get_blog_user(request, access_token)
         request.session['blog_user'] = blog_user
+        request.session.set_expiry(604800)
     except Exception as e:
         logger.error(e)
 
     if 'state' in request.GET:
         redirect_url = request.GET['state']
 
-    return HttpResponseRedirect(redirect_url)
+    return HttpResponse('good')
