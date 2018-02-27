@@ -1,3 +1,4 @@
+import logging
 import json
 from urllib import parse, request as urllib_request
 
@@ -15,6 +16,8 @@ WEIBO_APP_KEY = settings.WEIBO_APP_KEY
 WEIBO_APP_SECRET = settings.WEIBO_APP_SECRET
 WEIBO_LOGIN_REDIRECT_URI = settings.WEIBO_LOGIN_REDIRECT_URI
 
+logger = logging.getLogger('account.oauth_weibo')
+
 
 def get_referer_url(request):
     referer_url = request.META.get('HTTP_REFERER', reverse('index'))
@@ -29,9 +32,11 @@ def weibo_login(request):
     redirect_uri = 'http://' + request.META['HTTP_HOST'] + WEIBO_LOGIN_REDIRECT_URI
     url_params = parse.urlencode({
         'client_id': WEIBO_APP_KEY,
-        'redirect_uri': redirect_uri
-    }).encode('utf-8')
+        'redirect_uri': redirect_uri,
+        'response_type': 'code'
+    })
     weibo_auth_url = '%s?%s' % (authorize_url, url_params)
+    logger.info(weibo_auth_url)
     request.session['redirect_uri'] = get_referer_url(request)
     return HttpResponseRedirect(weibo_auth_url)
 
@@ -45,25 +50,24 @@ def get_access_token(request, code):
         'client_secret': WEIBO_APP_SECRET,
         'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code'
-    }).encode('utf-8')
+    })
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     req = urllib_request.Request(auth_url, data=body, headers=headers)
     resp = urllib_request.urlopen(req)
 
-    data = json.loads(resp.read().decode('utf-8'))
+    data = json.loads(resp.read())
 
     return data
 
 
 def get_user_info(access_info):
     user_info_url = 'https://api.weibo.com/2/users/show.json'
-    query_string = parse.urlencode({'access_token': access_info['access_token'], 'uid': access_info['uid']}).encode(
-        'utf-8')
+    query_string = parse.urlencode({'access_token': access_info['access_token'], 'uid': access_info['uid']})
 
     resp = urllib_request.urlopen("%s?%s" % (user_info_url, query_string))
-    data = json.loads(resp.read().decode('utf-8'))
+    data = json.loads(resp.read())
     return data
 
 
@@ -135,11 +139,13 @@ def weibo_auth(request):
         return HttpResponseRedirect(redirect_url)
 
     code = request.GET['code']
+    try:
+        access_token = get_access_token(request, code)
+        blog_user = get_blog_user(request, access_token)
+        request.session['blog_user'] = blog_user
+    except Exception as e:
+        logger.error(e)
 
-    access_token = get_access_token(request, code)
-    blog_user = get_blog_user(request, access_token)
-
-    request.session['blog_user'] = blog_user
     if 'state' in request.GET:
         redirect_url = request.GET['state']
 
