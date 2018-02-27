@@ -117,7 +117,6 @@ def get_blog_user(request, access_token):
             oauth_login.oauth_id = uid
             oauth_login.user_id = user.id
 
-    login(request, user)
     # update access token
     oauth_login.oauth_access_token = oauth_access_token
     oauth_login.oauth_expires = oauth_expires
@@ -137,6 +136,7 @@ def weibo_auth(request):
     try:
         access_token = get_access_token(request, code)
         blog_user = get_blog_user(request, access_token)
+        login(request, blog_user)
         request.session['blog_user'] = blog_user.id
         request.session.set_expiry(604800)
     except Exception as e:
