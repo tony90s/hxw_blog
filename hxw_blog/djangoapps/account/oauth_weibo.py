@@ -30,7 +30,7 @@ def weibo_login(request):
     url_params = parse.urlencode({
         'client_id': WEIBO_APP_KEY,
         'redirect_uri': redirect_uri
-    })
+    }).encode('utf-8')
     weibo_auth_url = '%s?%s' % (authorize_url, url_params)
     request.session['redirect_uri'] = get_referer_url(request)
     return HttpResponseRedirect(weibo_auth_url)
