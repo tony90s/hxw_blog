@@ -40,7 +40,7 @@ def weibo_login(request):
     url_params = "&".join("{}={}".format(k, v) for k, v in context.items())
     weibo_auth_url = '%s?%s' % (authorize_url, url_params)
     logger.info(weibo_auth_url)
-    request.session['redirect_uri'] = get_referer_url(request)
+    request.session['origin_request'] = request
     return HttpResponseRedirect(weibo_auth_url)
 
 
@@ -126,6 +126,7 @@ def get_blog_user(request, access_token):
 
 
 def weibo_auth(request):
+    origin_request = request.session['origin_request']
     redirect_url = reverse('index')
     if 'blog_user' in request.session:
         return HttpResponseRedirect(redirect_url)
@@ -138,11 +139,11 @@ def weibo_auth(request):
         access_token = get_access_token(request, code)
         user = get_blog_user(request, access_token)
 
-        login(request, user)
-        request.session['blog_user'] = user.id
-        request.session.set_expiry(604800)
+        login(origin_request, user)
+        origin_request.session['blog_user'] = user.id
+        origin_request.session.set_expiry(604800)
         response = HttpResponseRedirect(redirect_url)
-        response = set_logged_in_cookies(request, response, user)
+        response = set_logged_in_cookies(origin_request, response, user)
         return response
     except Exception as e:
         logger.error(e)

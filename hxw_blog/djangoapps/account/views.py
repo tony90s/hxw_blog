@@ -232,7 +232,7 @@ def logout_view(request):
 
     # Clear the cookie used by the edx.org marketing site
     delete_logged_in_cookies(response)
-
+    del request.session['blog_user']
     return response
 
 
