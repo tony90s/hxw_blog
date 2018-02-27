@@ -89,7 +89,10 @@ def get_blog_user(request, access_token):
         else:
             user_info = get_user_info(access_token)
             nick_name = user_info['screen_name']
+
             avatar = user_info['avatar_large']
+            response = requests.get(avatar)
+            img = response.content
             gender = user_info['gender']
 
             result_name = nick_name
@@ -111,6 +114,7 @@ def get_blog_user(request, access_token):
             user_profile = UserProfile()
             user_profile.user = user
             user_profile.gender = gender
+            user_profile.avatar = img
             user_profile.save(using='write')
 
             oauth_login = OauthLogin()
