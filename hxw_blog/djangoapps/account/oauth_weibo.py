@@ -140,13 +140,10 @@ def weibo_login(request):
 
 def weibo_auth(request):
     redirect_url = reverse('index')
-    if 'blog_user' in request.session:
-        return HttpResponseRedirect(redirect_url)
-
     if 'error' in request.GET or 'code' not in request.GET:
         return HttpResponseRedirect(redirect_url)
 
-    code = request.GET['code']
+    code = request.GET.get('code')
     oauth_weibo = OauthWeibo(settings.WEIBO_APP_KEY, settings.WEIBO_APP_SECRET, settings.WEIBO_LOGIN_REDIRECT_URI)
 
     try:
