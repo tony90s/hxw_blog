@@ -8,6 +8,8 @@ $(function () {
     bind_auto_submit(login_form_input, btn_login);
     bind_dismiss_msg_container($("#warning_msg"));
 
+    $("[data-toggle='tooltip']").tooltip();
+
     btn_login.click(function (e) {
         var form = $(this).parent('form');
         var account = form.find('[name="account"]').val();

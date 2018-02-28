@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}<title>LOVEITERS-个人中心</title>{% endblock %}
+{% block title %}<title>LOVEITERS | 个人中心</title>{% endblock %}
 {% block extra_header %}
     <link href="/static/cropper/cropper.min.css" rel="stylesheet">
     <link href="/static/css/account/user_info.css" rel="stylesheet">
@@ -70,9 +70,11 @@
             <div class="col-sm-2 col-sm-offset-2">
                 <div class="sidebar-box">
                     <div class="list-group">
-                        <a class="list-group-item" data-toggle="modal" data-target="#update_password">
-                            <i class="iconfont icon-reset_password"></i>更新密码
-                        </a>
+                        {% if user.profile.user_type == 0 %}
+                            <a class="list-group-item" data-toggle="modal" data-target="#update_password">
+                                <i class="iconfont icon-reset_password"></i>更新密码
+                            </a>
+                        {% endif %}
                         <a class="list-group-item" href="{% url 'account:user_message_comments' %}"><i class="iconfont icon-message"></i>我的消息</a>
                         {% if user.is_superuser %}
                             <a class="list-group-item" href="{% url "article:user_articles" user.id %}"><i class="iconfont icon-article"></i>我的文章</a>

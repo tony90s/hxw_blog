@@ -10,7 +10,7 @@
     <meta name="author" content="tony">
     <link rel="icon" href="/static/images/favicon.ico">
 
-    <title>登录</title>
+    <title>LOVEITERS | 登录</title>
     {% include "header.html" %}
     <link href="/static/css/account/register_and_login.css" rel="stylesheet">
 </head>
@@ -34,11 +34,22 @@
             <a class="pull-right" href="{% url 'account:register' %}">点我注册</a>
         </p>
         <div class="alert alert-warning fade" id="warning_msg"></div>
+
+        <div class="social-login">
+            <h5>第三方登录</h5>
+            <ul>
+                <li>
+                    <a class="weibo" data-toggle="tooltip" href="{% url 'account:social_weibo_login' %}" data-original-title="微博登录">
+                        <img class="weibo-logo" src="/static/images/socialization_logo/weibo.png">
+                    </a>
+                </li>
+            </ul>
+        </div>
     </form>
 
 </div> <!-- /container -->
 <script>
-    var login_url = '{% url 'account:login' %}'
+    var login_url = '{% url 'account:login' %}';
 </script>
 <script src="/static/js/account/login.js"></script>
 </body>

@@ -37,6 +37,35 @@
   padding-top: 10px;
 }
 
+.form-signin .social-login {
+  margin-top: 20px;
+}
+
+.form-signin .social-login h5 {
+  margin-bottom: 20px;
+  font-size: 0.8em;
+  color: #B8B8B8;
+  text-align: center;
+}
+
+.form-signin .social-login ul {
+  list-style: none;
+}
+
+.form-signin .social-login ul li {
+  margin: 0 5px;
+  display: inline-block;
+}
+
+.form-signin .social-login .weibo .weibo-logo {
+  border: 1px solid #dcdcdc;;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  text-align: center;
+  vertical-align: middle;
+}
+
 .form-register {
   max-width: 330px;
   padding: 15px;

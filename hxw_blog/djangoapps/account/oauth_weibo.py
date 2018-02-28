@@ -102,9 +102,10 @@ class OauthWeibo(object):
 
                 user = User()
                 user.username = result_name
-                user.set_password(generate_verification_code())
+                user.set_password('888888')
                 user.save(using='write')
                 user_profile = UserProfile()
+                user_profile.user_type = UserProfile.UerType.WEIBO
                 user_profile.user = user
                 user_profile.gender = gender
                 user_profile.avatar = img
@@ -140,6 +141,9 @@ def weibo_login(request):
 
 def weibo_auth(request):
     redirect_url = reverse('index')
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(redirect_url)
+
     if 'error' in request.GET or 'code' not in request.GET:
         return HttpResponseRedirect(redirect_url)
 
@@ -151,7 +155,6 @@ def weibo_auth(request):
         user = oauth_weibo.get_blog_user()
 
         login(request, user)
-        request.session['blog_user'] = user.id
         request.session.set_expiry(604800)
         response = HttpResponseRedirect(redirect_url)
         response = set_logged_in_cookies(request, response, user)
