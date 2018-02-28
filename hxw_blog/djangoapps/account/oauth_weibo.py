@@ -7,10 +7,12 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import logout, authenticate, login
+from django.core.files.base import ContentFile
 
 from account.models import UserProfile, OauthLogin
 from account.cookies import set_logged_in_cookies
 from utils import generate_verification_code
+from utils.file_handling import get_thumbnail
 
 logger = logging.getLogger('account.oauth_weibo')
 
@@ -82,11 +84,12 @@ class OauthWeibo(object):
             else:
                 user_info = self.get_weibo_info()
                 nick_name = user_info['screen_name']
+                gender = user_info['gender']
 
                 avatar = user_info['avatar_large']
-                response = requests.get(avatar)
-                img = response.content
-                gender = user_info['gender']
+                req = requests.get(avatar)
+                file_content = ContentFile(req.content)
+                avatar_img = get_thumbnail(file_content)[0]
 
                 result_name = nick_name
                 all_user = User.objects.using('read').all()
@@ -108,7 +111,8 @@ class OauthWeibo(object):
                 user_profile.user_type = UserProfile.UerType.WEIBO
                 user_profile.user = user
                 user_profile.gender = gender
-                # user_profile.avatar = img
+                if avatar_img is not None:
+                    user_profile.avatar = avatar_img
                 user_profile.save(using='write')
 
                 oauth_login = OauthLogin()
@@ -141,7 +145,7 @@ def weibo_login(request):
 
 def weibo_auth(request):
     redirect_url = reverse('index')
-    if request.user.is_authenticated:
+    if request.user.is_authenticated():
         return HttpResponseRedirect(redirect_url)
 
     if 'error' in request.GET or 'code' not in request.GET:

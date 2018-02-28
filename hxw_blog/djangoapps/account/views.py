@@ -18,6 +18,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.views import View
+from django.utils.decorators import method_decorator
 # from django.views.decorators.cache import cache_page
 
 from account.cookies import set_logged_in_cookies, delete_logged_in_cookies
@@ -67,7 +68,7 @@ class RegisterView(View):
 
         return render_to_response(self.template_name, context)
 
-    @csrf_exempt
+    @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
         username = request.POST.get('username', '')
         email = request.POST.get('email', '')
@@ -175,7 +176,7 @@ class LoginView(View):
 
         return render_to_response(self.template_name, context)
 
-    @csrf_exempt
+    @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
         account = request.POST.get('account', '')
         password = request.POST.get('password', '')
@@ -368,7 +369,7 @@ class ResetPasswordView(View):
         """
         return render_to_response(self.template_name)
 
-    @csrf_exempt
+    @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
         email = request.POST.get('email', '')
         verification_code = request.POST.get('verification_code', '')
