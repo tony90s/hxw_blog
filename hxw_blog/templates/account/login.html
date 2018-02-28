@@ -39,7 +39,7 @@
             <h5>第三方登录</h5>
             <ul>
                 <li>
-                    <a class="weibo" data-toggle="tooltip" href="{% url 'account:social_weibo_login' %}" data-original-title="微博登录">
+                    <a class="weibo" data-toggle="tooltip" href="javascript:void(0)" data-original-title="微博登录" data-next="{{ next }}" onclick="loginByWeibo(this)">
                         <img class="weibo-logo" src="/static/images/socialization_logo/weibo.png">
                     </a>
                 </li>
@@ -50,6 +50,7 @@
 </div> <!-- /container -->
 <script>
     var login_url = '{% url 'account:login' %}';
+    var weibo_login_url = '{% url 'account:social_weibo_login' %}'
 </script>
 <script src="/static/js/account/login.js"></script>
 </body>

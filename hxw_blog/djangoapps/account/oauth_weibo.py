@@ -137,15 +137,18 @@ def get_referer_url(request):
 
 
 def weibo_login(request):
+    redirect_url = request.GET.get('redirect_url', reverse('index'))
     oauth_weibo = OauthWeibo(settings.WEIBO_APP_KEY, settings.WEIBO_APP_SECRET, settings.WEIBO_LOGIN_REDIRECT_URI)
     weibo_auth_url = oauth_weibo.get_auth_url()
     logger.info(weibo_auth_url)
-    request.session['redirect_uri'] = get_referer_url(request)
+    request.session['redirect_url'] = redirect_url
     return HttpResponseRedirect(weibo_auth_url)
 
 
 def weibo_auth(request):
     redirect_url = reverse('index')
+    if 'redirect_url' in request.session:
+        redirect_url = request.session['redirect_url']
     if request.user.is_authenticated():
         return HttpResponseRedirect(redirect_url)
 

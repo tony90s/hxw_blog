@@ -61,7 +61,7 @@ class RegisterView(View):
         :param request:
         :return:
         """
-        next = request.GET.get("next", "")
+        next = request.GET.get("next", reverse('index'))
         context = {
             "next": next
         }
@@ -169,7 +169,7 @@ class LoginView(View):
         :param request:
         :return:
         """
-        next = request.GET.get("next", "")
+        next = request.GET.get("next", reverse('index'))
         context = {
             "next": next
         }

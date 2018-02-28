@@ -44,8 +44,8 @@
             </ul>
             {% else %}
             <ul class="nav navbar-nav navbar-right">
-                <li><a id="register_link" href="{% url 'account:register' %}">注册</a></li>
-                <li><a id="login_link" href="{% url 'account:login' %}">登录</a></li>
+                <li><a id="register_link" href="javascript:void(0)" data-register_url="{% url 'account:register' %}">注册</a></li>
+                <li><a id="login_link" href="javascript:void(0)" data-login_url="{% url 'account:login' %}">登录</a></li>
             </ul>
             {% endif %}
             <!--

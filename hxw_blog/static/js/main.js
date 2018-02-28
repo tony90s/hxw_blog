@@ -49,4 +49,16 @@ $(document).ready(function () {
             back_to_top_link.css('display','none');
         }
     });
+    
+    $("#register_link").click(function (e) {
+        var register_url =  this.dataset.register_url;
+        var next = window.location.href;
+        window.location.href = register_url + '?next=' + next;
+    })
+
+    $("#login_link").click(function (e) {
+        var login_url =  this.dataset.login_url;
+        var next = window.location.href;
+        window.location.href = login_url + '?next=' + next;
+    })
 });
