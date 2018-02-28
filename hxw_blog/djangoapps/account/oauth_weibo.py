@@ -108,7 +108,7 @@ class OauthWeibo(object):
                 user_profile.user_type = UserProfile.UerType.WEIBO
                 user_profile.user = user
                 user_profile.gender = gender
-                user_profile.avatar = img
+                # user_profile.avatar = img
                 user_profile.save(using='write')
 
                 oauth_login = OauthLogin()
