@@ -1,6 +1,7 @@
 import logging
 import json
 import requests
+from urllib import request as urllib_request, parse
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -33,7 +34,7 @@ class OauthWeibo(object):
             'redirect_uri': redirect_uri,
             'response_type': 'code'
         }
-        url_params = "&".join("{}={}".format(k, v) for k, v in context.items())
+        url_params = parse.urlencode(context)
         weibo_auth_url = '%s?%s' % (authorize_url, url_params)
         return weibo_auth_url
 
