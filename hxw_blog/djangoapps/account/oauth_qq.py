@@ -1,3 +1,4 @@
+import re
 import logging
 import json
 import requests
@@ -15,28 +16,30 @@ from account.cookies import set_logged_in_cookies
 from utils import generate_verification_code
 from utils.file_handling import get_thumbnail
 
-logger = logging.getLogger('account.oauth_weibo')
+logger = logging.getLogger('account.oauth_qq')
 
 
-class OauthWeibo(object):
+class OauthQQ(object):
     def __init__(self, client_id, client_secret, redirect_uri):
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
 
     def get_auth_url(self):
-        authorize_url = 'https://api.weibo.com/oauth2/authorize'
+        authorize_url = 'https://graph.qq.com/oauth2.0/authorize'
         context = {
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
-            'response_type': 'code'
+            'response_type': 'code',
+            'scope': 'get_user_info',
+            'state': 1
         }
         url_params = parse.urlencode(context)
-        weibo_auth_url = '%s?%s' % (authorize_url, url_params)
-        return weibo_auth_url
+        qq_auth_url = '%s?%s' % (authorize_url, url_params)
+        return qq_auth_url
 
     def get_access_token(self, code):
-        auth_url = 'https://api.weibo.com/oauth2/access_token'
+        get_access_token_url = 'https://graph.qq.com/oauth2.0/token'
         context = {
             'code': code,  # authorization_code
             'client_id': self.client_id,
@@ -44,16 +47,32 @@ class OauthWeibo(object):
             'redirect_uri': self.redirect_uri,
             'grant_type': 'authorization_code'
         }
-        req = requests.post(auth_url, data=context)
-        data = json.loads(req.text)
+        params = parse.urlencode(context).encode('utf-8')
+        req = urllib_request.Request(get_access_token_url, data=params)
+        page = urllib_request.urlopen(req).read().decode('utf-8')
+        data = json.loads(re.search('{.+}', page).group(0))
         self.access_token = data
         return data
 
-    def get_weibo_info(self):
-        user_info_url = 'https://api.weibo.com/2/users/show.json'
+    def get_openid(self):
+        get_openid_url = 'https://graph.qq.com/oauth2.0/me'
+        context = {
+            'access_token': self.access_token['access_token']
+        }
+        params = parse.urlencode(context).encode('utf-8')
+        req = urllib_request.Request(get_openid_url, data=params)
+        page = urllib_request.urlopen(req).read().decode('utf-8')
+        data = json.loads(re.search('{.+}', page).group(0))
+        openid = data['openid']
+        self.openid = openid
+        return openid
+
+    def get_qq_info(self):
+        user_info_url = 'https://graph.qq.com/user/get_user_info'
         context = {
             'access_token': self.access_token['access_token'],
-            'uid': self.access_token['uid']
+            'oauth_consumer_key': self.client_id,
+            'openid': self.openid
         }
         resp = requests.get(user_info_url, context)
         data = json.loads(resp.text)
@@ -63,30 +82,29 @@ class OauthWeibo(object):
         access_token = self.access_token
         oauth_access_token = access_token['access_token']
         oauth_expires = access_token['expires_in']
-        uid = access_token['uid']
+        uid = self.openid
 
-        oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.WEIBO,
+        oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.QQ,
                                                                oauth_access_token=oauth_access_token)
         if oauth_logins.exists():
             oauth_login = oauth_logins[0]
             user_id = oauth_login.user_id
             user = User.objects.using('read').get(id=user_id)
         else:
-            oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.WEIBO,
+            oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.QQ,
                                                                    oauth_id=uid)
             if oauth_logins.exists():
                 oauth_login = oauth_logins[0]
                 user_id = oauth_login.user_id
                 user = User.objects.using('read').get(id=user_id)
             else:
-                user_info = self.get_weibo_info()
-                nick_name = user_info['screen_name']
-                gender = user_info['gender']
-
-                avatar = user_info['avatar_large']
+                user_info = self.get_qq_info()
+                nick_name = user_info['nickname']
+                gender = 'm' if user_info['gender'] == '男' else 'f'
+                avatar = user_info['figureurl_qq_2'] or user_info['figureurl_qq_1']
                 req = requests.get(avatar)
                 file_content = ContentFile(req.content)
-                avatar_img = get_thumbnail(file_content)[0]
+                avatar_img = get_thumbnail(file_content, 100, 100)[0]
 
                 result_name = nick_name
                 all_user = User.objects.using('read').all()
@@ -105,7 +123,7 @@ class OauthWeibo(object):
                 user.set_password('888888')
                 user.save(using='write')
                 user_profile = UserProfile()
-                user_profile.user_type = UserProfile.UerType.WEIBO
+                user_profile.user_type = UserProfile.UerType.QQ
                 user_profile.user = user
                 user_profile.gender = gender
                 if avatar_img is not None:
@@ -113,7 +131,7 @@ class OauthWeibo(object):
                 user_profile.save(using='write')
 
                 oauth_login = OauthLogin()
-                oauth_login.auth_type = OauthLogin.TYPE.WEIBO
+                oauth_login.auth_type = OauthLogin.TYPE.QQ
                 oauth_login.oauth_id = uid
                 oauth_login.user_id = user.id
 
@@ -132,16 +150,16 @@ def get_referer_url(request):
     return referer_url
 
 
-def weibo_login(request):
+def qq_login(request):
     redirect_url = request.GET.get('redirect_url', reverse('index'))
-    oauth_weibo = OauthWeibo(settings.WEIBO_APP_KEY, settings.WEIBO_APP_SECRET, settings.WEIBO_LOGIN_REDIRECT_URI)
-    weibo_auth_url = oauth_weibo.get_auth_url()
-    logger.info(weibo_auth_url)
+    oauth_qq = OauthQQ(settings.QQ_APP_KEY, settings.QQ_APP_SECRET, settings.QQ_LOGIN_REDIRECT_URI)
+    qq_auth_url = oauth_qq.get_auth_url()
+    logger.info(qq_auth_url)
     request.session['redirect_url'] = redirect_url
-    return HttpResponseRedirect(weibo_auth_url)
+    return HttpResponseRedirect(qq_auth_url)
 
 
-def weibo_auth(request):
+def qq_login_done(request):
     redirect_url = reverse('index')
     if 'redirect_url' in request.session:
         redirect_url = request.session['redirect_url']
@@ -152,11 +170,12 @@ def weibo_auth(request):
         return HttpResponseRedirect(redirect_url)
 
     code = request.GET.get('code')
-    oauth_weibo = OauthWeibo(settings.WEIBO_APP_KEY, settings.WEIBO_APP_SECRET, settings.WEIBO_LOGIN_REDIRECT_URI)
+    oauth_qq = OauthQQ(settings.QQ_APP_KEY, settings.QQ_APP_SECRET, settings.QQ_LOGIN_REDIRECT_URI)
 
     try:
-        access_token = oauth_weibo.get_access_token(code)
-        user = oauth_weibo.get_blog_user()
+        access_token = oauth_qq.get_access_token(code)
+        open_id = oauth_qq.get_openid()
+        user = oauth_qq.get_blog_user()
 
         login(request, user)
         request.session.set_expiry(604800)
