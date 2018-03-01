@@ -173,7 +173,7 @@ MEDIA_ROOT = os.path.join(ENV_ROOT, 'media')
 MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/account/login/'
+LOGIN_URL = '/account/login'
 
 LOGGING = {
     'version': 1,

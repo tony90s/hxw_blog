@@ -178,6 +178,11 @@ label {
   color: #fff;
 }
 
+.bs-docs-footer .weibo-qrcode {
+    width: 100px;
+    height: 100px;
+}
+
 .bs-docs-footer .footer-message{
     margin-top: 20px;
     color:#878B91;

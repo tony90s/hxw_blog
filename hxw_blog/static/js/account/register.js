@@ -78,4 +78,9 @@ $(function () {
             }
         );
     });
+
+    $("#btn_login").click(function (e) {
+        var redirect_url = this.dataset.next;
+        window.location.href = login_url + '?next=' + redirect_url;
+    })
 });

@@ -1,11 +1,6 @@
 /**
  * Created by tony on 17-11-12.
  */
-function loginByWeibo(obj) {
-    var redirect_url = obj.dataset.next;
-    window.location.href = weibo_login_url + '?redirect_url=' + redirect_url;
-}
-
 $(function () {
 
     var btn_login = $("#btn_login");
@@ -64,4 +59,13 @@ $(function () {
         );
     });
 
+    $("#btn_register").click(function (e) {
+        var redirect_url = this.dataset.next;
+        window.location.href = register_url + '?next=' + redirect_url;
+    });
+
+    $(".social-login .weibo").click(function (e) {
+        var redirect_url = this.dataset.next;
+        window.location.href = weibo_login_url + '?redirect_url=' + redirect_url;
+    })
 });

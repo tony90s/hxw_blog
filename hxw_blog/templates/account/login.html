@@ -17,8 +17,12 @@
 
 <body>
 <div class="container">
+    <div class="header-logo">
+        <a href="http://www.loveiters.com">
+            <img src="/static/images/logo.png" class="logo"/>
+        </a>
+    </div>
     <form class="form-signin" id="form_login">
-        <h2 class="form-signin-heading text-center">欢迎登录</h2>
         <label for="account" class="sr-only">Account</label>
         <input type="text" id="account" name="account" class="form-control" placeholder="请输入邮箱" autofocus>
         <label for="password" class="sr-only">Password</label>
@@ -29,17 +33,17 @@
             </label>
         </div>
         <button class="btn btn-lg btn-primary btn-block" id="btn_login" data-next="{{ next }}" type="button">登录</button>
-        <p style="margin-bottom: 40px;">
+        <div class="meta">
             <a class="pull-left" href="{% url 'account:reset_password' %}">忘记密码？</a>
-            <a class="pull-right" href="{% url 'account:register' %}">点我注册</a>
-        </p>
+            <a class="pull-right" id="btn_register" href="javascript:void(0)" data-next="{{ next }}">点我注册</a>
+        </div>
         <div class="alert alert-warning fade" id="warning_msg"></div>
 
         <div class="social-login">
             <h5>第三方登录</h5>
             <ul>
                 <li>
-                    <a class="weibo" data-toggle="tooltip" href="javascript:void(0)" data-original-title="微博登录" data-next="{{ next }}" onclick="loginByWeibo(this)">
+                    <a class="weibo" data-toggle="tooltip" href="javascript:void(0)" data-original-title="微博登录" data-next="{{ next }}">
                         <img class="weibo-logo" src="/static/images/socialization_logo/weibo.png">
                     </a>
                 </li>
@@ -50,6 +54,7 @@
 </div> <!-- /container -->
 <script>
     var login_url = '{% url 'account:login' %}';
+    var register_url = '{% url 'account:register' %}';
     var weibo_login_url = '{% url 'account:social_weibo_login' %}'
 </script>
 <script src="/static/js/account/login.js"></script>
