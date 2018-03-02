@@ -15,6 +15,7 @@ from account.views import (
 )
 
 from account.oauth_weibo import weibo_login, weibo_auth
+from account.oauth_qq import qq_login, qq_login_done
 
 urlpatterns = [
     url(r'^register$', RegisterView.as_view(), name='register'),
@@ -34,5 +35,7 @@ urlpatterns = [
 
 urlpatterns += [
     url(r'^weibo/login$', weibo_login, name='social_weibo_login'),
-    url(r'^weibo/login/done$', weibo_auth, name='social_weibo_login_done')
+    url(r'^weibo/login/done$', weibo_auth, name='social_weibo_login_done'),
+    url(r'^qq/login$', qq_login, name='social_qq_login'),
+    url(r'^qq/login/done$', qq_login_done, name='social_qq_login_done')
 ]

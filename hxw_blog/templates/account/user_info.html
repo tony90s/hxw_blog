@@ -70,7 +70,7 @@
             <div class="col-sm-2 col-sm-offset-2">
                 <div class="sidebar-box">
                     <div class="list-group">
-                        {% if user.profile.user_type == 0 %}
+                        {% if user.email %}
                             <a class="list-group-item" data-toggle="modal" data-target="#update_password">
                                 <i class="iconfont icon-reset_password"></i>更新密码
                             </a>

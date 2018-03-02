@@ -82,7 +82,6 @@ class OauthQQ(object):
         access_token = self.access_token
         oauth_access_token = access_token['access_token']
         oauth_expires = access_token['expires_in']
-        uid = self.openid
 
         oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.QQ,
                                                                oauth_access_token=oauth_access_token)
@@ -91,6 +90,7 @@ class OauthQQ(object):
             user_id = oauth_login.user_id
             user = User.objects.using('read').get(id=user_id)
         else:
+            uid = self.get_openid()
             oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.QQ,
                                                                    oauth_id=uid)
             if oauth_logins.exists():
@@ -123,7 +123,6 @@ class OauthQQ(object):
                 user.set_password('888888')
                 user.save(using='write')
                 user_profile = UserProfile()
-                user_profile.user_type = UserProfile.UerType.QQ
                 user_profile.user = user
                 user_profile.gender = gender
                 if avatar_img is not None:

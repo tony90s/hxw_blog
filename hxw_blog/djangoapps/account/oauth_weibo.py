@@ -105,7 +105,6 @@ class OauthWeibo(object):
                 user.set_password('888888')
                 user.save(using='write')
                 user_profile = UserProfile()
-                user_profile.user_type = UserProfile.UerType.WEIBO
                 user_profile.user = user
                 user_profile.gender = gender
                 if avatar_img is not None:

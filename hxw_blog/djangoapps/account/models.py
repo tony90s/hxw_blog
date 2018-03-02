@@ -11,23 +11,8 @@ class UserProfile(models.Model):
         (GENDER.MALE, 'male'),
         (GENDER.FEMALE, 'female')
     )
-
-    class UerType:
-        OFFICIAL = 0
-        WEIBO = 1
-        WECHAT = 2
-        QQ = 3
-
-    USER_TYPE_CHOICES = (
-        (UerType.OFFICIAL, '官方帐号'),
-        (UerType.WEIBO, '微博'),
-        (UerType.WECHAT, '微信'),
-        (UerType.QQ, 'QQ')
-    )
-    user_type = models.IntegerField(choices=USER_TYPE_CHOICES, default=UerType.OFFICIAL, verbose_name='用户类型')
     user = models.OneToOneField(User, unique=True, db_index=True, related_name='profile')
     gender = models.CharField(blank=True, max_length=6, choices=GENDER_CHOICES, default=GENDER.MALE)
-    #nick_name = models.CharField(blank=True, max_length=32, default='')
     bio = models.CharField(blank=True, max_length=120, default='')
     mobile = models.CharField(blank=True, max_length=16, default='')
     avatar = models.ImageField(upload_to='avatar', blank=True, default="/avatar/default_avatar.jpg")
