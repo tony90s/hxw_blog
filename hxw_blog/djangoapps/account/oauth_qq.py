@@ -39,50 +39,65 @@ class OauthQQ(object):
         return qq_auth_url
 
     def get_access_token(self, code):
-        get_access_token_url = 'https://graph.qq.com/oauth2.0/token'
-        context = {
-            'code': code,  # authorization_code
-            'client_id': self.client_id,
-            'client_secret':self.client_secret,
-            'redirect_uri': self.redirect_uri,
-            'grant_type': 'authorization_code'
-        }
-        """
-        params = parse.urlencode(context).encode('utf-8')
-        req = urllib_request.Request(get_access_token_url, data=params)
-        page = urllib_request.urlopen(req).read().decode('utf-8')
-        """
-        req = requests.get(get_access_token_url, context)
-        data = json.loads(re.search('{.+}', req.text).group(0))
-        self.access_token = data
-        return data
+        try:
+            get_access_token_url = 'https://graph.qq.com/oauth2.0/token'
+            context = {
+                'code': code,  # authorization_code
+                'client_id': self.client_id,
+                'client_secret': self.client_secret,
+                'redirect_uri': self.redirect_uri,
+                'grant_type': 'authorization_code'
+            }
+            """
+            params = parse.urlencode(context).encode('utf-8')
+            req = urllib_request.Request(get_access_token_url, data=params)
+            page = urllib_request.urlopen(req).read().decode('utf-8')
+            """
+            req = requests.get(get_access_token_url, context)
+            data = json.loads(re.search('{.+}', req.text).group(0))
+            logger.error(data)
+            self.access_token = data
+            return data
+        except Exception as e:
+            logger.error(e)
+            return None
 
     def get_openid(self):
-        get_openid_url = 'https://graph.qq.com/oauth2.0/me'
-        context = {
-            'access_token': self.access_token['access_token']
-        }
-        """
-        params = parse.urlencode(context).encode('utf-8')
-        req = urllib_request.Request(get_openid_url, data=params)
-        page = urllib_request.urlopen(req).read().decode('utf-8')
-        """
-        req = requests.get(get_openid_url, context)
-        data = json.loads(re.search('{.+}', req.text).group(0))
-        openid = data['openid']
-        self.openid = openid
-        return openid
+        try:
+            get_openid_url = 'https://graph.qq.com/oauth2.0/me'
+            context = {
+                'access_token': self.access_token['access_token']
+            }
+            """
+            params = parse.urlencode(context).encode('utf-8')
+            req = urllib_request.Request(get_openid_url, data=params)
+            page = urllib_request.urlopen(req).read().decode('utf-8')
+            """
+            req = requests.get(get_openid_url, context)
+            data = json.loads(re.search('{.+}', req.text).group(0))
+            openid = data['openid']
+            logger.error(data)
+            self.openid = openid
+            return openid
+        except Exception as e:
+            logger.error(e)
+            return None
 
     def get_qq_info(self):
-        user_info_url = 'https://graph.qq.com/user/get_user_info'
-        context = {
-            'access_token': self.access_token['access_token'],
-            'oauth_consumer_key': self.client_id,
-            'openid': self.openid
-        }
-        resp = requests.get(user_info_url, context)
-        data = json.loads(resp.text)
-        return data
+        try:
+            user_info_url = 'https://graph.qq.com/user/get_user_info'
+            context = {
+                'access_token': self.access_token['access_token'],
+                'oauth_consumer_key': self.client_id,
+                'openid': self.openid
+            }
+            resp = requests.get(user_info_url, context)
+            data = json.loads(resp.text)
+            logger.error(data)
+            return data
+        except Exception as e:
+            logger.error(e)
+            return None
 
     def get_blog_user(self):
         access_token = self.access_token
