@@ -1,4 +1,3 @@
-import re
 import logging
 import json
 import requests
@@ -16,73 +15,46 @@ from account.cookies import set_logged_in_cookies
 from utils import generate_verification_code
 from utils.file_handling import get_thumbnail
 
-logger = logging.getLogger('account.oauth_qq')
+logger = logging.getLogger('account.oauth_weibo')
 
 
-class OauthQQ(object):
+class OauthWechat(object):
     def __init__(self, client_id, client_secret, redirect_uri):
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
 
     def get_auth_url(self):
-        authorize_url = 'https://graph.qq.com/oauth2.0/authorize'
+        authorize_url = 'https://open.weixin.qq.com/connect/qrconnect'
         context = {
-            'client_id': self.client_id,
+            'appid': self.client_id,
             'redirect_uri': self.redirect_uri,
             'response_type': 'code',
-            'scope': 'get_user_info',
+            'scope': 'snsapi_login',
             'state': 1
         }
         url_params = parse.urlencode(context)
-        qq_auth_url = '%s?%s' % (authorize_url, url_params)
-        return qq_auth_url
+        wechat_auth_url = '%s?%s' % (authorize_url, url_params)
+        return wechat_auth_url
 
     def get_access_token(self, code):
-        get_access_token_url = 'https://graph.qq.com/oauth2.0/token'
+        get_access_token_url = 'https://api.weixin.qq.com/sns/oauth2/access_token'
         context = {
             'code': code,  # authorization_code
-            'client_id': self.client_id,
-            'client_secret': self.client_secret,
-            'redirect_uri': self.redirect_uri,
+            'appid': self.client_id,
+            'secret':self.client_secret,
             'grant_type': 'authorization_code'
         }
-        params = parse.urlencode(context).encode('utf-8')
-        req = urllib_request.Request(get_access_token_url, data=params)
-        page = urllib_request.urlopen(req).read().decode('utf-8')
-        re_search_result = re.search('{.+}', page)
-        if re_search_result is not None:
-            data = json.loads(re_search_result.group(0))
-        else:
-            result = parse.parse_qs(page)
-            data = dict([(k, v[0]) for k, v in result.items()])
+        resp = requests.get(get_access_token_url, context)
+        data = json.loads(resp.text)
         self.access_token = data
         return data
 
-    def get_openid(self):
-        get_openid_url = 'https://graph.qq.com/oauth2.0/me'
-        context = {
-            'access_token': self.access_token['access_token']
-        }
-        params = parse.urlencode(context).encode('utf-8')
-        req = urllib_request.Request(get_openid_url, data=params)
-        page = urllib_request.urlopen(req).read().decode('utf-8')
-        re_search_result = re.search('{.+}', page)
-        if re_search_result is not None:
-            data = json.loads(re_search_result.group(0))
-        else:
-            result = parse.parse_qs(page)
-            data = dict([(k, v[0]) for k, v in result.items()])
-        openid = data['openid']
-        self.openid = openid
-        return openid
-
-    def get_qq_info(self):
-        user_info_url = 'https://graph.qq.com/user/get_user_info'
+    def get_wechat_info(self):
+        user_info_url = 'https://api.weixin.qq.com/sns/userinfo'
         context = {
             'access_token': self.access_token['access_token'],
-            'oauth_consumer_key': self.client_id,
-            'openid': self.openid
+            'openid': self.access_token['openid']
         }
         resp = requests.get(user_info_url, context)
         data = json.loads(resp.text)
@@ -91,45 +63,45 @@ class OauthQQ(object):
     def get_blog_user(self):
         access_token = self.access_token
         oauth_access_token = access_token['access_token']
-        oauth_expires = int(access_token['expires_in'])
+        oauth_expires = access_token['expires_in']
+        uid = access_token['openid']
 
-        oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.QQ,
+        oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.WECHAT,
                                                                oauth_access_token=oauth_access_token)
         if oauth_logins.exists():
             oauth_login = oauth_logins[0]
             user_id = oauth_login.user_id
             user = User.objects.using('read').get(id=user_id)
         else:
-            uid = self.get_openid()
-            oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.QQ,
+            oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.WECHAT,
                                                                    oauth_id=uid)
             if oauth_logins.exists():
                 oauth_login = oauth_logins[0]
                 user_id = oauth_login.user_id
                 user = User.objects.using('read').get(id=user_id)
             else:
-                user_info = self.get_qq_info()
-                nick_name = user_info['nickname']
-                gender = 'm' if user_info['gender'] == '男' else 'f'
+                user_info = self.get_wechat_info()
+                nickname = user_info['nickname']
+                gender = 'm' if user_info['sex'] == 1 else 'f'
 
                 avatar_img = None
-                avatar = user_info['figureurl_qq_2'] or user_info['figureurl_qq_1']
+                avatar = user_info['headimgurl']
                 if avatar:
                     req = requests.get(avatar)
                     file_content = ContentFile(req.content)
-                    avatar_img = get_thumbnail(file_content, 100, 100)[0]
+                    avatar_img = get_thumbnail(file_content)[0]
 
-                result_name = nick_name
+                result_name = nickname
                 all_user = User.objects.using('read').all()
-                email_users = all_user.filter(username=nick_name)
+                email_users = all_user.filter(username=nickname)
                 if email_users.exists():
                     rand_str = generate_verification_code()
-                    result_name = nick_name + rand_str
+                    result_name = nickname + rand_str
                     while True:
                         if not all_user.filter(username=result_name).exists():
                             break
                         rand_str = generate_verification_code()
-                        result_name = nick_name + rand_str
+                        result_name = nickname + rand_str
 
                 user = User()
                 user.username = result_name
@@ -143,7 +115,7 @@ class OauthQQ(object):
                 user_profile.save(using='write')
 
                 oauth_login = OauthLogin()
-                oauth_login.auth_type = OauthLogin.TYPE.QQ
+                oauth_login.auth_type = OauthLogin.TYPE.WECHAT
                 oauth_login.oauth_id = uid
                 oauth_login.user_id = user.id
 
@@ -162,16 +134,16 @@ def get_referer_url(request):
     return referer_url
 
 
-def qq_login(request):
+def wechat_login(request):
     redirect_url = request.GET.get('redirect_url', reverse('index'))
-    oauth_qq = OauthQQ(settings.QQ_APP_KEY, settings.QQ_APP_SECRET, settings.QQ_LOGIN_REDIRECT_URI)
-    qq_auth_url = oauth_qq.get_auth_url()
-    logger.info(qq_auth_url)
+    oauth_wechat = OauthWechat(settings.WECHAT_APP_KEY, settings.WECHAT_APP_SECRET, settings.WECHAT_LOGIN_REDIRECT_URI)
+    wechat_auth_url = oauth_wechat.get_auth_url()
+    logger.info(wechat_auth_url)
     request.session['redirect_url'] = redirect_url
-    return HttpResponseRedirect(qq_auth_url)
+    return HttpResponseRedirect(wechat_auth_url)
 
 
-def qq_login_done(request):
+def wechat_login_done(request):
     redirect_url = reverse('index')
     if 'redirect_url' in request.session:
         redirect_url = request.session['redirect_url']
@@ -182,12 +154,11 @@ def qq_login_done(request):
         return HttpResponseRedirect(redirect_url)
 
     code = request.GET.get('code')
-    oauth_qq = OauthQQ(settings.QQ_APP_KEY, settings.QQ_APP_SECRET, settings.QQ_LOGIN_REDIRECT_URI)
+    oauth_wechat = OauthWechat(settings.WECHAT_APP_KEY, settings.WECHAT_APP_SECRET, settings.WECHAT_LOGIN_REDIRECT_URI)
 
     try:
-        access_token = oauth_qq.get_access_token(code)
-        open_id = oauth_qq.get_openid()
-        user = oauth_qq.get_blog_user()
+        access_token = oauth_wechat.get_access_token(code)
+        user = oauth_wechat.get_blog_user()
 
         login(request, user)
         request.session.set_expiry(604800)
