@@ -54,6 +54,9 @@
                             <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到微博" onclick="openShareWeibo();">
                                 <i class="iconfont icon-weibo"></i>
                             </a>
+                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到QQ空间" onclick="openShareQQSpace();">
+                                <i class="iconfont icon-qqkongjian"></i>
+                            </a>
                         </div>
                     </div>
                     {% if not user.is_authenticated %}
@@ -188,18 +191,37 @@
     </script>
 
     <script language="JavaScript">
-		var article_title = encodeURIComponent(document.title);
-		var article_link = encodeURIComponent(location.href);
+		var article_title = document.title;
+		var article_link = location.href;
 
 		function getSocialLink(s){
 			switch(s){
 				case "weibo":
-				    return "http://v.t.sina.com.cn/share/share.php?appkey=4164482519&ralateUid=2728305845&url=" + article_link + "&title=" + article_title;
+                    var context = {
+                        'appkey': '4164482519',
+                        'ralateUid': '2728305845',
+                        'url': article_link,
+                        'title': article_title
+                    };
+                    var query_params = [];
+                    for(var i in context){
+                        query_params.push(i + '=' + encodeURIComponent(context[i]||''));
+                    }
+				    return ["http://v.t.sina.com.cn/share/share.php?", query_params.join('&')].join('');
+                case "qq":
+                    var context = {
+                        'url': article_link,
+                        'title': article_title
+                    };
+                    var query_params = [];
+                    for(var i in context){
+                        query_params.push(i + '=' + encodeURIComponent(context[i]||''));
+                    }
+				    return ["http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?", query_params.join('&')].join('');
 			}
 		}
 
-        function openShareWeibo() {
-            var url = getSocialLink("weibo");
+        function openWindom(url) {
             var name='';                             //网页名称，可为空;
             var iWidth=450;                          //弹出窗口的宽度;
             var iHeight=440;                         //弹出窗口的高度;
@@ -208,6 +230,16 @@
             //获得窗口的水平位置
             var iLeft = (window.screen.availWidth - 20 - iWidth) / 2;
             window.open(url, name, 'height=' + iHeight + ',innerHeight=' + iHeight + ',width=' + iWidth + ',innerWidth=' + iWidth + ',top=' + iTop + ',left=' + iLeft + ',status=no,toolbar=no,menubar=no,location=no,resizable=no,scrollbars=0,titlebar=no');
+        }
+
+        function openShareWeibo() {
+            var url = getSocialLink("weibo");
+            openWindom(url)
+       }
+
+        function openShareQQSpace() {
+            var url = getSocialLink("qq");
+            openWindom(url)
        }
 	</script>
 
@@ -220,7 +252,7 @@
             }
         }
     </script>
-    
+
     <script>
         function redirect_to_login() {
             var next = window.location.href;
@@ -547,7 +579,7 @@
             $(".content-html").html($('.content-html')[0].dataset.content);
         });
     </script>
-    
+
     <script>
         $("#btn-praise-article").click(function () {
             if (!is_authenticated) {

@@ -160,6 +160,10 @@
     color: #d81818;
 }
 
+.social .share-buttons .circle-link .icon- {
+    color: #FFC030;
+}
+
 /*----------评论区域 begin----------*/
 .comment-show {
     margin-top: 30px;
