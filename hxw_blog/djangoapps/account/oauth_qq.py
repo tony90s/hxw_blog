@@ -47,10 +47,13 @@ class OauthQQ(object):
             'redirect_uri': self.redirect_uri,
             'grant_type': 'authorization_code'
         }
+        """
         params = parse.urlencode(context).encode('utf-8')
         req = urllib_request.Request(get_access_token_url, data=params)
         page = urllib_request.urlopen(req).read().decode('utf-8')
-        data = json.loads(re.search('{.+}', page).group(0))
+        """
+        req = requests.get(get_access_token_url, context)
+        data = json.loads(re.search('{.+}', req.text).group(0))
         self.access_token = data
         return data
 
@@ -59,10 +62,13 @@ class OauthQQ(object):
         context = {
             'access_token': self.access_token['access_token']
         }
+        """
         params = parse.urlencode(context).encode('utf-8')
         req = urllib_request.Request(get_openid_url, data=params)
         page = urllib_request.urlopen(req).read().decode('utf-8')
-        data = json.loads(re.search('{.+}', page).group(0))
+        """
+        req = requests.get(get_openid_url, context)
+        data = json.loads(re.search('{.+}', req.text).group(0))
         openid = data['openid']
         self.openid = openid
         return openid
