@@ -22,17 +22,22 @@
             <img src="/static/images/logo.png" class="logo"/>
         </a>
     </div>
-    <form class="form-signin" id="form_login">
-        <label for="account" class="sr-only">Account</label>
-        <input type="text" id="account" name="account" class="form-control" placeholder="请输入邮箱" autofocus>
-        <label for="password" class="sr-only">Password</label>
-        <input type="password" id="password" name="password" class="form-control" placeholder="请输入6-30位密码">
+    <form class="form" id="form_login">
+        <div class="form-group has-feedback">
+            <span class="iconfont icon-icon form-control-feedback"></span>
+            <input type="text" id="account" name="account" class="form-control" placeholder="请输入邮箱" autofocus>
+        </div>
+        <div class="form-group has-feedback">
+            <span class="iconfont icon-lock form-control-feedback"></span>
+            <input type="password" id="password" name="password" class="form-control" placeholder="请输入6-30位密码">
+            <span class="iconfont icon-eye-close form-control-feedback-right"></span>
+        </div>
         <div class="checkbox">
             <label>
                 <input type="checkbox" name="remember" value="true"> 记住登录
             </label>
         </div>
-        <button class="btn btn-lg btn-primary btn-block" id="btn_login" data-next="{{ next }}" type="button">登录</button>
+        <button class="btn btn-primary btn-block" id="btn_login" data-next="{{ next }}" type="button">登录</button>
         <div class="meta">
             <a class="pull-left" href="{% url 'account:reset_password' %}">忘记密码？</a>
             <a class="pull-right" id="btn_register" href="javascript:void(0)" data-next="{{ next }}">点我注册</a>
@@ -43,8 +48,16 @@
             <h5>第三方登录</h5>
             <ul>
                 <li>
-                    <a class="weibo" data-toggle="tooltip" href="javascript:void(0)" data-original-title="微博登录" data-next="{{ next }}">
+                    <a class="weibo" data-toggle="tooltip" href="javascript:void(0)" data-original-title="微博登录"
+                       data-next="{{ next }}">
                         <img class="weibo-logo" src="/static/images/socialization_logo/weibo.png">
+                    </a>
+                </li>
+
+                <li>
+                    <a class="qq" data-toggle="tooltip" href="javascript:void(0)" data-original-title="QQ登录"
+                       data-next="{{ next }}">
+                        <img class="qq-logo" src="/static/images/socialization_logo/qq.png">
                     </a>
                 </li>
             </ul>
@@ -55,7 +68,25 @@
 <script>
     var login_url = '{% url 'account:login' %}';
     var register_url = '{% url 'account:register' %}';
-    var weibo_login_url = '{% url 'account:social_weibo_login' %}'
+    var weibo_login_url = '{% url 'account:social_weibo_login' %}';
+    var qq_login_url = '{% url 'account:social_qq_login' %}'
 </script>
+
+<script type="text/javascript">
+    $(function () {
+        var passwordeye = $('.form-control-feedback-right');
+        var password_input = $("#password");
+        passwordeye.off('click').on('click', function () {
+            if (passwordeye.hasClass('icon-eye-close')) {
+                passwordeye.removeClass('icon-eye-close').addClass('icon-eye-open');
+                password_input.prop('type', 'text');
+            } else {
+                passwordeye.removeClass('icon-eye-open').addClass('icon-eye-close');
+                password_input.prop('type', 'password');
+            }
+        });
+    })
+</script>
+
 <script src="/static/js/account/login.js"></script>
 </body>

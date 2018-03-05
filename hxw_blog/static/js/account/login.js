@@ -67,5 +67,10 @@ $(function () {
     $(".social-login .weibo").click(function (e) {
         var redirect_url = this.dataset.next;
         window.location.href = weibo_login_url + '?redirect_url=' + redirect_url;
+    });
+
+    $(".social-login .qq").click(function (e) {
+        var redirect_url = this.dataset.next;
+        window.location.href = qq_login_url + '?redirect_url=' + redirect_url;
     })
 });

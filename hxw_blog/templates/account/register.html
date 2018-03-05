@@ -22,16 +22,26 @@
             <img src="/static/images/logo.png" class="logo"/>
         </a>
     </div>
-    <form class="form-register" id="form_register">
-        <label for="username" class="sr-only">username</label>
-        <input type="text" id="username" name="username" class="form-control" placeholder="请输入昵称(2-32位中英文字符)" minlength="2" maxlength="32" autofocus>
-        <label for="email" class="sr-only">email</label>
-        <input type="text" id="email" name="email" class="form-control" placeholder="请输入邮箱">
-        <label for="password" class="sr-only">password</label>
-        <input type="password" id="password" name="password" class="form-control" minlength="3" maxlength="32" placeholder="请输入6-32位密码">
-        <label for="confirm_password" class="sr-only">conform password</label>
-        <input type="password" id="confirm_password" name="confirm_password" class="form-control" minlength="3" maxlength="32" placeholder="请确认密码">
-        <button class="btn btn-lg btn-primary btn-block" id="btn_register" data-next="{{ next }}" type="button">注册</button>
+    <form class="form" id="form_register">
+        <div class="form-group has-feedback">
+            <span class="iconfont icon-1USER form-control-feedback"></span>
+            <input type="text" id="username" name="username" class="form-control" placeholder="请输入昵称(2-32位中英文字符)" minlength="2" maxlength="32" autofocus>
+        </div>
+        <div class="form-group has-feedback">
+            <span class="iconfont icon-icon form-control-feedback"></span>
+            <input type="text" id="email" name="email" class="form-control" placeholder="请输入邮箱">
+        </div>
+        <div class="form-group has-feedback">
+            <span class="iconfont icon-lock form-control-feedback"></span>
+            <input type="password" id="password" name="password" class="form-control" minlength="3" maxlength="32" placeholder="请输入6-32位密码">
+            <span class="iconfont icon-eye-close form-control-feedback-right"></span>
+        </div>
+        <div class="form-group has-feedback">
+            <span class="iconfont icon-lock form-control-feedback"></span>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" minlength="3" maxlength="32" placeholder="请确认密码">
+            <span class="iconfont icon-eye-close form-control-feedback-right"></span>
+        </div>
+        <button class="btn btn-primary btn-block" id="btn_register" data-next="{{ next }}" type="button">注册</button>
         <div class="meta">
             <a class="pull-right" id="btn_login" href="javascript:void(0)" data-next="{{ next }}">已有账号？点我登录</a>
         </div>
@@ -42,6 +52,22 @@
 <script>
     var register_url = '{% url 'account:register' %}';
     var login_url = '{% url 'account:login' %}';
+</script>
+<script type="text/javascript">
+    $(function () {
+        var password_eye = $('.form-control-feedback-right');
+        password_eye.off('click').on('click', function () {
+            var $this = $(this);
+            var password_input = $this.siblings('input');
+            if ($this.hasClass('icon-eye-close')) {
+                $this.removeClass('icon-eye-close').addClass('icon-eye-open');
+                password_input.prop('type', 'text');
+            } else {
+                $this.removeClass('icon-eye-open').addClass('icon-eye-close');
+                password_input.prop('type', 'password');
+            }
+        });
+    })
 </script>
 <script src="/static/js/account/register.js"></script>
 </body>

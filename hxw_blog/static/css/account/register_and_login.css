@@ -1,123 +1,107 @@
 body > .container {
-  padding-top: 0;
+    padding-top: 0;
 }
 
 .header-logo {
-  margin: 20px 0 20px;
-  text-align: center;
+    margin: 20px 0 20px;
+    text-align: center;
 }
 
 .header-logo .logo {
-  margin: 0 auto;
+    margin: 0 auto;
 }
 
-.form-signin {
-  max-width: 330px;
-  padding: 15px;
-  margin: 0 auto;
+.form {
+    max-width: 330px;
+    padding: 15px;
+    margin: 0 auto;
+    font-size: 14px;
 }
 
-.form-signin .checkbox {
-  margin-bottom: 10px;
-}
-.form-signin .checkbox {
-  font-weight: normal;
-}
-.form-signin .form-control {
-  position: relative;
-  height: auto;
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
-  padding: 10px;
-  font-size: 16px;
-}
-.form-signin .form-control:focus {
-  z-index: 2;
-}
-.form-signin input[type="text"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.form-signin input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+.form-control-feedback {
+    left: 0;
+    width: 15%;
+    pointer-events: auto;
 }
 
-.form-signin .meta, .form-register .meta {
-  margin: 10px 0 40px;
+.form-control-feedback-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    display: block;
+    width: 15%;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+    pointer-events: auto;
 }
 
-.form-signin .social-login {
-  margin-top: 20px;
+.has-feedback .form-control {
+    padding-right: 15%;
+    padding-left: 15%;
 }
 
-.form-signin .social-login h5 {
-  margin-bottom: 20px;
-  font-size: 0.8em;
-  color: #B8B8B8;
-  text-align: center;
+.form .iconfont {
+    font-size: 14px;
 }
 
-.form-signin .social-login ul {
-  list-style: none;
+.form .checkbox {
+    margin-bottom: 10px;
 }
 
-.form-signin .social-login ul li {
-  margin: 0 5px;
-  display: inline-block;
+.form .checkbox {
+    font-weight: normal;
 }
 
-.form-signin .social-login .weibo .weibo-logo {
-  border: 1px solid #dcdcdc;;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  text-align: center;
-  vertical-align: middle;
+.form .form-group {
+    margin-bottom: 10px;
 }
 
-.form-register {
-  max-width: 330px;
-  padding: 15px;
-  margin: 0 auto;
+.form .form-control {
+    box-sizing: border-box;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-.form-register .checkbox {
-  margin-bottom: 10px;
+.form .form-control:focus {
+    z-index: 2;
 }
-.form-register .checkbox {
-  font-weight: normal;
+
+.form button {
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
-.form-register .form-control {
-  position: relative;
-  height: auto;
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
-  padding: 10px;
-  font-size: 16px;
+
+.form .meta, .form-register .meta {
+    margin: 10px 0 40px;
 }
-.form-register .form-control:focus {
-  z-index: 2;
+
+.form .social-login {
+    margin-top: 20px;
 }
-.form-register input[name="username"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
+
+.form .social-login h5 {
+    margin-bottom: 20px;
+    font-size: 0.8em;
+    color: #B8B8B8;
+    text-align: center;
 }
-.form-register input[name="email"] {
-  margin-bottom: -1px;
-  border-radius: 0;
+
+.form .social-login ul {
+    list-style: none;
 }
-.form-register input[name="password"] {
-  margin-bottom: -1px;
-  border-radius: 0;
+
+.form .social-login ul li {
+    margin: 0 5px;
+    display: inline-block;
 }
-.form-register input[name="confirm_password"] {
-  margin-bottom: 15px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+
+.form .social-login ul img {
+    border: 1px solid #dcdcdc;;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    text-align: center;
+    vertical-align: middle;
 }
