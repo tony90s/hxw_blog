@@ -194,6 +194,16 @@
 		var article_title = document.title;
 		var article_link = location.href;
 
+        function get_first_img_src() {
+            var first_img_src = $(".show-content img:first").attr('src') || '';
+            if (first_img_src != '') {
+                if (first_img_src.search("http") == -1) {
+                    first_img_src = document.location.protocol + '//' + window.location.host + first_img_src;
+                }
+            }
+            return first_img_src
+        }
+
 		function getSocialLink(s){
 			switch(s){
 				case "weibo":
@@ -201,17 +211,19 @@
                         'appkey': '4164482519',
                         'ralateUid': '2728305845',
                         'url': article_link,
-                        'title': article_title
+                        'title': article_title,
+                        'pic': get_first_img_src()
                     };
                     var query_params = [];
                     for(var i in context){
                         query_params.push(i + '=' + encodeURIComponent(context[i]||''));
                     }
-				    return ["http://v.t.sina.com.cn/share/share.php?", query_params.join('&')].join('');
+				    return ["http://service.weibo.com/share/share.php?", query_params.join('&')].join('');
                 case "qq":
                     var context = {
                         'url': article_link,
-                        'title': article_title
+                        'title': article_title,
+                        'pics': get_first_img_src()
                     };
                     var query_params = [];
                     for(var i in context){
