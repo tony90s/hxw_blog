@@ -88,7 +88,7 @@ class OauthWeibo(object):
                 if avatar:
                     req = requests.get(avatar)
                     file_content = ContentFile(req.content)
-                    avatar_img = get_thumbnail(file_content)[0]
+                    avatar_img = get_thumbnail(file_content, 100, 100)[0]
 
                 result_name = nick_name
                 all_user = User.objects.using('read').all()
