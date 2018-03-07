@@ -20,7 +20,8 @@
 
                 <div class="row">
                     <div class="col-sm-6 col-sm-offset-3">
-                        <form class="form-horizontal form-user-info" id="form_update_user_info" role="form" action="" method="post">
+                        <form class="form-horizontal form-user-info" id="form_update_user_info" role="form" action=""
+                              method="post">
                             <div class="form-group">
                                 <label for="username" class="col-sm-2 control-label">昵称</label>
                                 <div class="col-sm-10">
@@ -75,11 +76,15 @@
                                 <i class="iconfont icon-reset_password"></i>更新密码
                             </a>
                         {% endif %}
-                        <a class="list-group-item" href="{% url 'account:user_message_comments' %}"><i class="iconfont icon-message"></i>我的消息</a>
+                        <a class="list-group-item" href="{% url 'account:user_message_comments' %}"><i
+                                class="iconfont icon-message"></i>我的消息</a>
                         {% if user.is_superuser %}
-                            <a class="list-group-item" href="{% url "article:user_articles" user.id %}"><i class="iconfont icon-article"></i>我的文章</a>
-                            <a class="list-group-item" href="{% url "article:user_drafts" %}"><i class="iconfont icon-drafts"></i>草稿箱</a>
-                            <a class="list-group-item" href="{% url "article:create_article" %}"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
+                            <a class="list-group-item" href="{% url "article:user_articles" user.id %}"><i
+                                    class="iconfont icon-article"></i>我的文章</a>
+                            <a class="list-group-item" href="{% url "article:user_drafts" %}"><i
+                                    class="iconfont icon-drafts"></i>草稿箱</a>
+                            <a class="list-group-item" href="{% url "article:create_article" %}"><i
+                                    class="iconfont icon-552ce439609c3"></i>写文章</a>
                         {% endif %}
                     </div>
                 </div>
@@ -184,17 +189,23 @@
                 </div>
                 <div class="modal-body">
                     <form class="form-update-password" id="form_update_password">
-                        <label for="password" class="sr-only">password</label>
-                        <input type="password" id="password" name="password" class="form-control" minlength="6"
-                               maxlength="32" placeholder="请输入原密码">
-                        <label for="new_password" class="sr-only">new_password</label>
-                        <input type="password" id="new_password" name="new_password" class="form-control" minlength="6"
-                               maxlength="32" placeholder="请输入新密码(6-32位字母或数字组合)">
-                        <label for="confirm_password" class="sr-only">conform password</label>
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control"
-                               minlength="6" maxlength="32" placeholder="请确认新密码">
-                        <button class="btn btn-lg btn-primary btn-block" id="btn_update_password" type="button">确认
-                        </button>
+                        <div class="form-group has-feedback">
+                            <input type="password" id="password" name="password" class="form-control" minlength="6"
+                                   maxlength="32" placeholder="请输入原密码">
+                            <span class="iconfont icon-eye-close form-control-feedback"></span>
+                        </div>
+                        <div class="form-group has-feedback">
+                            <input type="password" id="new_password" name="new_password" class="form-control"
+                                   minlength="6"
+                                   maxlength="32" placeholder="请输入新密码(6-32位字母或数字组合)">
+                            <span class="iconfont icon-eye-close form-control-feedback"></span>
+                        </div>
+                        <div class="form-group has-feedback">
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                                   minlength="6" maxlength="32" placeholder="请确认新密码">
+                            <span class="iconfont icon-eye-close form-control-feedback"></span>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="btn_update_password" type="button">确认</button>
                         <div class="alert alert-warning fade" id="warning_msg"></div>
                     </form>
                 </div>
@@ -206,6 +217,24 @@
 {% block extra_js %}
     <script src="/static/cropper/html2canvas.min.js"></script>
     <script src="/static/js/account/user_info.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            var password_eye = $('.form-control-feedback');
+            password_eye.off('click').on('click', function () {
+                var $this = $(this);
+                var password_input = $this.siblings('input');
+                if ($this.hasClass('icon-eye-close')) {
+                    $this.removeClass('icon-eye-close').addClass('icon-eye-open');
+                    password_input.prop('type', 'text');
+                } else {
+                    $this.removeClass('icon-eye-open').addClass('icon-eye-close');
+                    password_input.prop('type', 'password');
+                }
+            });
+        })
+    </script>
+
     <script type="text/javascript">
 
         function getBlobBydataURI(dataURI, type) {

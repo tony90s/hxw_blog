@@ -78,6 +78,11 @@ body > .container {
     padding-bottom: 10px;
 }
 
+.form .alert {
+    padding: 12px;
+    text-align: center;
+}
+
 .form .meta, .form-register .meta {
     margin: 10px 0 40px;
 }
