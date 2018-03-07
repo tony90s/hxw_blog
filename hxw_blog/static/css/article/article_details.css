@@ -169,16 +169,16 @@
 }
 
 .show-qrcode .modal-content {
-    width: 340px;
+    width: 380px;
 }
 
 .show-qrcode .modal-body {
-    padding: 20px 60px 20px;
+    padding: 15px 60px;
     text-align: center;
 }
 
 .show-qrcode .modal-body #qrcode {
-    padding: 20px 30px 20px 30px;
+    padding: 15px 40px;
 }
 
 @media (min-width: 768px) {
