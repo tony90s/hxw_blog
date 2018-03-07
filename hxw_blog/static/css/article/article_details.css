@@ -168,23 +168,8 @@
     color: #64AB23;
 }
 
-.modal .modal-dialog {
-    position: absolute;
-    top: 20%;
-    left: 40%;
-    -webkit-transform: translate(-50%,-50%);
-    transform: translate(-50%,-50%);
-}
-
-@media (min-width: 768px) {
-    .modal-dialog {
-        width: 600px;
-        margin: 50px auto;
-    }
-}
-
 .show-qrcode .modal-content {
-    width: 360px;
+    width: 340px;
 }
 
 .show-qrcode .modal-body {
@@ -194,6 +179,13 @@
 
 .show-qrcode .modal-body #qrcode {
     padding: 20px 30px 20px 30px;
+}
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 380px;
+        margin: 100px auto;
+    }
 }
 
 /*----------评论区域 begin----------*/
