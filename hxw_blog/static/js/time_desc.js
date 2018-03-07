@@ -48,7 +48,7 @@ function getDateDiff(dateStr) {
     } else if (d_seconds >= -30 && d_seconds < 60) {
         return '刚刚';
     } else if (year_of_now == Y && d_seconds > 0) {
-        return M + '-' + D;
+        return M + '-' + D + ' ' + H + ':' + m;
     }
     else {
         return Y + '-' + M + '-' + D;

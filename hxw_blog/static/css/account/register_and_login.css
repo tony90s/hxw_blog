@@ -40,8 +40,12 @@ body > .container {
 }
 
 .has-feedback .form-control {
-    padding-right: 15%;
     padding-left: 15%;
+    padding-right: 12px;
+}
+
+.has-feedback .form-control-right {
+    padding-right: 15%;
 }
 
 .form .iconfont {

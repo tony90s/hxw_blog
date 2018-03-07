@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ article_details.title }}</title>{% endblock %}
 {% block extra_header %}
-
     <link rel="stylesheet" href="/static/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css">
     <link rel="stylesheet" href="/static/css/article/article_details.css">
     <script src="/static/js/jquery.flexText.js"></script>
     <script src="/static/js/time_desc.js"></script>
+    <script src="/static/js/qrcode.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -20,27 +20,16 @@
                         </div>
                         <div class="info">
                             <span class="name"><a href="">{{ article_details.author.username }}</a></span>
-                            <!-- 文章数据信息 -->
                             <div class="meta">
-                                <!-- 如果文章更新时间大于发布时间，那么使用 tooltip 显示更新时间 -->
                                 <span class="release-time" data-toggle="tooltip" data-placement="bottom"
-                                      data-original-title="最后更新于 {{ article_details.update_time }}">{{ article_details.release_time }}</span>
-                                <!--<span class="word-count">字数 {{ article_details.word_count }}</span>-->
+                                      data-original-title="最后编辑于 {{ article_details.update_time }}">{{ article_details.release_time }}</span>
                                 <span class="page-views">阅读 {{ article_details.page_views }}</span>
                                 <span class="comment-times">评论 {{ article_details.comment_times }}</span>
                                 <span class="praise-times">点赞 {{ article_details.praise_times }}</span>
                             </div>
                         </div>
-                        <!-- 如果是当前作者，加入编辑按钮 -->
                     </div>
                     <div class="show-content">
-                        <!--
-                        {% if article_details.cover_photo %}
-                            <div class="cover_photo" style="padding-bottom: 50px;">
-                                <img src="{{ article_details.cover_photo }}" style="width: 600px;height: 450px; border-radius: 4px; display: block; margin: 0 auto;">
-                            </div>
-                        {% endif %}
-                        -->
                         <div class="content-html" data-content='{{ article_details.content_html }}'>
 
                         </div>
@@ -48,7 +37,7 @@
 
                     <div class="social">
                         <div class="praise_box">
-                            <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">喜欢<i class="iconfont icon-communityiconpraise4"></i><span class="praise_times">{{ article_details.praise_times }}</span></button>
+                            <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">赞<i class="iconfont icon-communityiconpraise4"></i><span class="praise_times">{{ article_details.praise_times }}</span></button>
                         </div>
                         <div class="share-buttons">
                             <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到微博" onclick="openShareWeibo();">
@@ -56,6 +45,9 @@
                             </a>
                             <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到QQ空间" onclick="openShareQQSpace();">
                                 <i class="iconfont icon-qqkongjian"></i>
+                            </a>
+                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到微信" onclick="showQrcode();">
+                                <i class="iconfont icon-wechat"></i>
                             </a>
                         </div>
                     </div>
@@ -162,6 +154,22 @@
 
         </div>
     </div>
+
+    <div class="modal show-qrcode animated" id="show_qrcode" aria-hidden="true" role="dialog" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" data-dismiss="modal" class="close">&times;</button>
+                    <h4 class="modal-title text-center">分享到微信</h4>
+                </div>
+                <div class="modal-body">
+                    <h5>使用微信“扫一扫”打开网页后，点击右上角按钮进行分享</h5>
+                    <div id="qrcode">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
@@ -254,6 +262,19 @@
             openWindom(url)
        }
 	</script>
+
+    <script type="text/javascript">
+        var qrcode = new QRCode(document.getElementById("qrcode"), {
+	        width : 180,
+	        height : 180
+        });
+
+        function showQrcode() {
+	        qrcode.makeCode(article_link);
+            $('#show_qrcode').modal('show')
+        }
+
+    </script>
 
     <!--textarea限制字数-->
     <script type="text/javascript">

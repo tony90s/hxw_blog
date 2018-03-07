@@ -113,7 +113,7 @@
 }
 
 .social {
-    margin-top: 30px;
+    margin: 30px 0 60px;
 }
 
 .social a {
@@ -162,6 +162,38 @@
 
 .social .share-buttons .circle-link .icon-qqkongjian {
     color: #FFC030;
+}
+
+.social .share-buttons .circle-link .icon-wechat {
+    color: #64AB23;
+}
+
+.modal .modal-dialog {
+    position: absolute;
+    top: 20%;
+    left: 40%;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+}
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 600px;
+        margin: 50px auto;
+    }
+}
+
+.show-qrcode .modal-content {
+    width: 360px;
+}
+
+.show-qrcode .modal-body {
+    padding: 20px 60px 20px;
+    text-align: center;
+}
+
+.show-qrcode .modal-body #qrcode {
+    padding: 20px 30px 20px 30px;
 }
 
 /*----------评论区域 begin----------*/
