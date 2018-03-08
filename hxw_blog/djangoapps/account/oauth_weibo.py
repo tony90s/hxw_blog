@@ -146,8 +146,6 @@ def weibo_auth(request):
     redirect_url = reverse('index')
     if 'redirect_url' in request.session:
         redirect_url = request.session['redirect_url']
-    if request.user.is_authenticated():
-        return HttpResponseRedirect(redirect_url)
 
     if 'error' in request.GET or 'code' not in request.GET:
         return HttpResponseRedirect(redirect_url)
