@@ -25,12 +25,14 @@ class OauthLogin(models.Model):
     class TYPE:
         WEIBO = 1
         WECHAT = 2
-        QQ = 3
+        QQ = 3,
+        ALIPAY = 4
 
     TYPE_CHOICES = (
         (TYPE.WEIBO, 'weibo'),
         (TYPE.WECHAT, 'wechat'),
-        (TYPE.QQ, 'qq')
+        (TYPE.QQ, 'qq'),
+        (TYPE.ALIPAY, '支付宝')
     )
     auth_type = models.IntegerField(choices=TYPE_CHOICES, default=TYPE.WEIBO, verbose_name='授权类别')
     user_id = models.IntegerField(db_index=True, verbose_name='用户id')
