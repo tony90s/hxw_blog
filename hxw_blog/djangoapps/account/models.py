@@ -25,7 +25,7 @@ class OauthLogin(models.Model):
     class TYPE:
         WEIBO = 1
         WECHAT = 2
-        QQ = 3,
+        QQ = 3
         ALIPAY = 4
 
     TYPE_CHOICES = (
