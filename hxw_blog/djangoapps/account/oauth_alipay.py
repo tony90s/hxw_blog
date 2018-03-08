@@ -60,7 +60,7 @@ class OauthAlipay(object):
                 complex_keys.append(key)
         for key in complex_keys:
             params[key] = json.dumps(params[key], sort_keys=True).replace(" ", "")
-        return dict(sorted([(k, v) for k, v in params.items()]))
+        return sorted([(k, v) for k, v in params.items()])
 
     def generate_signature(self, unsigned_data):
         with open(self.app_private_key, "rb") as private_key_file:
@@ -103,24 +103,25 @@ class OauthAlipay(object):
         context = {
             'app_id': self.appid,
             'method': 'alipay.system.oauth.token',
-            'format': self.format,
             'charset': self.charset,
             'sign_type': self.sign_type,
             'version': settings.ALIPAY_VERSION,
-            'timestamp': now.strftime("%Y-%m-%d %H:%M:%S")
+            'timestamp': now.strftime("%Y-%m-%d %H:%M:%S"),
+            'grant_type': 'authorization_code',
+            'code': auth_code
         }
         ordered_params = self.ordered_params(context)
-        unsigned_data = parse.urlencode(ordered_params).encode('utf-8')
+        unsigned_data = "&".join("{}={}".format(k, v) for k, v in ordered_params).encode('utf-8')
         sign = self.generate_signature(unsigned_data)
         context['sign'] = sign
-        context['grant_type'] = 'authorization_code'
-        context['code'] = auth_code
         """
         params = parse.urlencode(context).encode('utf-8')
         req = urllib_request.Request(auth_url, data=params)
         page = urllib_request.urlopen(req).read()
         """
+        logger.error(json.dumps(context))
         req = requests.get(auth_url, context)
+        logger.error(req.text)
         data = json.loads(req.text)
         self.access_token = data['alipay_system_oauth_token_response']
         return self.access_token
@@ -131,23 +132,24 @@ class OauthAlipay(object):
         context = {
             'app_id': self.appid,
             'method': 'alipay.user.info.share',
-            'format': self.format,
             'charset': self.charset,
             'sign_type': self.sign_type,
             'version': settings.ALIPAY_VERSION,
-            'timestamp': now.strftime("%Y-%m-%d %H:%M:%S")
+            'timestamp': now.strftime("%Y-%m-%d %H:%M:%S"),
+            'auth_token': self.access_token['access_token']
         }
         ordered_params = self.ordered_params(context)
-        unsigned_data = parse.urlencode(ordered_params).encode('utf-8')
+        unsigned_data = "&".join("{}={}".format(k, v) for k, v in ordered_params).encode('utf-8')
         sign = self.generate_signature(unsigned_data)
         context['sign'] = sign
-        context['auth_token'] = self.access_token['access_token']
         """
         params = parse.urlencode(context)
         req = urllib_request.Request(auth_url, data=params)
         page = urllib_request.urlopen(req).read()
         """
+        logger.error(json.dumps(context))
         req = requests.get(auth_url, context)
+        logger.error(req.text)
         data = json.loads(req.text)
         return data['alipay_user_info_share_response']
 
