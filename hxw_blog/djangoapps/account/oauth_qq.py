@@ -89,9 +89,8 @@ class OauthQQ(object):
         return data
 
     def get_blog_user(self):
-        access_token = self.access_token
-        oauth_access_token = access_token['access_token']
-        oauth_expires = int(access_token['expires_in'])
+        oauth_access_token = self.access_token['access_token']
+        oauth_expires = int(self.access_token['expires_in'])
 
         oauth_logins = OauthLogin.objects.using('read').filter(auth_type=OauthLogin.TYPE.QQ,
                                                                oauth_access_token=oauth_access_token)
