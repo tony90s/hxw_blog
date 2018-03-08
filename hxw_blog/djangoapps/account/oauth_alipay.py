@@ -113,15 +113,8 @@ class OauthAlipay(object):
         ordered_params = self.ordered_params(context)
         unsigned_data = "&".join("{}={}".format(k, v) for k, v in ordered_params).encode('utf-8')
         sign = self.generate_signature(unsigned_data)
-        context['sign'] = sign
-        """
-        params = parse.urlencode(context).encode('utf-8')
-        req = urllib_request.Request(auth_url, data=params)
-        page = urllib_request.urlopen(req).read()
-        """
-        logger.error(json.dumps(context))
+        context['sign'] = sign.decode('utf-8')
         req = requests.get(auth_url, context)
-        logger.error(req.text)
         data = json.loads(req.text)
         self.access_token = data['alipay_system_oauth_token_response']
         return self.access_token
@@ -141,15 +134,8 @@ class OauthAlipay(object):
         ordered_params = self.ordered_params(context)
         unsigned_data = "&".join("{}={}".format(k, v) for k, v in ordered_params).encode('utf-8')
         sign = self.generate_signature(unsigned_data)
-        context['sign'] = sign
-        """
-        params = parse.urlencode(context)
-        req = urllib_request.Request(auth_url, data=params)
-        page = urllib_request.urlopen(req).read()
-        """
-        logger.error(json.dumps(context))
+        context['sign'] = sign.decode('utf-8')
         req = requests.get(auth_url, context)
-        logger.error(req.text)
         data = json.loads(req.text)
         return data['alipay_user_info_share_response']
 
@@ -174,11 +160,11 @@ class OauthAlipay(object):
                 user = User.objects.using('read').get(id=user_id)
             else:
                 user_info = self.get_alipay_info()
-                nick_name = user_info['nick_name']
-                gender = 'm' if user_info['gender'] == 'M' else 'f'
+                nick_name = user_info['nick_name'] if 'nick_name' in user_info else '支付宝用户'
+                gender = user_info['gender'].lower() if 'gender' in user_info else 'm'
 
                 avatar_img = None
-                avatar = user_info['avatar']
+                avatar = user_info['avatar'] if 'avatar' in user_info else None
                 if avatar:
                     req = requests.get(avatar)
                     file_content = ContentFile(req.content)
