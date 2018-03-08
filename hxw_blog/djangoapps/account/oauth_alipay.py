@@ -31,12 +31,12 @@ logger = logging.getLogger('account.oauth_alipay')
 
 
 class OauthAlipay(object):
-    def __init__(self, alipay_url, appid, app_private_key, format, chatset, alipay_public_key, sign_type, redirect_uri):
+    def __init__(self, alipay_url, appid, app_private_key, format, charset, alipay_public_key, sign_type, redirect_uri):
         self.alipay_url = alipay_url
         self.appid = appid
         self.app_private_key = app_private_key
         self.format = format
-        self.chatset = chatset
+        self.charset = charset
         self.alipay_public_key = alipay_public_key
         self.sign_type = sign_type
         self.redirect_uri = redirect_uri
@@ -104,7 +104,7 @@ class OauthAlipay(object):
             'app_id': self.appid,
             'method': 'alipay.system.oauth.token',
             'format': self.format,
-            'charset': self.chatset,
+            'charset': self.charset,
             'sign_type': self.sign_type,
             'version': settings.ALIPAY_VERSION,
             'timestamp': now.strftime("%Y-%m-%d %H:%M:%S")
@@ -115,10 +115,13 @@ class OauthAlipay(object):
         context['sign'] = sign
         context['grant_type'] = 'authorization_code'
         context['code'] = auth_code
+        """
         params = parse.urlencode(context).encode('utf-8')
         req = urllib_request.Request(auth_url, data=params)
-        page = urllib_request.urlopen(req).read().decode('utf-8')
-        data = json.loads(page)
+        page = urllib_request.urlopen(req).read()
+        """
+        req = requests.get(auth_url, context)
+        data = json.loads(req.text)
         self.access_token = data['alipay_system_oauth_token_response']
         return self.access_token
 
@@ -129,7 +132,7 @@ class OauthAlipay(object):
             'app_id': self.appid,
             'method': 'alipay.user.info.share',
             'format': self.format,
-            'charset': self.chatset,
+            'charset': self.charset,
             'sign_type': self.sign_type,
             'version': settings.ALIPAY_VERSION,
             'timestamp': now.strftime("%Y-%m-%d %H:%M:%S")
@@ -139,10 +142,13 @@ class OauthAlipay(object):
         sign = self.generate_signature(unsigned_data)
         context['sign'] = sign
         context['auth_token'] = self.access_token['access_token']
-        params = parse.urlencode(context).encode('utf-8')
+        """
+        params = parse.urlencode(context)
         req = urllib_request.Request(auth_url, data=params)
-        page = urllib_request.urlopen(req).read().decode('utf-8')
-        data = json.loads(page)
+        page = urllib_request.urlopen(req).read()
+        """
+        req = requests.get(auth_url, context)
+        data = json.loads(req.text)
         return data['alipay_user_info_share_response']
 
     def get_blog_user(self):
