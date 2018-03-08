@@ -72,5 +72,10 @@ $(function () {
     $(".social-login .qq").click(function (e) {
         var redirect_url = this.dataset.next;
         window.location.href = qq_login_url + '?redirect_url=' + redirect_url;
+    });
+
+    $(".social-login .alipay").click(function (e) {
+        var redirect_url = this.dataset.next;
+        window.location.href = alipay_login_url + '?redirect_url=' + redirect_url;
     })
 });

@@ -60,6 +60,13 @@
                         <img class="qq-logo" src="/static/images/socialization_logo/qq.png">
                     </a>
                 </li>
+
+                <li>
+                    <a class="alipay" data-toggle="tooltip" href="javascript:void(0)" data-original-title="支付宝登录"
+                       data-next="{{ next }}">
+                        <img class="alipay-logo" src="/static/images/socialization_logo/alipay.png">
+                    </a>
+                </li>
             </ul>
         </div>
     </form>
@@ -69,7 +76,8 @@
     var login_url = '{% url 'account:login' %}';
     var register_url = '{% url 'account:register' %}';
     var weibo_login_url = '{% url 'account:social_weibo_login' %}';
-    var qq_login_url = '{% url 'account:social_qq_login' %}'
+    var qq_login_url = '{% url 'account:social_qq_login' %}';
+    var alipay_login_url = '{% url 'account:social_alipay_login' %}';
 </script>
 
 <script type="text/javascript">
