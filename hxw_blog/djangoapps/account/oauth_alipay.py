@@ -160,8 +160,9 @@ class OauthAlipay(object):
                 user = User.objects.using('read').get(id=user_id)
             else:
                 user_info = self.get_alipay_info()
-                nick_name = user_info['nick_name'] if 'nick_name' in user_info else '支付宝用户'
-                gender = user_info['gender'].lower() if 'gender' in user_info else 'm'
+                nick_name = user_info['nick_name'] if 'nick_name' in user_info else '支付宝用户{random_str}'.format(
+                    random_str=generate_verification_code(3))
+                gender = user_info['gender'].lower() if 'gender' in user_info else UserProfile.GENDER.MALE
 
                 avatar_img = None
                 avatar = user_info['avatar'] if 'avatar' in user_info else None

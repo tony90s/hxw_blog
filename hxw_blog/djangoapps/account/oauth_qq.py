@@ -108,11 +108,20 @@ class OauthQQ(object):
                 user = User.objects.using('read').get(id=user_id)
             else:
                 user_info = self.get_qq_info()
-                nick_name = user_info['nickname']
-                gender = 'm' if user_info['gender'] == '男' else 'f'
+                nick_name = user_info['nickname'] if 'nickname' in user_info else 'QQ用户{random_str}'.format(
+                    random_str=generate_verification_code(3))
+                if 'gender' in user_info:
+                    gender = UserProfile.GENDER.MALE if user_info['gender'] == '男' else UserProfile.GENDER.FEMALE
+                else:
+                    gender = UserProfile.GENDER.MALE
 
                 avatar_img = None
-                avatar = user_info['figureurl_qq_2'] or user_info['figureurl_qq_1']
+                if 'figureurl_qq_2' in user_info:
+                    avatar = user_info['figureurl_qq_2']
+                elif 'figureurl_qq_1' in user_info:
+                    avatar = user_info['figureurl_qq_1']
+                else:
+                    avatar = None
                 if avatar:
                     req = requests.get(avatar)
                     file_content = ContentFile(req.content)

@@ -80,11 +80,17 @@ class OauthWeibo(object):
                 user = User.objects.using('read').get(id=user_id)
             else:
                 user_info = self.get_weibo_info()
-                nick_name = user_info['screen_name']
-                gender = user_info['gender']
+                nick_name = user_info['screen_name'] if 'screen_name' in user_info else '微博用户{random_str}'.format(
+                    random_str=generate_verification_code(3))
+                gender = user_info['gender'] if 'gender' in user_info else UserProfile.GENDER.MALE
 
                 avatar_img = None
-                avatar = user_info['avatar_large']
+                if 'avatar_large' in user_info:
+                    avatar = user_info['avatar_large']
+                elif 'profile_image_url' in user_info:
+                    avatar = user_info['profile_image_url']
+                else:
+                    avatar = None
                 if avatar:
                     req = requests.get(avatar)
                     file_content = ContentFile(req.content)

@@ -2,5 +2,5 @@ import string
 import random
 
 
-def generate_verification_code():
-    return ''.join(random.sample(string.digits, 6))
+def generate_verification_code(length=6):
+    return ''.join(random.sample(string.digits, length))
