@@ -11,13 +11,16 @@ from account.views import (
     message_comments,
     user_unified_comment_info_pagination,
     message_praises,
-    user_praises_info_pagination
+    user_praises_info_pagination,
+    weibo_login,
+    weibo_auth,
+    qq_login,
+    qq_login_done,
+    wechat_login,
+    wechat_login_done,
+    alipay_login,
+    alipay_login_done
 )
-
-from account.oauth_weibo import weibo_login, weibo_auth
-from account.oauth_qq import qq_login, qq_login_done
-from account.oauth_wechat import wechat_login, wechat_login_done
-from account.oauth_alipay import alipay_login, alipay_login_done
 
 urlpatterns = [
     url(r'^register$', RegisterView.as_view(), name='register'),

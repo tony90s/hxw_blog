@@ -1,22 +1,14 @@
 import re
-import logging
 import json
 import requests
 from urllib import request as urllib_request, parse
 
-from django.conf import settings
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from django.contrib.auth import logout, authenticate, login
 from django.core.files.base import ContentFile
 
 from account.models import UserProfile, OauthLogin
-from account.cookies import set_logged_in_cookies
 from utils import generate_verification_code
 from utils.file_handling import get_thumbnail
-
-logger = logging.getLogger('account.oauth_qq')
 
 
 class OauthQQ(object):
@@ -160,46 +152,3 @@ class OauthQQ(object):
         oauth_login.oauth_expires = oauth_expires
         oauth_login.save(using='write')
         return user
-
-
-def get_referer_url(request):
-    referer_url = request.META.get('HTTP_REFERER', reverse('index'))
-    host = request.META['HTTP_HOST']
-    if referer_url.startswith('http') and host not in referer_url:
-        referer_url = reverse('index')
-    return referer_url
-
-
-def qq_login(request):
-    redirect_url = request.GET.get('redirect_url', reverse('index'))
-    oauth_qq = OauthQQ(settings.QQ_APP_KEY, settings.QQ_APP_SECRET, settings.QQ_LOGIN_REDIRECT_URI)
-    qq_auth_url = oauth_qq.get_auth_url()
-    logger.info(qq_auth_url)
-    request.session['redirect_url'] = redirect_url
-    return HttpResponseRedirect(qq_auth_url)
-
-
-def qq_login_done(request):
-    redirect_url = reverse('index')
-    if 'redirect_url' in request.session:
-        redirect_url = request.session['redirect_url']
-
-    if 'error' in request.GET or 'code' not in request.GET:
-        return HttpResponseRedirect(redirect_url)
-
-    code = request.GET.get('code')
-    oauth_qq = OauthQQ(settings.QQ_APP_KEY, settings.QQ_APP_SECRET, settings.QQ_LOGIN_REDIRECT_URI)
-
-    try:
-        access_token = oauth_qq.get_access_token(code)
-        open_id = oauth_qq.get_openid()
-        user = oauth_qq.get_blog_user()
-
-        login(request, user)
-        request.session.set_expiry(604800)
-        response = HttpResponseRedirect(redirect_url)
-        response = set_logged_in_cookies(request, response, user)
-        return response
-    except Exception as e:
-        logger.error(e)
-        return HttpResponseRedirect(redirect_url)
