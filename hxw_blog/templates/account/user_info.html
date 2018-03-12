@@ -32,25 +32,14 @@
                             <div class="form-group">
                                 <label for="gender" class="col-sm-2 control-label">性别</label>
                                 <div class="col-sm-10">
-                                    <select class="form-control" id="gender" name="gender">
-                                        <option value="m"
-                                                {% ifequal user.profile.gender 'm' %}selected{% endifequal %}>男
-                                        </option>
-                                        <option value="f"
-                                                {% ifequal user.profile.gender 'f' %}selected{% endifequal %}>女
-                                        </option>
-                                    </select>
+                                    <label class="radio-inline">
+                                        <input type="radio" value="m" name="gender" {% ifequal user.profile.gender 'm' %}checked{% endifequal %}>男
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" value="f" name="gender" {% ifequal user.profile.gender 'f' %}checked{% endifequal %}>女
+                                    </label>
                                 </div>
                             </div>
-                            <!--
-                            <div class="form-group">
-                                <label for="mobile" class="col-sm-2 control-label">手机</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="mobile" name="mobile"
-                                           value="{{ user.profile.mobile }}" placeholder="手机号码">
-                                </div>
-                            </div>
-                            -->
                             <div class="form-group">
                                 <label for="bio" class="col-sm-2 control-label">简介</label>
                                 <div class="col-sm-10">
@@ -372,7 +361,7 @@
             btn_update_user_info.click(function (e) {
                 var form = $(this).parent('div').parent('div').parent('form');
                 var username = form.find('[name="username"]').val();
-                var gender = form.find('[name="gender"]').val();
+                var gender = form.find('[name="gender"]:checked').val();
                 var bio = form.find('[name="bio"]').val();
 
                 var reg_username = /^[\w_\u4e00-\u9fa5]{2,32}$/;
