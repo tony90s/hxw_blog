@@ -73,11 +73,15 @@ class OauthWechat(object):
                 user = User.objects.using('read').get(id=user_id)
             else:
                 user_info = self.get_wechat_info()
-                nickname = user_info['nickname']
-                gender = 'm' if user_info['sex'] == 1 else 'f'
+                nickname = user_info['nickname'] if 'nickname' in user_info else '微信用户{random_str}'.format(
+                    random_str=generate_verification_code(3))
+                if 'sex' in user_info:
+                    gender = UserProfile.GENDER.MALE if user_info['sex'] == 1 else UserProfile.GENDER.FEMALE
+                else:
+                    gender = UserProfile.GENDER.MALE
 
                 avatar_img = None
-                avatar = user_info['headimgurl']
+                avatar = user_info['headimgurl'] if 'headimgurl' in user_info else None
                 if avatar:
                     req = requests.get(avatar)
                     file_content = ContentFile(req.content)
