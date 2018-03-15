@@ -2,17 +2,18 @@
 {% block title %}<title>LOVEITERS{% ifnotequal article_type.value 0 %} | {{ article_type.display_name }}{% endifnotequal %}</title>{% endblock %}
 {% block extra_header %}
     <link href="/static/css/index.css" rel="stylesheet">
-
+    <!--
     <link rel="stylesheet" href="/static/css/slideshows.css" />
     <script src="/static/js/jquery.cycle.all.js"></script>
+    -->
     <script src="/static/js/jquery.easing.1.3.js"></script>
     <script src="/static/js/time_desc.js"></script>
 {% endblock %}
 {% block content %}
     <div class="container index">
         <div class="row">
-            <div class="col-sm-8">
-                {% if hot_articles_briefs %}
+            <div class="col-sm-6 col-sm-offset-3 main">
+                <!--
                 <div class="row">
                     <div class="ss2_wrapper">
 			            <a href="#" class="slideshow_prev"><span>Previous</span></a>
@@ -33,23 +34,12 @@
 				            </div>
                         {% endfor %}
 			            </div>
-		            </div><!-- .ss2_wrapper -->
-                </div>
-                {% endif %}
-                <div class="row">
-                    <div class="col-sm-12 main">
-                        <div class="split-line"></div>
-                        <div id="list-container">
-                            <ul class="note-list">
-                                {% for article_summarization in articles_summarization%}
-                                <li id="article-{{ article_summarization.article_id }}" data-article_id="{{ article_summarization.article_id }}" {% if article_summarization.cover_photo %}class="with-img"{% endif %}>
-                                    {% if article_summarization.cover_photo %}
-                                    <a class="wrap-img" href="{% url 'article:details' article_summarization.article_id %}" target="_blank">
-                                        <img class="img-blur"
-                                             src="{{ article_summarization.cover_photo }}"
-                                             alt="{{ article_summarization.title }}"/>
-                                    </a>
-                                    {% endif %}
+		            </div>
+                </div>-->
+                    <div id="list-container">
+                        <ul class="note-list">
+                            {% for article_summarization in articles_summarization%}
+                                <li id="article-{{ article_summarization.article_id }}" data-article_id="{{ article_summarization.article_id }}">
                                     <div class="content">
                                         <div class="author">
                                             <a class="avatar" target="_blank" href="javascript:void(0)">
@@ -60,10 +50,17 @@
                                                 <span class="time" data-release_at="{{ article_summarization.release_time }}"></span>
                                             </div>
                                         </div>
-                                        <a class="title" target="_blank" href="{% url 'article:details' article_summarization.article_id %}">{{ article_summarization.title }}</a>
-                                        <p class="abstract">
-                                            {{ article_summarization.abstract }}
-                                        </p>
+                                        <div{% if article_summarization.cover_photo %} class="with-img"{% endif %}>
+                                            {% if article_summarization.cover_photo %}
+                                            <a class="wrap-img" href="{% url 'article:details' article_summarization.article_id %}" target="_blank">
+                                                <img class="img-blur" src="{{ article_summarization.cover_photo }}" alt="{{ article_summarization.title }}"/>
+                                            </a>
+                                            {% endif %}
+                                            <a class="title" target="_blank" href="{% url 'article:details' article_summarization.article_id %}">{{ article_summarization.title }}</a>
+                                            <p class="abstract">
+                                                {{ article_summarization.abstract }}
+                                            </p>
+                                        </div>
                                         <div class="meta">
                                             <a class="collection-tag" target="_blank" href="{% url 'article:article_category' article_summarization.type.value %}">{{ article_summarization.type.display_name }}</a>
                                             <a target="_blank" href="{% url 'article:details' article_summarization.article_id %}">
@@ -76,22 +73,16 @@
                                         </div>
                                     </div>
                                 </li>
-                                {% endfor %}
-                            </ul>
-                            <div class="read-more text-center">
-                                <input type="hidden" value="{{ article_type.value }}" id="article_type">
-                                <input type="hidden" value="{{ page_size }}" id="page_size">
-                                <input type="hidden" value="{{ has_next }}" id="has_next">
-                                <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
-                                <p class="text-center not-more-content">更多内容，敬请期待...</p>
-                            </div>
+                            {% endfor %}
+                        </ul>
+                        <div class="read-more text-center">
+                            <input type="hidden" value="{{ article_type.value }}" id="article_type">
+                            <input type="hidden" value="{{ page_size }}" id="page_size">
+                            <input type="hidden" value="{{ has_next }}" id="has_next">
+                            <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
+                            <p class="text-center not-more-content">更多内容，敬请期待...</p>
                         </div>
                     </div>
-                </div>
-            </div><!--/col-sm-8-->
-
-            <div class="col-sm-2 col-sm-offset-2">
-
             </div>
 
         </div><!--/row-->
@@ -99,6 +90,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    <!--
     <script>
         $('#slideshow_2').cycle({
             fx: 'fade',
@@ -127,6 +119,7 @@
 		    $('.ss2_wrapper .slideshow_next').stop(true, true).animate({ right:'-40px'}, 200);
         });
     </script>
+    -->
 
     <!--发布时间描述-->
     <script>
@@ -175,16 +168,8 @@
                                     var release_time = array['release_time'];
                                     var page_views = array['page_views'];
                                     var author = array['author'];
-                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '"';
-                                    if (cover_photo) {
-                                        str += 'class="with-img">' +
-                                         '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
-                                         '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
-                                         '</a>'
-                                    }
-                                    else {
-                                        str += '>'
-                                    }
+                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
+
                                     str += '<div class="content">' +
                                         '<div class="author">' +
                                             '<a class="avatar" target="_blank" href="javascript:void(0)">' +
@@ -195,8 +180,21 @@
                                                 '<span class="time" data-release_at="' + release_time + '">' + '</span>' +
                                             '</div>' +
                                         '</div>' +
-                                        '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
+                                        '<div';
+                                    if (cover_photo) {
+                                        str += ' class="with-img">'
+                                    }
+                                    else {
+                                        str += '>'
+                                    }
+                                    if (cover_photo) {
+                                        str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                                '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                                '</a>';
+                                    }
+                                    str += '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
+                                        '</div>' +
                                         '<div class="meta">' +
                                             '<a class="collection-tag" target="_blank" href="/article/category/' + type['value'] +
                                             '">' + type['display_name'] + '</a>' +

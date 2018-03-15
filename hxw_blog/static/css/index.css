@@ -100,34 +100,31 @@ a {
 .note-list li {
     position: relative;
     width: 100%;
-    margin: 0 0 17px;
-    padding: 0 2px 17px 0;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 20px;
+    border: 1px solid #f0f0f0;
+    margin-bottom: -1px;
     word-wrap: break-word
 }
 
-.note-list li.with-img {
-    min-height: 140px
+.note-list li .with-img {
+    position: relative;
+    padding-left: 160px;
+    min-height: 120px
 }
 
-.note-list .with-img .wrap-img {
+.note-list li .with-img .wrap-img {
     position: absolute;
-    top: 50%;
-    margin-top: -68px;
-    right: 0;
+    top: 0;
+    left: 0;
     width: 150px;
-    height: 120px
+    height: 120px;
 }
 
-.note-list .with-img .wrap-img img {
+.note-list li .with-img .wrap-img img {
     width: 100%;
     height: 100%;
     border-radius: 4px;
     border: 1px solid #f0f0f0
-}
-
-.note-list .with-img > div {
-    padding-right: 160px
 }
 
 .note-list .content .cancel {
@@ -180,8 +177,8 @@ a {
 
 .note-list .author .dropdown {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 10px;
+    right: 10px;
 }
 
 .note-list .author .dropdown-menu {
@@ -405,19 +402,14 @@ a {
 }
 
 @media (max-width: 1080px) {
-    .note-list li.with-img {
-        min-height: 112px
+    .note-list li .with-img {
+        min-height: 112px;
+        padding-left: 135px;
     }
 
-    .note-list .with-img .wrap-img {
-        margin-top: -58px;
-        bottom: 40px;
+    .note-list li .with-img .wrap-img {
         width: 125px;
         height: 100px
-    }
-
-    .note-list .with-img > div {
-        padding-right: 135px
     }
 }
 
@@ -549,10 +541,6 @@ a {
     -ms-transition: .1s ease-in
 }
 
-.index .main {
-    padding: 30px 10px 0;
-}
-
 .index .main .split-line {
     margin: -5px 0 15px;
     border-top: 1px solid #f0f0f0
@@ -603,4 +591,8 @@ a {
 
 .index .main .load-more:hover {
     background-color: #9b9b9b
+}
+
+.sidebar-box {
+    max-width: 165px;
 }

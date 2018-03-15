@@ -137,15 +137,16 @@ def article_category_index_views(request, article_type):
     articles = all_articles.filter(Q(type=article_type)).order_by('-id')
     articles_summarization = [article.get_summarization() for article in
                               articles[page_size * (page_index - 1):page_size * page_index]]
+    """
     # get hot articles brief
     now = timezone.now()
     hot_articles = sorted(all_articles.filter(Q(release_at__gte=(now + timedelta(days=-60)))),
                           key=lambda article: article.praise_times, reverse=True)[:5]
     hot_articles_briefs = [article.get_brief() for article in hot_articles]
+    """
     context = {
         'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)},
         'articles_summarization': articles_summarization,
-        'hot_articles_briefs': hot_articles_briefs,
         'page_size': page_size,
         'has_next': len(articles) > page_size
     }

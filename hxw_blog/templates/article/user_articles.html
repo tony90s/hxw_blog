@@ -2,37 +2,46 @@
 {% block title %}<title>{{ author_data.username }}</title>{% endblock %}
 {% block extra_header %}
     <link href="/static/css/index.css" rel="stylesheet">
+    <link href="/static/css/article/author_info.css" rel="stylesheet">
     <script src="/static/js/time_desc.js"></script>
 {% endblock %}
 {% block content %}
     <div class="container index">
         <div class="row">
-            <div class="col-sm-8 main">
-                <div class="author-info">
-                        <a class="avatar" target="_blank" href="javascript:void(0)">
-                            <img src="{{ author_data.avatar }}" alt="{{ author_data.username }}"/>
+            <div class="col-sm-3">
+                <div class="user-summation">
+                    <div class="background"></div>
+                    <div class="content">
+                        <a href="javascript:void(0)">
+                            <img class="user-avatar" src="{{ author_data.avatar }}" alt="{{ author_data.username }}">
                         </a>
-                        <div class="info">
-                            <a class="nickname" target="_blank" href="javascript:void(0)">{{ author_data.username }}</a>
-                            <span>个人简介： {{ author_data.bio }}</span>
-                            <div class="meta">
-                                <span><i class="iconfont icon-article"></i> {{ article_count }}</span>
-                                <span><i class="iconfont icon-like"></i> {{ praises_count }}</span>
-                            </div>
-                        </div>
+                        <h5 class="user-name">
+                            <a class="link" href="javascript:void(0)">{{ author_data.username }}</a>
+                        </h5>
+                        <p class="user-bio">{{ author_data.bio }}</p>
+                        <ul class="meta">
+                            <li class="list-item">
+                                <a href="javascript:void(0)" class="link">
+                                文章
+                                <p class="number">{{ article_count }}</p>
+                                </a>
+                            </li>
+
+                            <li class="list-item">
+                                <a href="javascript:void(0)" class="link">
+                                赞
+                                <p class="number">{{ praises_count }}</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="split-line"></div>
+            </div>
+            <div class="col-sm-6 main">
                 <div id="list-container">
                     <ul class="note-list">
                         {% for article in articles_info %}
-                                <li id="article-{{ article.article_id }}" data-article_id="{{ article.article_id }}" class="note{% if article.cover_photo %} with-img{% endif %}">
-                                    {% if article.cover_photo %}
-                                    <a class="wrap-img" href="{% url 'article:details' article.article_id %}" target="_blank">
-                                        <img class="img-blur"
-                                             src="{{ article.cover_photo }}"
-                                             alt="{{ article.title }}"/>
-                                    </a>
-                                    {% endif %}
+                                <li id="article-{{ article.article_id }}" data-article_id="{{ article.article_id }}" class="note">
                                     <div class="content">
                                         <div class="author">
                                             <a class="avatar" target="_blank" href="javascript:void(0)">
@@ -62,10 +71,15 @@
                                             </div>
                                             {% endif %}
                                         </div>
-                                        <a class="title" target="_blank" href="{% url 'article:details' article.article_id %}">{{ article.title }}</a>
-                                        <p class="abstract">
-                                            {{ article.abstract }}
-                                        </p>
+                                        <div{% if article.cover_photo %} class="with-img"{% endif %}>
+                                            {% if article.cover_photo %}
+                                            <a class="wrap-img" href="{% url 'article:details' article.article_id %}" target="_blank">
+                                                <img class="img-blur" src="{{ article.cover_photo }}" alt="{{ article.title }}"/>
+                                            </a>
+                                            {% endif %}
+                                            <a class="title" target="_blank" href="{% url 'article:details' article.article_id %}">{{ article.title }}</a>
+                                            <p class="abstract">{{ article.abstract }}</p>
+                                        </div>
                                         <div class="meta">
                                             <a class="collection-tag" target="_blank" href="{% url 'article:article_category' article.type.value %}">{{ article.type.display_name }}</a>
                                             <a target="_blank" href="{% url 'article:details' article.article_id %}">
@@ -91,7 +105,7 @@
             </div>
 
             {% if user.is_authenticated and user.id == author_data.user_id %}
-            <div class="col-sm-2 col-sm-offset-2">
+            <div class="col-sm-3">
                 <div class="sidebar-box">
                     <div class="list-group">
                         <a class="list-group-item active" href="{% url "article:user_articles" user.id %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
@@ -190,16 +204,7 @@
                                     var release_time = array['release_time'];
                                     var page_views = array['page_views'];
                                     var author = array['author'];
-                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '" class="note';
-                                    if (cover_photo) {
-                                        str += ' with-img">' +
-                                         '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
-                                         '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
-                                         '</a>'
-                                    }
-                                    else {
-                                        str += '">';
-                                    }
+                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '" class="note">';
                                     str += '<div class="content">' +
                                         '<div class="author">' +
                                             '<a class="avatar" target="_blank" href="javascript:void(0)">' +
@@ -229,10 +234,21 @@
                                                 '</ul>' +
                                             '</div>';
                                     }
-
-                                    str += '</div>' +
-                                        '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
+                                    str += '</div>' + '<div';
+                                    if (cover_photo) {
+                                        str += ' class="with-img">'
+                                    }
+                                    else {
+                                        str += '>'
+                                    }
+                                    if (cover_photo) {
+                                        str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                         '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                         '</a>'
+                                    }
+                                    str +=  '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
+                                        '</div>' +
                                         '<div class="meta">' +
                                             '<a class="collection-tag" target="_blank" href="/article/category/' + type['value'] +
                                             '">' + type['display_name'] + '</a>' +
