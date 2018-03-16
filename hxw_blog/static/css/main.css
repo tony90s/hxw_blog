@@ -250,6 +250,19 @@ label {
     vertical-align: middle;
 }
 
+@media (max-width: 1080px) {
+    .fixed-btn {
+        right: 2%;
+    }
+    .fixed-btn a {
+        padding: 2px 10px;
+    }
+    .fixed-btn i {
+        font-size: 12px;
+    }
+
+}
+
 .iconfont {
     font-family:"iconfont" !important;
     font-size: 18px;
