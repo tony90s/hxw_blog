@@ -37,11 +37,11 @@
                                 <li id="article-{{ draft.article_id }}" data-article_id="{{ draft.article_id }}">
                                     <div class="content">
                                         <div class="author">
-                                            <a class="avatar" target="_blank" href="javascript:void(0)">
+                                            <a class="avatar" target="_blank" href="{% url 'article:user_articles' draft.author.user_id %}">
                                                 <img src="{{ draft.author.avatar }}" alt="{{ draft.author.username }}"/>
                                             </a>
                                             <div class="info">
-                                                <a class="nickname" target="_blank" href="javascript:void(0)">{{ draft.author.username }}</a>
+                                                <a class="nickname" target="_blank" href="{% url 'article:user_articles' draft.author.user_id %}">{{ draft.author.username }}</a>
                                                 <span class="time" data-update_at="{{ draft.update_time }}"></span>
                                             </div>
                                         </div>
@@ -197,11 +197,11 @@
                                     var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
                                     str += '<div class="content">' +
                                         '<div class="author">' +
-                                            '<a class="avatar" target="_blank" href="javascript:void(0)">' +
+                                            '<a class="avatar" target="_blank" href="/article/author/' + author['user_id'] + '">' +
                                                 '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
                                             '</a>' +
                                             '<div class="info">' +
-                                                '<a class="nickname" target="_blank" href="javascript:void(0)">' + author['username'] + '</a>' +
+                                                '<a class="nickname" target="_blank" href="/article/author/' + author['user_id'] + '">' + author['username'] + '</a>' +
                                                 '<span class="time" data-update_at="' + update_time + '">' + '</span>' +
                                             '</div>' +
                                         '</div>' +

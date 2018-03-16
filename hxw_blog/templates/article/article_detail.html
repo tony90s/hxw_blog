@@ -76,10 +76,12 @@
                             {% for comment in  article_details.comments %}
                                 <div class="comment-show-con clearfix" id="comment-{{ comment.comment_id }}">
                                     <div class="comment-show-con-img">
-                                        <img src="{{ comment.commentator.avatar }}" alt="{{ comment.commentator.username }}">
+                                        <a target="_blank" href="{% url 'article:user_articles' comment.commentator.user_id %}">
+                                            <img src="{{ comment.commentator.avatar }}" alt="{{ comment.commentator.username }}">
+                                        </a>
                                     </div>
                                     <div class="pl-text clearfix">
-                                        <a href="javascript:void(0)" class="comment-size-name" data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}</a>
+                                        <a target="_blank" href="{% url 'article:user_articles' comment.commentator.user_id %}" class="comment-size-name" data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}</a>
                                         <span class="comment-time" data-comment_at="{{ comment.comment_at }}"></span>
                                     </div>
                                     <div class="comment-show-con-list clearfix">
@@ -106,11 +108,11 @@
                                             {% for reply in comment.comment_replies %}
                                                 <div class="all-pl-con" id="comment-reply-{{ reply.comment_reply_id }}">
                                                     <div class="pl-text hfpl-text clearfix">
-                                                        <a href="javascript:void(0)" class="comment-size-name">{{ reply.replier.username }}</a>
+                                                        <a target="_blank" href="{% url 'article:user_articles' reply.replier.user_id %}" class="comment-size-name">{{ reply.replier.username }}</a>
                                                         <span class="comment-time" data-comment_at="{{ reply.reply_at }}"></span>
                                                     </div>
                                                     <div class="date-dz">
-                                                        <p class="date-dz-left my-pl-con">回复@{{ reply.receiver.username }}:{{ reply.content }}</p>
+                                                        <p class="date-dz-left my-pl-con">回复@<a href="{% url 'article:user_articles' reply.receiver.user_id %}" class="comment-size-name" target="_blank">{{ reply.receiver.username }}</a>:{{ reply.content }}</p>
                                                         <div class="date-dz-right pull-right comment-pl-block">
                                                             {% if user.is_authenticated %}
                                                                 {% ifequal reply.replier.user_id user.id %}
@@ -336,10 +338,13 @@
                                 var praise_times = json.data.praise_times.toString();
                                 var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
                                         '<div class="comment-show-con-img">' +
+                                        '<a target="_blank" href="/article/author/' + user_id + '">' +
                                         '<img src="' + avatar + '" alt="' + username + '">' +
+                                        '</a>' +
                                         '</div> ' +
                                         '<div class="pl-text clearfix">' +
-                                        '<a href="javascript:void(0)" class="comment-size-name" data-commentator_id="' + user_id +
+                                        '<a target="_blank" href="/article/author/' + user_id +
+                                        '" class="comment-size-name" data-commentator_id="' + user_id +
                                         '">' + username + '</a>' +
                                         '<span class="comment-time" data-comment_at="' + comment_at +
                                         '">' + '</span>' +
@@ -447,15 +452,17 @@
                             var comment_reply_id = json.data.comment_reply_id.toString();
                             var comment_id = json.data.comment_id.toString();
                             var replier_username = json.data.replier.username;
+                            var receiver_user_id = json.data.receiver.user_id.toString();
                             var receiver_username = json.data.receiver.username;
                             var replier_id = json.data.replier.user_id.toString();
                             var reply_at = json.data.reply_at;
                             var reply_content = json.data.content;
                             var praise_times = json.data.praise_times.toString();
-                            var oAllVal = '回复@' + receiver_username + ':';
+                            var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                             var oHtml = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
                                     '<div class="pl-text hfpl-text clearfix">' +
-                                    '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + '</a>' +
+                                    '<a target="_blank" href="/article/author/' + replier_id +
+                                    '" class="comment-size-name">' + replier_username + '</a>' +
                                     '<span class="comment-time" data-comment_at="' + reply_at +
                                     '">' + '</span>' +
                                     '</div>' +
@@ -702,10 +709,12 @@
                                     var comment_replies = array['comment_replies'];
                                     var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
                                         '<div class="comment-show-con-img">' +
+                                        '<a target="_blank" href="/article/author/' + user_id + '">' +
                                         '<img src="' + avatar + '" alt="' + username + '">' +
+                                        '</a>' +
                                         '</div> ' +
                                         '<div class="pl-text clearfix">' +
-                                        '<a href="javascript:void(0)" class="comment-size-name" data-commentator_id="' + user_id +
+                                        '<a target="_blank" href="/article/author/' + user_id +  '" class="comment-size-name" data-commentator_id="' + user_id +
                                         '">' + username + '</a>' +
                                         '<span class="comment-time" data-comment_at="' + comment_at +
                                         '">' + '</span>' +
@@ -733,15 +742,16 @@
                                         var comment_reply_id = reply['comment_reply_id'].toString();
                                         var comment_id = reply['comment_id'].toString();
                                         var replier_username = reply['replier']['username'];
+                                        var receiver_user_id = reply['receiver']['user_id'].toString();
                                         var receiver_username = reply['receiver']['username'];
                                         var replier_id = reply['replier']['user_id'].toString();
                                         var reply_at = reply['reply_at'];
                                         var reply_content = reply['content'];
                                         var praise_times = reply['praise_times'].toString();
-                                        var oAllVal = '回复@' + receiver_username + ':';
+                                        var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                                         var reply_html = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
                                             '<div class="pl-text hfpl-text clearfix">' +
-                                            '<a href="javascript:void(0)" class="comment-size-name">' + replier_username + '</a>' +
+                                            '<a target="_blank" href="/article/author/' + replier_id + '" class="comment-size-name">' + replier_username + '</a>' +
                                             '<span class="comment-time" data-comment_at="' + reply_at +
                                             '">' + '</span>' +
                                             '</div>' +

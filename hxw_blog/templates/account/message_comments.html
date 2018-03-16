@@ -41,15 +41,17 @@
                     {% for comment in unified_comment_info_list %}
                     <div class="comment-show-con clearfix" data-comment_reply_id="{{ comment.comment_reply_id }}" data-comment_id="{{ comment.comment_id }}" data-is_viewed="{{ comment.is_viewed }}">
                         <div class="comment-show-con-img">
-                            <img src="{{ comment.replier.avatar }}" alt="{{ comment.replier.username }}">
+                            <a target="_blank" href="{% url 'article:user_articles' comment.replier.user_id %}">
+                                <img src="{{ comment.replier.avatar }}" alt="{{ comment.replier.username }}">
+                            </a>
                         </div>
                         <div class="pl-text clearfix">
-                            <a href="javascript:void(0)" class="comment-size-name" data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>
+                            <a target="_blank" href="{% url 'article:user_articles' comment.replier.user_id %}" class="comment-size-name" data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>
                             <span class="comment-time" data-reply_at="{{ comment.reply_at }}"></span>
                         </div>
                         <div class="comment-show-con-list clearfix">
                             <div class="date-dz">
-                                <p class="date-dz-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</p>
+                                <p class="date-dz-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="{% url 'article:user_articles' comment.receiver.user_id %}" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</p>
                                 <div {% if comment.article_info.cover_photo %}class="article with-img"{% else %}class="article"{% endif %}>
                                     {% if comment.article_info.cover_photo %}
                                     <a class="wrap-img" href="{% url 'article:details' comment.article_info.article_id %}" target="_blank">
@@ -365,10 +367,12 @@
                                             '" data-is_viewed="' + is_viewed +
                                             '">';
                                     str += '<div class="comment-show-con-img">' +
+                                            '<a target="_blank" href="/article/author/' + replier_user_id + '">' +
                                                 '<img src="' + replier_avatar + '" alt="' + replier_username + '">' +
+                                            '</a>' +
                                             '</div>'+
                                             '<div class="pl-text clearfix">' +
-                                            '<a href="javascript:void(0)" class="comment-size-name"' +
+                                            '<a target="_blank" href="/article/author/' + replier_user_id + '" class="comment-size-name"' +
                                              'data-replier_id="' + replier_user_id +
                                             '">' + replier_username + '</a>' +
                                             '<span class="comment-time" data-reply_at="' + reply_at +
@@ -378,7 +382,7 @@
                                             '<div class="date-dz">' +
                                             '<p class="date-dz-left my-pl-con">';
                                     if (receiver_user_id >0) {
-                                        str += '回复@<a href="javascript:void(0)" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
+                                        str += '回复@<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                                     }
                                     str += content + '</p>';
                                     str += '<div class="article';
