@@ -216,7 +216,7 @@
 }
 
 .show-bind-email .modal-content {
-    width: 380px;
+    width: 400px;
 }
 
 .show-bind-email .modal-body {
@@ -236,7 +236,7 @@
 
 @media (min-width: 768px) {
     .modal-dialog {
-        width: 380px;
+        width: 400px;
         margin: 100px auto;
     }
 }
