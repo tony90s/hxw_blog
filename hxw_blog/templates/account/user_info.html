@@ -33,18 +33,35 @@
                                 <label for="gender" class="col-sm-2 control-label">性别</label>
                                 <div class="col-sm-10">
                                     <label class="radio-inline">
-                                        <input type="radio" value="m" name="gender" {% ifequal user.profile.gender 'm' %}checked{% endifequal %}>男
+                                        <input type="radio" value="m" name="gender"
+                                               {% ifequal user.profile.gender 'm' %}checked{% endifequal %}>男
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" value="f" name="gender" {% ifequal user.profile.gender 'f' %}checked{% endifequal %}>女
+                                        <input type="radio" value="f" name="gender"
+                                               {% ifequal user.profile.gender 'f' %}checked{% endifequal %}>女
                                     </label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="bio" class="col-sm-2 control-label">简介</label>
                                 <div class="col-sm-10">
-                            <textarea id="bio" name="bio" class="form-control" rows="5" maxlength="120"
-                                      placeholder="简介">{{ user.profile.bio }}</textarea>
+                                    <textarea id="bio" name="bio" class="form-control" rows="5" maxlength="120"
+                                              placeholder="简介">{{ user.profile.bio }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="col-sm-2 control-label">邮箱</label>
+                                <div class="col-sm-10">
+                                    <span>{{ email_display }}</span>
+                                    {% if user.email %}
+                                        <button type="button" id="change_email" class="btn btn-info pull-right"
+                                                data-toggle="modal" data-target="#bind_or_change_email">修改邮箱
+                                        </button>
+                                    {% else %}
+                                        <button type="button" id="bind_email" class="btn btn-success pull-right"
+                                                data-toggle="modal" data-target="#bind_or_change_email">绑定邮箱
+                                        </button>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -54,7 +71,6 @@
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
             <div class="col-sm-2 col-sm-offset-2">
@@ -197,6 +213,52 @@
                         <button class="btn btn-primary btn-block" id="btn_update_password" type="button">确认</button>
                         <div class="alert alert-warning fade" id="warning_msg"></div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bind_or_change_email" class="modal show-bind-email fade" aria-hidden="true" role="dialog" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    <h4 class="modal-title text-center">绑定/修改邮箱</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="step-1">
+                        <div class="form-group">
+                            <input type="text" name="email" class="form-control" placeholder="请输入邮箱">
+                        </div>
+                        <button class="btn btn-primary btn-block" id="check_email" type="button" data-bind_email="">
+                            下一步
+                        </button>
+                    </div>
+
+                    <div class="step-2 hide">
+                        <div class="form-group has-feedback">
+                            <input type="text" name="verification_code" class="form-control verification-code"
+                                   placeholder="请输入验证码">
+                            <a class="send-verification-code" href="javascript:void(0)">获取验证码</a>
+                        </div>
+                        <div class="form-group has-feedback">
+                            <input type="password" name="password" class="form-control" minlength="6" maxlength="32"
+                                   placeholder="请输入6-32位密码">
+                            <span class="iconfont icon-eye-close form-control-feedback"></span>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="bind_email_btn" type="button">确定</button>
+                        <p class="show-msg"></p>
+                    </div>
+
+                    <div class="step-3 hide">
+                        <div class="form-group has-feedback">
+                            <input type="text" name="verification_code" class="form-control verification-code"
+                                   placeholder="请输入验证码">
+                            <a class="send-verification-code" href="javascript:void(0)">获取验证码</a>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="change_email_btn" type="button">确定</button>
+                        <p class="show-msg"></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -395,5 +457,243 @@
             });
 
         });
+    </script>
+
+    <script>
+        $(function () {
+            var COUNTDOWN_SECOND = 60;
+
+            function moveTo(step_index) {
+                var step_1 = $("#bind_or_change_email .step-1");
+                var step_2 = $("#bind_or_change_email .step-2");
+                var step_3 = $("#bind_or_change_email .step-3");
+                if (step_index == 1) {
+                    step_1.removeClass('hide');
+                    step_2.addClass('hide');
+                    step_3.addClass('hide');
+                }
+                else if (step_index == 2) {
+                    step_2.removeClass('hide');
+                    step_1.addClass('hide');
+                    step_3.addClass('hide');
+                }
+                else if (step_index == 3) {
+                    step_3.removeClass('hide');
+                    step_1.addClass('hide');
+                    step_2.addClass('hide');
+                }
+                else {
+                    console.log('step_index 取值只能为1,2,3')
+                }
+            }
+
+            function count_down_clock(btn) {
+                if (COUNTDOWN_SECOND == 0) {
+                    $(btn).css('pointer-events', 'auto');
+                    $(btn).html("获取验证码");
+                    COUNTDOWN_SECOND = 60;
+                } else {
+                    $(btn).css('pointer-events', 'none');
+                    $(btn).html("重新获取(" + COUNTDOWN_SECOND + ")");
+                    COUNTDOWN_SECOND--;
+                    setTimeout(function () {
+                                count_down_clock(btn)
+                            },
+                            1000);
+                }
+            }
+
+            $("#bind_email").click(function (e) {
+                $("#bind_or_change_email .modal-title").html('绑定邮箱');
+                $("#bind_or_change_email input").val('');
+                $("#check_email")[0].dataset.bind_email = 1;
+                moveTo(1)
+            });
+
+            $("#change_email").click(function (e) {
+                $("#bind_or_change_email .modal-title").html('修改邮箱');
+                $("#bind_or_change_email input").val('');
+                $("#check_email")[0].dataset.bind_email = 0;
+                moveTo(1)
+            });
+
+            $("#check_email").click(function (e) {
+                var reg_email = /^([\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
+                var email = $(this).parent('div').find('[name="email"]').val();
+                var bind_or_change_email = parseInt(this.dataset.bind_email);
+                if (email == '') {
+                    layer.msg('请先输入邮箱', {time: 1000});
+                    return false
+                }
+                else if (!reg_email.test(email)) {
+                    layer.msg('邮箱格式有误，请重新输入', {time: 1000});
+                    return false
+                }
+                var index = layer.msg('邮箱验证中...', {
+                    icon: 16,
+                    shade: 0.01,
+                    time: 0
+                });
+                $.post(
+                        '{% url 'account:check_email_is_bind' %}',
+                        {
+                            "email": email
+                        },
+                        function (data) {
+                            layer.close(index);
+                            if (data.code == 200) {
+                                $(".step-1").addClass('hide');
+                                if (bind_or_change_email == 1) {
+                                    $(".step-2 .show-msg").html(data.msg);
+                                    $(".step-2 #bind_email_btn")[0].dataset.email = email;
+                                    $(".step-2 .send-verification-code")[0].dataset.email = email;
+                                    moveTo(2);
+                                }
+                                else {
+                                    $(".step-3 .show-msg").html(data.msg);
+                                    $(".step-3 .send-verification-code")[0].dataset.email = email;
+                                    $(".step-3 #change_email_btn")[0].dataset.email = email;
+                                    moveTo(3);
+                                }
+                            }
+                            else {
+                                layer.msg(data.msg, {time: 1000});
+                            }
+                            return false
+                        }
+                );
+            });
+
+            $(".send-verification-code").click(function (e) {
+                var $this = $(this);
+                var reg_email = /^([\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
+                var email = this.dataset.email;
+
+                if (typeof(email) == 'undefined' || email == '') {
+                    layer.msg('参数缺失，请重试。', {time: 1000});
+                    $("#bind_or_change_email input").val('');
+                    moveTo(1);
+                    return false
+                }
+                else if (!reg_email.test(email)) {
+                    var msg = '邮箱格式有误，请重新输入';
+                    layer.msg(msg, {time: 1000});
+                    return false
+                }
+                var index = layer.msg('邮件发送中...', {
+                    icon: 16,
+                    shade: 0.01,
+                    time: 0
+                });
+                $.post(
+                        '{% url 'account:send_verification_to_bind_or_change_email' %}',
+                        {
+                            "email": email
+                        },
+                        function (data) {
+                            layer.close(index);
+                            layer.msg(data.msg, {time: 1000});
+                            if (data.code == 200) {
+                                count_down_clock($this);
+                            }
+                            return false
+                        }
+                );
+            });
+
+            $("#bind_email_btn").click(function (e) {
+                var parent_div = $(this).parent('div');
+                var email = this.dataset.email;
+                var verification_code = parent_div.find('[name="verification_code"]').val();
+                var password = parent_div.find('[name="password"]').val();
+
+                var reg_verification_code = /^[\d]{6}$/;
+                var reg_password = /^[\.\w@_-]{6,32}$/;
+
+                if (typeof(email) == 'undefined' || email == '') {
+                    layer.msg('参数缺失，请重试。', {time: 1000});
+                    $("#bind_or_change_email input").val('');
+                    moveTo(1);
+                    return false
+                }
+                else if (verification_code == '') {
+                    layer.msg('请输入验证码', {time: 1000});
+                    return false
+                }
+                else if (!reg_verification_code.test(verification_code)) {
+                    layer.msg('验证码为6位数字，请重新输入', {time: 1000});
+                    return false
+                }
+                else if (password == '') {
+                    layer.msg('请输入密码', {time: 1000});
+                    return false
+                }
+                else if (!reg_password.test(password)) {
+                    layer.msg('密码格式有误，请重新输入', {time: 1000});
+                    return false
+                }
+
+                $.post(
+                        '{% url 'account:bind_email' %}',
+                        {
+                            "email": email,
+                            "verification_code": verification_code,
+                            "password": password
+                        },
+                        function (data) {
+                            if (data.code == 200) {
+                                layer.alert(data.msg, function () {
+                                    window.location.reload()
+                                });
+                            }
+                            else {
+                                layer.msg(data.msg, {time: 1000});
+                                return false
+                            }
+                        }
+                );
+            });
+
+            $("#change_email_btn").click(function (e) {
+                var parent_div = $(this).parent('div');
+                var email = this.dataset.email;
+                var verification_code = parent_div.find('[name="verification_code"]').val();
+
+                var reg_verification_code = /^[\d]{6}$/;
+
+                if (typeof(email) == 'undefined' || email == '') {
+                    layer.msg('参数缺失，请重试。', {time: 1000});
+                    $("#bind_or_change_email input").val('');
+                    moveTo(1);
+                    return false
+                }
+                else if (verification_code == '') {
+                    layer.msg('请输入验证码', {time: 1000});
+                    return false
+                }
+                else if (!reg_verification_code.test(verification_code)) {
+                    layer.msg('验证码为6位数字，请重新输入', {time: 1000});
+                    return false
+                }
+                $.post(
+                        '{% url 'account:change_email' %}',
+                        {
+                            "email": email,
+                            "verification_code": verification_code
+                        },
+                        function (data) {
+                            if (data.code == 200) {
+                                layer.alert(data.msg, function () {
+                                    window.location.reload()
+                                });
+                            }
+                            else {
+                                layer.msg(data.msg, {time: 1000});
+                                return false
+                            }
+                        }
+                );
+            })
+        })
     </script>
 {% endblock %}

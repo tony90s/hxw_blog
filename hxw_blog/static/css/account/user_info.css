@@ -135,6 +135,10 @@
     width: 150px;
 }
 
+.form-user-info button {
+    margin-right: 0;
+}
+
 .form-update-password {
     max-width: 330px;
     padding: 15px;
@@ -150,9 +154,30 @@
     pointer-events: auto;
 }
 
+.send-verification-code {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-right: 12px;
+    z-index: 2;
+    display: block;
+    width: 35%;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    text-align: right;
+    vertical-align: middle;
+    pointer-events: auto;
+}
+
 .has-feedback .form-control {
     padding-left: 12px;
     padding-right: 15%;
+}
+
+.has-feedback .verification_code {
+    padding-left: 12px;
+    padding-right: 35%;
 }
 
 .form-update-password .iconfont {
@@ -161,7 +186,7 @@
 }
 
 .form-update-password .form-group, .form-update-password .input-group {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .form-update-password .form-control {
@@ -182,6 +207,36 @@
 
 .form-update-password .alert {
     padding: 12px;
-    margin-top: 10px;
+    margin-top: 15px;
     text-align: center;
+}
+
+.show-bind-email a:link, .show-bind-email a:visited, .show-bind-email a:hover, .show-bind-email a:active {
+    text-decoration: none;
+}
+
+.show-bind-email .modal-content {
+    width: 380px;
+}
+
+.show-bind-email .modal-body {
+    padding: 30px 60px;
+    text-align: center;
+}
+
+.show-bind-email .form-group {
+    margin-bottom: 15px;
+}
+
+.show-bind-email .show-msg {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 380px;
+        margin: 100px auto;
+    }
 }
