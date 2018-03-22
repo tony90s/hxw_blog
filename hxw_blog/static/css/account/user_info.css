@@ -241,7 +241,7 @@
 }
 
 @media (min-width: 768px) {
-    .modal-dialog {
+    #update_password .modal-dialog, .show-bind-email .modal-dialog {
         width: 400px;
         margin: 100px auto;
     }
