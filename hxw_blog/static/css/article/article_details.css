@@ -169,20 +169,20 @@
 }
 
 .show-qrcode .modal-body {
-    max-width: 380px;
-    padding: 15px 60px;
-    margin: 0 auto;
+    max-width: 360px;
+    margin: 20px auto;
     font-size: 14px;
     text-align: center;
 }
 
 .show-qrcode .modal-body #qrcode {
-    padding: 15px 40px;
+    width: 180px;
+    margin: 0 auto;
 }
 
 @media (min-width: 768px) {
     .modal-dialog {
-        width: 380px;
+        width: 360px;
         margin: 100px auto;
     }
 }
