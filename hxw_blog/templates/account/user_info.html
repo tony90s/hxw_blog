@@ -239,7 +239,7 @@
                         <div class="form-group has-feedback">
                             <input type="text" name="verification_code" class="form-control verification-code"
                                    placeholder="请输入验证码">
-                            <a class="send-verification-code" href="javascript:void(0)">获取验证码</a>
+                            <a class="send-verification-code" href="javascript:void(0)">重新获取</a>
                         </div>
                         <div class="form-group has-feedback">
                             <input type="password" name="password" class="form-control" minlength="6" maxlength="32"
@@ -254,7 +254,7 @@
                         <div class="form-group has-feedback">
                             <input type="text" name="verification_code" class="form-control verification-code"
                                    placeholder="请输入验证码">
-                            <a class="send-verification-code" href="javascript:void(0)">获取验证码</a>
+                            <a class="send-verification-code" href="javascript:void(0)">重新获取</a>
                         </div>
                         <button class="btn btn-primary btn-block" id="change_email_btn" type="button">确定</button>
                         <p class="show-msg"></p>
@@ -490,7 +490,7 @@
             function count_down_clock(btn) {
                 if (COUNTDOWN_SECOND == 0) {
                     $(btn).css('pointer-events', 'auto');
-                    $(btn).html("获取验证码");
+                    $(btn).html("重新获取");
                     COUNTDOWN_SECOND = 60;
                 } else {
                     $(btn).css('pointer-events', 'none');
