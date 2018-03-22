@@ -52,7 +52,7 @@
                             <div class="form-group">
                                 <label for="email" class="col-sm-2 control-label">邮箱</label>
                                 <div class="col-sm-10">
-                                    <span>{{ email_display }}</span>
+                                    <p class="form-control-static">{{ email_display }}</p>
                                     {% if user.email %}
                                         <button type="button" id="change_email" class="btn btn-info pull-right"
                                                 data-toggle="modal" data-target="#bind_or_change_email">修改邮箱

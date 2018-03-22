@@ -135,6 +135,14 @@
     width: 150px;
 }
 
+.form-user-info {
+    font-size: 14px;
+}
+
+.form-user-info .form-group p {
+    display: inline-block;
+}
+
 .form-user-info button {
     margin-right: 0;
 }
