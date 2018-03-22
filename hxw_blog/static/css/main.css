@@ -30,6 +30,10 @@ code {
   font-size: 80%;
 }
 
+nav .container {
+    min-height: 62px;
+}
+
 .navbar .nav > li .dropdown-menu {
     min-width: 100%;
 }
@@ -58,11 +62,10 @@ code {
     vertical-align: middle;
 }
 
-.avator {
+.navbar-avatar {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    cursor: pointer;
 }
 
 .avatar {
@@ -77,10 +80,6 @@ code {
     height: 100%;
     border: 1px solid #ddd;
     border-radius: 50%;
-}
-
-img {
-    vertical-align: middle;
 }
 
 button {
