@@ -230,7 +230,7 @@
                         <div class="form-group">
                             <input type="text" name="email" class="form-control" placeholder="请输入邮箱">
                         </div>
-                        <button class="btn btn-primary btn-block" id="check_email" type="button" data-bind_email="">
+                        <button class="btn btn-primary btn-block" data-loading-text="邮箱验证中..." id="check_email" type="button" data-bind_email="">
                             下一步
                         </button>
                     </div>
@@ -494,7 +494,7 @@
                     COUNTDOWN_SECOND = 60;
                 } else {
                     $(btn).css('pointer-events', 'none');
-                    $(btn).html("重新获取(" + COUNTDOWN_SECOND + ")");
+                    $(btn).html("重新获取(" + COUNTDOWN_SECOND + "s)");
                     COUNTDOWN_SECOND--;
                     setTimeout(function () {
                                 count_down_clock(btn)
@@ -518,6 +518,7 @@
             });
 
             $("#check_email").click(function (e) {
+                var $this = $(this);
                 var reg_email = /^([\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
                 var email = $(this).parent('div').find('[name="email"]').val();
                 var bind_or_change_email = parseInt(this.dataset.bind_email);
@@ -529,18 +530,14 @@
                     layer.msg('邮箱格式有误，请重新输入', {time: 1000});
                     return false
                 }
-                var index = layer.msg('邮箱验证中...', {
-                    icon: 16,
-                    shade: 0.01,
-                    time: 0
-                });
+                $this.button('loading');
                 $.post(
                         '{% url 'account:check_email_is_bind' %}',
                         {
                             "email": email
                         },
                         function (data) {
-                            layer.close(index);
+                            $this.button('reset');
                             if (data.code == 200) {
                                 $(".step-1").addClass('hide');
                                 if (bind_or_change_email == 1) {
