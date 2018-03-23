@@ -100,3 +100,9 @@ body{background: #d2f5f1}
     100%{opacity:1;-o-transform:translateY(0);}}
 @keyframes dn400{0%{opacity:0;transform:translateY(-400px);}
     100%{opacity:1;transform:translateY(0);}}
+
+@media (max-width: 1080px) {
+    .tipInfo {
+        margin: 0 auto;
+    }
+}
