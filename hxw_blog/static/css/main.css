@@ -86,12 +86,12 @@ button {
     outline: none;
 }
 
-.form-group {
-    margin-bottom: 20px;
+form {
+    font-size: 14px;
 }
 
-.form-group label {
-    font-size: 14px;
+.form-group {
+    margin-bottom: 20px;
 }
 
 .form-group button {
