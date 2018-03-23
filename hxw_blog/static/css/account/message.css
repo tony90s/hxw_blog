@@ -75,13 +75,13 @@
 .pl-text .comment-size-name {
     display: block;
     vertical-align: middle;
-    margin-top: 5px;
+    margin-top: 4px;
 }
 
 .pl-text .comment-time {
     display: block;
     vertical-align: middle;
-    margin-top: 5px;
+    margin-top: 4px;
     font-size: 12px;
     color: #8b8b8b;
 }
