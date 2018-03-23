@@ -4,20 +4,20 @@
 {% endblock %}
 {% block content %}
     <div class="container">
-        <div class="mianBox">
+        <div class="mian-box">
             <img src="/static/images/error/yun0.png" alt="" class="yun yun0"/>
             <img src="/static/images/error/yun1.png" alt="" class="yun yun1"/>
             <img src="/static/images/error/yun2.png" alt="" class="yun yun2"/>
             <img src="/static/images/error/bird.png" alt="" class="bird"/>
             <img src="/static/images/error/san.png" alt="" class="san"/>
-            <div class="tipInfo">
+            <div class="tip-info">
                 <div class="in">
-                    <div class="textThis">
+                    <div class="text-this">
                         {% block error_info %}
                         {% endblock %}
                         <p><span id="wait">6</span>秒后自动跳转到<a id="href" href="{% url 'index' %}">网站首页</a></p>
                     </div>
-                    <div class="other_info">
+                    <div class="other-info">
                         <p>如需寻求帮助，请<a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=-czIxcjIysrJy8W9jIzTnpKQ">联系我们</a></p>
                     </div>
                 </div>
@@ -32,8 +32,8 @@
         $(function () {
             var h = $(window).height();
             $('body').height(h);
-            $('.mianBox').height(h);
-            centerWindow(".tipInfo");
+            $('.mian-box').height(h);
+            centerWindow(".tip-info");
         });
 
         //2.将盒子方法放入这个方，方便法统一调用
