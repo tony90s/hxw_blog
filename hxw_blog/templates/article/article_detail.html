@@ -15,14 +15,13 @@
                 <div class="article">
                     <h1 class="title text-center">{{ article_details.title }}</h1>
                     <div class="author">
-                        <div class="avatar">
+                        <a class="avatar" target="_blank" href="{% url 'article:user_articles' article_details.author.user_id %}">
                             <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
-                        </div>
+                        </a>
                         <div class="info">
-                            <span class="name"><a href="">{{ article_details.author.username }}</a></span>
+                            <span class="name"><a target="_blank" href="{% url 'article:user_articles' article_details.author.user_id %}">{{ article_details.author.username }}</a></span>
                             <div class="meta">
-                                <span class="release-time" data-toggle="tooltip" data-placement="bottom"
-                                      data-original-title="最后编辑于 {{ article_details.update_time }}">{{ article_details.release_time }}</span>
+                                <span class="release-time">{{ article_details.release_time }}</span>
                                 <span class="page-views">阅读 {{ article_details.page_views }}</span>
                                 <span class="comment-times">评论 {{ article_details.comment_times }}</span>
                                 <span class="praise-times">点赞 {{ article_details.praise_times }}</span>
@@ -31,7 +30,9 @@
                     </div>
                     <div class="show-content">
                         <div class="content-html" data-content='{{ article_details.content_html }}'>
-
+                            {% autoescape off %}
+                                {{ article_details.content_html }}
+                            {% endautoescape %}
                         </div>
                     </div>
 
@@ -180,10 +181,23 @@
     <script>
         var is_authenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
         var login_user_id = {% if user.is_authenticated %}{{ user.id }}{% else %}0{% endif %};
-    </script>
 
-    <!--评论时间描述-->
-    <script>
+        function redirect_to_login() {
+            var next = window.location.href;
+            var login_url = "{% url 'account:login' %}";
+            window.location.href = login_url + '?next=' + next;
+        }
+
+        function clickLogin(link) {
+            redirect_to_login()
+        }
+
+        function clickRegister(link) {
+            var next = window.location.href;
+            var register_url = "{% url 'account:register' %}";
+            window.location.href = register_url + '?next=' + next;
+        }
+
         function timeDesc() {
             $("span.comment-time").each(function () {
                 var time_str = this.dataset.comment_at;
@@ -191,14 +205,19 @@
                 $(this).text(time_desc)
             })
         }
-        $(function () {
-            timeDesc()
-        });
     </script>
-    <!--textarea高度自适应-->
-    <script type="text/javascript">
+    <script>
         $(function () {
+            // adjust article release time
+            var release_time = $(".article .author .info .meta .release-time");
+            var format_release_time = release_time.html().substr(0,16);
+            release_time.html(format_release_time);
+            // format comment time
+            timeDesc();
+            // textarea高度自适应
             $('.content').flexText();
+
+            $("[data-toggle='tooltip']").tooltip();
         });
     </script>
 
@@ -259,12 +278,12 @@
         function openShareWeibo() {
             var url = getSocialLink("weibo");
             openWindom(url)
-       }
+        }
 
         function openShareQQSpace() {
             var url = getSocialLink("qq");
             openWindom(url)
-       }
+        }
 	</script>
 
     <script type="text/javascript">
@@ -290,22 +309,6 @@
         }
     </script>
 
-    <script>
-        function redirect_to_login() {
-            var next = window.location.href;
-            var login_url = "{% url 'account:login' %}";
-            window.location.href = login_url + '?next=' + next;
-        }
-        function clickLogin(link) {
-            redirect_to_login()
-        }
-
-        function clickRegister(link) {
-            var next = window.location.href;
-            var register_url = "{% url 'account:register' %}";
-            window.location.href = register_url + '?next=' + next;
-        }
-    </script>
     <!--点击评论创建评论条-->
     <script type="text/javascript">
         $('.commentAll').on('click', '.plBtn', function () {
@@ -614,12 +617,6 @@
                 );
             }
         })
-    </script>
-    <script>
-        $(function () {
-            $("[data-toggle='tooltip']").tooltip();
-            $(".content-html").html($('.content-html')[0].dataset.content);
-        });
     </script>
 
     <script>
