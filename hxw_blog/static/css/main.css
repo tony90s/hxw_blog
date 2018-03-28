@@ -226,40 +226,34 @@ label {
     position: fixed;
     right: 1%;
     bottom: 5%;
-    /*width: 55px;*/
-    background-color: white;
     font-size: 24px;
     z-index: 999;
 }
 
+.fixed-btn a {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border: 1px solid #c2ccd1;
+    border-radius: 50%;
+    color: #2f2f2f;
+    text-decoration: none;
+    text-align: center;
+}
+
 .fixed-btn .back-to-top {
     display: none;
+    margin-bottom: 10px;
 }
 
-.fixed-btn a{
-    text-align: center;
-    color: #2f2f2f;
-}
-
-.fixed-btn a:hover{
+.fixed-btn a:hover {
     color: #2f2f2f;
 }
 
 .fixed-btn a i {
+    font-size: 16px;
     vertical-align: middle;
-}
-
-@media (max-width: 1080px) {
-    .fixed-btn {
-        right: 2%;
-    }
-    .fixed-btn a {
-        padding: 2px 10px;
-    }
-    .fixed-btn i {
-        font-size: 12px;
-    }
-
 }
 
 .iconfont {
