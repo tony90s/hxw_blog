@@ -532,10 +532,12 @@
                 layer.msg('参数有误，请联系管理员', {time: 1000});
                 return false;
             }
-            $.post(
-                    url,
-                    post_data,
-                    function (json) {
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                data: post_data,
+                dataType: "json",
+                success: function (json) {
                         if (json.code == 200) {
                             var oT = $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con');
                             if (oT.siblings('.all-pl-con').length >= 1) {
@@ -551,8 +553,8 @@
                             layer.msg(json.msg, {time: 1000});
                             return false
                         }
-                    }
-            );
+                }
+            });
         })
     </script>
     <!--点赞-->
@@ -577,22 +579,24 @@
                     "parent_id": parent_id,
                     "praise_type": praise_type
                 };
-                $.post(
-                        url,
-                        post_data,
-                        function (json) {
-                            if (json.code == 200) {
-                                zNum--;
-                                like_icon.removeClass('icon-communityiconpraisesel');
-                                like_icon.addClass('icon-communityiconpraise4');
-                                $this.find('.z-num').html(zNum);
-                            }
-                            else {
-                                layer.msg(json.msg, {time: 1000});
-                                return false
-                            }
+                $.ajax({
+                    url: url,
+                    type: "DELETE",
+                    data: post_data,
+                    dataType: "json",
+                    success: function (json) {
+                        if (json.code == 200) {
+                            zNum--;
+                            like_icon.removeClass('icon-communityiconpraisesel');
+                            like_icon.addClass('icon-communityiconpraise4');
+                            $this.find('.z-num').html(zNum);
                         }
-                );
+                        else {
+                            layer.msg(json.msg, {time: 1000});
+                            return false
+                        }
+                    }
+                });
             } else {
                 var url = "{% url 'article:save_praise' %}";
                 var post_data = {

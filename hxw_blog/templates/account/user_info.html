@@ -435,25 +435,26 @@
                     return false
                 }
 
-                $.post(
-                        '{% url 'account:update_user_info' %}',
-                        {
-                            "username": username,
-                            "gender": gender,
-                            "bio": bio
-                        },
-                        function (data) {
-                            if (data.code == 200) {
-                                layer.msg(data.msg);
-                                window.location.reload()
-
-                            }
-                            else {
-                                layer.alert(data.msg);
-                                return false
-                            }
+                $.ajax({
+                    url: "{% url 'account:update_user_info' %}",
+                    type: "PUT",
+                    data: {
+                        "username": username,
+                        "gender": gender,
+                        "bio": bio
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == 200) {
+                            layer.msg(data.msg);
+                            window.location.reload()
                         }
-                );
+                        else {
+                            layer.alert(data.msg);
+                            return false
+                        }
+                    }
+                });
             });
 
         });

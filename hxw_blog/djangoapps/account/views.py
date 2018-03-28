@@ -5,10 +5,8 @@ import time
 
 from django.conf import settings
 from django.db.models import Q
-from django.shortcuts import render, render_to_response
-from django.shortcuts import redirect
-from django.http import HttpResponseRedirect
-from django.http import JsonResponse, HttpResponseBadRequest, Http404
+from django.shortcuts import render, render_to_response, redirect
+from django.http import JsonResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect, QueryDict
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
@@ -307,36 +305,37 @@ def update_password(request):
     return JsonResponse({'code': 200, 'msg': '密码更新成功，请重新登录。'})
 
 
-@login_required
-@csrf_exempt
-def update_user_info(request):
-    user = request.user
-    user_profile = user.profile
+class UpdateUserInfoView(View):
+    @method_decorator(login_required)
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        user_profile = user.profile
+        query_data = QueryDict(request.body)
 
-    username = request.POST.get('username', '')
-    gender = request.POST.get('gender', '')
-    bio = request.POST.get('bio', '')
+        username = query_data.get('username', '')
+        gender = query_data.get('gender', '')
+        bio = query_data.get('bio', '')
 
-    if username:
-        if not reg_username.match(username):
-            return JsonResponse({'code': 400, 'msg': '昵称格式有误，请重新输入。'})
-        users = User.objects.using('read').filter(username=username)
-        if username != user.username and users.exists():
-            return JsonResponse({'code': 400, 'msg': '昵称已被使用，换一个试试。'})
-        user.username = username
-    if gender:
-        if gender not in ['m', 'f']:
-            return JsonResponse({'code': 400, 'msg': '性别参数有误，请重试。'})
-        user_profile.gender = gender
-    if bio:
-        if len(bio) > 120:
-            return JsonResponse({'code': 400, 'msg': '个人简介字数至多为120，请重试。'})
-        user_profile.bio = bio
+        if username:
+            if not reg_username.match(username):
+                return JsonResponse({'code': 400, 'msg': '昵称格式有误，请重新输入。'})
+            users = User.objects.using('read').filter(username=username)
+            if username != user.username and users.exists():
+                return JsonResponse({'code': 400, 'msg': '昵称已被使用，换一个试试。'})
+            user.username = username
+        if gender:
+            if gender not in ['m', 'f']:
+                return JsonResponse({'code': 400, 'msg': '性别参数有误，请重试。'})
+            user_profile.gender = gender
+        if bio:
+            if len(bio) > 120:
+                return JsonResponse({'code': 400, 'msg': '个人简介字数至多为120，请重试。'})
+            user_profile.bio = bio
 
-    user.save(using='write')
-    user_profile.save(using='write')
+        user.save(using='write')
+        user_profile.save(using='write')
 
-    return JsonResponse({'code': 200, 'msg': '更新成功。'})
+        return JsonResponse({'code': 200, 'msg': '更新成功。'})
 
 
 @csrf_exempt

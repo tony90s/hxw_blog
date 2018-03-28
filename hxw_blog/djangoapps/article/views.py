@@ -5,9 +5,8 @@ import re
 
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.shortcuts import render, render_to_response
-from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponseForbidden, Http404
+from django.shortcuts import render, render_to_response, redirect
+from django.http import JsonResponse, HttpResponseForbidden, Http404, QueryDict
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
@@ -379,152 +378,157 @@ def save_praise(request):
     return JsonResponse(return_context)
 
 
-@login_required
-@csrf_exempt
-def delete_article(request):
-    user = request.user
-    article_id = request.POST.get('article_id', '')
+class DeleteArticleView(View):
+    @method_decorator(login_required)
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        article_id = QueryDict(request.body).get('article_id', '')
 
-    if not article_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(article_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
+        if not article_id:
+            return JsonResponse({'code': 400, 'msg': '参数缺失'})
+        if not reg_number.match(article_id):
+            return JsonResponse({'code': 400, 'msg': '参数有误'})
 
-    article_id = int(article_id)
-    articles = Article.objects.using('write').filter(id=article_id)
-    if not articles.exists():
-        return JsonResponse({'code': 404, 'msg': '所要删除的博文不存在'})
+        article_id = int(article_id)
+        articles = Article.objects.using('write').filter(id=article_id)
+        if not articles.exists():
+            return JsonResponse({'code': 404, 'msg': '所要删除的博文不存在'})
 
-    if user.id != articles[0].author_id:
-        return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的博文'})
+        if user.id != articles[0].author_id:
+            return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的博文'})
 
-    comments = Comment.objects.using('write').filter(article_id=article_id)
-    comments_id = list(comments.values_list('id', flat=True).order_by('id'))
-    comment_replies = CommentReply.objects.using('write').filter(comment_id__in=comments_id)
-    comment_replies_id = list(comment_replies.values_list('id', flat=True).order_by('id'))
-    praises = Praise.objects.using('write').filter((Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id=article_id)) | (
-        Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comments_id)) | (
-        Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_replies_id)))
-    praises.delete()
-    comment_replies.delete()
-    comments.delete()
-    articles.delete()
-    return JsonResponse({'code': 200, 'msg': '删除博文成功'})
-
-
-@login_required
-@csrf_exempt
-def delete_comment(request):
-    user = request.user
-    comment_id = request.POST.get('comment_id', '')
-
-    if not comment_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(comment_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    comment_id = int(comment_id)
-    comments = Comment.objects.using('write').filter(id=comment_id)
-    if not comments.exists():
-        return JsonResponse({'code': 404, 'msg': '所要删除的评论不存在'})
-
-    if user.id != comments[0].commentator_id:
-        return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的评论'})
-
-    comment_replies = CommentReply.objects.using('write').filter(comment_id=comment_id)
-    comment_replies_id = list(comment_replies.values_list('id', flat=True).order_by('id'))
-    praises = Praise.objects.using('write').filter((Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id=comment_id)) | (
-        Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_replies_id)))
-    praises.delete()
-    comment_replies.delete()
-    comments.delete()
-    return JsonResponse({'code': 200, 'msg': '删除评论成功'})
+        comments = Comment.objects.using('write').filter(article_id=article_id)
+        comments_id = list(comments.values_list('id', flat=True).order_by('id'))
+        comment_replies = CommentReply.objects.using('write').filter(comment_id__in=comments_id)
+        comment_replies_id = list(comment_replies.values_list('id', flat=True).order_by('id'))
+        praises = Praise.objects.using('write').filter(
+            (Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id=article_id)) | (
+                Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comments_id)) | (
+                Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_replies_id)))
+        praises.delete()
+        comment_replies.delete()
+        comments.delete()
+        articles.delete()
+        return JsonResponse({'code': 200, 'msg': '删除博文成功'})
 
 
-@login_required
-@csrf_exempt
-def delete_comment_reply(request):
-    user = request.user
-    comment_reply_id = request.POST.get('comment_reply_id', '')
+class DeleteCommentView(View):
+    @method_decorator(login_required)
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        comment_id = QueryDict(request.body).get('comment_id', '')
 
-    if not comment_reply_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(comment_reply_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
+        if not comment_id:
+            return JsonResponse({'code': 400, 'msg': '参数缺失'})
+        if not reg_number.match(comment_id):
+            return JsonResponse({'code': 400, 'msg': '参数有误'})
 
-    comment_reply_id = int(comment_reply_id)
-    comment_replies = CommentReply.objects.using('write').filter(id=comment_reply_id)
-    if not comment_replies.exists():
-        return JsonResponse({'code': 404, 'msg': '所要删除的回复不存在'})
-
-    if user.id != comment_replies[0].replier_id:
-        return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的回复'})
-
-    praises = Praise.objects.using('write').filter(Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id=comment_reply_id))
-    praises.delete()
-    comment_replies.delete()
-    return JsonResponse({'code': 200, 'msg': '删除回复成功'})
-
-
-@login_required
-@csrf_exempt
-def cancel_praise(request):
-    user = request.user
-    praise_type = request.POST.get('praise_type', '')
-    parent_id = request.POST.get('parent_id', '')
-
-    if not praise_type or not parent_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(praise_type) or not reg_number.match(parent_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    praise_type = int(praise_type)
-    parent_id = int(parent_id)
-    if praise_type not in [value for value, name in Praise.TYPE_CHOICES]:
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    praises = Praise.objects.using('write').filter(Q(praise_type=praise_type) &
-                                                  Q(parent_id=parent_id) & Q(user_id=user.id))
-    if not praises.exists():
-        return JsonResponse({'code': 400, 'msg': '您尚未点赞，不能取消赞'})
-
-    praises.delete()
-    return JsonResponse({'code': 200, 'msg': '取消点赞成功'})
-
-
-@csrf_exempt
-def update_is_viewed_status(request):
-    object_type = request.POST.get('object_type')   # 1 comment  2 comment_reply   3 praise
-    parent_id = request.POST.get('parent_id')
-
-    if not object_type or not parent_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-
-    if not reg_number.match(object_type) or not reg_number.match(parent_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    object_type = int(object_type)
-    parent_id = int(parent_id)
-
-    if object_type not in [1, 2, 3]:
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    if object_type == 1:
-        comments = Comment.objects.using('write').filter(id=parent_id)
+        comment_id = int(comment_id)
+        comments = Comment.objects.using('write').filter(id=comment_id)
         if not comments.exists():
-            return JsonResponse({'code': 404, 'msg': '对象不存在'})
-        comments.update(is_viewed=1)
-    elif object_type == 2:
-        comment_replies = CommentReply.objects.using('write').filter(id=parent_id)
+            return JsonResponse({'code': 404, 'msg': '所要删除的评论不存在'})
+
+        if user.id != comments[0].commentator_id:
+            return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的评论'})
+
+        comment_replies = CommentReply.objects.using('write').filter(comment_id=comment_id)
+        comment_replies_id = list(comment_replies.values_list('id', flat=True).order_by('id'))
+        praises = Praise.objects.using('write').filter(
+            (Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id=comment_id)) | (
+                Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_replies_id)))
+        praises.delete()
+        comment_replies.delete()
+        comments.delete()
+        return JsonResponse({'code': 200, 'msg': '删除评论成功'})
+
+
+class DeleteCommentReplyView(View):
+    @method_decorator(login_required)
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        comment_reply_id = QueryDict(request.body).get('comment_reply_id', '')
+
+        if not comment_reply_id:
+            return JsonResponse({'code': 400, 'msg': '参数缺失'})
+        if not reg_number.match(comment_reply_id):
+            return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+        comment_reply_id = int(comment_reply_id)
+        comment_replies = CommentReply.objects.using('write').filter(id=comment_reply_id)
         if not comment_replies.exists():
-            return JsonResponse({'code': 404, 'msg': '对象不存在'})
-        comment_replies.update(is_viewed=1)
-    else:
-        praises = Praise.objects.using('write').filter(id=parent_id)
+            return JsonResponse({'code': 404, 'msg': '所要删除的回复不存在'})
+
+        if user.id != comment_replies[0].replier_id:
+            return JsonResponse({'code': 403, 'msg': '不能删除其它童鞋的回复'})
+
+        praises = Praise.objects.using('write').filter(
+            Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id=comment_reply_id))
+        praises.delete()
+        comment_replies.delete()
+        return JsonResponse({'code': 200, 'msg': '删除回复成功'})
+
+
+class CancelPraiseView(View):
+    @method_decorator(login_required)
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        query_data = QueryDict(request.body)
+        praise_type = query_data.get('praise_type', '')
+        parent_id = query_data.get('parent_id', '')
+
+        if not praise_type or not parent_id:
+            return JsonResponse({'code': 400, 'msg': '参数缺失'})
+        if not reg_number.match(praise_type) or not reg_number.match(parent_id):
+            return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+        praise_type = int(praise_type)
+        parent_id = int(parent_id)
+        if praise_type not in [value for value, name in Praise.TYPE_CHOICES]:
+            return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+        praises = Praise.objects.using('write').filter(Q(praise_type=praise_type) &
+                                                       Q(parent_id=parent_id) & Q(user_id=user.id))
         if not praises.exists():
-            return JsonResponse({'code': 404, 'msg': '对象不存在'})
-        praises.update(is_viewed=1)
-    return JsonResponse({'code': 200, 'msg': '更新成功'})
+            return JsonResponse({'code': 400, 'msg': '您尚未点赞，不能取消赞'})
+
+        praises.delete()
+        return JsonResponse({'code': 200, 'msg': '取消点赞成功'})
+
+
+class UpdateIsViewedStatusView(View):
+    def put(self, request, *args, **kwargs):
+        query_data = QueryDict(request.body)
+        object_type = query_data.get('object_type')  # 1 comment  2 comment_reply   3 praise
+        parent_id = query_data.get('parent_id')
+
+        if not object_type or not parent_id:
+            return JsonResponse({'code': 400, 'msg': '参数缺失'})
+
+        if not reg_number.match(object_type) or not reg_number.match(parent_id):
+            return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+        object_type = int(object_type)
+        parent_id = int(parent_id)
+
+        if object_type not in [1, 2, 3]:
+            return JsonResponse({'code': 400, 'msg': '参数有误'})
+
+        if object_type == 1:
+            comments = Comment.objects.using('write').filter(id=parent_id)
+            if not comments.exists():
+                return JsonResponse({'code': 404, 'msg': '对象不存在'})
+            comments.update(is_viewed=1)
+        elif object_type == 2:
+            comment_replies = CommentReply.objects.using('write').filter(id=parent_id)
+            if not comment_replies.exists():
+                return JsonResponse({'code': 404, 'msg': '对象不存在'})
+            comment_replies.update(is_viewed=1)
+        else:
+            praises = Praise.objects.using('write').filter(id=parent_id)
+            if not praises.exists():
+                return JsonResponse({'code': 404, 'msg': '对象不存在'})
+            praises.update(is_viewed=1)
+        return JsonResponse({'code': 200, 'msg': '更新成功'})
 
 
 @login_required()
@@ -579,25 +583,26 @@ def user_articles(request, author_id):
     return render(request, 'article/user_articles.html', context)
 
 
-@login_required
-@csrf_exempt
-def update_article_release_status(request):
-    user = request.user
-    article_id = request.POST.get('article_id')
+class UpdateArticleReleaseStatusView(View):
+    @method_decorator(login_required)
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        query_data = QueryDict(request.body)
+        article_id = query_data.get('article_id')
 
-    if not article_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(article_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
+        if not article_id:
+            return JsonResponse({'code': 400, 'msg': '参数缺失'})
+        if not reg_number.match(article_id):
+            return JsonResponse({'code': 400, 'msg': '参数有误'})
 
-    article_id = int(article_id)
-    articles = Article.objects.using('write').filter(id=article_id)
-    if not articles.exists():
-        return JsonResponse({'code': 404, 'msg': '博文不存在'})
+        article_id = int(article_id)
+        articles = Article.objects.using('write').filter(id=article_id)
+        if not articles.exists():
+            return JsonResponse({'code': 404, 'msg': '博文不存在'})
 
-    if user.id != articles[0].author_id:
-        return JsonResponse({'code': 403, 'msg': '不能发布其它童鞋的博文'})
+        if user.id != articles[0].author_id:
+            return JsonResponse({'code': 403, 'msg': '不能发布其它童鞋的博文'})
 
-    now = timezone.now()
-    articles.update(is_released=True, release_at=now)
-    return JsonResponse({'code': 200, 'msg': '博文发布成功'})
+        now = timezone.now()
+        articles.update(is_released=True, release_at=now)
+        return JsonResponse({'code': 200, 'msg': '博文发布成功'})

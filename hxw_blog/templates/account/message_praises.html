@@ -124,15 +124,16 @@
                 var is_viewed = this.dataset.is_viewed;
                 var object_type = 3;
                 if (parseInt(is_viewed) == 0) {
-                    $.post(
-                        "{% url 'article:update_is_viewed_status' %}",
-                        {
+                    $.ajax({
+                        url: "{% url 'article:update_is_viewed_status' %}",
+                        type: "PUT",
+                        data: {
                             "object_type": object_type,
                             "parent_id": praise_id
                         },
-                        function (json) {
+                        dataType: "json",
+                        success: function (json) {
                             if (json.code == 200) {
-
                                 var badge = $(".list-group-item.praises .badge");
                                 var not_is_viewed_count = parseInt(badge.text());
                                 $this.dataset.is_viewed = 1;
@@ -150,7 +151,7 @@
                                 return false
                             }
                         }
-                    );
+                    });
                 }
             })
         }
