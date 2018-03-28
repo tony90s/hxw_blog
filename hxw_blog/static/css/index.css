@@ -12,6 +12,10 @@ a {
     box-sizing: border-box;
 }
 
+.index .main {
+    min-height: 300px;
+}
+
 .note-list .author a {
     color: #333;
 }
