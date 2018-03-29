@@ -70,7 +70,7 @@ class RegisterView(View):
             "next": next
         }
 
-        return render_to_response(self.template_name, context)
+        return render(request, self.template_name, context)
 
     @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
@@ -178,7 +178,7 @@ class LoginView(View):
             "next": next
         }
 
-        return render_to_response(self.template_name, context)
+        return render(request, self.template_name, context)
 
     @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
@@ -305,39 +305,6 @@ def update_password(request):
     return JsonResponse({'code': 200, 'msg': '密码更新成功，请重新登录。'})
 
 
-class UpdateUserInfoView(View):
-    @method_decorator(login_required)
-    def put(self, request, *args, **kwargs):
-        user = request.user
-        user_profile = user.profile
-        query_data = QueryDict(request.body)
-
-        username = query_data.get('username', '')
-        gender = query_data.get('gender', '')
-        bio = query_data.get('bio', '')
-
-        if username:
-            if not reg_username.match(username):
-                return JsonResponse({'code': 400, 'msg': '昵称格式有误，请重新输入。'})
-            users = User.objects.using('read').filter(username=username)
-            if username != user.username and users.exists():
-                return JsonResponse({'code': 400, 'msg': '昵称已被使用，换一个试试。'})
-            user.username = username
-        if gender:
-            if gender not in ['m', 'f']:
-                return JsonResponse({'code': 400, 'msg': '性别参数有误，请重试。'})
-            user_profile.gender = gender
-        if bio:
-            if len(bio) > 120:
-                return JsonResponse({'code': 400, 'msg': '个人简介字数至多为120，请重试。'})
-            user_profile.bio = bio
-
-        user.save(using='write')
-        user_profile.save(using='write')
-
-        return JsonResponse({'code': 200, 'msg': '更新成功。'})
-
-
 @csrf_exempt
 def send_email_to_reset_password(request):
     email = request.POST.get('email', '')
@@ -381,7 +348,7 @@ class ResetPasswordView(View):
         :param request:
         :return:
         """
-        return render_to_response(self.template_name)
+        return render(request, self.template_name)
 
     @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):

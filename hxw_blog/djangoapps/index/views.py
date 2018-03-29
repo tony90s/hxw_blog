@@ -17,6 +17,7 @@ from article.models import Article, Comment, CommentReply, Praise
 logger = logging.getLogger('index.views')
 
 
+@ensure_csrf_cookie
 def index_views(request):
     page_size = settings.DEFAULT_PAGE_SIZE
     page_index = 1

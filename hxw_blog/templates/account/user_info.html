@@ -436,7 +436,7 @@
                 }
 
                 $.ajax({
-                    url: "{% url 'account:update_user_info' %}",
+                    url: "{% url 'api:update_user_info' %}",
                     type: "PUT",
                     data: {
                         "username": username,

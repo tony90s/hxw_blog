@@ -125,7 +125,7 @@
                 var object_type = 3;
                 if (parseInt(is_viewed) == 0) {
                     $.ajax({
-                        url: "{% url 'article:update_is_viewed_status' %}",
+                        url: "{% url 'api:update_is_viewed_status' %}",
                         type: "PUT",
                         data: {
                             "object_type": object_type,

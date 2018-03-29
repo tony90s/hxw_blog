@@ -516,14 +516,14 @@
             var $this = $(this);
             if (this.dataset.comment_id != undefined) {
                 var comment_id = this.dataset.comment_id;
-                var url = "{% url 'article:delete_comment' %}";
+                var url = "{% url 'api:delete_comment' %}";
                 var post_data = {
                     "comment_id": comment_id
                 };
             }
             else if (this.dataset.comment_reply_id != undefined) {
                 var comment_reply_id = this.dataset.comment_reply_id;
-                var url = "{% url 'article:delete_comment_reply' %}";
+                var url = "{% url 'api:delete_comment_reply' %}";
                 var post_data = {
                     "comment_reply_id": comment_reply_id
                 };
@@ -574,7 +574,7 @@
             }
             var zNum = $this.find('.z-num').html();
             if (like_icon.hasClass('icon-communityiconpraisesel')) {
-                var url = "{% url 'article:cancel_praise' %}";
+                var url = "{% url 'api:cancel_praise' %}";
                 var post_data = {
                     "parent_id": parent_id,
                     "praise_type": praise_type
@@ -636,29 +636,31 @@
             var praise_times = $this.find('.praise_times').html();
 
             if (like_icon.hasClass('icon-communityiconpraisesel')) {
-                var url = "{% url 'article:cancel_praise' %}";
+                var url = "{% url 'api:cancel_praise' %}";
                 var post_data = {
                     "parent_id": parent_id,
                     "praise_type": praise_type
                 };
-                $.post(
-                        url,
-                        post_data,
-                        function (json) {
-                            if (json.code == 200) {
-                                praise_times--;
-                                like_icon.removeClass('icon-communityiconpraisesel');
-                                like_icon.addClass('icon-communityiconpraise4');
-                                $this.removeClass('btn-success');
-                                $this.addClass('btn-default');
-                                $this.find('.praise_times').html(praise_times);
-                            }
-                            else {
-                                layer.msg(json.msg, {time: 1000});
-                                return false
-                            }
+                $.ajax({
+                    url: url,
+                    type: "DELETE",
+                    data: post_data,
+                    dataType: "json",
+                    success: function (json) {
+                        if (json.code == 200) {
+                            praise_times--;
+                            like_icon.removeClass('icon-communityiconpraisesel');
+                            like_icon.addClass('icon-communityiconpraise4');
+                            $this.removeClass('btn-success');
+                            $this.addClass('btn-default');
+                            $this.find('.praise_times').html(praise_times);
                         }
-                );
+                        else {
+                            layer.msg(json.msg, {time: 1000});
+                            return false
+                        }
+                    }
+                });
             } else {
                 var url = "{% url 'article:save_praise' %}";
                 var post_data = {

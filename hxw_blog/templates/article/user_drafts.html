@@ -125,7 +125,7 @@
                 btn: ['确定','取消'] //按钮
             }, function(){
                 $.ajax({
-                    url: "{% url 'article:delete_article' %}",
+                    url: "{% url 'api:delete_article' %}",
                     type: "DELETE",
                     data: {
                         'article_id': article_id
@@ -136,7 +136,7 @@
                             var article = $(obj).parent('div').parent('div').parent('li');
                             article.remove();
                             layer.msg(json.msg, {time: 1500});
-                            location.reload()
+                            window.location.reload()
                         }
                         else {
                             layer.msg(json.msg, {time: 1500});
@@ -152,7 +152,7 @@
         function release(obj) {
             var article_id = obj.dataset.article_id;
             $.ajax({
-                url: "{% url 'article:update_article_release_status' %}",
+                url: "{% url 'api:update_article_release_status' %}",
                 type: "PUT",
                 data: {
                     'article_id': article_id

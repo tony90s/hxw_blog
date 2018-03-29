@@ -138,7 +138,7 @@
                 }
                 if (parseInt(is_viewed) == 0) {
                     $.ajax({
-                        url: "{% url 'article:update_is_viewed_status' %}",
+                        url: "{% url 'api:update_is_viewed_status' %}",
                         type: "PUT",
                         data: {
                             "object_type": object_type,
@@ -276,14 +276,14 @@
             var $this = $(this);
             if (this.dataset.comment_id != undefined) {
                 var comment_id = this.dataset.comment_id;
-                var url = "{% url 'article:delete_comment' %}";
+                var url = "{% url 'api:delete_comment' %}";
                 var post_data = {
                     "comment_id": comment_id
                 };
             }
             else if (this.dataset.comment_reply_id != undefined) {
                 var comment_reply_id = this.dataset.comment_reply_id;
-                var url = "{% url 'article:delete_comment_reply' %}";
+                var url = "{% url 'api:delete_comment_reply' %}";
                 var post_data = {
                     "comment_reply_id": comment_reply_id
                 };
@@ -292,27 +292,30 @@
                 layer.msg('参数有误，请联系管理员', {time: 1000});
                 return false;
             }
-            $.post(
-                    url,
-                    post_data,
-                    function (json) {
-                        if (json.code == 200) {
-                            var oT = $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con');
-                            if (oT.siblings('.all-pl-con').length >= 1) {
-                                oT.remove();
-                            } else {
-                                $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con').parents('.hf-list-con').css('display', 'none');
-                                oT.remove();
-                            }
-                            $this.parents('.date-dz-right').parents('.date-dz').parents('.comment-show-con-list').parents('.comment-show-con').remove();
-                            layer.msg(json.msg, {time: 1000});
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                data: post_data,
+                dataType: "json",
+                success: function (json) {
+                    if (json.code == 200) {
+                        var oT = $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con');
+                        if (oT.siblings('.all-pl-con').length >= 1) {
+                            oT.remove();
+                        } else {
+                            $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con').parents('.hf-list-con').css('display', 'none');
+                            oT.remove();
                         }
-                        else {
-                            layer.msg(json.msg, {time: 1000});
-                            return false
-                        }
+                        $this.parents('.date-dz-right').parents('.date-dz').parents('.comment-show-con-list').parents('.comment-show-con').remove();
+                        layer.msg(json.msg, {time: 1000});
+                        window.location.reload()
                     }
-            );
+                    else {
+                        layer.msg(json.msg, {time: 1000});
+                        return false
+                    }
+                }
+            });
         })
     </script>
 

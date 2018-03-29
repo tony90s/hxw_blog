@@ -7,17 +7,11 @@ from article.views import (
     save_comment,
     save_comment_reply,
     save_praise,
-    DeleteArticleView,
-    DeleteCommentView,
-    DeleteCommentReplyView,
-    CancelPraiseView,
     article_category_index_views,
     articles_list,
     article_comments_list,
-    UpdateIsViewedStatusView,
     drafts,
-    user_articles,
-    UpdateArticleReleaseStatusView
+    user_articles
 )
 
 urlpatterns = [
@@ -28,15 +22,9 @@ urlpatterns = [
     url(r'^comment/save$', save_comment, name='save_comment'),
     url(r'^comment/reply/save$', save_comment_reply, name='save_comment_reply'),
     url(r'^praise/save$', save_praise, name='save_praise'),
-    url(r'^delete$', DeleteArticleView.as_view(), name='delete_article'),
-    url(r'^comment/delete$', DeleteCommentView.as_view(), name='delete_comment'),
-    url(r'^comment/reply/delete$', DeleteCommentReplyView.as_view(), name='delete_comment_reply'),
-    url(r'^praise/cancel$', CancelPraiseView.as_view(), name='cancel_praise'),
     url(r'^category/(?P<article_type>\d+)$', article_category_index_views, name='article_category'),
     url(r'^articles$', articles_list, name='articles'),
     url(r'^comments$', article_comments_list, name='comments'),
-    url(r'^is_viewed_status/update$', UpdateIsViewedStatusView.as_view(), name='update_is_viewed_status'),
     url(r'^drafts$', drafts, name='user_drafts'),
     url(r'^author/(?P<author_id>\d+)$', user_articles, name='user_articles'),
-    url(r'^release$', UpdateArticleReleaseStatusView.as_view(), name='update_article_release_status'),
 ]
