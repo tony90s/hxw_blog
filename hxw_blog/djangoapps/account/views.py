@@ -255,56 +255,6 @@ def user_info(request):
     return render(request, template_name, context=context)
 
 
-@login_required
-@csrf_exempt
-def update_user_avatar(request):
-    user = request.user
-    user_profile = user.profile
-    original_avatar_url = user_profile.avatar.url
-    original_avatar_path = os.path.join(settings.ENV_ROOT, original_avatar_url.lstrip('/'))
-
-    avatar = request.FILES.get('avatar')
-    if avatar is None:
-        return JsonResponse({'code': 400, 'msg': '请先选择图片。'})
-
-    thumbnail, error = get_thumbnail(avatar)
-    if thumbnail is None:
-        logger.error(error)
-        return JsonResponse({'code': 500, 'msg': '头像上传失败，请稍后重试。'})
-
-    user_profile.avatar = thumbnail
-    user_profile.save(using='write')
-    if original_avatar_path.split('/')[-1] != 'default_avatar.jpg':
-        os.remove(original_avatar_path)
-
-    return JsonResponse({'code': 200, 'msg': '更新头像成功。', 'src': user_profile.avatar.url})
-
-
-@login_required
-@csrf_exempt
-def update_password(request):
-    user = request.user
-
-    password = request.POST.get('password', '')
-    new_password = request.POST.get('new_password', '')
-    confirm_password = request.POST.get('confirm_password', '')
-
-    if not password or not new_password or not confirm_password:
-        return JsonResponse({'code': 400, 'msg': '请完善表单。'})
-
-    if not reg_password.match(new_password):
-        return JsonResponse({'code': 400, 'msg': '新密码格式有误，请重新输入。'})
-    if new_password != confirm_password:
-        return JsonResponse({'code': 400, 'msg': '密码不一致，请重新输入。'})
-
-    if not user.check_password(password):
-        return JsonResponse({'code': 400, 'msg': '原密码错误，请重新输入。'})
-
-    user.set_password(new_password)
-    user.save()
-    return JsonResponse({'code': 200, 'msg': '密码更新成功，请重新登录。'})
-
-
 @csrf_exempt
 def send_email_to_reset_password(request):
     email = request.POST.get('email', '')

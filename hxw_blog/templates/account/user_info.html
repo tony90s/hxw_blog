@@ -301,7 +301,7 @@
             //var data = {};
             //data.img = img_data;
             $.ajax({
-                url: "{% url 'account:update_user_avatar' %}",
+                url: "{% url 'api:update_user_avatar' %}",
                 data: formData,
                 type: "POST",
                 processData: false,
@@ -309,7 +309,7 @@
                 success: function (re) {
                     if (re.code == 200) {
                         $('.avatar-view img').attr('src', re.src);
-                        $('.avator').attr('src', re.src);
+                        $('.navbar-avatar').attr('src', re.src);
                     }
                     else {
                         layer.alert(re.msg)
@@ -337,7 +337,7 @@
                     var filename = document.querySelector("#avatar-name");
                     var texts = document.querySelector("#avatarInput").value;
                     var teststr = texts; //你这里的路径写错了
-                    testend = teststr.match(/[^\\]+\.[^\(]+/i); //直接完整文件名的
+                    var testend = teststr.match(/[^\\]+\.[^\(]+/i); //直接完整文件名的
                     filename.innerHTML = testend;
                 }
 
@@ -395,26 +395,27 @@
                     return false
                 }
 
-                $.post(
-                        '{% url 'account:update_user_password' %}',
-                        {
-                            "password": password,
-                            "new_password": new_password,
-                            "confirm_password": confirm_password
-                        },
-                        function (data) {
-                            if (data.code == 200) {
-                                layer.alert(data.msg, function () {
-                                    location.href = redirect_url;
-                                });
-
-                            }
-                            else {
-                                show_msg(warning_div, data.msg);
-                                return false
-                            }
+                $.ajax({
+                    url: '{% url 'api:update_user_password' %}',
+                    type: 'PUT',
+                    data: {
+                        "password": password,
+                        "new_password": new_password,
+                        "confirm_password": confirm_password
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == 200) {
+                            layer.alert(data.msg, function () {
+                                location.href = redirect_url;
+                            });
                         }
-                );
+                        else {
+                            show_msg(warning_div, data.msg);
+                            return false
+                        }
+                    }
+                });
             });
 
             var btn_update_user_info = $("#btn_update_user_info");
