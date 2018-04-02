@@ -64,64 +64,6 @@ def edit_article(request, article_id):
     return render(request, template_name, context)
 
 
-@login_required
-@csrf_exempt
-def save_article(request):
-    user = request.user
-    if not user.is_superuser:
-        raise PermissionDenied
-
-    article_id = request.POST.get('article_id', '0')
-    title = request.POST.get('title', '')
-    article_type = request.POST.get('type')
-    content_txt = request.POST.get('content_txt', '')
-    content_html = request.POST.get('content_html', '')
-    is_released = request.POST.get('is_released')
-
-    if not title:
-        return JsonResponse({'code': 400, 'msg': '请输入标题'})
-    if not article_type:
-        return JsonResponse({'code': 400, 'msg': '请先选择一个类别'})
-    if not content_html:
-        return JsonResponse({'code': 400, 'msg': '请先编辑内容'})
-    if is_released not in ['0', '1']:
-        return JsonResponse({'code': 400, 'msg': '参数有误，请联系网站管理员'})
-
-    article_id = int(article_id)
-    is_released = int(is_released)
-    article_type = int(article_type)
-    now = timezone.now()
-    try:
-        update_article = False
-        try:
-            article = Article.objects.using('read').get(id=article_id)
-            update_article = True
-        except Exception as e:
-            article = Article()
-        article.author_id = user.id
-        article.title = title
-        article.type = article_type
-        article.content_html = content_html
-        article.content_txt = content_txt
-        article.is_released = is_released
-        if not update_article:
-            article.created_at = now
-        else:
-            article.update_at = now
-        if is_released:
-            article.release_at = now
-        article.save(using='write')
-    except Exception as e:
-        logger.error(e)
-        return JsonResponse({'code': 500, 'msg': '发布失败，请联系管理员。'})
-
-    redirect_url = reverse('index')
-    msg = '发布成功'
-    if not is_released:
-        msg = '草稿保存成功'
-    return JsonResponse({'code': 200, 'msg': msg, 'redirect_url': redirect_url})
-
-
 @require_http_methods(['GET'])
 def article_category_index_views(request, article_type):
     page_size = settings.DEFAULT_PAGE_SIZE

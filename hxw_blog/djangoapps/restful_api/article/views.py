@@ -1,16 +1,70 @@
+import logging
 import re
 
+from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.db.models import Q
 from django.http import QueryDict
 from django.utils import timezone
 
+from rest_framework.views import APIView
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
-from restful_api.article.serializers import ArticleSerializer, PraiseSerializer
+from restful_api.article.serializers import ArticleSerializer, PraiseSerializer, SaveArticleSerializer
 from utils.paginators import SmallResultsSetPagination
 
 reg_number = re.compile('^\d+$')
+logger = logging.getLogger('api.article')
+
+
+class CreateArticleView(generics.CreateAPIView):
+    serializer_class = SaveArticleSerializer
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+
+    def create(self, request, *args, **kwargs):
+        original_request_data = request.data.urlencode()
+        new_request_data = QueryDict(original_request_data, mutable=True)
+        new_request_data['author_id'] = request.user.id
+
+        serializer = self.get_serializer(data=new_request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        redirect_url = reverse('index')
+        msg = '发布成功'
+        if not serializer.validated_data.get('is_released'):
+            msg = '草稿保存成功'
+        return Response({'code': 200, 'msg': msg, 'redirect_url': redirect_url})
+
+
+class UpdateArticleView(generics.UpdateAPIView):
+    serializer_class = SaveArticleSerializer
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+
+    def get_object(self):
+        article_id = int(self.request.data.get('article_id'))
+        try:
+            article = Article.objects.using('read').get(id=article_id)
+        except Article.DoesNotExist:
+            raise Http404
+        return article
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        if request.user.id != instance.author_id:
+            return Response({'code': 403, 'msg': '不能更新其它童鞋的博文'})
+        self.perform_update(serializer)
+
+        redirect_url = reverse('index')
+        msg = '发布成功'
+        if not serializer.validated_data.get('is_released'):
+            msg = '草稿保存成功'
+        return Response({'code': 200, 'msg': msg, 'redirect_url': redirect_url})
 
 
 class ArticleList(generics.ListAPIView):

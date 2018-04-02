@@ -5,6 +5,44 @@ from rest_framework import serializers
 from article.models import Article, Comment, CommentReply, Praise
 
 
+class SaveArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ('author_id', 'title', 'type', 'content_txt', 'content_html', 'is_released')
+
+    def create(self, validated_data):
+        is_released = validated_data.get('is_released')
+        now = timezone.now()
+
+        article = Article()
+        article.author_id = validated_data.get('author_id')
+        article.title = validated_data.get('title')
+        article.type = validated_data.get('type')
+        article.content_html = validated_data.get('content_html')
+        article.content_txt = validated_data.get('content_txt')
+        article.is_released = is_released
+        article.created_at = now
+        if is_released:
+            article.release_at = now
+        article.save(using='write')
+        return article
+
+    def update(self, instance, validated_data):
+        is_released = validated_data.get('is_released')
+        now = timezone.now()
+
+        instance.title = validated_data.get('title', instance.title)
+        instance.type = validated_data.get('type', instance.type)
+        instance.content_html = validated_data.get('content_html', instance.content_html)
+        instance.content_txt = validated_data.get('content_txt', instance.content_txt)
+        instance.is_released = is_released
+        instance.update_at = now
+        if is_released:
+            instance.release_at = now
+        instance.save(using='write')
+        return instance
+
+
 class ArticleSerializer(serializers.ModelSerializer):
     article_id = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()

@@ -116,7 +116,7 @@
                 var form = $(this).parent('div').parent('div').parent('form');
                 var article_id = $("#article_id").val();
                 var title = form.find('[name="title"]').val();
-                var type = form.find('[name="type"]').val();
+                var article_type = form.find('[name="type"]').val();
                 var content_html = ue.getContent();
                 var content_txt = ue.getContentTxt();
                 var is_released = this.dataset.is_released;
@@ -125,7 +125,7 @@
                     layer.msg('请输入标题', {time: 1000});
                     return false
                 }
-                if (type == '') {
+                if (article_type == '') {
                     layer.msg('请先选择一个类别', {time: 1000});
                     return false
                 }
@@ -134,19 +134,28 @@
                     return false
                 }
 
-                var form_data = new FormData();
-                form_data.append('article_id', article_id);
-                form_data.append('title', title);
-                form_data.append('type', type);
-                form_data.append('content_html', content_html);
-                form_data.append('content_txt', content_txt);
-                form_data.append('is_released', is_released);
+                article_id = parseInt(article_id);
+                if (article_id == 0) {
+                    var url = "{% url 'api:create_article' %}";
+                    var type = "POST"
+                }
+                else {
+                    var url = "{% url 'api:update_article' %}";
+                    var type = "PUT"
+                }
+                var data = {
+                    'article_id': article_id,
+                    'title': title,
+                    'type': parseInt(article_type),
+                    'content_html': content_html,
+                    'content_txt': content_txt,
+                    'is_released': is_released
+                };
                 $.ajax({
-                    url: "{% url 'article:save_article' %}",
-                    type: 'POST',
-                    data: form_data,
-                    processData: false,
-                    contentType: false,
+                    url: url,
+                    type: type,
+                    data: data,
+                    dataType: 'json',
                     success: function (data) {
                         if (data.code == 200) {
                             layer.alert(data.msg, function (index) {

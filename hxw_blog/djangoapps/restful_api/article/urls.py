@@ -1,5 +1,7 @@
 from django.conf.urls import url
 from restful_api.article.views import (
+    CreateArticleView,
+    UpdateArticleView,
     ArticleList,
     PraiseList,
     DeleteCommentView,
@@ -11,6 +13,8 @@ from restful_api.article.views import (
 )
 
 urlpatterns = [
+    url(r'^create$', CreateArticleView.as_view(), name='create_article'),
+    url(r'^update$', UpdateArticleView.as_view(), name='update_article'),
     url(r'^articles$', ArticleList.as_view(), name='articles'),
     url(r'^user/praises$', PraiseList.as_view(), name='user_praises'),
     url(r'^comment/delete$', DeleteCommentView.as_view(), name='delete_comment'),
