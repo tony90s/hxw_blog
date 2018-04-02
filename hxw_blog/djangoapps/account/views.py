@@ -255,39 +255,6 @@ def user_info(request):
     return render(request, template_name, context=context)
 
 
-@csrf_exempt
-def send_email_to_reset_password(request):
-    email = request.POST.get('email', '')
-    if not email:
-        return JsonResponse({'code': 400, 'msg': '请填入邮箱。'})
-    if not reg_email.match(email):
-        return JsonResponse({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
-
-    users = User.objects.using('read').filter(email=email)
-    if not users.exists():
-        return JsonResponse({'code': 404, 'msg': '该邮箱尚未注册。'})
-
-    verification_code = generate_verification_code()
-    try:
-        context = {
-            'verification_code': verification_code
-        }
-        # composes activation email
-        subject = '重置密码'
-        template_path = 'emails/forget_password.html'
-        from_address_name = settings.DEFAULT_FROM_EMAIL_DISPLAY
-        send_html_mail(subject, template_path, context, from_address_name, [email])
-    except Exception as ex:
-        logger.error(ex)
-        return JsonResponse({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
-
-    # save verify code into request session
-    request.session['verification_code'] = verification_code
-    request.session.set_expiry(5 * 60)
-
-    return JsonResponse({'code': 200, 'msg': '验证码已发送至邮箱，注意查收，若邮件未出现在收件箱，请留意垃圾箱。'})
-
-
 class ResetPasswordView(View):
     """View for reset password."""
     template_name = 'account/forget_password.html'

@@ -534,7 +534,7 @@
                 }
                 $this.button('loading');
                 $.post(
-                        '{% url 'account:check_email_is_bind' %}',
+                        '{% url 'api:check_email_is_bind' %}',
                         {
                             "email": email
                         },
@@ -585,7 +585,7 @@
                     time: 0
                 });
                 $.post(
-                        '{% url 'account:send_verification_to_bind_or_change_email' %}',
+                        '{% url 'api:send_verification_to_bind_or_change_email' %}',
                         {
                             "email": email
                         },
@@ -632,25 +632,27 @@
                     return false
                 }
 
-                $.post(
-                        '{% url 'account:bind_email' %}',
-                        {
-                            "email": email,
-                            "verification_code": verification_code,
-                            "password": password
-                        },
-                        function (data) {
-                            if (data.code == 200) {
-                                layer.alert(data.msg, function () {
-                                    window.location.reload()
-                                });
-                            }
-                            else {
-                                layer.msg(data.msg, {time: 1000});
-                                return false
-                            }
+                $.ajax({
+                    url: '{% url 'api:bind_email' %}',
+                    type: "PUT",
+                    data: {
+                        "email": email,
+                        "verification_code": verification_code,
+                        "password": password
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.code == 200) {
+                            layer.alert(data.msg, function () {
+                                window.location.reload()
+                            });
                         }
-                );
+                        else {
+                            layer.msg(data.msg, {time: 1000});
+                            return false
+                        }
+                    }
+                });
             });
 
             $("#change_email_btn").click(function (e) {
@@ -674,24 +676,26 @@
                     layer.msg('验证码为6位数字，请重新输入', {time: 1000});
                     return false
                 }
-                $.post(
-                        '{% url 'account:change_email' %}',
-                        {
-                            "email": email,
-                            "verification_code": verification_code
-                        },
-                        function (data) {
-                            if (data.code == 200) {
-                                layer.alert(data.msg, function () {
-                                    window.location.reload()
-                                });
-                            }
-                            else {
-                                layer.msg(data.msg, {time: 1000});
-                                return false
-                            }
+                $.ajax({
+                    url: '{% url 'api:change_email' %}',
+                    type: "PUT",
+                    data: {
+                        "email": email,
+                        "verification_code": verification_code
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.code == 200) {
+                            layer.alert(data.msg, function () {
+                                window.location.reload()
+                            });
                         }
-                );
+                        else {
+                            layer.msg(data.msg, {time: 1000});
+                            return false
+                        }
+                    }
+                });
             })
         })
     </script>
