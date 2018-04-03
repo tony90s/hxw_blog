@@ -4,11 +4,9 @@ import re
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.db.models import Q
-from django.http import QueryDict
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from rest_framework.views import APIView
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised

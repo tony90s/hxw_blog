@@ -1,8 +1,6 @@
 import logging
 
-from django.conf import settings
-from django.shortcuts import render, render_to_response
-from django.http import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.cache import cache_page
 
 logger = logging.getLogger('site_info.views')

@@ -4,8 +4,6 @@ import re
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q
-from django.http import QueryDict
 
 from rest_framework.views import APIView
 from rest_framework import generics, permissions

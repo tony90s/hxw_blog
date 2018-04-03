@@ -5,8 +5,8 @@ import time
 
 from django.conf import settings
 from django.db.models import Q
-from django.shortcuts import render, render_to_response, redirect
-from django.http import JsonResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect, QueryDict
+from django.shortcuts import render, redirect
+from django.http import JsonResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
@@ -15,7 +15,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.views import View
 from django.utils.decorators import method_decorator
-# from django.views.decorators.cache import cache_page
 
 from account.cookies import set_logged_in_cookies, delete_logged_in_cookies
 from account.models import UserProfile
@@ -32,9 +31,6 @@ from account.oauth2.oauth_weibo import OauthWeibo
 from account.oauth2.oauth_qq import OauthQQ
 from account.oauth2.oauth_wechat import OauthWechat
 from account.oauth2.oauth_alipay import OauthAlipay
-from utils import generate_verification_code
-from utils.file_handling import get_thumbnail
-from utils.html_email_utils import send_html_mail
 
 
 PUBLIC_KEY_PATH = os.path.join(settings.ENV_ROOT, 'rsa_key/public_key.pem')

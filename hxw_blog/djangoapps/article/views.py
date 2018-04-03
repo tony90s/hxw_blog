@@ -1,25 +1,16 @@
 from datetime import timedelta
 import logging
-import os
 import re
 
 from django.conf import settings
-from django.core.paginator import Paginator
-from django.shortcuts import render, render_to_response, redirect
-from django.http import JsonResponse, HttpResponseForbidden, Http404, QueryDict
+from django.shortcuts import render
+from django.http import JsonResponse, Http404
 from django.core.exceptions import PermissionDenied
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from django.utils.decorators import method_decorator
-from django.core.urlresolvers import reverse
-from django.views import View
-from django.utils import timezone
-# from django.views.decorators.cache import cache_page
 
-from account.models import UserProfile
 from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
 from utils.sensitive_word_handler import sensitive_words_replace
 
