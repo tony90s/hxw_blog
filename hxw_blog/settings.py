@@ -258,7 +258,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'utils.exceptions.custom_exception_handler'
 }
 
 ################################## Social login ################################
