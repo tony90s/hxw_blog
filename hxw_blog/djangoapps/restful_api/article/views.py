@@ -30,12 +30,11 @@ class CreateArticleView(generics.CreateAPIView):
     serializer_class = SaveArticleSerializer
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
 
-    def create(self, request, *args, **kwargs):
-        original_request_data = request.data.urlencode()
-        new_request_data = QueryDict(original_request_data, mutable=True)
-        new_request_data['author_id'] = request.user.id
+    def perform_create(self, serializer):
+        serializer.save(author_id=self.request.user.id)
 
-        serializer = self.get_serializer(data=new_request_data)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
@@ -167,12 +166,11 @@ class SaveCommentView(generics.CreateAPIView):
     serializer_class = SaveCommentSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def create(self, request, *args, **kwargs):
-        original_request_data = request.data.urlencode()
-        new_request_data = QueryDict(original_request_data, mutable=True)
-        new_request_data['commentator_id'] = request.user.id
+    def perform_create(self, serializer):
+        serializer.save(commentator_id=self.request.user.id)
 
-        serializer = self.get_serializer(data=new_request_data)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         articles = Article.objects.using('read').filter(id=serializer.validated_data.get('article_id'))
@@ -235,12 +233,11 @@ class SaveCommentReplyView(generics.CreateAPIView):
     serializer_class = SaveCommentReplySerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def create(self, request, *args, **kwargs):
-        original_request_data = request.data.urlencode()
-        new_request_data = QueryDict(original_request_data, mutable=True)
-        new_request_data['replier_id'] = request.user.id
+    def perform_create(self, serializer):
+        serializer.save(replier_id=self.request.user.id)
 
-        serializer = self.get_serializer(data=new_request_data)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         comments = Comment.objects.using('read').filter(id=serializer.validated_data.get('comment_id'))
@@ -301,12 +298,11 @@ class SavePraiseView(generics.CreateAPIView):
     serializer_class = SavePraiseSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def create(self, request, *args, **kwargs):
-        original_request_data = request.data.urlencode()
-        new_request_data = QueryDict(original_request_data, mutable=True)
-        new_request_data['user_id'] = request.user.id
+    def perform_create(self, serializer):
+        serializer.save(user_id=self.request.user.id)
 
-        serializer = self.get_serializer(data=new_request_data)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         praise_type = serializer.validated_data.get('praise_type')
