@@ -43,6 +43,33 @@ class SaveArticleSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SaveCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('article_id', 'commentator_id', 'content')
+
+    def create(self, validated_data):
+        return Comment.objects.using('write').create(**validated_data)
+
+
+class SaveCommentReplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommentReply
+        fields = ('comment_id', 'receiver_id', 'replier_id', 'content')
+
+    def create(self, validated_data):
+        return CommentReply.objects.using('write').create(**validated_data)
+
+
+class SavePraiseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Praise
+        fields = ('praise_type', 'parent_id', 'user_id')
+
+    def create(self, validated_data):
+        return Praise.objects.using('write').create(**validated_data)
+
+
 class ArticleSerializer(serializers.ModelSerializer):
     article_id = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()

@@ -163,43 +163,6 @@ def article_details(request, article_id):
     return render(request, template_name, context)
 
 
-@login_required
-@csrf_exempt
-def save_comment(request):
-    user = request.user
-    article_id = request.POST.get('article_id', '')
-    comment_content = request.POST.get('comment_content', '')
-
-    if not article_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(article_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-    if not comment_content:
-        return JsonResponse({'code': 400, 'msg': '请先填写评论内容'})
-
-    try:
-        comment = Comment()
-        article_id = int(article_id)
-        articles = Article.objects.using('read').filter(id=article_id)
-        if not articles.exists():
-            return JsonResponse({'code': 404, 'msg': '所评论的博文不存在，请联系管理员'})
-
-        comment.article_id = article_id
-        comment.commentator_id = user.id
-        comment.content = comment_content
-        comment.save()
-
-        return_context = {
-            'code': 200,
-            'msg': '评论创建成功',
-            'data': comment.render_json()
-        }
-        return JsonResponse(return_context)
-    except Exception as e:
-        logger.error(e)
-        return JsonResponse({'code': 500, 'msg': '保存失败，请联系管理员。'})
-
-
 @require_http_methods(['GET'])
 def article_comments_list(request):
     page_size = settings.DEFAULT_PAGE_SIZE
@@ -231,93 +194,6 @@ def article_comments_list(request):
         'has_next': len(comments) > (page_index * page_size)
     }
     return JsonResponse(context)
-
-
-@login_required
-@csrf_exempt
-def save_comment_reply(request):
-    user = request.user
-    comment_id = request.POST.get('comment_id', '')
-    receiver_id = request.POST.get('receiver_id', '')
-    content = request.POST.get('content', '')
-
-    if not comment_id or not receiver_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(comment_id) or not reg_number.match(receiver_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    if not content:
-        return JsonResponse({'code': 400, 'msg': '请先填写回复内容'})
-
-    comment_id = int(comment_id)
-    receiver_id = int(receiver_id)
-
-    comments = Comment.objects.using('read').filter(id=comment_id)
-    if not comments.exists():
-        return JsonResponse({'code': 404, 'msg': '所回复评论不存在，请联系管理员'})
-    receivers = User.objects.using('read').filter(id=receiver_id)
-    if not receivers.exists():
-        return JsonResponse({'code': 404, 'msg': '所回复的童鞋不存在，请联系管理员'})
-
-    comment_reply = CommentReply()
-    comment_reply.comment_id = comment_id
-    comment_reply.receiver_id = receiver_id
-    comment_reply.replier_id = user.id
-    comment_reply.content = content
-    comment_reply.save(using='write')
-
-    return_context = {
-        'code': 200,
-        'msg': '回复成功',
-        'data': comment_reply.render_json()
-    }
-    return JsonResponse(return_context)
-
-
-@login_required
-@csrf_exempt
-def save_praise(request):
-    user = request.user
-    praise_type = request.POST.get('praise_type', '')
-    parent_id = request.POST.get('parent_id', '')
-
-    if not praise_type or not parent_id:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(praise_type) or not reg_number.match(parent_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    praise_type = int(praise_type)
-    parent_id= int(parent_id)
-    if praise_type not in [value for value, name in Praise.TYPE_CHOICES]:
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    if praise_type == Praise.TYPE.ARTICLE:
-        praise_parents = Article.objects.using('read').filter(id=parent_id)
-    elif praise_type == Praise.TYPE.COMMENT:
-        praise_parents = Comment.objects.using('read').filter(id=parent_id)
-    else:
-        praise_parents = CommentReply.objects.using('read').filter(id=parent_id)
-
-    if not praise_parents.exists():
-        return JsonResponse({'code': 404, 'msg': '所点赞对象不存在'})
-
-    praises = Praise.objects.using('read').filter(Q(praise_type=praise_type) &
-                                                  Q(parent_id=parent_id) & Q(user_id=user.id))
-    if praises.exists():
-        return JsonResponse({'code': 304, 'msg': '你已点赞，无需重复点赞'})
-
-    praise = Praise()
-    praise.praise_type = praise_type
-    praise.parent_id = parent_id
-    praise.user_id = user.id
-    praise.save(using='write')
-
-    return_context = {
-        'code': 200,
-        'msg': '点赞成功',
-        'praise_id': praise.id
-    }
-    return JsonResponse(return_context)
 
 
 @login_required()

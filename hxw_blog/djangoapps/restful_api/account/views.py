@@ -27,7 +27,7 @@ class UpdateUserInfoView(generics.UpdateAPIView):
 
     def clean(self):
         user = self.request.user
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         username = query_data.get('username', '')
         gender = query_data.get('gender', '')
         bio = query_data.get('bio', '')
@@ -73,7 +73,7 @@ class UpdateUserPasswordView(generics.UpdateAPIView):
 
     def clean(self):
         user = self.request.user
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         password = query_data.get('password', '')
         new_password = query_data.get('new_password', '')
         confirm_password = query_data.get('confirm_password', '')
@@ -259,7 +259,7 @@ class ChangeEmailView(generics.UpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def clean(self):
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         email = query_data.get('email', '')
         verification_code = query_data.get('verification_code', '')
 
@@ -304,7 +304,7 @@ class BindEmailView(generics.UpdateAPIView):
 
     def clean(self):
         user = self.request.user
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         email = query_data.get('email', '')
         verification_code = query_data.get('verification_code', '')
         password = query_data.get('password', '')

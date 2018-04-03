@@ -6,12 +6,20 @@ from django.http import Http404
 from django.db.models import Q
 from django.http import QueryDict
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
-from restful_api.article.serializers import ArticleSerializer, PraiseSerializer, SaveArticleSerializer
+from restful_api.article.serializers import (
+    ArticleSerializer,
+    PraiseSerializer,
+    SaveArticleSerializer,
+    SaveCommentSerializer,
+    SaveCommentReplySerializer,
+    SavePraiseSerializer
+)
 from utils.paginators import SmallResultsSetPagination
 
 reg_number = re.compile('^\d+$')
@@ -112,7 +120,7 @@ class DeleteArticleView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def clean(self):
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         article_id = query_data.get('article_id', '')
         if not article_id:
             return Response({'code': 400, 'msg': '参数缺失'})
@@ -155,11 +163,36 @@ class DeleteArticleView(generics.DestroyAPIView):
         return Response({'code': 200, 'msg': '删除博文成功'})
 
 
+class SaveCommentView(generics.CreateAPIView):
+    serializer_class = SaveCommentSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        original_request_data = request.data.urlencode()
+        new_request_data = QueryDict(original_request_data, mutable=True)
+        new_request_data['commentator_id'] = request.user.id
+
+        serializer = self.get_serializer(data=new_request_data)
+        serializer.is_valid(raise_exception=True)
+
+        articles = Article.objects.using('read').filter(id=serializer.validated_data.get('article_id'))
+        if not articles.exists():
+            return Response({'code': 404, 'msg': '所评论的博文不存在，请联系管理员'})
+        self.perform_create(serializer)
+
+        return_context = {
+            'code': 200,
+            'msg': '评论创建成功',
+            'data': serializer.instance.render_json()
+        }
+        return Response(return_context)
+
+
 class DeleteCommentView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def clean(self):
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         comment_id = query_data.get('comment_id', '')
         if not comment_id:
             return Response({'code': 400, 'msg': '参数缺失'})
@@ -198,11 +231,39 @@ class DeleteCommentView(generics.DestroyAPIView):
         return Response({'code': 200, 'msg': '删除评论成功'})
 
 
+class SaveCommentReplyView(generics.CreateAPIView):
+    serializer_class = SaveCommentReplySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        original_request_data = request.data.urlencode()
+        new_request_data = QueryDict(original_request_data, mutable=True)
+        new_request_data['replier_id'] = request.user.id
+
+        serializer = self.get_serializer(data=new_request_data)
+        serializer.is_valid(raise_exception=True)
+
+        comments = Comment.objects.using('read').filter(id=serializer.validated_data.get('comment_id'))
+        if not comments.exists():
+            return Response({'code': 404, 'msg': '所回复评论不存在，请联系管理员'})
+        receivers = User.objects.using('read').filter(id=serializer.validated_data.get('receiver_id'))
+        if not receivers.exists():
+            return Response({'code': 404, 'msg': '所回复的童鞋不存在，请联系管理员'})
+        self.perform_create(serializer)
+
+        return_context = {
+            'code': 200,
+            'msg': '回复成功',
+            'data': serializer.instance.render_json()
+        }
+        return Response(return_context)
+
+
 class DeleteCommentReplyView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def clean(self):
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         comment_reply_id = query_data.get('comment_reply_id', '')
         if not comment_reply_id:
             return Response({'code': 400, 'msg': '参数缺失'})
@@ -236,11 +297,49 @@ class DeleteCommentReplyView(generics.DestroyAPIView):
         return Response({'code': 200, 'msg': '删除回复成功'})
 
 
+class SavePraiseView(generics.CreateAPIView):
+    serializer_class = SavePraiseSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        original_request_data = request.data.urlencode()
+        new_request_data = QueryDict(original_request_data, mutable=True)
+        new_request_data['user_id'] = request.user.id
+
+        serializer = self.get_serializer(data=new_request_data)
+        serializer.is_valid(raise_exception=True)
+
+        praise_type = serializer.validated_data.get('praise_type')
+        parent_id = serializer.validated_data.get('parent_id')
+        if praise_type == Praise.TYPE.ARTICLE:
+            praise_parents = Article.objects.using('read').filter(id=parent_id)
+        elif praise_type == Praise.TYPE.COMMENT:
+            praise_parents = Comment.objects.using('read').filter(id=parent_id)
+        else:
+            praise_parents = CommentReply.objects.using('read').filter(id=parent_id)
+
+        if not praise_parents.exists():
+            return Response({'code': 404, 'msg': '所点赞对象不存在'})
+
+        praises = Praise.objects.using('read').filter(Q(praise_type=praise_type) &
+                                                      Q(parent_id=parent_id) & Q(user_id=request.user.id))
+        if praises.exists():
+            return Response({'code': 304, 'msg': '你已点赞，无需重复点赞'})
+        self.perform_create(serializer)
+
+        return_context = {
+            'code': 200,
+            'msg': '点赞成功',
+            'praise_id': serializer.instance.id
+        }
+        return Response(return_context)
+
+
 class CancelPraiseView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def clean(self):
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         praise_type = query_data.get('praise_type', '')
         parent_id = query_data.get('parent_id', '')
 
@@ -278,7 +377,7 @@ class CancelPraiseView(generics.DestroyAPIView):
 
 class UpdateIsViewedStatusView(generics.UpdateAPIView):
     def clean(self):
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         object_type = query_data.get('object_type')  # 1 comment  2 comment_reply   3 praise
         parent_id = query_data.get('parent_id')
 
@@ -323,7 +422,7 @@ class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def clean(self):
-        query_data = QueryDict(self.request.body)
+        query_data = self.request.data
         article_id = query_data.get('article_id')
         if not article_id:
             return Response({'code': 400, 'msg': '参数缺失'})
