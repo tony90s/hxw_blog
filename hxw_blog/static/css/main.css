@@ -230,6 +230,12 @@ label {
     z-index: 999;
 }
 
+@media (max-width: 1080px) {
+    .fixed-btn {
+        right: 2.5%;
+    }
+}
+
 .fixed-btn a {
     display: inline-block;
     width: 40px;
