@@ -195,6 +195,11 @@ label {
     vertical-align: middle;
 }
 
+.bs-docs-footer .footer-message .authorities {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
 .bs-docs-footer .footer-message .authorities>a+a:before {
     padding: 0 10px;
     color:#878B91;
