@@ -166,15 +166,15 @@
                 var page_size = $("#page_size").val();
                 $("#btn_read_more").click(function() {
                     $(".loading-animation").show();
-                    $.getJSON("{% url 'account:user_message_praises_pagination' %}",
+                    $.getJSON("{% url 'api:user_praises' %}",
                             {
                                 'user_id': user_id,
-                                'page_index': page_index
+                                'page': page_index
                             }, function(json) {
                             $(".loading-animation").hide();
-                            if (json.data.length > 0) {
+                            if (json.results.length > 0) {
                                 var str = "";
-                                $.each(json.data, function(index, array) {
+                                $.each(json.results, function(index, array) {
                                     var type = array['type'];
                                     var article_id = array['article_info']['article_id'];
                                     var title = array['article_info']['title'];
@@ -244,7 +244,7 @@
                                 });
                                 timeDesc();
                                 AjaxUpdateViewStatus();
-                                if (!json.has_next) {
+                                if (!json.next) {
                                     $("#btn_read_more").hide();
                                     $(".read-more .not-more-content").show();
                                     return false;

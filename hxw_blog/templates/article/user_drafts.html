@@ -183,15 +183,15 @@
                 var user_info_span = $(".user-info")[0];
                 var user_id = user_info_span.dataset.user_id;
                 $("#btn_read_more").click(function() {
-                    $.getJSON("{% url 'article:articles' %}",
+                    $.getJSON("{% url 'api:articles' %}",
                             {
-                                'page_index': page_index,
+                                'page': page_index,
                                 'author_id': user_id,
                                 'is_released': 0
                             }, function(json) {
-                            if (json.data.length > 0) {
+                            if (json.results.length > 0) {
                                 var str = "";
-                                $.each(json.data, function(index, array) {
+                                $.each(json.results, function(index, array) {
                                     var article_id = array['article_id'];
                                     var title = array['title'];
                                     var type = array['type'];
@@ -242,7 +242,7 @@
                                     $(".note-list").append(str);
                                 });
                                 timeDesc();
-                                if (!json.has_next) {
+                                if (!json.next) {
                                     $("#btn_read_more").hide();
                                     $(".read-more .not-more-content").show();
                                     return false;
