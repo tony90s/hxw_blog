@@ -692,14 +692,14 @@
 
     <script type="text/javascript">
             function ajaxGetComment(article_id, page_index) {
-                $.getJSON("{% url 'article:comments' %}",
+                $.getJSON("{% url 'api:comments' %}",
                             {
-                                'page_index': page_index,
+                                'page': page_index,
                                 'article_id': article_id
                             }, function(json) {
-                            if (json.data.length > 0) {
+                            if (json.results.length > 0) {
                                 $(".comment-show").html('');
-                                $.each(json.data, function(index, array) {
+                                $.each(json.results, function(index, array) {
                                     var article_id = array['article_id'];
                                     var comment_id = array['comment_id'];
                                     //var commentator = array['commentator'];
@@ -779,7 +779,7 @@
                                     $(".comment-show").append(comment_html);
                                 });
                                 timeDesc();
-                                if (!json.has_next) {
+                                if (!json.next) {
                                     $(".next-page").addClass("disabled");
                                 }
                                 else {

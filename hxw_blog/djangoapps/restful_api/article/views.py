@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
 from restful_api.article.serializers import (
     ArticleSerializer,
+    CommentSerializer,
     PraiseSerializer,
     SaveArticleSerializer,
     SaveCommentSerializer,
@@ -98,6 +99,26 @@ class ArticleList(generics.ListAPIView):
 
         articles = Article.objects.using('read').filter(query_condition).order_by('-id')
         return articles
+
+
+class CommentList(generics.ListAPIView):
+    """
+    List all comment
+    """
+
+    pagination_class = SmallResultsSetPagination
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        article_id = self.request.query_params.get('article_id', '0')
+        article_id = int(article_id)
+
+        articles = Article.objects.using('read').filter(id=article_id)
+        if not articles.exists():
+            raise Http404
+
+        comments = Comment.objects.using('read').filter(Q(article_id=article_id)).order_by('-id')
+        return comments
 
 
 class PraiseList(generics.ListAPIView):

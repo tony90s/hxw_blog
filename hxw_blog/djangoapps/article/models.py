@@ -183,6 +183,11 @@ class Comment(models.Model):
         verbose_name = _('comment')
         verbose_name_plural = _('comments')
 
+    @property
+    def praise_times(self):
+        praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id=self.id))
+        return praises.count()
+
     def get_commentator_info(self):
         if self.commentator_id in self.__user_cache:
             return self.__user_cache[self.commentator_id]
@@ -208,9 +213,7 @@ class Comment(models.Model):
         for comment_reply in comment_replies:
             comment_replies_data.append(comment_reply.render_json())
         context['comment_replies'] = comment_replies_data
-
-        praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id=self.id))
-        context['praise_times'] = praises.count()
+        context['praise_times'] = self.praise_times
 
         return context
 
@@ -274,6 +277,11 @@ class CommentReply(models.Model):
         verbose_name = _('comment_reply')
         verbose_name_plural = _('comment_replies')
 
+    @property
+    def praise_times(self):
+        praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id=self.id))
+        return praises.count()
+
     def get_replier_info(self):
         if self.replier_id in self.__user_cache:
             return self.__user_cache[self.replier_id]
@@ -316,8 +324,7 @@ class CommentReply(models.Model):
         context['receiver'] = self.get_receiver_info()
         context['reply_at'] = timezone.localtime(self.reply_at).strftime("%Y-%m-%d %H:%M:%S")
         context['content'] = self.content
-        praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id=self.id))
-        context['praise_times'] = praises.count()
+        context['praise_times'] = self.praise_times
         return context
 
     def get_unified_comment_info(self):

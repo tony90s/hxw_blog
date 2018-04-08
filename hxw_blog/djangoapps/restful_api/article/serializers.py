@@ -132,3 +132,58 @@ class PraiseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Praise
         fields = ('id', 'praise_type', 'user', 'praise_at', 'article_info', 'receiver_info', 'content', 'is_viewed')
+
+
+class CommentReplySerializer(serializers.ModelSerializer):
+    comment_reply_id = serializers.SerializerMethodField()
+    replier = serializers.SerializerMethodField()
+    receiver = serializers.SerializerMethodField()
+    reply_at = serializers.SerializerMethodField()
+
+    def get_comment_reply_id(self, comment_reply):
+        return comment_reply.id
+
+    def get_replier(self, comment_reply):
+        replier_info = comment_reply.get_replier_info()
+        return replier_info
+
+    def get_receiver(self, comment_reply):
+        receiver_info = comment_reply.get_receiver_info()
+        return receiver_info
+
+    def get_reply_at(self, comment_reply):
+        reply_at = timezone.localtime(comment_reply.reply_at).strftime("%Y-%m-%d %H:%M:%S")
+        return reply_at
+
+    class Meta:
+        model = CommentReply
+        fields = ('comment_reply_id', 'comment_id', 'replier', 'receiver', 'reply_at', 'content', 'praise_times')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    comment_id = serializers.SerializerMethodField()
+    commentator = serializers.SerializerMethodField()
+    comment_at = serializers.SerializerMethodField()
+    comment_replies = serializers.SerializerMethodField()
+
+    def get_comment_id(self, comment):
+        return comment.id
+
+    def get_commentator(self, comment):
+        commentator_info = comment.get_commentator_info()
+        return commentator_info
+
+    def get_comment_at(self, comment):
+        comment_at = timezone.localtime(comment.comment_at).strftime("%Y-%m-%d %H:%M:%S")
+        return comment_at
+
+    def get_comment_replies(self, comment):
+        comment_replies = CommentReply.objects.using('read').filter(comment_id=comment.id).order_by("-id")
+        comment_replies_data = list()
+        for comment_reply in comment_replies:
+            comment_replies_data.append(comment_reply.render_json())
+        return comment_replies_data
+
+    class Meta:
+        model = Comment
+        fields = ('article_id', 'comment_id', 'commentator', 'comment_at', 'content', 'praise_times', 'comment_replies')
