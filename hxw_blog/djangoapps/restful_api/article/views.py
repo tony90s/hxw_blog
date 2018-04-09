@@ -120,6 +120,27 @@ class CommentList(generics.ListAPIView):
         comments = Comment.objects.using('read').filter(Q(article_id=article_id)).order_by('-id')
         return comments
 
+    def clean_cache(self):
+        Comment._Comment__user_cache = dict()
+        Comment._Comment__article_info_cache = dict()
+        CommentReply._CommentReply__user_cache = dict()
+        CommentReply._CommentReply__article_info_cache = dict()
+        Praise._Praise__user_cache = dict()
+        Praise._Praise__article_info_cache = dict()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response = Response(serializer.data)
+        self.clean_cache()
+        return response
+
 
 class PraiseList(generics.ListAPIView):
     """
@@ -132,6 +153,27 @@ class PraiseList(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.request.GET.get('user_id')
         return get_user_be_praised(user_id)
+
+    def clean_cache(self):
+        Comment._Comment__user_cache = dict()
+        Comment._Comment__article_info_cache = dict()
+        CommentReply._CommentReply__user_cache = dict()
+        CommentReply._CommentReply__article_info_cache = dict()
+        Praise._Praise__user_cache = dict()
+        Praise._Praise__article_info_cache = dict()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response = Response(serializer.data)
+        self.clean_cache()
+        return response
 
 
 class DeleteArticleView(generics.DestroyAPIView):
