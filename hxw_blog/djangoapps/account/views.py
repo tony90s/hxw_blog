@@ -445,45 +445,6 @@ def message_praises(request):
     return render(request, template_name, context)
 
 
-@require_http_methods(['GET'])
-def user_praises_info_pagination(request):
-    page_size = settings.DEFAULT_PAGE_SIZE
-    user_id = request.GET.get('user_id')
-    page_index = request.GET.get('page_index')
-
-    if not user_id or not page_index:
-        return JsonResponse({'code': 400, 'msg': '参数缺失。'})
-
-    if not reg_number.match(user_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-    user_id = int(user_id)
-    if user_id <= 0:
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-
-    if not reg_number.match(page_index):
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-    page_index = int(page_index)
-    if page_index <= 0:
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-
-    praises = get_user_be_praised(user_id)
-    praises_info = [praise.get_praise_info() for praise in praises[page_size * (page_index - 1):page_size * page_index]]
-
-    context = {
-        'code': 200,
-        'msg': '查询成功',
-        'data': praises_info,
-        'has_next': int(len(praises) > (page_index * page_size))
-    }
-    Comment._Comment__user_cache = dict()
-    Comment._Comment__article_info_cache = dict()
-    CommentReply._CommentReply__user_cache = dict()
-    CommentReply._CommentReply__article_info_cache = dict()
-    Praise._Praise__user_cache = dict()
-    Praise._Praise__article_info_cache = dict()
-    return JsonResponse(context)
-
-
 def weibo_login(request):
     redirect_url = request.GET.get('redirect_url', reverse('index'))
     oauth_weibo = OauthWeibo(settings.WEIBO_APP_KEY, settings.WEIBO_APP_SECRET, settings.WEIBO_LOGIN_REDIRECT_URI)

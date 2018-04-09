@@ -85,50 +85,6 @@ def article_category_index_views(request, article_type):
     return render(request, template, context)
 
 
-@require_http_methods(['GET'])
-def articles_list(request):
-    page_size = settings.DEFAULT_PAGE_SIZE
-    article_type = request.GET.get('article_type', '0')
-    page_index = request.GET.get('page_index', '1')
-    author_id = request.GET.get('author_id', '0')
-    is_released = request.GET.get('is_released', '1')
-
-    if not reg_number.match(article_type) or not reg_number.match(page_index) or not reg_number.match(
-            author_id) or not reg_number.match(is_released):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    article_type = int(article_type)
-    page_index = int(page_index)
-    author_id = int(author_id)
-    is_released = int(is_released)
-
-    if page_index <= 0:
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-    if is_released not in [0, 1]:
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-
-    query_condition = Q(is_released=is_released)
-    if article_type > 0:
-        if article_type not in [value for value, name in Article.TYPE_CHOICES]:
-            return JsonResponse({'code': 404, 'msg': '没有此类型的博文'})
-        query_condition &= Q(type=article_type)
-
-    if author_id > 0:
-        query_condition &= Q(author_id=author_id)
-
-    articles = Article.objects.using('read').filter(query_condition).order_by('-id')
-    articles_summarization = [article.get_summarization() for article in
-                              articles[page_size * (page_index - 1):page_size * page_index]]
-
-    context = {
-        'code': 200,
-        'msg': '查询成功',
-        'data': articles_summarization,
-        'has_next': int(len(articles) > (page_index * page_size))
-    }
-    return JsonResponse(context)
-
-
 def article_details(request, article_id):
     page_size = settings.DEFAULT_PAGE_SIZE
     template_name = 'article/article_detail.html'
@@ -152,39 +108,6 @@ def article_details(request, article_id):
     Praise._Praise__user_cache = dict()
     Praise._Praise__article_info_cache = dict()
     return render(request, template_name, context)
-
-
-@require_http_methods(['GET'])
-def article_comments_list(request):
-    page_size = settings.DEFAULT_PAGE_SIZE
-    article_id = request.GET.get('article_id')
-    page_index = request.GET.get('page_index')
-    if not article_id or not page_index:
-        return JsonResponse({'code': 400, 'msg': '参数缺失'})
-    if not reg_number.match(article_id) or not reg_number.match(page_index):
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-    article_id = int(article_id)
-    page_index = int(page_index)
-
-    if page_index <= 0:
-        return JsonResponse({'code': 400, 'msg': '参数有误'})
-    articles = Article.objects.using('read').filter(id=article_id)
-    if not articles.exists():
-        return JsonResponse({'code': 404, 'msg': '博文不存在'})
-
-    query_condition = Q(article_id=article_id)
-    comments = Comment.objects.using('read').filter(query_condition).order_by('-id')
-    query_comments = comments[page_size * (page_index - 1):page_size * page_index]
-    comments_data = [comment.render_json() for comment in query_comments]
-
-    context = {
-        'code': 200,
-        'msg': '查询成功',
-        'count': len(comments),
-        'data': comments_data,
-        'has_next': len(comments) > (page_index * page_size)
-    }
-    return JsonResponse(context)
 
 
 @login_required()
