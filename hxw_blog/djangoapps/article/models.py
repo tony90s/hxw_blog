@@ -253,7 +253,7 @@ class Comment(models.Model):
 
 def get_user_article_comments(user_id):
     articles = Article.objects.using('read').filter(author_id=user_id)
-    article_ids = [article.id for article in articles]
+    article_ids = list(articles.values_list('id', flat=True))
     comments = Comment.objects.using('read').filter(article_id__in=article_ids).order_by('-id')
     return comments
 
@@ -438,15 +438,15 @@ class Praise(models.Model):
 
 def get_user_be_praised(user_id):
     articles = Article.objects.using('read').filter(author_id=user_id)
-    article_ids = [article.id for article in articles]
+    article_ids = list(articles.values_list('id', flat=True))
     query_condition = (Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id__in=article_ids))
 
     comments = Comment.objects.using('read').filter(commentator_id=user_id)
-    comment_ids = [comment.id for comment in comments]
+    comment_ids = list(comments.values_list('id', flat=True))
     query_condition |= (Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comment_ids))
 
     comment_replies = CommentReply.objects.using('read').filter(replier_id=user_id)
-    comment_reply_ids = [comment_reply.id for comment_reply in comment_replies]
+    comment_reply_ids = list(comment_replies.values_list('id', flat=True))
     query_condition |= (Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_reply_ids))
 
     praises = Praise.objects.using('read').filter(query_condition).order_by('-id')
