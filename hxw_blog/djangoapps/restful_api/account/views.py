@@ -167,8 +167,8 @@ class SendEmailToResetPassword(APIView):
             # composes activation email
             subject = '重置密码'
             template_path = 'emails/forget_password.html'
-            from_address_name = settings.DEFAULT_FROM_EMAIL_DISPLAY
-            send_html_mail(subject, template_path, context, from_address_name, [self.cleaned_data.get('email')])
+            default_from_address = settings.DEFAULT_FROM_EMAIL
+            send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
             return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
@@ -205,8 +205,8 @@ class CheckEmailIsBind(APIView):
             }
             subject = '绑定/修改邮箱'
             template_path = 'emails/bind_or_change_email.html'
-            from_address_name = settings.DEFAULT_FROM_EMAIL_DISPLAY
-            send_html_mail(subject, template_path, context, from_address_name, [self.cleaned_data.get('email')])
+            default_from_address = settings.DEFAULT_FROM_EMAIL
+            send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
             return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
@@ -240,8 +240,8 @@ class SendEmailToBindOrChangeEmail(APIView):
             }
             subject = '绑定/修改邮箱'
             template_path = 'emails/bind_or_change_email.html'
-            from_address_name = settings.DEFAULT_FROM_EMAIL_DISPLAY
-            send_html_mail(subject, template_path, context, from_address_name, [self.cleaned_data.get('email')])
+            default_from_address = settings.DEFAULT_FROM_EMAIL
+            send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
             return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
