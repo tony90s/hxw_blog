@@ -167,7 +167,7 @@ class SendEmailToResetPassword(APIView):
             # composes activation email
             subject = '重置密码'
             template_path = 'emails/forget_password.html'
-            default_from_address = settings.DEFAULT_FROM_EMAIL
+            default_from_address = settings.DEFAULT_FROM_EMAIL_DISPLAY
             send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
@@ -205,7 +205,7 @@ class CheckEmailIsBind(APIView):
             }
             subject = '绑定/修改邮箱'
             template_path = 'emails/bind_or_change_email.html'
-            default_from_address = settings.DEFAULT_FROM_EMAIL
+            default_from_address = settings.DEFAULT_FROM_EMAIL_DISPLAY
             send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
@@ -240,7 +240,7 @@ class SendEmailToBindOrChangeEmail(APIView):
             }
             subject = '绑定/修改邮箱'
             template_path = 'emails/bind_or_change_email.html'
-            default_from_address = settings.DEFAULT_FROM_EMAIL
+            default_from_address = settings.DEFAULT_FROM_EMAIL_DISPLAY
             send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
