@@ -193,7 +193,7 @@ class DeleteArticleView(generics.DestroyAPIView):
         article_id = self.cleaned_data.get('article_id')
         articles = Article.objects.using('read').filter(id=int(article_id))
         if not articles.exists():
-            return Response({'code': 404, 'msg': '所要删除的博文不存在'})
+            raise Http404
         return articles[0]
 
     def perform_destroy(self, instance):
@@ -264,7 +264,7 @@ class DeleteCommentView(generics.DestroyAPIView):
         comment_id = self.cleaned_data.get('comment_id')
         comments = Comment.objects.using('read').filter(id=int(comment_id))
         if not comments.exists():
-            return Response({'code': 404, 'msg': '所要删除的评论不存在'})
+            raise Http404
         return comments[0]
 
     def perform_destroy(self, instance):
@@ -334,7 +334,7 @@ class DeleteCommentReplyView(generics.DestroyAPIView):
         comment_reply_id = self.cleaned_data.get('comment_reply_id')
         comment_replies = CommentReply.objects.using('read').filter(id=int(comment_reply_id))
         if not comment_replies.exists():
-            return Response({'code': 404, 'msg': '所要删除的回复不存在'})
+            raise Http404
         return comment_replies[0]
 
     def perform_destroy(self, instance):
@@ -417,7 +417,7 @@ class CancelPraiseView(generics.DestroyAPIView):
         praises = Praise.objects.using('read').filter(Q(praise_type=praise_type) &
                                                        Q(parent_id=parent_id) & Q(user_id=user_id))
         if not praises.exists():
-            return Response({'code': 400, 'msg': '您尚未点赞，不能取消赞'})
+            raise Http404
         return praises[0]
 
     def destroy(self, request, *args, **kwargs):
@@ -460,7 +460,7 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
         else:
             instances = Praise.objects.using('write').filter(id=parent_id)
         if not instances.exists():
-            return Response({'code': 404, 'msg': '对象不存在'})
+            raise Http404
         return instances
 
     def perform_update(self, instances):
@@ -492,7 +492,7 @@ class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
         article_id = int(self.cleaned_data.get('article_id'))
         articles = Article.objects.using('read').filter(id=article_id)
         if not articles.exists():
-            return Response({'code': 404, 'msg': '博文不存在'})
+            raise Http404
         return articles
 
     def perform_update(self, instances):
