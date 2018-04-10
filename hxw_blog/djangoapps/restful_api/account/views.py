@@ -12,6 +12,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 
 from restful_api.account.serializers import (
+    UserInfoSerializer,
     UnbindingSocialLoginSerializer,
 )
 from account.models import OauthLogin
@@ -27,48 +28,23 @@ logger = logging.getLogger('api.account')
 
 
 class UpdateUserInfoView(generics.UpdateAPIView):
+    serializer_class = UserInfoSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        user = self.request.user
-        query_data = self.request.data
-        username = query_data.get('username', '')
-        gender = query_data.get('gender', '')
-        bio = query_data.get('bio', '')
+    def get_object(self):
+        return self.request.user
 
-        self.cleaned_data = dict()
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        username = serializer.validated_data.get('username')
         if username:
             if not reg_username.match(username):
                 return Response({'code': 400, 'msg': '昵称格式有误，请重新输入。'})
-            users = User.objects.using('read').filter(username=username)
-            if username != user.username and users.exists():
-                return Response({'code': 400, 'msg': '昵称已被使用，换一个试试。'})
-            self.cleaned_data['username'] = username
-        if gender:
-            if gender not in ['m', 'f']:
-                return Response({'code': 400, 'msg': '性别参数有误，请重试。'})
-            self.cleaned_data['gender'] = gender
-        if bio:
-            if len(bio) > 120:
-                return Response({'code': 400, 'msg': '个人简介字数至多为120，请重试。'})
-            self.cleaned_data['bio'] = bio
-        return None
-
-    def perform_update(self, user):
-        user_profile = user.profile
-        user.username = self.cleaned_data.get('username', user.username)
-        user_profile.gender = self.cleaned_data.get('gender', user_profile.gender)
-        user_profile.bio = self.cleaned_data.get('bio', user_profile.bio)
-        user.save(using='write')
-        user_profile.save(using='write')
-
-    def update(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
-
-        user = request.user
-        self.perform_update(user)
+        self.perform_update(serializer)
         return Response({'code': 200, 'msg': '更新成功。'})
 
 
