@@ -195,3 +195,17 @@ class OauthAlipay(object):
         oauth_login.oauth_expires = oauth_expires
         oauth_login.save(using='write')
         return user
+
+    def bind(self, user):
+        oauth_access_token = self.access_token['access_token']
+        oauth_expires = self.access_token['expires_in']
+        uid = self.access_token['user_id']
+
+        oauth_login = OauthLogin()
+        oauth_login.auth_type = OauthLogin.TYPE.ALIPAY
+        oauth_login.oauth_id = uid
+        oauth_login.user_id = user.id
+        oauth_login.oauth_access_token = oauth_access_token
+        oauth_login.oauth_expires = oauth_expires
+        oauth_login.save(using='write')
+        return oauth_login

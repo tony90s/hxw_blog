@@ -1,14 +1,20 @@
+from copy import deepcopy
 import logging
 import os
 import re
 
 from django.conf import settings
+from django.http import Http404, QueryDict
 from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
+from restful_api.account.serializers import (
+    UnbindingSocialLoginSerializer,
+)
+from account.models import OauthLogin
 from utils.file_handling import get_thumbnail
 from utils import generate_verification_code
 from utils.html_email_utils import send_html_mail
@@ -347,4 +353,32 @@ class BindEmailView(generics.UpdateAPIView):
         return Response({
             'code': 200,
             'msg': '邮箱绑定成功。'
+        })
+
+
+class UnbindingSocialLoginView(generics.DestroyAPIView):
+    serializer_class = UnbindingSocialLoginSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        auth_type = self.serializer_class.validated_data.get('auth_type')
+        user_id = self.serializer_class.validated_data.get('user_id')
+
+        oauth_logins = OauthLogin.objects.using('read').filter(auth_type=auth_type, user_id=user_id)
+        if not oauth_logins.exists():
+            raise Http404
+        return oauth_logins[0]
+
+    def destroy(self, request, *args, **kwargs):
+        original_request_data = request.data.urlencode()
+        new_request_data = QueryDict(original_request_data, mutable=True)
+        new_request_data['user_id'] = request.user.id
+        serializer = self.get_serializer(data=new_request_data)
+        serializer.is_valid(raise_exception=True)
+
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({
+            'code': 200,
+            'msg': '解绑成功。'
         })

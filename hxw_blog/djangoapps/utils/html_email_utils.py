@@ -33,6 +33,14 @@ def send_html_mail(subject, template_path, mail_context, from_address, recipient
 
 class HtmlEmailThread(threading.Thread):
     def __init__(self, subject, template_path, mail_context, from_address, recipient_list, fail_silently):
+        """
+        :param subject: The email's subject.
+        :param template_path: The template path of the email.
+        :param mail_context: The parameters to be parsed by the template.
+        :param from_address: The sender of the email.
+        :param recipient_list: The recipients list of the email.
+        :param fail_silently: If set it to False, through a SMTPException when fail to send email.
+        """
         self.subject = subject
         self.template_path = template_path
         self.mail_context = mail_context

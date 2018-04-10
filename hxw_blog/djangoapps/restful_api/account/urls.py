@@ -7,7 +7,8 @@ from restful_api.account.views import (
     CheckEmailIsBind,
     SendEmailToBindOrChangeEmail,
     ChangeEmailView,
-    BindEmailView
+    BindEmailView,
+    UnbindingSocialLoginView
 )
 
 urlpatterns = [
@@ -19,5 +20,6 @@ urlpatterns = [
     url(r'^email/bind_or_change/send_verification$', SendEmailToBindOrChangeEmail.as_view(),
         name='send_verification_to_bind_or_change_email'),
     url(r'^email/change$', ChangeEmailView.as_view(), name='change_email'),
-    url(r'^email/bind$', BindEmailView.as_view(), name='bind_email')
+    url(r'^email/bind$', BindEmailView.as_view(), name='bind_email'),
+    url(r'^social/unbind$', UnbindingSocialLoginView.as_view(), name='unbinding_social_login')
 ]
