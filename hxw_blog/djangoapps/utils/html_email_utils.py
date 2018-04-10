@@ -1,6 +1,8 @@
 """
 Utilities for setting html email.
 """
+import threading
+
 from django.core.mail import EmailMessage
 from django.template import loader
 
@@ -27,3 +29,29 @@ def send_html_mail(subject, template_path, mail_context, from_address, recipient
     msg = EmailMessage(subject, html_content, from_address, recipient_list)
     msg.content_subtype = "html"
     msg.send(fail_silently)
+
+
+class HtmlEmailThread(threading.Thread):
+    def __init__(self, subject, template_path, mail_context, from_address, recipient_list, fail_silently):
+        self.subject = subject
+        self.template_path = template_path
+        self.mail_context = mail_context
+        self.from_address = from_address
+        self.recipient_list = recipient_list
+        self.fail_silently = fail_silently
+        threading.Thread.__init__(self)
+
+    def run(self):
+        html_content = loader.render_to_string(
+            self.template_path,
+            self.mail_context
+        )
+        msg = EmailMessage(self.subject, html_content, self.from_address, self.recipient_list)
+        msg.content_subtype = "html"
+        msg.send(self.fail_silently)
+
+
+def send_html_email_in_thread(subject, template_path, mail_context, from_address, recipient_list, fail_silently=False):
+    html_email_thread = HtmlEmailThread(subject, template_path, mail_context, from_address, recipient_list,
+                                        fail_silently)
+    html_email_thread.start()
