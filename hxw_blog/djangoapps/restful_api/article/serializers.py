@@ -1,8 +1,17 @@
-from django.conf import settings
+from django.db import models
 from django.utils import timezone
 
 from rest_framework import serializers
+from rest_framework import fields
 from article.models import Article, Comment, CommentReply, Praise
+
+
+class CustomDateTimeField(fields.DateTimeField):
+    def to_representation(self, value):
+        if not value:
+            return None
+        value = timezone.localtime(value).strftime("%Y-%m-%d %H:%M:%S")
+        return value
 
 
 class SaveArticleSerializer(serializers.ModelSerializer):
@@ -105,17 +114,17 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 class PraiseSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-    praise_at = serializers.SerializerMethodField()
     article_info = serializers.SerializerMethodField()
     receiver_info = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()
 
+    serializer_field_mapping = serializers.ModelSerializer.serializer_field_mapping
+    serializer_field_mapping.update({
+        models.DateTimeField: CustomDateTimeField
+    })
+
     def get_user(self, praise):
         return praise.get_user_info()
-
-    def get_praise_at(self, praise):
-        praise_at = timezone.localtime(praise.praise_at).strftime("%Y-%m-%d %H:%M:%S")
-        return praise_at
 
     def get_article_info(self, praise):
         article_info = praise.get_article_info()
@@ -138,7 +147,11 @@ class CommentReplySerializer(serializers.ModelSerializer):
     comment_reply_id = serializers.SerializerMethodField()
     replier = serializers.SerializerMethodField()
     receiver = serializers.SerializerMethodField()
-    reply_at = serializers.SerializerMethodField()
+
+    serializer_field_mapping = serializers.ModelSerializer.serializer_field_mapping
+    serializer_field_mapping.update({
+        models.DateTimeField: CustomDateTimeField
+    })
 
     def get_comment_reply_id(self, comment_reply):
         return comment_reply.id
@@ -151,10 +164,6 @@ class CommentReplySerializer(serializers.ModelSerializer):
         receiver_info = comment_reply.get_receiver_info()
         return receiver_info
 
-    def get_reply_at(self, comment_reply):
-        reply_at = timezone.localtime(comment_reply.reply_at).strftime("%Y-%m-%d %H:%M:%S")
-        return reply_at
-
     class Meta:
         model = CommentReply
         fields = ('comment_reply_id', 'comment_id', 'replier', 'receiver', 'reply_at', 'content', 'praise_times')
@@ -163,8 +172,12 @@ class CommentReplySerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     comment_id = serializers.SerializerMethodField()
     commentator = serializers.SerializerMethodField()
-    comment_at = serializers.SerializerMethodField()
     comment_replies = serializers.SerializerMethodField()
+
+    serializer_field_mapping = serializers.ModelSerializer.serializer_field_mapping
+    serializer_field_mapping.update({
+        models.DateTimeField: CustomDateTimeField
+    })
 
     def get_comment_id(self, comment):
         return comment.id
@@ -172,10 +185,6 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_commentator(self, comment):
         commentator_info = comment.get_commentator_info()
         return commentator_info
-
-    def get_comment_at(self, comment):
-        comment_at = timezone.localtime(comment.comment_at).strftime("%Y-%m-%d %H:%M:%S")
-        return comment_at
 
     def get_comment_replies(self, comment):
         comment_replies = CommentReply.objects.using('read').filter(comment_id=comment.id).order_by("-id")
