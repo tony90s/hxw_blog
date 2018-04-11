@@ -13,6 +13,9 @@ from rest_framework.response import Response
 
 from restful_api.account.serializers import (
     UserInfoSerializer,
+    UpdatePasswordSerializer,
+    ChangeEmailSerializer,
+    BindEmailSerializer,
     UnbindingSocialLoginSerializer,
 )
 from account.models import OauthLogin
@@ -49,37 +52,19 @@ class UpdateUserInfoView(generics.UpdateAPIView):
 
 
 class UpdateUserPasswordView(generics.UpdateAPIView):
+    serializer_class = UpdatePasswordSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        user = self.request.user
-        query_data = self.request.data
-        password = query_data.get('password', '')
-        new_password = query_data.get('new_password', '')
-        confirm_password = query_data.get('confirm_password', '')
-
-        if not password or not new_password or not confirm_password:
-            return Response({'code': 400, 'msg': '请完善表单。'})
-        if not reg_password.match(new_password):
-            return Response({'code': 400, 'msg': '新密码格式有误，请重新输入。'})
-        if new_password != confirm_password:
-            return Response({'code': 400, 'msg': '密码不一致，请重新输入。'})
-        if not user.check_password(password):
-            return Response({'code': 400, 'msg': '原密码错误，请重新输入。'})
-        self.cleaned_data = query_data
-        return None
-
-    def perform_update(self, user):
-        user.set_password(self.cleaned_data.get('new_password'))
-        user.save()
+    def get_object(self):
+        return self.request.user
 
     def update(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
 
-        user = request.user
-        self.perform_update(user)
+        self.perform_update(serializer)
         return Response({'code': 200, 'msg': '密码更新成功，请重新登录。'})
 
 
@@ -236,43 +221,23 @@ class SendEmailToBindOrChangeEmail(APIView):
 
 
 class ChangeEmailView(generics.UpdateAPIView):
+    serializer_class = ChangeEmailSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        query_data = self.request.data
-        email = query_data.get('email', '')
-        verification_code = query_data.get('verification_code', '')
-
-        if not email:
-            return Response({'code': 400, 'msg': '请输入邮箱。'})
-        if not reg_email.match(email):
-            return Response({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
-
-        if not verification_code:
-            return Response({'code': 400, 'msg': '请输入验证码。'})
-
-        users = User.objects.using('read').filter(email=email)
-        if users.exists():
-            return Response({'code': 403, 'msg': '该邮箱已被绑定，换一个试试。'})
-        self.cleaned_data = query_data
-        return None
-
-    def perform_update(self, user):
-        user.email = self.cleaned_data.get('email')
-        user.save(using='write')
+    def get_object(self):
+        return self.request.user
 
     def update(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
 
-        verification_code_in_session = request.session.get('verification_code', '')
-        if not verification_code_in_session:
-            return Response({'code': 301, 'msg': '验证码已过期，请重新获取。'})
-        if self.cleaned_data.get('verification_code') != verification_code_in_session:
-            return Response({'code': 400, 'msg': '验证码错误，请重新输入。'})
+        users = User.objects.using('read').filter(email=serializer.validated_data.get('email'))
+        if users.exists():
+            return Response({'code': 403, 'msg': '该邮箱已被绑定，换一个试试。'})
 
-        self.perform_update(request.user)
+        self.perform_update(serializer)
         return Response({
             'code': 200,
             'msg': '邮箱修改成功。'
@@ -280,52 +245,24 @@ class ChangeEmailView(generics.UpdateAPIView):
 
 
 class BindEmailView(generics.UpdateAPIView):
+    serializer_class = BindEmailSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        user = self.request.user
-        query_data = self.request.data
-        email = query_data.get('email', '')
-        verification_code = query_data.get('verification_code', '')
-        password = query_data.get('password', '')
-
-        if user.email:
-            return Response({'code': 400, 'msg': '您已绑定邮箱，无需重复绑定。'})
-        if not email:
-            return Response({'code': 400, 'msg': '请输入邮箱。'})
-        if not reg_email.match(email):
-            return Response({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
-
-        if not verification_code:
-            return Response({'code': 400, 'msg': '请输入验证码。'})
-        if not password:
-            return Response({'code': 400, 'msg': '请输入密码。'})
-        if not reg_password.match(password):
-            return Response({'code': 400, 'msg': '密码格式有误，请重新输入。'})
-
-        users = User.objects.using('read').filter(email=email)
-        if users.exists():
-            return Response({'code': 403, 'msg': '该邮箱已被绑定，换一个试试。'})
-        self.cleaned_data = query_data
-        return None
-
-    def perform_update(self, user):
-        user.email = self.cleaned_data.get('email')
-        user.set_password(self.cleaned_data.get('password'))
-        user.save(using='write')
+    def get_object(self):
+        return self.request.user
 
     def update(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
 
-        verification_code_in_session = request.session.get('verification_code', '')
-        if not verification_code_in_session:
-            return Response({'code': 301, 'msg': '验证码已过期，请重新获取。'})
-        if self.cleaned_data.get('verification_code') != verification_code_in_session:
-            return Response({'code': 400, 'msg': '验证码错误，请重新输入。'})
-
-        self.perform_update(request.user)
+        if request.user.email:
+            return Response({'code': 400, 'msg': '您已绑定邮箱，无需重复绑定。'})
+        users = User.objects.using('read').filter(email=serializer.validated_data.get('email'))
+        if users.exists():
+            return Response({'code': 403, 'msg': '该邮箱已被绑定，换一个试试。'})
+        self.perform_update(serializer)
         return Response({
             'code': 200,
             'msg': '邮箱绑定成功。'
