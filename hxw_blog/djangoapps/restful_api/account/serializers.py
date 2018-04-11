@@ -49,7 +49,7 @@ class UpdateUserAvatarSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         thumbnail, error = get_thumbnail(validated_data.get('avatar'))
         if thumbnail is None:
-            raise serializers.ValidationError(error)
+            raise serializers.ValidationError('头像上传失败，请稍后重试。')
         instance.avatar = thumbnail
         instance.save(using='write')
         return instance
