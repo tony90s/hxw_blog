@@ -13,6 +13,7 @@ from rest_framework.response import Response
 
 from restful_api.account.serializers import (
     UserInfoSerializer,
+    UpdateUserAvatarSerializer,
     UpdatePasswordSerializer,
     ChangeEmailSerializer,
     BindEmailSerializer,
@@ -68,44 +69,28 @@ class UpdateUserPasswordView(generics.UpdateAPIView):
         return Response({'code': 200, 'msg': '密码更新成功，请重新登录。'})
 
 
-class UpdateUserAvatarView(APIView):
+class UpdateUserAvatarView(generics.UpdateAPIView):
+    serializer_class = UpdateUserAvatarSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        avatar = self.request.FILES.get('avatar')
-        if avatar is None:
-            return Response({'code': 400, 'msg': '请先选择图片。'})
-        if re.match(r'image', avatar.content_type) is None:
-            return Response({'code': 400, 'msg': '请选择正确的图片!'})
-        img_max_size = 1024 * 5
-        if avatar.size / 1024 > img_max_size:
-            return Response({'code': 400, 'msg': '图片过大，请重新选择!'})
-        self.cleaned_data = {'avatar': avatar}
-        return None
+    def get_object(self):
+        return self.request.user.profile
 
-    def perform_update(self, user_profile):
-        thumbnail, error = get_thumbnail(self.cleaned_data.get('avatar'))
-        if thumbnail is None:
-            return Response({'code': 500, 'msg': '头像上传失败，请稍后重试。'})
-        user_profile.avatar = thumbnail
-        user_profile.save(using='write')
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
 
-    def post(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
-
-        user = request.user
-        user_profile = user.profile
-        original_avatar_url = user_profile.avatar.url
+        original_avatar_url = instance.avatar.url
         original_avatar_path = os.path.join(settings.ENV_ROOT, original_avatar_url.lstrip('/'))
+        self.perform_update(serializer)
 
-        self.perform_update(user_profile)
         # delete original avatar
         if original_avatar_path.split('/')[-1] != 'default_avatar.jpg':
             os.remove(original_avatar_path)
 
-        return Response({'code': 200, 'msg': '更新头像成功。', 'src': user_profile.avatar.url})
+        return Response({'code': 200, 'msg': '更新头像成功。', 'src': serializer.instance.avatar.url})
 
 
 class SendEmailToResetPassword(APIView):

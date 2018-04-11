@@ -303,7 +303,7 @@
             $.ajax({
                 url: "{% url 'api:update_user_avatar' %}",
                 data: formData,
-                type: "POST",
+                type: "PUT",
                 processData: false,
                 contentType: false,
                 success: function (re) {

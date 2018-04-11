@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from rest_framework import serializers
-from rest_framework import fields
+from rest_framework import serializers, fields
 from article.models import Article, Comment, CommentReply, Praise
 
 
