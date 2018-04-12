@@ -1,3 +1,4 @@
+from itertools import chain
 import logging
 import os
 import re
@@ -16,6 +17,8 @@ from django.core.urlresolvers import reverse
 from django.views import View
 from django.utils.decorators import method_decorator
 
+from rest_framework import serializers
+
 from account.cookies import set_logged_in_cookies, delete_logged_in_cookies
 from account.models import UserProfile
 from article.models import (
@@ -27,6 +30,7 @@ from article.models import (
     get_user_comments,
     get_user_be_praised
 )
+from account.forms import UnifiedCommentListForm
 from account.oauth2.oauth_weibo import OauthWeibo
 from account.oauth2.oauth_qq import OauthQQ
 from account.oauth2.oauth_wechat import OauthWechat
@@ -333,19 +337,20 @@ def message_comments(request):
     if comment_type == 1:
         comments = get_user_comments(user.id)
         comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user.id)).order_by('-id')
-    comments_info_list = [comment.get_unified_comment_info() for comment in comments]
-    comment_replies_info_list = [comment_reply.get_unified_comment_info() for comment_reply in comment_replies]
-    unified_comment_info_list = comments_info_list + comment_replies_info_list
-    unified_comment_info_list.sort(
-        key=lambda comment_info: time.mktime(time.strptime(comment_info['reply_at'], '%Y-%m-%d %H:%M:%S')),
+
+    unified_comment_list = list(chain(comments, comment_replies))
+    unified_comment_list.sort(
+        key=lambda comment: time.mktime(time.strptime(comment.unified_reply_at, '%Y-%m-%d %H:%M:%S')),
         reverse=True)
+    query_comments_list = unified_comment_list[:page_size]
+    query_comments_info = [comment.get_unified_comment_info() for comment in query_comments_list]
     context = {
-        'unified_comment_info_list': unified_comment_info_list[:page_size],
+        'unified_comment_info_list': query_comments_info,
         'comment_type': comment_type,
         'page_size': page_size,
         'not_viewed_comment_count': not_viewed_comment_count,
         'not_viewed_praises_count': not_viewed_praises_count,
-        'has_next': int(len(unified_comment_info_list) > page_size)
+        'has_next': int(len(unified_comment_list) > page_size)
     }
     Comment._Comment__user_cache = dict()
     Comment._Comment__article_info_cache = dict()
@@ -359,30 +364,14 @@ def message_comments(request):
 @require_http_methods(['GET'])
 def user_unified_comment_info_pagination(request):
     page_size = settings.DEFAULT_PAGE_SIZE
-    user_id = request.GET.get('user_id')
-    comment_type = request.GET.get('comment_type', '0')   # 0 received comments  1 sent comments
-    page_index = request.GET.get('page_index')
 
-    if not user_id or not page_index:
-        return JsonResponse({'code': 400, 'msg': '参数缺失。'})
+    form = UnifiedCommentListForm(request.GET)
+    if not form.is_valid():
+        raise serializers.ValidationError(form.errors)
 
-    if not reg_number.match(user_id):
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-    user_id = int(user_id)
-    if user_id <= 0:
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-
-    if not reg_number.match(comment_type):
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-    comment_type = int(comment_type)
-    if comment_type not in [0, 1]:
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-
-    if not reg_number.match(page_index):
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
-    page_index = int(page_index)
-    if page_index <= 0:
-        return JsonResponse({'code': 400, 'msg': '参数有误。'})
+    comment_type = form.cleaned_data.get('comment_type')
+    user_id = form.cleaned_data.get('user_id')
+    page_index = form.cleaned_data.get('page_index')
 
     if comment_type == 0:
         comments = get_user_article_comments(user_id)
@@ -390,19 +379,20 @@ def user_unified_comment_info_pagination(request):
     else:
         comments = get_user_comments(user_id)
         comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user_id)).order_by('-id')
-    comments_info_list = [comment.get_unified_comment_info() for comment in comments]
-    comment_replies_info_list = [comment_reply.get_unified_comment_info() for comment_reply in comment_replies]
-    unified_comment_info_list = comments_info_list + comment_replies_info_list
-    unified_comment_info_list.sort(
-        key=lambda comment_info: time.mktime(time.strptime(comment_info['reply_at'], '%Y-%m-%d %H:%M:%S')),
+
+    unified_comment_list = list(chain(comments, comment_replies))
+    unified_comment_list.sort(
+        key=lambda comment: time.mktime(time.strptime(comment.unified_reply_at, '%Y-%m-%d %H:%M:%S')),
         reverse=True)
-    query_comments_info = unified_comment_info_list[page_size * (page_index - 1):page_size * page_index]
+    query_comments_list = unified_comment_list[page_size * (page_index - 1):page_size * page_index]
+    query_comments_info = [comment.get_unified_comment_info() for comment in query_comments_list]
     context = {
         'code': 200,
         'msg': '查询成功',
         'data': query_comments_info,
-        'has_next': int(len(unified_comment_info_list) > (page_index * page_size))
+        'has_next': int(len(unified_comment_list) > (page_index * page_size))
     }
+
     Comment._Comment__user_cache = dict()
     Comment._Comment__article_info_cache = dict()
     CommentReply._CommentReply__user_cache = dict()

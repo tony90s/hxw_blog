@@ -188,6 +188,10 @@ class Comment(models.Model):
         praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id=self.id))
         return praises.count()
 
+    @property
+    def unified_reply_at(self):
+        return timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")
+
     def get_commentator_info(self):
         if self.commentator_id in self.__user_cache:
             return self.__user_cache[self.commentator_id]
@@ -244,7 +248,7 @@ class Comment(models.Model):
             'username': '',
             'avatar': ''
         }
-        context['reply_at'] = timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")
+        context['reply_at'] = self.unified_reply_at
         context['content'] = self.content
         context['is_viewed'] = int(self.is_viewed)
 
@@ -281,6 +285,10 @@ class CommentReply(models.Model):
     def praise_times(self):
         praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id=self.id))
         return praises.count()
+
+    @property
+    def unified_reply_at(self):
+        return timezone.localtime(self.reply_at).strftime("%Y-%m-%d %H:%M:%S")
 
     def get_replier_info(self):
         if self.replier_id in self.__user_cache:
@@ -334,7 +342,7 @@ class CommentReply(models.Model):
         context['article_info'] = self.get_article_info()
         context['replier'] = self.get_replier_info()
         context['receiver'] = self.get_receiver_info()
-        context['reply_at'] = timezone.localtime(self.reply_at).strftime("%Y-%m-%d %H:%M:%S")
+        context['reply_at'] = self.unified_reply_at
         context['content'] = self.content
         context['is_viewed'] = int(self.is_viewed)
         return context

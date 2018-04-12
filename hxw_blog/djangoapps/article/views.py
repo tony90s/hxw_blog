@@ -88,17 +88,19 @@ def article_category_index_views(request, article_type):
 def article_details(request, article_id):
     page_size = settings.DEFAULT_PAGE_SIZE
     template_name = 'article/article_detail.html'
+
     articles = Article.objects.using('read').filter(id=article_id)
     if not articles.exists():
         raise Http404
     article = articles[0]
     if not article.is_released:
         raise Http404
+
     article.page_views += 1
     article.save(using='write')
-    article_details = article.render_json()
+
     context = {
-        'article_details': article_details,
+        'article_details': article.render_json(),
         'page_size': page_size
     }
     Comment._Comment__user_cache = dict()

@@ -147,7 +147,7 @@ class PraiseSerializer(serializers.ModelSerializer):
         return comment_content
 
     def get_is_viewed(self, praise):
-        return 1 if praise.is_viewed else 0
+        return int(praise.is_viewed)
 
     class Meta:
         model = Praise
