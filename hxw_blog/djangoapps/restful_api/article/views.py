@@ -27,6 +27,12 @@ from restful_api.article.forms import (
     DeleteCommentReplyForm,
     DeleteCommentForm
 )
+from restful_api.article.permissions import (
+    IsAuthorOrReadOnly,
+    IsCommentatorOrReadOnly,
+    IsReplierOrReadOnly,
+    IsPraiseOwnerOrReadOnly
+)
 from utils.paginators import SmallResultsSetPagination
 
 reg_number = re.compile('^\d+$')
@@ -54,7 +60,7 @@ class CreateArticleView(generics.CreateAPIView):
 
 class UpdateArticleView(generics.UpdateAPIView):
     serializer_class = SaveArticleSerializer
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly)
 
     def get_object(self):
         article_id = int(self.request.data.get('article_id'))
@@ -70,10 +76,7 @@ class UpdateArticleView(generics.UpdateAPIView):
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        if request.user.id != instance.author_id:
-            return Response({'code': 403, 'msg': '不能更新其它童鞋的博文'})
         self.perform_update(serializer)
-
         redirect_url = reverse('index')
         msg = '发布成功'
         if not serializer.validated_data.get('is_released'):
@@ -185,7 +188,7 @@ class PraiseList(generics.ListAPIView):
 
 
 class DeleteArticleView(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly)
 
     def get_object(self):
         form = UpdateOrDeleteArticleForm(self.request.data)
@@ -214,10 +217,7 @@ class DeleteArticleView(generics.DestroyAPIView):
         instance.delete()
 
     def destroy(self, request, *args, **kwargs):
-        user = request.user
         instance = self.get_object()
-        if user.id != instance.author_id:
-            return Response({'code': 403, 'msg': '不能删除其它童鞋的博文'})
         self.perform_destroy(instance)
         return Response({'code': 200, 'msg': '删除博文成功'})
 
@@ -232,12 +232,7 @@ class SaveCommentView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        articles = Article.objects.using('read').filter(id=serializer.validated_data.get('article_id'))
-        if not articles.exists():
-            return Response({'code': 404, 'msg': '所评论的博文不存在，请联系管理员'})
         self.perform_create(serializer)
-
         return_context = {
             'code': 200,
             'msg': '评论创建成功',
@@ -247,7 +242,7 @@ class SaveCommentView(generics.CreateAPIView):
 
 
 class DeleteCommentView(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, IsCommentatorOrReadOnly)
 
     def get_object(self):
         form = DeleteCommentForm(self.request.data)
@@ -272,10 +267,7 @@ class DeleteCommentView(generics.DestroyAPIView):
         instance.delete()
 
     def destroy(self, request, *args, **kwargs):
-        user = request.user
         instance = self.get_object()
-        if user.id != instance.commentator_id:
-            return Response({'code': 403, 'msg': '不能删除其它童鞋的评论'})
         self.perform_destroy(instance)
         return Response({'code': 200, 'msg': '删除评论成功'})
 
@@ -290,13 +282,6 @@ class SaveCommentReplyView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        comments = Comment.objects.using('read').filter(id=serializer.validated_data.get('comment_id'))
-        if not comments.exists():
-            return Response({'code': 404, 'msg': '所回复评论不存在，请联系管理员'})
-        receivers = User.objects.using('read').filter(id=serializer.validated_data.get('receiver_id'))
-        if not receivers.exists():
-            return Response({'code': 404, 'msg': '所回复的童鞋不存在，请联系管理员'})
         self.perform_create(serializer)
 
         return_context = {
@@ -308,7 +293,7 @@ class SaveCommentReplyView(generics.CreateAPIView):
 
 
 class DeleteCommentReplyView(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, IsReplierOrReadOnly)
 
     def get_object(self):
         form = DeleteCommentReplyForm(self.request.data)
@@ -328,10 +313,7 @@ class DeleteCommentReplyView(generics.DestroyAPIView):
         instance.delete()
 
     def destroy(self, request, *args, **kwargs):
-        user = request.user
         instance = self.get_object()
-        if user.id != instance.replier_id:
-            return Response({'code': 403, 'msg': '不能删除其它童鞋的回复'})
         self.perform_destroy(instance)
         return Response({'code': 200, 'msg': '删除回复成功'})
 
@@ -346,23 +328,6 @@ class SavePraiseView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        praise_type = serializer.validated_data.get('praise_type')
-        parent_id = serializer.validated_data.get('parent_id')
-        if praise_type == Praise.TYPE.ARTICLE:
-            praise_parents = Article.objects.using('read').filter(id=parent_id)
-        elif praise_type == Praise.TYPE.COMMENT:
-            praise_parents = Comment.objects.using('read').filter(id=parent_id)
-        else:
-            praise_parents = CommentReply.objects.using('read').filter(id=parent_id)
-
-        if not praise_parents.exists():
-            return Response({'code': 404, 'msg': '所点赞对象不存在'})
-
-        praises = Praise.objects.using('read').filter(Q(praise_type=praise_type) &
-                                                      Q(parent_id=parent_id) & Q(user_id=request.user.id))
-        if praises.exists():
-            return Response({'code': 304, 'msg': '你已点赞，无需重复点赞'})
         self.perform_create(serializer)
 
         return_context = {
@@ -374,7 +339,7 @@ class SavePraiseView(generics.CreateAPIView):
 
 
 class CancelPraiseView(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, IsPraiseOwnerOrReadOnly)
 
     def get_object(self):
         form = CancelPraiseForm(self.request.data)
@@ -391,10 +356,7 @@ class CancelPraiseView(generics.DestroyAPIView):
         return praises[0]
 
     def destroy(self, request, *args, **kwargs):
-        user = request.user
         instance = self.get_object()
-        if user.id != instance.user_id:
-            return Response({'code': 403, 'msg': '不能取消其它童鞋的赞'})
         self.perform_destroy(instance)
         return Response({'code': 200, 'msg': '取消点赞成功'})
 
@@ -427,9 +389,9 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
 
 
 class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly)
 
-    def get_queryset(self):
+    def get_object(self):
         form = UpdateOrDeleteArticleForm(self.request.data)
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
@@ -438,16 +400,15 @@ class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
         articles = Article.objects.using('read').filter(id=article_id)
         if not articles.exists():
             raise Http404
-        return articles
+        return articles[0]
 
-    def perform_update(self, instances):
+    def perform_update(self, instance):
         now = timezone.now()
-        instances.update(is_released=True, release_at=now)
+        instance.is_released = True
+        instance.release_at = now
+        instance.save(using='write')
 
     def update(self, request, *args, **kwargs):
-        user = request.user
-        instances = self.get_queryset()
-        if user.id != instances[0].author_id:
-            return Response({'code': 403, 'msg': '不能发布其它童鞋的博文'})
-        self.perform_update(instances)
+        instance = self.get_object()
+        self.perform_update(instance)
         return Response({'code': 200, 'msg': '博文发布成功'})

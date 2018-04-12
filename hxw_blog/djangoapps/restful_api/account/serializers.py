@@ -7,6 +7,7 @@ from rest_framework import serializers
 from utils.file_handling import get_thumbnail
 from account.models import OauthLogin
 
+reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
 reg_password = re.compile('^[\.\w@_-]{6,32}$')
 reg_verification_code = re.compile('^\d{6}$')
 
@@ -18,6 +19,12 @@ class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'gender', 'bio')
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        if username and not reg_username.match(username):
+            raise serializers.ValidationError('昵称格式有误，请重新输入。')
+        return attrs
 
     def update(self, instance, validated_data):
         profile = instance.profile

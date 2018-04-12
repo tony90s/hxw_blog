@@ -1,4 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from rest_framework import serializers, fields
@@ -56,6 +58,13 @@ class SaveCommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('article_id', 'commentator_id', 'content')
 
+    def validate(self, attrs):
+        article_id = attrs.get('article_id')
+        articles = Article.objects.using('read').filter(id=article_id)
+        if not articles.exists():
+            raise serializers.ValidationError('所评论的博文不存在，请联系管理员')
+        return attrs
+
     def create(self, validated_data):
         return Comment.objects.using('write').create(**validated_data)
 
@@ -65,6 +74,17 @@ class SaveCommentReplySerializer(serializers.ModelSerializer):
         model = CommentReply
         fields = ('comment_id', 'receiver_id', 'replier_id', 'content')
 
+    def validate(self, attrs):
+        comment_id = attrs.get('comment_id')
+        receiver_id = attrs.get('receiver_id')
+        comments = Comment.objects.using('read').filter(id=comment_id)
+        if not comments.exists():
+            raise serializers.ValidationError('所回复评论不存在，请联系管理员')
+        receivers = User.objects.using('read').filter(id=receiver_id)
+        if not receivers.exists():
+            raise serializers.ValidationError('所回复的童鞋不存在，请联系管理员')
+        return attrs
+
     def create(self, validated_data):
         return CommentReply.objects.using('write').create(**validated_data)
 
@@ -73,6 +93,27 @@ class SavePraiseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Praise
         fields = ('praise_type', 'parent_id', 'user_id')
+
+    def validate(self, attrs):
+        praise_type = attrs.get('praise_type')
+        parent_id = attrs.get('parent_id')
+
+        if praise_type == Praise.TYPE.ARTICLE:
+            praise_parents = Article.objects.using('read').filter(id=parent_id)
+        elif praise_type == Praise.TYPE.COMMENT:
+            praise_parents = Comment.objects.using('read').filter(id=parent_id)
+        else:
+            praise_parents = CommentReply.objects.using('read').filter(id=parent_id)
+
+        if not praise_parents.exists():
+            raise serializers.ValidationError('所点赞对象不存在')
+        praises = Praise.objects.using('read').filter(
+            Q(praise_type=praise_type) &
+            Q(parent_id=parent_id) &
+            Q(user_id=self.context['request'].user.id))
+        if praises.exists():
+            raise serializers.ValidationError('你已点赞，无需重复点赞')
+        return attrs
 
     def create(self, validated_data):
         return Praise.objects.using('write').create(**validated_data)

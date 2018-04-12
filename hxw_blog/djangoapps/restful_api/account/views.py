@@ -49,10 +49,6 @@ class UpdateUserInfoView(generics.UpdateAPIView):
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        username = serializer.validated_data.get('username')
-        if username:
-            if not reg_username.match(username):
-                return Response({'code': 400, 'msg': '昵称格式有误，请重新输入。'})
         self.perform_update(serializer)
         return Response({'code': 200, 'msg': '更新成功。'})
 
