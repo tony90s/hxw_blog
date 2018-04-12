@@ -20,7 +20,13 @@ from restful_api.article.serializers import (
     SaveCommentReplySerializer,
     SavePraiseSerializer
 )
-from restful_api.article.forms import CancelPraiseForm, UpdateIsViewedStatusForm
+from restful_api.article.forms import (
+    CancelPraiseForm,
+    UpdateIsViewedStatusForm,
+    UpdateOrDeleteArticleForm,
+    DeleteCommentReplyForm,
+    DeleteCommentForm
+)
 from utils.paginators import SmallResultsSetPagination
 
 reg_number = re.compile('^\d+$')
@@ -181,19 +187,13 @@ class PraiseList(generics.ListAPIView):
 class DeleteArticleView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        query_data = self.request.data
-        article_id = query_data.get('article_id', '')
-        if not article_id:
-            return Response({'code': 400, 'msg': '参数缺失'})
-        if not reg_number.match(article_id):
-            return Response({'code': 400, 'msg': '参数有误'})
-        self.cleaned_data = query_data
-        return None
-
     def get_object(self):
-        article_id = self.cleaned_data.get('article_id')
-        articles = Article.objects.using('read').filter(id=int(article_id))
+        form = UpdateOrDeleteArticleForm(self.request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        article_id = form.cleaned_data.get('article_id')
+        articles = Article.objects.using('read').filter(id=article_id)
         if not articles.exists():
             raise Http404
         return articles[0]
@@ -214,9 +214,6 @@ class DeleteArticleView(generics.DestroyAPIView):
         instance.delete()
 
     def destroy(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
         user = request.user
         instance = self.get_object()
         if user.id != instance.author_id:
@@ -252,19 +249,13 @@ class SaveCommentView(generics.CreateAPIView):
 class DeleteCommentView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        query_data = self.request.data
-        comment_id = query_data.get('comment_id', '')
-        if not comment_id:
-            return Response({'code': 400, 'msg': '参数缺失'})
-        if not reg_number.match(comment_id):
-            return Response({'code': 400, 'msg': '参数有误'})
-        self.cleaned_data = query_data
-        return None
-
     def get_object(self):
-        comment_id = self.cleaned_data.get('comment_id')
-        comments = Comment.objects.using('read').filter(id=int(comment_id))
+        form = DeleteCommentForm(self.request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        comment_id = form.cleaned_data.get('comment_id')
+        comments = Comment.objects.using('read').filter(id=comment_id)
         if not comments.exists():
             raise Http404
         return comments[0]
@@ -281,9 +272,6 @@ class DeleteCommentView(generics.DestroyAPIView):
         instance.delete()
 
     def destroy(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
         user = request.user
         instance = self.get_object()
         if user.id != instance.commentator_id:
@@ -322,19 +310,13 @@ class SaveCommentReplyView(generics.CreateAPIView):
 class DeleteCommentReplyView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        query_data = self.request.data
-        comment_reply_id = query_data.get('comment_reply_id', '')
-        if not comment_reply_id:
-            return Response({'code': 400, 'msg': '参数缺失'})
-        if not reg_number.match(comment_reply_id):
-            return Response({'code': 400, 'msg': '参数有误'})
-        self.cleaned_data = query_data
-        return None
-
     def get_object(self):
-        comment_reply_id = self.cleaned_data.get('comment_reply_id')
-        comment_replies = CommentReply.objects.using('read').filter(id=int(comment_reply_id))
+        form = DeleteCommentReplyForm(self.request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        comment_reply_id = form.cleaned_data.get('comment_reply_id')
+        comment_replies = CommentReply.objects.using('read').filter(id=comment_reply_id)
         if not comment_replies.exists():
             raise Http404
         return comment_replies[0]
@@ -346,9 +328,6 @@ class DeleteCommentReplyView(generics.DestroyAPIView):
         instance.delete()
 
     def destroy(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
         user = request.user
         instance = self.get_object()
         if user.id != instance.replier_id:
@@ -450,18 +429,12 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
 class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        query_data = self.request.data
-        article_id = query_data.get('article_id')
-        if not article_id:
-            return Response({'code': 400, 'msg': '参数缺失'})
-        if not reg_number.match(article_id):
-            return Response({'code': 400, 'msg': '参数有误'})
-        self.cleaned_data = query_data
-        return None
-
     def get_queryset(self):
-        article_id = int(self.cleaned_data.get('article_id'))
+        form = UpdateOrDeleteArticleForm(self.request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        article_id = form.cleaned_data.get('article_id')
         articles = Article.objects.using('read').filter(id=article_id)
         if not articles.exists():
             raise Http404
@@ -472,9 +445,6 @@ class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
         instances.update(is_released=True, release_at=now)
 
     def update(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
         user = request.user
         instances = self.get_queryset()
         if user.id != instances[0].author_id:

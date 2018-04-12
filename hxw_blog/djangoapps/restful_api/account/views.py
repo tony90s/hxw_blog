@@ -8,7 +8,7 @@ from django.http import Http404, QueryDict
 from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
-from rest_framework import generics, permissions
+from rest_framework import serializers, generics, permissions
 from rest_framework.response import Response
 
 from restful_api.account.serializers import (
@@ -18,6 +18,11 @@ from restful_api.account.serializers import (
     ChangeEmailSerializer,
     BindEmailSerializer,
     UnbindingSocialLoginSerializer,
+)
+from restful_api.account.forms import (
+    GeneralEmailForm,
+    EmailToResetPasswordForm,
+    CheckEmailIsBindForm
 )
 from account.models import OauthLogin
 from utils.file_handling import get_thumbnail
@@ -94,23 +99,11 @@ class UpdateUserAvatarView(generics.UpdateAPIView):
 
 
 class SendEmailToResetPassword(APIView):
-    def clean(self):
-        email = self.request.POST.get('email', '')
-        if not email:
-            return Response({'code': 400, 'msg': '请填入邮箱。'})
-        if not reg_email.match(email):
-            return Response({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
-
-        users = User.objects.using('read').filter(email=email)
-        if not users.exists():
-            return Response({'code': 404, 'msg': '该邮箱尚未注册。'})
-        self.cleaned_data = {'email': email}
-        return None
-
     def post(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
+        form = EmailToResetPasswordForm(request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
         verification_code = generate_verification_code()
         try:
             context = {
@@ -120,7 +113,7 @@ class SendEmailToResetPassword(APIView):
             subject = '重置密码'
             template_path = 'emails/forget_password.html'
             default_from_address = settings.DEFAULT_FROM_EMAIL_DISPLAY
-            send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
+            send_html_mail(subject, template_path, context, default_from_address, [form.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
             return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
@@ -132,23 +125,10 @@ class SendEmailToResetPassword(APIView):
 
 
 class CheckEmailIsBind(APIView):
-    def clean(self):
-        email = self.request.POST.get('email', '')
-        if not email:
-            return Response({'code': 400, 'msg': '请输入邮箱。'})
-        if not reg_email.match(email):
-            return Response({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
-
-        users = User.objects.using('read').filter(email=email)
-        if users.exists():
-            return Response({'code': 403, 'msg': '该邮箱已被绑定，换一个试试。'})
-        self.cleaned_data = {'email': email}
-        return None
-
     def post(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
+        form = CheckEmailIsBindForm(request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
 
         verification_code = generate_verification_code()
         try:
@@ -158,7 +138,7 @@ class CheckEmailIsBind(APIView):
             subject = '绑定/修改邮箱'
             template_path = 'emails/bind_or_change_email.html'
             default_from_address = settings.DEFAULT_FROM_EMAIL_DISPLAY
-            send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
+            send_html_mail(subject, template_path, context, default_from_address, [form.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
             return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
@@ -171,19 +151,10 @@ class CheckEmailIsBind(APIView):
 
 
 class SendEmailToBindOrChangeEmail(APIView):
-    def clean(self):
-        email = self.request.POST.get('email', '')
-        if not email:
-            return Response({'code': 400, 'msg': '请填入邮箱。'})
-        if not reg_email.match(email):
-            return Response({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
-        self.cleaned_data = {'email': email}
-        return None
-
     def post(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
+        form = GeneralEmailForm(request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
 
         verification_code = generate_verification_code()
         try:
@@ -193,7 +164,7 @@ class SendEmailToBindOrChangeEmail(APIView):
             subject = '绑定/修改邮箱'
             template_path = 'emails/bind_or_change_email.html'
             default_from_address = settings.DEFAULT_FROM_EMAIL_DISPLAY
-            send_html_mail(subject, template_path, context, default_from_address, [self.cleaned_data.get('email')])
+            send_html_mail(subject, template_path, context, default_from_address, [form.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
             return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})

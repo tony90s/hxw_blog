@@ -27,3 +27,15 @@ class UpdateIsViewedStatusForm(forms.Form):
         if object_type not in [1, 2, 3]:
             raise forms.ValidationError("object_type must be 1,2,3.")
         return self.cleaned_data['object_type']
+
+
+class UpdateOrDeleteArticleForm(forms.Form):
+    article_id = forms.IntegerField(required=True)
+
+
+class DeleteCommentReplyForm(forms.Form):
+    comment_reply_id = forms.IntegerField(required=True)
+
+
+class DeleteCommentForm(forms.Form):
+    comment_id = forms.IntegerField(required=True)
