@@ -4,10 +4,11 @@ import re
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.db.models import Q
+from django import forms
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from rest_framework import generics, permissions
+from rest_framework import serializers, generics, permissions
 from rest_framework.response import Response
 from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
 from restful_api.article.serializers import (
@@ -19,6 +20,7 @@ from restful_api.article.serializers import (
     SaveCommentReplySerializer,
     SavePraiseSerializer
 )
+from restful_api.article.forms import CancelPraiseForm, UpdateIsViewedStatusForm
 from utils.paginators import SmallResultsSetPagination
 
 reg_number = re.compile('^\d+$')
@@ -395,35 +397,21 @@ class SavePraiseView(generics.CreateAPIView):
 class CancelPraiseView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def clean(self):
-        query_data = self.request.data
-        praise_type = query_data.get('praise_type', '')
-        parent_id = query_data.get('parent_id', '')
-
-        if not praise_type or not parent_id:
-            return Response({'code': 400, 'msg': '参数缺失'})
-        if not reg_number.match(praise_type) or not reg_number.match(parent_id):
-            return Response({'code': 400, 'msg': '参数有误'})
-        if int(praise_type) not in [value for value, name in Praise.TYPE_CHOICES]:
-            return Response({'code': 400, 'msg': '参数有误'})
-        self.cleaned_data = query_data
-        return None
-
     def get_object(self):
-        praise_type = int(self.cleaned_data.get('praise_type'))
-        parent_id = int(self.cleaned_data.get('parent_id'))
-        user_id = self.request.user.id
+        form = CancelPraiseForm(self.request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
 
+        praise_type = form.cleaned_data.get('praise_type')
+        parent_id = form.cleaned_data.get('parent_id')
+        user_id = self.request.user.id
         praises = Praise.objects.using('read').filter(Q(praise_type=praise_type) &
-                                                       Q(parent_id=parent_id) & Q(user_id=user_id))
+                                                      Q(parent_id=parent_id) & Q(user_id=user_id))
         if not praises.exists():
             raise Http404
         return praises[0]
 
     def destroy(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
         user = request.user
         instance = self.get_object()
         if user.id != instance.user_id:
@@ -433,25 +421,12 @@ class CancelPraiseView(generics.DestroyAPIView):
 
 
 class UpdateIsViewedStatusView(generics.UpdateAPIView):
-    def clean(self):
-        query_data = self.request.data
-        object_type = query_data.get('object_type')  # 1 comment  2 comment_reply   3 praise
-        parent_id = query_data.get('parent_id')
-
-        if not object_type or not parent_id:
-            return Response({'code': 400, 'msg': '参数缺失'})
-
-        if not reg_number.match(object_type) or not reg_number.match(parent_id):
-            return Response({'code': 400, 'msg': '参数有误'})
-
-        if int(object_type) not in [1, 2, 3]:
-            return Response({'code': 400, 'msg': '参数有误'})
-        self.cleaned_data = query_data
-        return None
-
     def get_queryset(self):
-        object_type = int(self.cleaned_data.get('object_type'))
-        parent_id = int(self.cleaned_data.get('parent_id'))
+        form = UpdateIsViewedStatusForm(self.request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+        object_type = form.cleaned_data.get('object_type')
+        parent_id = form.cleaned_data.get('parent_id')
 
         if object_type == 1:
             instances = Comment.objects.using('write').filter(id=parent_id)
@@ -467,9 +442,6 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
         instances.update(is_viewed=1)
 
     def update(self, request, *args, **kwargs):
-        response = self.clean()
-        if response is not None:
-            return response
         instances = self.get_queryset()
         self.perform_update(instances)
         return Response({'code': 200, 'msg': '更新成功'})

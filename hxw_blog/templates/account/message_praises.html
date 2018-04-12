@@ -175,7 +175,7 @@
                             if (json.results.length > 0) {
                                 var str = "";
                                 $.each(json.results, function(index, array) {
-                                    var type = array['type'];
+                                    var type = parseInt(array['type']);
                                     var article_id = array['article_info']['article_id'];
                                     var title = array['article_info']['title'];
                                     var cover_photo = array['article_info']['cover_photo'];
@@ -212,7 +212,7 @@
                                     if (type == 1) {
                                         str += '赞了你的文章'
                                     }
-                                    else if (type = 2) {
+                                    else if (type == 2) {
                                         str += '赞了你的评论'
                                     }
                                     else {

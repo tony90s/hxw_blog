@@ -112,15 +112,24 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class PraiseSerializer(serializers.ModelSerializer):
+    praise_id = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField()
     article_info = serializers.SerializerMethodField()
     receiver_info = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()
+    is_viewed = serializers.SerializerMethodField()
 
     serializer_field_mapping = serializers.ModelSerializer.serializer_field_mapping
     serializer_field_mapping.update({
         models.DateTimeField: CustomDateTimeField
     })
+
+    def get_praise_id(self, praise):
+        return praise.id
+
+    def get_type(self, praise):
+        return praise.praise_type
 
     def get_user(self, praise):
         return praise.get_user_info()
@@ -137,9 +146,12 @@ class PraiseSerializer(serializers.ModelSerializer):
         comment_content = praise.get_comment_content()
         return comment_content
 
+    def get_is_viewed(self, praise):
+        return 1 if praise.is_viewed else 0
+
     class Meta:
         model = Praise
-        fields = ('id', 'praise_type', 'user', 'praise_at', 'article_info', 'receiver_info', 'content', 'is_viewed')
+        fields = ('praise_id', 'type', 'user', 'praise_at', 'article_info', 'receiver_info', 'content', 'is_viewed')
 
 
 class CommentReplySerializer(serializers.ModelSerializer):
