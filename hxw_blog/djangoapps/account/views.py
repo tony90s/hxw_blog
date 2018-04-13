@@ -140,54 +140,6 @@ class ResetPasswordView(View):
         """
         return render(request, self.template_name)
 
-    @method_decorator(csrf_exempt)
-    def post(self, request, *args, **kwargs):
-        email = request.POST.get('email', '')
-        verification_code = request.POST.get('verification_code', '')
-        password = request.POST.get('password', '')
-        confirm_password = request.POST.get('confirm_password', '')
-
-        if not email:
-            return JsonResponse({'code': 400, 'msg': '请输入邮箱。'})
-        if not reg_email.match(email):
-            return JsonResponse({'code': 400, 'msg': '邮箱格式有误，请重新输入。'})
-
-        if not verification_code:
-            return JsonResponse({'code': 400, 'msg': '请输入验证码。'})
-
-        if not password or not confirm_password:
-            return JsonResponse({'code': 400, 'msg': '请输入密码。'})
-        if not reg_password.match(password):
-            return JsonResponse({'code': 400, 'msg': '密码格式有误，请重新输入。'})
-
-        users = User.objects.using('read').filter(email=email)
-        if not users.exists():
-            return JsonResponse({'code': 404, 'msg': '该邮箱尚未注册。'})
-
-        verification_code_in_session = request.session.get('verification_code', '')
-        if not verification_code_in_session:
-            return JsonResponse({'code': 301, 'msg': '验证码已过期，请重新获取。'})
-        if verification_code != verification_code_in_session:
-            return JsonResponse({'code': 400, 'msg': '验证码错误，请重新输入。'})
-
-        if password != confirm_password:
-            return JsonResponse({
-                'code': 400,
-                'msg': '密码输入不一致。'
-            })
-
-        # set new password
-        user = users[0]
-        user.set_password(password)
-        user.save(using='write')
-
-        redirect_url = reverse('account:login')
-        return JsonResponse({
-            'code': 200,
-            'msg': '密码重置成功，马上登录。',
-            'redirect_url': redirect_url
-        })
-
 
 @login_required
 def message_comments(request):

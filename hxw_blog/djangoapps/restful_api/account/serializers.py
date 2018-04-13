@@ -93,7 +93,7 @@ class UpdatePasswordSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    verification_code = serializers.CharField(required=True)
+    verification_code = serializers.CharField(required=True, max_length=6)
     password = serializers.CharField(required=True, min_length=6, max_length=32)
     confirm_password = serializers.CharField(required=True, min_length=6, max_length=32)
 
@@ -129,12 +129,16 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class ChangeEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    verification_code = serializers.CharField(max_length=6)
+    email = serializers.EmailField(required=True)
+    verification_code = serializers.CharField(required=True, max_length=6)
+
+    def validate_email(self, value):
+        users = User.objects.using('read').filter(email=value)
+        if users.exists():
+            raise serializers.ValidationError('该邮箱已被绑定，换一个试试。')
+        return value
 
     def validate_verification_code(self, value):
-        if not value:
-            raise serializers.ValidationError('请输入验证码。')
         if not reg_verification_code.match(value):
             raise serializers.ValidationError('验证码为6位数字，请重新输入。')
 
@@ -144,15 +148,6 @@ class ChangeEmailSerializer(serializers.Serializer):
         if value != verification_code_in_session:
             raise serializers.ValidationError('验证码错误，请重新输入。')
         return value
-
-    def validate(self, attrs):
-        email = attrs.get('email')
-        if email is None:
-            raise serializers.ValidationError("'email' 参数缺失。")
-        users = User.objects.using('read').filter(email=email)
-        if users.exists():
-            raise serializers.ValidationError('该邮箱已被绑定，换一个试试。')
-        return attrs
 
     def create(self, validated_data):
         return None
@@ -164,20 +159,19 @@ class ChangeEmailSerializer(serializers.Serializer):
 
 
 class BindEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    verification_code = serializers.CharField(max_length=6)
-    password = serializers.CharField(min_length=6, max_length=32)
+    email = serializers.EmailField(required=True)
+    verification_code = serializers.CharField(required=True, max_length=6)
+    password = serializers.CharField(required=True, min_length=6, max_length=32)
 
-    def validate_password(self, value):
-        if not value:
-            raise serializers.ValidationError("密码不能为空。")
-        if not reg_password.match(value):
-            raise serializers.ValidationError("密码格式有误，请重新输入。")
+    def validate_email(self, value):
+        if self.context['request'].user.email:
+            raise serializers.ValidationError('您已绑定邮箱，无需重复绑定。')
+        users = User.objects.using('read').filter(email=value)
+        if users.exists():
+            raise serializers.ValidationError('该邮箱已被绑定，换一个试试。')
         return value
 
     def validate_verification_code(self, value):
-        if not value:
-            raise serializers.ValidationError('请输入验证码。')
         if not reg_verification_code.match(value):
             raise serializers.ValidationError('验证码为6位数字，请重新输入。')
 
@@ -188,16 +182,10 @@ class BindEmailSerializer(serializers.Serializer):
             raise serializers.ValidationError('验证码错误，请重新输入。')
         return value
 
-    def validate(self, attrs):
-        email = attrs.get('email')
-        if email is None:
-            raise serializers.ValidationError("'email' 参数缺失。")
-        if self.context['request'].user.email:
-            raise serializers.ValidationError('您已绑定邮箱，无需重复绑定。')
-        users = User.objects.using('read').filter(email=email)
-        if users.exists():
-            raise serializers.ValidationError('该邮箱已被绑定，换一个试试。')
-        return attrs
+    def validate_password(self, value):
+        if not reg_password.match(value):
+            raise serializers.ValidationError("密码格式有误，请重新输入。")
+        return value
 
     def create(self, validated_data):
         return None
