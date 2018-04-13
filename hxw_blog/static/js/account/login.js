@@ -40,7 +40,7 @@ $(function () {
         }
 
         $.post(
-            login_url,
+            login_api_url,
             {
                 "account": account,
                 "password": password,

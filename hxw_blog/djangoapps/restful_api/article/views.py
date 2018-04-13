@@ -41,7 +41,7 @@ logger = logging.getLogger('api.article')
 
 class CreateArticleView(generics.CreateAPIView):
     serializer_class = SaveArticleSerializer
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser,)
 
     def perform_create(self, serializer):
         serializer.save(author_id=self.request.user.id)
@@ -60,7 +60,7 @@ class CreateArticleView(generics.CreateAPIView):
 
 class UpdateArticleView(generics.UpdateAPIView):
     serializer_class = SaveArticleSerializer
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly,)
 
     def get_object(self):
         article_id = int(self.request.data.get('article_id'))
@@ -68,6 +68,7 @@ class UpdateArticleView(generics.UpdateAPIView):
             article = Article.objects.using('read').get(id=article_id)
         except Article.DoesNotExist:
             raise Http404
+        self.check_object_permissions(self.request, article)
         return article
 
     def update(self, request, *args, **kwargs):
@@ -188,7 +189,7 @@ class PraiseList(generics.ListAPIView):
 
 
 class DeleteArticleView(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly,)
 
     def get_object(self):
         form = UpdateOrDeleteArticleForm(self.request.data)
@@ -199,7 +200,9 @@ class DeleteArticleView(generics.DestroyAPIView):
         articles = Article.objects.using('read').filter(id=article_id)
         if not articles.exists():
             raise Http404
-        return articles[0]
+        article = articles[0]
+        self.check_object_permissions(self.request, article)
+        return article
 
     def perform_destroy(self, instance):
         article_id = instance.id
@@ -242,7 +245,7 @@ class SaveCommentView(generics.CreateAPIView):
 
 
 class DeleteCommentView(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsCommentatorOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated, IsCommentatorOrReadOnly,)
 
     def get_object(self):
         form = DeleteCommentForm(self.request.data)
@@ -253,7 +256,9 @@ class DeleteCommentView(generics.DestroyAPIView):
         comments = Comment.objects.using('read').filter(id=comment_id)
         if not comments.exists():
             raise Http404
-        return comments[0]
+        comment = comments[0]
+        self.check_object_permissions(self.request, comment)
+        return comment
 
     def perform_destroy(self, instance):
         comment_id = instance.id
@@ -293,7 +298,7 @@ class SaveCommentReplyView(generics.CreateAPIView):
 
 
 class DeleteCommentReplyView(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsReplierOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated, IsReplierOrReadOnly,)
 
     def get_object(self):
         form = DeleteCommentReplyForm(self.request.data)
@@ -304,7 +309,9 @@ class DeleteCommentReplyView(generics.DestroyAPIView):
         comment_replies = CommentReply.objects.using('read').filter(id=comment_reply_id)
         if not comment_replies.exists():
             raise Http404
-        return comment_replies[0]
+        comment_reply = comment_replies[0]
+        self.check_object_permissions(self.request, comment_reply)
+        return comment_reply
 
     def perform_destroy(self, instance):
         praises = Praise.objects.using('write').filter(
@@ -339,7 +346,7 @@ class SavePraiseView(generics.CreateAPIView):
 
 
 class CancelPraiseView(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsPraiseOwnerOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated, IsPraiseOwnerOrReadOnly,)
 
     def get_object(self):
         form = CancelPraiseForm(self.request.data)
@@ -353,7 +360,9 @@ class CancelPraiseView(generics.DestroyAPIView):
                                                       Q(parent_id=parent_id) & Q(user_id=user_id))
         if not praises.exists():
             raise Http404
-        return praises[0]
+        praise = praises[0]
+        self.check_object_permissions(self.request, praise)
+        return praise
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -389,7 +398,7 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
 
 
 class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly,)
 
     def get_object(self):
         form = UpdateOrDeleteArticleForm(self.request.data)
@@ -400,7 +409,9 @@ class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
         articles = Article.objects.using('read').filter(id=article_id)
         if not articles.exists():
             raise Http404
-        return articles[0]
+        article = articles[0]
+        self.check_object_permissions(self.request, article)
+        return article
 
     def perform_update(self, instance):
         now = timezone.now()

@@ -57,7 +57,7 @@ $(function () {
         }
 
         $.post(
-            register_url,
+            register_api_url,
             {
                 "username": username,
                 "email": email,

@@ -9,7 +9,7 @@ def custom_exception_handler(exc, context):
         else:
             error_list = [(key, value[0] if isinstance(value, list) else repr(value)) for key, value in
                           response.data.items()]
-            error_msg = '%s参数有误：%s' % error_list[0]
+            error_msg = '%s：%s' % error_list[0]
 
         del response.data
         response.data = dict()

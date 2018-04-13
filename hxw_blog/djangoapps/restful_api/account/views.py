@@ -6,6 +6,8 @@ import re
 from django.conf import settings
 from django.http import Http404, QueryDict
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.contrib.auth import logout, authenticate, login
 
 from rest_framework.views import APIView
 from rest_framework import serializers, generics, permissions
@@ -15,16 +17,21 @@ from restful_api.account.serializers import (
     UserInfoSerializer,
     UpdateUserAvatarSerializer,
     UpdatePasswordSerializer,
+    ResetPasswordSerializer,
     ChangeEmailSerializer,
     BindEmailSerializer,
     UnbindingSocialLoginSerializer,
 )
 from restful_api.account.forms import (
+    RegisterForm,
+    LoginForm,
+    ResetPasswordForm,
     GeneralEmailForm,
     EmailToResetPasswordForm,
     CheckEmailIsBindForm
 )
-from account.models import OauthLogin
+from account.cookies import set_logged_in_cookies
+from account.models import UserProfile, OauthLogin
 from utils.file_handling import get_thumbnail
 from utils import generate_verification_code
 from utils.html_email_utils import send_html_mail
@@ -34,6 +41,52 @@ reg_password = re.compile('^[\.\w@_-]{6,32}$')
 reg_email = re.compile('^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
 
 logger = logging.getLogger('api.account')
+
+
+class RegisterView(APIView):
+    def post(self, request, *args, **kwargs):
+        form = RegisterForm(request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        user = form.create()
+        login(request, user)
+
+        # send email to notice users when register successfully
+        redirect_url = request.data.get('redirect_url', '').replace('#', '')
+        if redirect_url == '':
+            redirect_url = reverse('index')
+        response = Response({
+            'code': 200,
+            'msg': '注册成功',
+            'redirect_url': redirect_url
+        })
+        response = set_logged_in_cookies(request, response, user)
+        return response
+
+
+class LoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        form = LoginForm(request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        email = form.cleaned_data.get('account')
+        user = User.objects.using('read').get(email=email)
+        login(request, user)
+
+        if request.data.get('remember') == 'true':
+            request.session.set_expiry(604800)
+        else:
+            request.session.set_expiry(0)
+
+        redirect_url = request.data.get('redirect_url', '').replace('#', '')
+        if redirect_url == '':
+            redirect_url = reverse('index')
+
+        response = Response({'code': '200', 'msg': '登录成功', 'redirect_url': redirect_url})
+        response = set_logged_in_cookies(request, response, user)
+        return response
 
 
 class UpdateUserInfoView(generics.UpdateAPIView):
@@ -51,6 +104,35 @@ class UpdateUserInfoView(generics.UpdateAPIView):
 
         self.perform_update(serializer)
         return Response({'code': 200, 'msg': '更新成功。'})
+
+
+class ResetUserPasswordView(generics.UpdateAPIView):
+    serializer_class = ResetPasswordSerializer
+
+    def get_object(self):
+        form = ResetPasswordForm(self.request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        email = form.cleaned_data.get('email')
+        users = User.objects.using('read').filter(email=email)
+        if not users.exists():
+            raise Http404
+        return users[0]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+        redirect_url = reverse('account:login')
+        return Response({
+            'code': 200,
+            'msg': '密码重置成功，马上登录。',
+            'redirect_url': redirect_url
+        })
 
 
 class UpdateUserPasswordView(generics.UpdateAPIView):
@@ -185,10 +267,6 @@ class ChangeEmailView(generics.UpdateAPIView):
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        users = User.objects.using('read').filter(email=serializer.validated_data.get('email'))
-        if users.exists():
-            return Response({'code': 403, 'msg': '该邮箱已被绑定，换一个试试。'})
-
         self.perform_update(serializer)
         return Response({
             'code': 200,
@@ -209,11 +287,6 @@ class BindEmailView(generics.UpdateAPIView):
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        if request.user.email:
-            return Response({'code': 400, 'msg': '您已绑定邮箱，无需重复绑定。'})
-        users = User.objects.using('read').filter(email=serializer.validated_data.get('email'))
-        if users.exists():
-            return Response({'code': 403, 'msg': '该邮箱已被绑定，换一个试试。'})
         self.perform_update(serializer)
         return Response({
             'code': 200,

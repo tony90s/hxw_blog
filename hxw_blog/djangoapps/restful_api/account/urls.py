@@ -1,6 +1,9 @@
 from django.conf.urls import url
 from restful_api.account.views import (
+    RegisterView,
+    LoginView,
     UpdateUserInfoView,
+    ResetUserPasswordView,
     UpdateUserPasswordView,
     UpdateUserAvatarView,
     SendEmailToResetPassword,
@@ -12,7 +15,10 @@ from restful_api.account.views import (
 )
 
 urlpatterns = [
+    url(r'^register$', RegisterView.as_view(), name='register'),
+    url(r'^login$', LoginView.as_view(), name='login'),
     url(r'^info/update$', UpdateUserInfoView.as_view(), name='update_user_info'),
+    url(r'^password/reset$', ResetUserPasswordView.as_view(), name='reset_user_password'),
     url(r'^password/update$', UpdateUserPasswordView.as_view(), name='update_user_password'),
     url(r'^avatar/update$', UpdateUserAvatarView.as_view(), name='update_user_avatar'),
     url(r'^password/reset/send_email$', SendEmailToResetPassword.as_view(), name='send_email_to_reset_password'),

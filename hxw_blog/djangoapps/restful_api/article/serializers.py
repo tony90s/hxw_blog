@@ -60,6 +60,10 @@ class SaveCommentSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         article_id = attrs.get('article_id')
+
+        if article_id is None:
+            raise serializers.ValidationError("'article_id' 参数缺失。")
+
         articles = Article.objects.using('read').filter(id=article_id)
         if not articles.exists():
             raise serializers.ValidationError('所评论的博文不存在，请联系管理员')
@@ -77,6 +81,12 @@ class SaveCommentReplySerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         comment_id = attrs.get('comment_id')
         receiver_id = attrs.get('receiver_id')
+
+        if comment_id is None:
+            raise serializers.ValidationError("'comment_id' 参数缺失。")
+        if receiver_id is None:
+            raise serializers.ValidationError("'receiver_id' 参数缺失。")
+
         comments = Comment.objects.using('read').filter(id=comment_id)
         if not comments.exists():
             raise serializers.ValidationError('所回复评论不存在，请联系管理员')
@@ -97,6 +107,11 @@ class SavePraiseSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         praise_type = attrs.get('praise_type')
         parent_id = attrs.get('parent_id')
+
+        if praise_type is None:
+            raise serializers.ValidationError("'praise_type' 参数缺失。")
+        if parent_id is None:
+            raise serializers.ValidationError("'parent_id' 参数缺失。")
 
         if praise_type == Praise.TYPE.ARTICLE:
             praise_parents = Article.objects.using('read').filter(id=parent_id)
