@@ -9,7 +9,7 @@ class CancelPraiseForm(forms.Form):
 
     def clean_praise_type(self):
         praise_type = self.cleaned_data.get('praise_type')
-        if not praise_type:
+        if praise_type is None:
             raise forms.ValidationError("praise_type can't be blank.")
         if praise_type not in [value for value, name in Praise.TYPE_CHOICES]:
             raise forms.ValidationError("praise_type must be 1,2,3.")
@@ -22,7 +22,7 @@ class UpdateIsViewedStatusForm(forms.Form):
 
     def clean_object_type(self):
         object_type = self.cleaned_data.get('object_type')
-        if not object_type:
+        if object_type is None:
             raise forms.ValidationError("object_type can't be blank.")
         if object_type not in [1, 2, 3]:
             raise forms.ValidationError("object_type must be 1,2,3.")

@@ -19,8 +19,7 @@ from restful_api.account.serializers import (
     UpdatePasswordSerializer,
     ResetPasswordSerializer,
     ChangeEmailSerializer,
-    BindEmailSerializer,
-    UnbindingSocialLoginSerializer,
+    BindEmailSerializer
 )
 from restful_api.account.forms import (
     RegisterForm,
@@ -28,7 +27,8 @@ from restful_api.account.forms import (
     ResetPasswordForm,
     GeneralEmailForm,
     EmailToResetPasswordForm,
-    CheckEmailIsBindForm
+    CheckEmailIsBindForm,
+    UnbindingSocialLoginForm
 )
 from account.cookies import set_logged_in_cookies
 from account.models import UserProfile, OauthLogin
@@ -113,12 +113,7 @@ class ResetUserPasswordView(generics.UpdateAPIView):
         form = ResetPasswordForm(self.request.data)
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
-
-        email = form.cleaned_data.get('email')
-        users = User.objects.using('read').filter(email=email)
-        if not users.exists():
-            raise Http404
-        return users[0]
+        return form.instance
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -295,12 +290,19 @@ class BindEmailView(generics.UpdateAPIView):
 
 
 class UnbindingSocialLoginView(generics.DestroyAPIView):
-    serializer_class = UnbindingSocialLoginSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
-        auth_type = self.serializer_class.validated_data.get('auth_type')
-        user_id = self.serializer_class.validated_data.get('user_id')
+        original_request_data = self.request.data.urlencode()
+        new_request_data = QueryDict(original_request_data, mutable=True)
+        new_request_data['user_id'] = self.request.user.id
+
+        form = UnbindingSocialLoginForm(new_request_data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        auth_type = form.cleaned_data.get('auth_type')
+        user_id = form.cleaned_data.get('user_id')
 
         oauth_logins = OauthLogin.objects.using('read').filter(auth_type=auth_type, user_id=user_id)
         if not oauth_logins.exists():
@@ -308,12 +310,6 @@ class UnbindingSocialLoginView(generics.DestroyAPIView):
         return oauth_logins[0]
 
     def destroy(self, request, *args, **kwargs):
-        original_request_data = request.data.urlencode()
-        new_request_data = QueryDict(original_request_data, mutable=True)
-        new_request_data['user_id'] = request.user.id
-        serializer = self.get_serializer(data=new_request_data)
-        serializer.is_valid(raise_exception=True)
-
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({

@@ -195,9 +195,3 @@ class BindEmailSerializer(serializers.Serializer):
         instance.set_password(validated_data.get('password'))
         instance.save(using='write')
         return instance
-
-
-class UnbindingSocialLoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OauthLogin
-        fields = ('auth_type', 'user_id')

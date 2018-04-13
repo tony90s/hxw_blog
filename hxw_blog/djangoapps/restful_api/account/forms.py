@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
-from account.models import UserProfile
+from account.models import UserProfile, OauthLogin
 
 reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
 reg_password = re.compile('^[\.\w@_-]{6,32}$')
@@ -83,6 +83,7 @@ class ResetPasswordForm(forms.Form):
         users = User.objects.using('read').filter(email=email)
         if not users.exists():
             raise forms.ValidationError('该邮箱尚未注册。')
+        self.instance = users[0]
         return self.cleaned_data['email']
 
 
@@ -106,3 +107,14 @@ class CheckEmailIsBindForm(GeneralEmailForm):
         if users.exists():
             raise forms.ValidationError('该邮箱已被绑定，换一个试试。')
         return self.cleaned_data['email']
+
+
+class UnbindingSocialLoginForm(forms.Form):
+    auth_type = forms.IntegerField(required=True)
+    user_id = forms.IntegerField(required=True)
+
+    def clean_auth_type(self):
+        auth_type = self.cleaned_data.get('auth_type')
+        if auth_type not in [value for value, display in OauthLogin.TYPE_CHOICES]:
+            raise forms.ValidationError("'auth_type' must be 1,2,3,4.")
+        return self.cleaned_data['auth_type']

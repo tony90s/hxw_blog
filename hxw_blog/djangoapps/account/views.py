@@ -10,17 +10,14 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth.models import User
-from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.views import View
-from django.utils.decorators import method_decorator
 
 from rest_framework import serializers
 
 from account.cookies import set_logged_in_cookies, delete_logged_in_cookies
-from account.models import UserProfile
 from article.models import (
     Article,
     Comment,
@@ -40,9 +37,6 @@ from account.oauth2.oauth_alipay import OauthAlipay
 PUBLIC_KEY_PATH = os.path.join(settings.ENV_ROOT, 'rsa_key/public_key.pem')
 PRIVATE_KEY_PATH = os.path.join(settings.ENV_ROOT, 'rsa_key/private_key.pem')
 
-reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
-reg_email = re.compile('^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
-reg_password = re.compile('^[\.\w@_-]{6,32}$')
 reg_number = re.compile('^\d+$')
 logger = logging.getLogger('account.views')
 
