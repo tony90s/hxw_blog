@@ -58,29 +58,19 @@ def edit_article(request, article_id):
 @require_http_methods(['GET'])
 def article_category_index_views(request, article_type):
     page_size = settings.DEFAULT_PAGE_SIZE
-    page_index = 1
 
     article_type = int(article_type)
     if article_type not in [value for value, name in Article.TYPE_CHOICES]:
         raise Http404
 
     template = 'index.html'
-    all_articles = Article.objects.using('read').filter(Q(is_released=1))
-    articles = all_articles.filter(Q(type=article_type)).order_by('-id')
-    articles_summarization = [article.get_summarization() for article in
-                              articles[page_size * (page_index - 1):page_size * page_index]]
-    """
-    # get hot articles brief
-    now = timezone.now()
-    hot_articles = sorted(all_articles.filter(Q(release_at__gte=(now + timedelta(days=-60)))),
-                          key=lambda article: article.praise_times, reverse=True)[:5]
-    hot_articles_briefs = [article.get_brief() for article in hot_articles]
-    """
+    articles = Article.objects.using('read').filter(Q(is_released=1) & Q(type=article_type)).order_by('-release_at')
+    articles_summarization = [article.get_summarization() for article in articles[:page_size]]
     context = {
         'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)},
         'articles_summarization': articles_summarization,
         'page_size': page_size,
-        'has_next': len(articles) > page_size
+        'has_next': int(articles.count() > page_size)
     }
     return render(request, template, context)
 
@@ -123,14 +113,16 @@ def drafts(request):
         'bio': user.profile.bio
     }
 
-    drafts = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=0)).order_by('-id')
+    drafts = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=0)).order_by('-update_at',
+                                                                                                    '-created_at')
     drafts_info = [draft.get_summarization() for draft in drafts[:page_size]]
+    drafts_count = drafts.count()
     context = {
         'drafts_info': drafts_info,
         'page_size': page_size,
         'user_data': user_data,
-        'drafts_count': len(drafts),
-        'has_next': int(len(drafts) > page_size)
+        'drafts_count': drafts_count,
+        'has_next': int(drafts_count > page_size)
     }
     return render(request, 'article/user_drafts.html', context)
 
@@ -150,15 +142,16 @@ def user_articles(request, author_id):
         'bio': author.profile.bio
     }
 
-    articles = Article.objects.using('read').filter(Q(author_id=author.id) & Q(is_released=1)).order_by('-id')
+    articles = Article.objects.using('read').filter(Q(author_id=author.id) & Q(is_released=1)).order_by('-release_at')
     articles_info = [article.get_summarization() for article in articles[:page_size]]
+    article_count = articles.count()
     author_praises = get_user_be_praised(author.id)
     context = {
         'articles_info': articles_info,
         'page_size': page_size,
         'author_data': author_data,
-        'article_count': articles.count(),
+        'article_count': article_count,
         'praises_count': author_praises.count(),
-        'has_next': int(len(articles) > page_size)
+        'has_next': int(article_count > page_size)
     }
     return render(request, 'article/user_articles.html', context)

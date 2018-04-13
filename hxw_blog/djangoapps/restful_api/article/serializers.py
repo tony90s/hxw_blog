@@ -164,7 +164,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ('article_id', 'title', 'type', 'cover_photo', 'author', 'abstract', 'comment_times', 'praise_times',
-                  'release_time', 'page_views')
+                  'release_time', 'update_time', 'page_views')
 
 
 class PraiseSerializer(serializers.ModelSerializer):

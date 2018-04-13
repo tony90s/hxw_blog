@@ -153,7 +153,8 @@
                     $.getJSON("{% url 'api:articles' %}",
                             {
                                 'page': page_index,
-                                'article_type': $("#article_type").val()
+                                'article_type': $("#article_type").val(),
+                                'is_released': 1
                             }, function(json) {
                             if (json.results.length > 0) {
                                 var str = "";

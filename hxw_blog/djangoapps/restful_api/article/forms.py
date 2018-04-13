@@ -3,6 +3,22 @@ from django import forms
 from article.models import Article, Comment, CommentReply, Praise
 
 
+class ArticleListForm(forms.Form):
+    article_type = forms.IntegerField(required=False)
+    is_released = forms.IntegerField(required=True)
+    author_id = forms.IntegerField(required=False)
+
+    def clean_is_released(self):
+        is_released = self.cleaned_data.get('is_released')
+        if is_released not in [0, 1]:
+            raise forms.ValidationError("'is_released must be 0 or 1.'")
+        return self.cleaned_data['is_released']
+
+
+class PraiseListForm(forms.Form):
+    user_id = forms.IntegerField(required=True)
+
+
 class CancelPraiseForm(forms.Form):
     praise_type = forms.IntegerField(required=True)
     parent_id = forms.IntegerField(required=True)
@@ -29,7 +45,7 @@ class UpdateIsViewedStatusForm(forms.Form):
         return self.cleaned_data['object_type']
 
 
-class UpdateOrDeleteArticleForm(forms.Form):
+class CheckArticleIdForm(forms.Form):
     article_id = forms.IntegerField(required=True)
 
 

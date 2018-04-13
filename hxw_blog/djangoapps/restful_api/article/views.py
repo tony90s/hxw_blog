@@ -21,9 +21,11 @@ from restful_api.article.serializers import (
     SavePraiseSerializer
 )
 from restful_api.article.forms import (
+    ArticleListForm,
+    PraiseListForm,
     CancelPraiseForm,
     UpdateIsViewedStatusForm,
-    UpdateOrDeleteArticleForm,
+    CheckArticleIdForm,
     DeleteCommentReplyForm,
     DeleteCommentForm
 )
@@ -51,10 +53,13 @@ class CreateArticleView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
-        redirect_url = reverse('index')
-        msg = '发布成功'
-        if not serializer.validated_data.get('is_released'):
+        is_released = serializer.validated_data.get('is_released')
+        if is_released:
+            msg = '发布成功'
+            redirect_url = reverse('article:user_articles', kwargs={'author_id': request.user.id})
+        else:
             msg = '草稿保存成功'
+            redirect_url = reverse('article:user_drafts')
         return Response({'code': 200, 'msg': msg, 'redirect_url': redirect_url})
 
 
@@ -63,7 +68,11 @@ class UpdateArticleView(generics.UpdateAPIView):
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly,)
 
     def get_object(self):
-        article_id = int(self.request.data.get('article_id'))
+        form = CheckArticleIdForm(self.request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        article_id = form.cleaned_data.get('article_id')
         try:
             article = Article.objects.using('read').get(id=article_id)
         except Article.DoesNotExist:
@@ -78,10 +87,13 @@ class UpdateArticleView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
 
         self.perform_update(serializer)
-        redirect_url = reverse('index')
-        msg = '发布成功'
-        if not serializer.validated_data.get('is_released'):
+        is_released = serializer.validated_data.get('is_released')
+        if is_released:
+            msg = '发布成功'
+            redirect_url = reverse('article:user_articles', kwargs={'author_id': request.user.id})
+        else:
             msg = '草稿保存成功'
+            redirect_url = reverse('article:user_drafts')
         return Response({'code': 200, 'msg': msg, 'redirect_url': redirect_url})
 
 
@@ -94,22 +106,25 @@ class ArticleList(generics.ListAPIView):
     serializer_class = ArticleSerializer
 
     def get_queryset(self):
-        article_type = self.request.query_params.get('article_type', '0')
-        is_released = self.request.query_params.get('is_released', '1')
-        author_id = self.request.query_params.get('author_id', '0')
+        form = ArticleListForm(self.request.query_params)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
 
-        article_type = int(article_type)
-        author_id = int(author_id)
-        is_released = int(is_released)
+        article_type = form.cleaned_data.get('article_type') or 0
+        is_released = form.cleaned_data.get('is_released')
+        author_id = form.cleaned_data.get('author_id') or 0
 
         query_condition = Q(is_released=is_released)
         if article_type > 0:
             query_condition &= Q(type=article_type)
-
         if author_id > 0:
             query_condition &= Q(author_id=author_id)
 
-        articles = Article.objects.using('read').filter(query_condition).order_by('-id')
+        articles = Article.objects.using('read').filter(query_condition)
+        if is_released:
+            articles = articles.order_by('-release_at')
+        else:
+            articles = articles.order_by('-update_at', '-created_at')
         return articles
 
 
@@ -122,9 +137,11 @@ class CommentList(generics.ListAPIView):
     serializer_class = CommentSerializer
 
     def get_queryset(self):
-        article_id = self.request.query_params.get('article_id', '0')
-        article_id = int(article_id)
+        form = CheckArticleIdForm(self.request.query_params)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
 
+        article_id = form.cleaned_data.get('article_id')
         articles = Article.objects.using('read').filter(id=article_id)
         if not articles.exists():
             raise Http404
@@ -163,7 +180,11 @@ class PraiseList(generics.ListAPIView):
     serializer_class = PraiseSerializer
 
     def get_queryset(self):
-        user_id = self.request.GET.get('user_id')
+        form = PraiseListForm(self.request.query_params)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        user_id = form.cleaned_data.get('user_id')
         return get_user_be_praised(user_id)
 
     def clean_cache(self):
@@ -192,7 +213,7 @@ class DeleteArticleView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly,)
 
     def get_object(self):
-        form = UpdateOrDeleteArticleForm(self.request.data)
+        form = CheckArticleIdForm(self.request.data)
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
 
@@ -401,7 +422,7 @@ class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly,)
 
     def get_object(self):
-        form = UpdateOrDeleteArticleForm(self.request.data)
+        form = CheckArticleIdForm(self.request.data)
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
 
