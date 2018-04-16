@@ -71,7 +71,7 @@ class LoginForm(forms.Form):
             raise forms.ValidationError('该邮箱尚未注册')
         user = authenticate(username=users[0].get_username(), password=password)
         if user is None:
-            raise forms.ValidationError('密码错误，请重新输入。')
+            raise forms.ValidationError('密码错误，请重新输入')
         return self.cleaned_data
 
 
