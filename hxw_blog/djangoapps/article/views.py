@@ -57,7 +57,7 @@ def edit_article(request, article_id):
 
 @require_http_methods(['GET'])
 def article_category_index_views(request, article_type):
-    page_size = settings.DEFAULT_PAGE_SIZE
+    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
 
     article_type = int(article_type)
     if article_type not in [value for value, name in Article.TYPE_CHOICES]:
@@ -69,14 +69,13 @@ def article_category_index_views(request, article_type):
     context = {
         'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)},
         'articles_summarization': articles_summarization,
-        'page_size': page_size,
         'has_next': int(articles.count() > page_size)
     }
     return render(request, template, context)
 
 
 def article_details(request, article_id):
-    page_size = settings.DEFAULT_PAGE_SIZE
+    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
     template_name = 'article/article_detail.html'
 
     articles = Article.objects.using('read').filter(id=article_id)
@@ -104,7 +103,7 @@ def article_details(request, article_id):
 
 @login_required()
 def drafts(request):
-    page_size = settings.DEFAULT_PAGE_SIZE
+    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
     user = request.user
     user_data = {
         'user_id': user.id,
@@ -119,7 +118,6 @@ def drafts(request):
     drafts_count = drafts.count()
     context = {
         'drafts_info': drafts_info,
-        'page_size': page_size,
         'user_data': user_data,
         'drafts_count': drafts_count,
         'has_next': int(drafts_count > page_size)
@@ -128,7 +126,7 @@ def drafts(request):
 
 
 def user_articles(request, author_id):
-    page_size = settings.DEFAULT_PAGE_SIZE
+    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
 
     authors = User.objects.using('read').filter(id=author_id)
     if not authors.exists():
@@ -148,7 +146,6 @@ def user_articles(request, author_id):
     author_praises = get_user_be_praised(author.id)
     context = {
         'articles_info': articles_info,
-        'page_size': page_size,
         'author_data': author_data,
         'article_count': article_count,
         'praises_count': author_praises.count(),

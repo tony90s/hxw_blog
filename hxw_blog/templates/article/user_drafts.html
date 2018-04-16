@@ -70,7 +70,6 @@
                         {% endfor %}
                     </ul>
                     <div class="read-more text-center">
-                        <input type="hidden" value="{{ page_size }}" id="page_size">
                         <input type="hidden" value="{{ has_next }}" id="has_next">
                         <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
                         <p class="text-center not-more-content">没有更多草稿...</p>
@@ -179,7 +178,6 @@
     <script type="text/javascript">
             $(function() {
                 var page_index = 2;
-                var page_size = $("#page_size").val();
                 var user_info_span = $(".user-info")[0];
                 var user_id = user_info_span.dataset.user_id;
                 $("#btn_read_more").click(function() {

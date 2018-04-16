@@ -77,7 +77,6 @@
                         </ul>
                         <div class="read-more text-center">
                             <input type="hidden" value="{{ article_type.value }}" id="article_type">
-                            <input type="hidden" value="{{ page_size }}" id="page_size">
                             <input type="hidden" value="{{ has_next }}" id="has_next">
                             <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
                             <p class="text-center not-more-content">更多内容，敬请期待...</p>
@@ -148,7 +147,6 @@
     <script type="text/javascript">
             $(function() {
                 var page_index = 2;
-                var page_size = $("#page_size").val();
                 $("#btn_read_more").click(function() {
                     $.getJSON("{% url 'api:articles' %}",
                             {

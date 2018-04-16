@@ -142,7 +142,6 @@
                         {% if article_details.comment_times > 0 %}
                         <div class="more-comment text-center">
                             <input type="hidden" value="{{article_details.article_id }}" id="article_id">
-                            <input type="hidden" value="{{ page_size }}" id="page_size">
                             <ul class="pager">
                                 <li><a class="btn btn-info prev-page disabled" href="javascript:void(0)">上一页</a></li>
                                 <li><a class="btn btn-success next-page{% if article_details.comment_times <= page_size %} disabled{% endif %}" href="javascript:void(0)">下一页</a></li>
@@ -800,7 +799,6 @@
             }
             $(function() {
                 var page_index = 1;
-                var page_size = $("#page_size").val();
                 var article_id = $("#article_id").val();
                 $(".next-page").click(function() {
                     page_index ++;

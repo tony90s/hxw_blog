@@ -137,7 +137,7 @@ class ResetPasswordView(View):
 
 @login_required
 def message_comments(request):
-    page_size = settings.DEFAULT_PAGE_SIZE
+    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
     template_name = 'account/message_comments.html'
     user = request.user
 
@@ -182,7 +182,7 @@ def message_comments(request):
 
 @require_http_methods(['GET'])
 def user_unified_comment_info_pagination(request):
-    page_size = settings.DEFAULT_PAGE_SIZE
+    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
 
     form = UnifiedCommentListForm(request.GET)
     if not form.is_valid():
@@ -223,7 +223,7 @@ def user_unified_comment_info_pagination(request):
 
 @login_required
 def message_praises(request):
-    page_size = settings.DEFAULT_PAGE_SIZE
+    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
     template_name = 'account/message_praises.html'
     user = request.user
 
@@ -238,7 +238,6 @@ def message_praises(request):
 
     context = {
         'praises': praises_info,
-        'page_size': page_size,
         'not_viewed_praises_count': not_viewed_praises_count,
         'not_viewed_comment_count': not_viewed_comment_count,
         'has_next': int(len(all_praises) > page_size)

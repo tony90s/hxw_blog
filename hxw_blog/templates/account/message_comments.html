@@ -84,7 +84,6 @@
                 </div>
                 <div class="read-more text-center">
                     <input type="hidden" value="{{ comment_type }}" id="comment_type">
-                    <input type="hidden" value="{{ page_size }}" id="page_size">
                     <input type="hidden" value="{{ has_next }}" id="has_next">
                     <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">获取更多</button>
                     <p class="text-center not-more-content">没有更多内容...</p>
@@ -338,7 +337,6 @@
             $(function() {
                 var page_index = 2;
                 var comment_type = $("#comment_type").val();
-                var page_size = $("#page_size").val();
                 $("#btn_read_more").click(function() {
                     $(".loading-animation").show();
                     $.getJSON("{% url 'account:user_message_comments_pagination' %}",
