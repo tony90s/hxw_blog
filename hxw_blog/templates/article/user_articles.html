@@ -40,63 +40,10 @@
             <div class="col-sm-6 main">
                 <div id="list-container">
                     <ul class="note-list">
-                        {% for article in articles_info %}
-                                <li id="article-{{ article.article_id }}" data-article_id="{{ article.article_id }}" class="note">
-                                    <div class="content">
-                                        <div class="author">
-                                            <a class="avatar" target="_blank" href="{% url 'article:user_articles' article.author.user_id %}">
-                                                <img src="{{ article.author.avatar }}" alt="{{ article.author.username }}"/>
-                                            </a>
-                                            <div class="info">
-                                                <a class="nickname" target="_blank" href="{% url 'article:user_articles' article.author.user_id %}">{{ article.author.username }}</a>
-                                                <span class="time" data-release_at="{{ article.release_time }}"></span>
-                                            </div>
-                                            {% if user.is_authenticated and user.id == author_data.user_id %}
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                    <span class="caret"></span>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-right">
-                                                    <li>
-                                                        <a href="javascript:void(0);" onclick="remove(this)" data-article_id="{{ article.article_id }}">
-                                                            <i class="iconfont icon-shanchu"></i> 删除
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a target="_blank" href="{% url 'article:details' article.article_id %}">
-                                                            <i class="iconfont icon-chakan"></i> 查看
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div{% if article.cover_photo %} class="with-img"{% endif %}>
-                                            {% if article.cover_photo %}
-                                            <a class="wrap-img" href="{% url 'article:details' article.article_id %}" target="_blank">
-                                                <img class="img-blur" src="{{ article.cover_photo }}" alt="{{ article.title }}"/>
-                                            </a>
-                                            {% endif %}
-                                            <a class="title" target="_blank" href="{% url 'article:details' article.article_id %}">{{ article.title }}</a>
-                                            <p class="abstract">{{ article.abstract }}</p>
-                                        </div>
-                                        <div class="meta">
-                                            <a class="collection-tag" target="_blank" href="{% url 'article:article_category' article.type.value %}">{{ article.type.display_name }}</a>
-                                            <a target="_blank" href="{% url 'article:details' article.article_id %}">
-                                                <i class="iconfont icon-view"></i> {{ article.page_views }}
-                                            </a>
-                                            <a target="_blank" href="{% url 'article:details' article.article_id %}#comments">
-                                                <i class="iconfont icon-message"></i> {{ article.comment_times }}
-                                            </a>
-                                            <span><i class="iconfont icon-like"></i> {{ article.praise_times }}</span>
-                                        </div>
-                                    </div>
-                                </li>
-                        {% endfor %}
+
                     </ul>
                     <div class="read-more text-center">
                         <input type="hidden" value="{{ author_data.user_id }}" id="author_id">
-                        <input type="hidden" value="{{ has_next }}" id="has_next">
                         <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">查看更多</button>
                         <p class="text-center not-more-content">没有更多文章...</p>
                     </div>
@@ -133,19 +80,6 @@
                 $(this).text(time_desc)
             })
         }
-        $(function () {
-            timeDesc()
-        });
-    </script>
-
-    <script>
-        $(function () {
-            var has_next = parseInt($("#has_next").val());
-            if (!has_next) {
-                $("#btn_read_more").hide();
-                $(".read-more .not-more-content").show();
-            }
-        });
     </script>
 
     <!--删除博文-->
@@ -182,17 +116,15 @@
     </script>
 
     <script type="text/javascript">
-            $(function() {
-                var page_index = 2;
-                var author_id = $("#author_id").val();
-                $("#btn_read_more").click(function() {
+            var page_index = 1;
+            function ajax_get_article() {
                     $.getJSON("{% url 'api:articles' %}",
                             {
                                 'page': page_index,
-                                'author_id': author_id,
+                                'author_id': $("#author_id").val(),
                                 'is_released': 1
                             }, function(json) {
-                            if (json.results.length > 0) {
+                            if (json.hasOwnProperty('results') && json.results.length > 0) {
                                 var str = "";
                                 $.each(json.results, function(index, array) {
                                     var article_id = array['article_id'];
@@ -278,6 +210,11 @@
                                 return false;
                             }
                         });
+            }
+            $(function() {
+                ajax_get_article();
+                $("#btn_read_more").click(function() {
+                    ajax_get_article()
                 });
             });
     </script>

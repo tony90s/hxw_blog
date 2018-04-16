@@ -122,7 +122,7 @@ class Article(models.Model):
         context['author'] = self.get_author_data()
         context['comment_times'] = self.comment_times
         context['praise_times'] = self.praise_times
-        context['comments'] = self.get_comments_json()
+        # context['comments'] = self.get_comments_json()
         context['word_count'] = self.word_count
         context['release_time'] = self.release_time
         context['update_time'] = self.update_time

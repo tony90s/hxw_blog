@@ -74,80 +74,16 @@
                         <!--评论区域 end-->
                         <!--回复区域 begin-->
                         <div class="comment-show">
-                            {% for comment in  article_details.comments %}
-                                <div class="comment-show-con clearfix" id="comment-{{ comment.comment_id }}">
-                                    <div class="comment-show-con-img">
-                                        <a target="_blank" href="{% url 'article:user_articles' comment.commentator.user_id %}">
-                                            <img src="{{ comment.commentator.avatar }}" alt="{{ comment.commentator.username }}">
-                                        </a>
-                                    </div>
-                                    <div class="pl-text clearfix">
-                                        <a target="_blank" href="{% url 'article:user_articles' comment.commentator.user_id %}" class="comment-size-name" data-commentator_id="{{ comment.commentator.user_id }}">{{ comment.commentator.username }}</a>
-                                        <span class="comment-time" data-comment_at="{{ comment.comment_at }}"></span>
-                                    </div>
-                                    <div class="comment-show-con-list clearfix">
-                                        <div class="date-dz">
-                                            <p class="date-dz-left my-pl-con">{{ comment.content }}</p>
-                                            <div class="date-dz-right pull-right comment-pl-block">
-                                                {% if user.is_authenticated %}
-                                                    {% ifequal comment.commentator.user_id user.id %}
-                                                        <a href="javascript:;" class="removeBlock"
-                                                           data-comment_id="{{ comment.comment_id }}">删除</a>
-                                                    {% endifequal %}
-                                                {% endif %}
-                                                <a href="javascript:;" class="date-dz-pl pl-hf hf-con-block"
-                                                   data-comment_id="{{ comment.comment_id }}"
-                                                   data-receiver_id="{{ comment.commentator.user_id }}" data-receiver_name="{{ comment.commentator.username }}">回复</a>
-                                                <span class="date-dz-line">|</span>
-                                                <a href="javascript:;" class="date-dz-z"
-                                                   data-parent_id="{{ comment.comment_id }}" data-praise_type="2"><i
-                                                        class="iconfont icon-communityiconpraise4"></i><span
-                                                        class="z-num">{{ comment.praise_times }}</span></a>
-                                            </div>
-                                        </div>
-                                        <div class="hf-list-con">
-                                            {% for reply in comment.comment_replies %}
-                                                <div class="all-pl-con" id="comment-reply-{{ reply.comment_reply_id }}">
-                                                    <div class="pl-text hfpl-text clearfix">
-                                                        <a target="_blank" href="{% url 'article:user_articles' reply.replier.user_id %}" class="comment-size-name">{{ reply.replier.username }}</a>
-                                                        <span class="comment-time" data-comment_at="{{ reply.reply_at }}"></span>
-                                                    </div>
-                                                    <div class="date-dz">
-                                                        <p class="date-dz-left my-pl-con">回复@<a href="{% url 'article:user_articles' reply.receiver.user_id %}" class="comment-size-name" target="_blank">{{ reply.receiver.username }}</a>:{{ reply.content }}</p>
-                                                        <div class="date-dz-right pull-right comment-pl-block">
-                                                            {% if user.is_authenticated %}
-                                                                {% ifequal reply.replier.user_id user.id %}
-                                                                    <a href="javascript:;" class="removeBlock"
-                                                                       data-comment_reply_id="{{ reply.comment_reply_id }}">删除</a>
-                                                                {% endifequal %}
-                                                            {% endif %}
-                                                            <a href="javascript:;"
-                                                               class="date-dz-pl pl-hf hf-con-block"
-                                                               data-comment_id="{{ reply.comment_id }}"
-                                                               data-receiver_id="{{ reply.replier.user_id }}" data-receiver_name="{{ reply.replier.username }}">回复</a>
-                                                            <span class="date-dz-line">|</span>
-                                                            <a href="javascript:;" class="date-dz-z"
-                                                               data-parent_id="{{ reply.comment_reply_id }}"
-                                                               data-praise_type="3"><i class="iconfont icon-communityiconpraise4"></i><span class="z-num">{{ reply.praise_times }}</span></a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
+
                         </div>
                         <!--回复区域 end-->
-                        {% if article_details.comment_times > 0 %}
                         <div class="more-comment text-center">
                             <input type="hidden" value="{{article_details.article_id }}" id="article_id">
                             <ul class="pager">
                                 <li><a class="btn btn-info prev-page disabled" href="javascript:void(0)">上一页</a></li>
-                                <li><a class="btn btn-success next-page{% if article_details.comment_times <= page_size %} disabled{% endif %}" href="javascript:void(0)">下一页</a></li>
+                                <li><a class="btn btn-success next-page" href="javascript:void(0)">下一页</a></li>
                             </ul>
                         </div>
-                        {% endif %}
                     </div>
 
                 </div>
@@ -690,13 +626,15 @@
     </script>
 
     <script type="text/javascript">
+            var page_index = 1;
+            var article_id = $("#article_id").val();
             function ajaxGetComment(article_id, page_index) {
                 $.getJSON("{% url 'api:comments' %}",
                             {
                                 'page': page_index,
                                 'article_id': article_id
                             }, function(json) {
-                            if (json.results.length > 0) {
+                            if (json.hasOwnProperty('results') && json.results.length > 0) {
                                 $(".comment-show").html('');
                                 $.each(json.results, function(index, array) {
                                     var article_id = array['article_id'];
@@ -798,8 +736,7 @@
                         });
             }
             $(function() {
-                var page_index = 1;
-                var article_id = $("#article_id").val();
+                ajaxGetComment(article_id, page_index);
                 $(".next-page").click(function() {
                     page_index ++;
                     ajaxGetComment(article_id, page_index);

@@ -31,53 +31,12 @@
             </div>
             <div class="col-sm-6 col-sm-offset-1 comments-list">
                 <div class="comment-show">
-                    {% for praise in praises %}
-                    <div class="comment-show-con clearfix" data-praise_id="{{ praise.praise_id }}" data-is_viewed="{{ praise.is_viewed }}">
-                        <div class="comment-show-con-img">
-                            <a target="_blank" href="{% url 'article:user_articles' praise.user.user_id %}">
-                                <img src="{{ praise.user.avatar }}" alt="{{ praise.user.username }}">
-                            </a>
-                        </div>
-                        <div class="pl-text clearfix">
-                            <a target="_blank" href="{% url 'article:user_articles' praise.user.user_id %}" class="comment-size-name" data-replier_id="{{ praise.user.user_id }}">{{ praise.user.username }}</a>
-                            <span class="comment-time" data-reply_at="{{ praise.praise_at }}"></span>
-                        </div>
-                        <div class="comment-show-con-list clearfix">
-                            <div class="date-dz">
-                                <p class="praise-type">
-                                    {% if praise.type == 1 %}
-                                        赞了你的文章
-                                    {% elif praise.type == 2 %}
-                                        赞了你的评论
-                                    {% else %}
-                                        赞了你的回复
-                                    {% endif %}
-                                </p>
 
-                                <p class="date-dz-left my-pl-con small-size">{% if praise.receiver_info.user_id > 0 %}回复@<a href="{% url 'article:user_articles' praise.receiver_info.user_id %}" class="comment-size-name small-size" target="_blank">{{  praise.receiver_info.username }}</a>:{% endif %}{{ praise.content }}</p>
-                                <div class="article{% if praise.article_info.cover_photo %} with-img{% endif %}">
-                                    {% if praise.article_info.cover_photo %}
-                                    <a class="wrap-img" href="{% url 'article:details' praise.article_info.article_id %}" target="_blank">
-                                        <img class="img-blur" src="{{ praise.article_info.cover_photo }}" alt="{{ praise.article_info.title }}"/>
-                                    </a>
-                                    {% endif %}
-                                    <div class="info">
-                                        <a class="title" target="_blank" href="{% url 'article:details' praise.article_info.article_id %}">{{ praise.article_info.title }}</a>
-                                        <p class="abstract">
-                                            {{ praise.article_info.abstract }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
                 </div>
                 <div class="loading-animation">
                     <i class="fa fa-2x fa-spinner fa-pulse"></i>
                 </div>
                 <div class="read-more text-center">
-                    <input type="hidden" value="{{ has_next }}" id="has_next">
                     <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">获取更多</button>
                     <p class="text-center not-more-content">没有更多内容...</p>
                 </div>
@@ -100,19 +59,6 @@
                 $(this).text(time_desc)
             })
         }
-        $(function () {
-            timeDesc()
-        });
-    </script>
-
-    <script>
-        $(function () {
-            var has_next = parseInt($("#has_next").val());
-            if (!has_next) {
-                $("#btn_read_more").hide();
-                $(".read-more .not-more-content").show();
-            }
-        });
     </script>
 
     <script>
@@ -154,23 +100,18 @@
                 }
             })
         }
-        $(function () {
-            AjaxUpdateViewStatus()
-        });
     </script>
 
     <script type="text/javascript">
-            $(function() {
-                var page_index = 2;
-                $("#btn_read_more").click(function() {
-                    $(".loading-animation").show();
-                    $.getJSON("{% url 'api:user_praises' %}",
+            var page_index = 1;
+            function ajax_get_praise() {
+                $.getJSON("{% url 'api:user_praises' %}",
                             {
                                 'user_id': user_id,
                                 'page': page_index
                             }, function(json) {
                             $(".loading-animation").hide();
-                            if (json.results.length > 0) {
+                            if (json.hasOwnProperty('results') && json.results.length > 0) {
                                 var str = "";
                                 $.each(json.results, function(index, array) {
                                     var type = parseInt(array['type']);
@@ -254,6 +195,12 @@
                                 return false;
                             }
                         });
+            }
+            $(function() {
+                ajax_get_praise();
+                $("#btn_read_more").click(function() {
+                    $(".loading-animation").show();
+                    ajax_get_praise()
                 });
             });
     </script>

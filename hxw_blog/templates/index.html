@@ -38,46 +38,10 @@
                 </div>-->
                     <div id="list-container">
                         <ul class="note-list">
-                            {% for article_summarization in articles_summarization%}
-                                <li id="article-{{ article_summarization.article_id }}" data-article_id="{{ article_summarization.article_id }}">
-                                    <div class="content">
-                                        <div class="author">
-                                            <a class="avatar" target="_blank" href="{% url 'article:user_articles' article_summarization.author.user_id %}">
-                                                <img src="{{ article_summarization.author.avatar }}" alt="{{ article_summarization.author.username }}"/>
-                                            </a>
-                                            <div class="info">
-                                                <a class="nickname" target="_blank" href="{% url 'article:user_articles' article_summarization.author.user_id %}">{{ article_summarization.author.username }}</a>
-                                                <span class="time" data-release_at="{{ article_summarization.release_time }}"></span>
-                                            </div>
-                                        </div>
-                                        <div{% if article_summarization.cover_photo %} class="with-img"{% endif %}>
-                                            {% if article_summarization.cover_photo %}
-                                            <a class="wrap-img" href="{% url 'article:details' article_summarization.article_id %}" target="_blank">
-                                                <img class="img-blur" src="{{ article_summarization.cover_photo }}" alt="{{ article_summarization.title }}"/>
-                                            </a>
-                                            {% endif %}
-                                            <a class="title" target="_blank" href="{% url 'article:details' article_summarization.article_id %}">{{ article_summarization.title }}</a>
-                                            <p class="abstract">
-                                                {{ article_summarization.abstract }}
-                                            </p>
-                                        </div>
-                                        <div class="meta">
-                                            <a class="collection-tag" target="_blank" href="{% url 'article:article_category' article_summarization.type.value %}">{{ article_summarization.type.display_name }}</a>
-                                            <a target="_blank" href="{% url 'article:details' article_summarization.article_id %}">
-                                                <i class="iconfont icon-view"></i> {{ article_summarization.page_views }}
-                                            </a>
-                                            <a target="_blank" href="{% url 'article:details' article_summarization.article_id %}#comments">
-                                                <i class="iconfont icon-message"></i> {{ article_summarization.comment_times }}
-                                            </a>
-                                            <span><i class="iconfont icon-like"></i> {{ article_summarization.praise_times }}</span>
-                                        </div>
-                                    </div>
-                                </li>
-                            {% endfor %}
+
                         </ul>
                         <div class="read-more text-center">
                             <input type="hidden" value="{{ article_type.value }}" id="article_type">
-                            <input type="hidden" value="{{ has_next }}" id="has_next">
                             <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
                             <p class="text-center not-more-content">更多内容，敬请期待...</p>
                         </div>
@@ -129,32 +93,18 @@
                 $(this).text(time_desc)
             })
         }
-        $(function () {
-            timeDesc()
-        });
-    </script>
-
-    <script>
-        $(function () {
-            var has_next = parseInt($("#has_next").val());
-            if (!has_next) {
-                $("#btn_read_more").hide();
-                $(".read-more .not-more-content").show();
-            }
-        });
     </script>
 
     <script type="text/javascript">
-            $(function() {
-                var page_index = 2;
-                $("#btn_read_more").click(function() {
+            var page_index = 1;
+            function ajax_get_article() {
                     $.getJSON("{% url 'api:articles' %}",
                             {
                                 'page': page_index,
                                 'article_type': $("#article_type").val(),
                                 'is_released': 1
                             }, function(json) {
-                            if (json.results.length > 0) {
+                            if (json.hasOwnProperty('results') && json.results.length > 0) {
                                 var str = "";
                                 $.each(json.results, function(index, array) {
                                     var article_id = array['article_id'];
@@ -223,6 +173,11 @@
                                 return false;
                             }
                         });
+            }
+            $(function() {
+                ajax_get_article();
+                $("#btn_read_more").click(function() {
+                    ajax_get_article()
                 });
             });
     </script>

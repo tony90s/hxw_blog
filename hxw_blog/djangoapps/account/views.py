@@ -137,7 +137,6 @@ class ResetPasswordView(View):
 
 @login_required
 def message_comments(request):
-    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
     template_name = 'account/message_comments.html'
     user = request.user
 
@@ -153,30 +152,12 @@ def message_comments(request):
     not_viewed_comment_count = comments.filter(is_viewed=0).count() + comment_replies.filter(is_viewed=0).count()
     praises = get_user_be_praised(user.id)
     not_viewed_praises_count = praises.filter(is_viewed=0).count()
-    if comment_type == 1:
-        comments = get_user_comments(user.id)
-        comment_replies = CommentReply.objects.using('read').filter(Q(replier_id=user.id)).order_by('-id')
 
-    unified_comment_list = list(chain(comments, comment_replies))
-    unified_comment_list.sort(
-        key=lambda comment: time.mktime(time.strptime(comment.unified_reply_at, '%Y-%m-%d %H:%M:%S')),
-        reverse=True)
-    query_comments_list = unified_comment_list[:page_size]
-    query_comments_info = [comment.get_unified_comment_info() for comment in query_comments_list]
     context = {
-        'unified_comment_info_list': query_comments_info,
         'comment_type': comment_type,
-        'page_size': page_size,
         'not_viewed_comment_count': not_viewed_comment_count,
-        'not_viewed_praises_count': not_viewed_praises_count,
-        'has_next': int(len(unified_comment_list) > page_size)
+        'not_viewed_praises_count': not_viewed_praises_count
     }
-    Comment._Comment__user_cache = dict()
-    Comment._Comment__article_info_cache = dict()
-    CommentReply._CommentReply__user_cache = dict()
-    CommentReply._CommentReply__article_info_cache = dict()
-    Praise._Praise__user_cache = dict()
-    Praise._Praise__article_info_cache = dict()
     return render(request, template_name, context)
 
 
@@ -223,33 +204,20 @@ def user_unified_comment_info_pagination(request):
 
 @login_required
 def message_praises(request):
-    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
     template_name = 'account/message_praises.html'
     user = request.user
 
     all_praises = get_user_be_praised(user.id)
     not_viewed_praises_count = all_praises.filter(is_viewed=0).count()
-    praises = all_praises[:page_size]
-    praises_info = [praise.get_praise_info() for praise in praises]
 
     comments = get_user_article_comments(user.id)
     comment_replies = CommentReply.objects.using('read').filter(Q(receiver_id=user.id)).order_by('-id')
     not_viewed_comment_count = comments.filter(is_viewed=0).count() + comment_replies.filter(is_viewed=0).count()
 
     context = {
-        'praises': praises_info,
         'not_viewed_praises_count': not_viewed_praises_count,
-        'not_viewed_comment_count': not_viewed_comment_count,
-        'has_next': int(len(all_praises) > page_size)
-
+        'not_viewed_comment_count': not_viewed_comment_count
     }
-    Comment._Comment__user_cache = dict()
-    Comment._Comment__article_info_cache = dict()
-    CommentReply._CommentReply__user_cache = dict()
-    CommentReply._CommentReply__article_info_cache = dict()
-    Praise._Praise__user_cache = dict()
-    Praise._Praise__article_info_cache = dict()
-
     return render(request, template_name, context)
 
 

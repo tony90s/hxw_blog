@@ -38,53 +38,13 @@
                     <i class="fa fa-2x fa-circle-o-notch fa-spin"></i>
                 </div>
                 <div class="comment-show">
-                    {% for comment in unified_comment_info_list %}
-                    <div class="comment-show-con clearfix" data-comment_reply_id="{{ comment.comment_reply_id }}" data-comment_id="{{ comment.comment_id }}" data-is_viewed="{{ comment.is_viewed }}">
-                        <div class="comment-show-con-img">
-                            <a target="_blank" href="{% url 'article:user_articles' comment.replier.user_id %}">
-                                <img src="{{ comment.replier.avatar }}" alt="{{ comment.replier.username }}">
-                            </a>
-                        </div>
-                        <div class="pl-text clearfix">
-                            <a target="_blank" href="{% url 'article:user_articles' comment.replier.user_id %}" class="comment-size-name" data-replier_id="{{ comment.replier.user_id }}">{{ comment.replier.username }}</a>
-                            <span class="comment-time" data-reply_at="{{ comment.reply_at }}"></span>
-                        </div>
-                        <div class="comment-show-con-list clearfix">
-                            <div class="date-dz">
-                                <p class="date-dz-left my-pl-con">{% if comment.receiver.user_id > 0 %}回复@<a href="{% url 'article:user_articles' comment.receiver.user_id %}" class="comment-size-name" target="_blank">{{ comment.receiver.username }}</a>:{% endif %}{{ comment.content }}</p>
-                                <div {% if comment.article_info.cover_photo %}class="article with-img"{% else %}class="article"{% endif %}>
-                                    {% if comment.article_info.cover_photo %}
-                                    <a class="wrap-img" href="{% url 'article:details' comment.article_info.article_id %}" target="_blank">
-                                        <img class="img-blur" src="{{ comment.article_info.cover_photo }}" alt="{{ comment.article_info.title }}"/>
-                                    </a>
-                                    {% endif %}
-                                    <div class="info">
-                                        <a class="title" target="_blank" href="{% url 'article:details' comment.article_info.article_id %}">{{ comment.article_info.title }}</a>
-                                        <p class="abstract">
-                                            {{ comment.article_info.abstract }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="date-dz-right pull-right comment-pl-block">
-                                    {% ifequal comment.replier.user_id user.id %}
-                                        <a href="javascript:;" class="removeBlock" {% if comment.comment_reply_id > 0 %}data-comment_reply_id="{{ comment.comment_reply_id }}"{% else %}data-comment_id="{{ comment.comment_id }}"{% endif %}>删除</a>
-                                    {% endifequal %}
-                                    <a href="javascript:void(0);" class="date-dz-pl pl-hf hf-con-block"
-                                       data-comment_id="{{ comment.comment_id}}" data-receiver_id="{{ comment.replier.user_id }}" data-receiver_name="{{ comment.replier.username }}">回复</a>
-                                    <span class="date-dz-line">|</span>
-                                    <a href="{% url 'article:details' comment.article_info.article_id %}{% if comment.receiver.user_id > 0 %}#comment-reply-{{ comment.comment_reply_id }}{% else %}#comment-{{ comment.comment_id }}{% endif %}" target="_blank" class="date-dz-pl hf-con-block">查看详情</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
+
                 </div>
                 <div class="loading-animation">
                     <i class="fa fa-2x fa-spinner fa-pulse"></i>
                 </div>
                 <div class="read-more text-center">
                     <input type="hidden" value="{{ comment_type }}" id="comment_type">
-                    <input type="hidden" value="{{ has_next }}" id="has_next">
                     <button class="btn btn-default btn-info" id="btn_read_more" style="outline: none;">获取更多</button>
                     <p class="text-center not-more-content">没有更多内容...</p>
                 </div>
@@ -107,19 +67,6 @@
                 $(this).text(time_desc)
             })
         }
-        $(function () {
-            timeDesc()
-        });
-    </script>
-
-    <script>
-        $(function () {
-            var has_next = parseInt($("#has_next").val());
-            if (!has_next) {
-                $("#btn_read_more").hide();
-                $(".read-more .not-more-content").show();
-            }
-        });
     </script>
 
     <script>
@@ -324,7 +271,7 @@
             $(".tab-animation").show();
             var url = "{% url 'account:user_message_comments' %}" + "?type=0";
             window.location.href = url;
-        })
+        });
 
         $("#sent_comments").click(function () {
             $(".tab-animation").show();
@@ -334,19 +281,17 @@
     </script>
 
     <script type="text/javascript">
-            $(function() {
-                var page_index = 2;
-                var comment_type = $("#comment_type").val();
-                $("#btn_read_more").click(function() {
-                    $(".loading-animation").show();
-                    $.getJSON("{% url 'account:user_message_comments_pagination' %}",
+            var page_index = 1;
+            var comment_type = $("#comment_type").val();
+            function ajax_get_comment_messages() {
+                $.getJSON("{% url 'account:user_message_comments_pagination' %}",
                             {
                                 'user_id': user_id,
                                 'comment_type': comment_type,
                                 'page_index': page_index
                             }, function(json) {
                             $(".loading-animation").hide();
-                            if (json.data.length > 0) {
+                            if (json.hasOwnProperty('data') && json.data.length > 0) {
                                 var str = "";
                                 $.each(json.data, function(index, array) {
                                     var article_id = array['article_info']['article_id'];
@@ -449,6 +394,12 @@
                                 return false;
                             }
                         });
+            }
+            $(function() {
+                ajax_get_comment_messages();
+                $("#btn_read_more").click(function() {
+                    $(".loading-animation").show();
+                    ajax_get_comment_messages()
                 });
             });
     </script>
