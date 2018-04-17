@@ -51,6 +51,7 @@ class Article(models.Model):
     class Meta:
         verbose_name = _('article')
         verbose_name_plural = _('articles')
+        index_together = [('is_released', 'author_id', 'type'), ('is_released', 'type')]
 
     @property
     def release_time(self):

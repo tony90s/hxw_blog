@@ -115,10 +115,10 @@ class ArticleList(generics.ListAPIView):
         author_id = form.cleaned_data.get('author_id') or 0
 
         query_condition = Q(is_released=is_released)
-        if article_type > 0:
-            query_condition &= Q(type=article_type)
         if author_id > 0:
             query_condition &= Q(author_id=author_id)
+        if article_type > 0:
+            query_condition &= Q(type=article_type)
 
         articles = Article.objects.using('read').filter(query_condition)
         if is_released:
