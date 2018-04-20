@@ -90,7 +90,7 @@
                 btn: ['确定','取消'] //按钮
             }, function(){
                 $.ajax({
-                    url: "{% url 'api:delete_article' %}",
+                    url: "/api/v1/article/" + article_id,
                     type: "DELETE",
                     data: {
                         'article_id': article_id
@@ -117,11 +117,12 @@
 
     <script type="text/javascript">
             var page_index = 1;
+            var author_id = $("#author_id").val();
             function ajax_get_article() {
                     $.getJSON("{% url 'api:articles' %}",
                             {
                                 'page': page_index,
-                                'author_id': $("#author_id").val(),
+                                'author_id': author_id,
                                 'is_released': 1
                             }, function(json) {
                             if (json.hasOwnProperty('results') && json.results.length > 0) {

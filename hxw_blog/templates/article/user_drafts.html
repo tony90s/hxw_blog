@@ -76,7 +76,7 @@
                 btn: ['确定','取消'] //按钮
             }, function(){
                 $.ajax({
-                    url: "{% url 'api:delete_article' %}",
+                    url: "/api/v1/article/" + article_id,
                     type: "DELETE",
                     data: {
                         'article_id': article_id

@@ -40,7 +40,7 @@ class Article(models.Model):
     type = models.IntegerField(choices=TYPE_CHOICES, default=TYPE.PYTHON, verbose_name='类别')
     cover_photo = models.ImageField(upload_to='article/cover', blank=True, null=True, verbose_name='封面图片')
     created_at = models.DateTimeField(auto_now_add=timezone.now, verbose_name='创建时间')
-    update_at = models.DateTimeField(blank=True, null=True, verbose_name='更新时间')
+    update_at = models.DateTimeField(db_index=True, blank=True, null=True, verbose_name='更新时间')
     release_at = models.DateTimeField(db_index=True, blank=True, null=True, verbose_name='发布时间')
     is_released = models.BooleanField(default=False, verbose_name='是否发布')
     page_views = models.IntegerField(default=0, verbose_name='浏览量')

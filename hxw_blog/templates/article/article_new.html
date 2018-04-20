@@ -140,7 +140,7 @@
                     var type = "POST"
                 }
                 else {
-                    var url = "{% url 'api:update_article' %}";
+                    var url = "/api/v1/article/" + article_id;
                     var type = "PUT"
                 }
                 var data = {

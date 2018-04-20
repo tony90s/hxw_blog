@@ -34,6 +34,8 @@ class SaveArticleSerializer(serializers.ModelSerializer):
         article.created_at = now
         if is_released:
             article.release_at = now
+        else:
+            article.update_at = now
         article.save(using='write')
         return article
 
