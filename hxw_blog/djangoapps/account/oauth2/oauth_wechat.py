@@ -30,7 +30,7 @@ class OauthWechat(object):
         return wechat_auth_url
 
     def get_access_token(self, code):
-        get_access_token_url = 'https://api.weixin.qq.com/sns/oauth/access_token'
+        get_access_token_url = 'https://api.weixin.qq.com/sns/oauth2/access_token'
         context = {
             'code': code,  # authorization_code
             'appid': self.client_id,

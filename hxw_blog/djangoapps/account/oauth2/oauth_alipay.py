@@ -33,7 +33,7 @@ class OauthAlipay(object):
         self.redirect_uri = redirect_uri
 
     def get_auth_url(self):
-        authorize_url = 'https://openauth.alipay.com/oauth/publicAppAuthorize.htm'
+        authorize_url = 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm'
         context = {
             'app_id': self.appid,
             'redirect_uri': self.redirect_uri,

@@ -18,7 +18,7 @@ class OauthQQ(object):
         self.redirect_uri = redirect_uri
 
     def get_auth_url(self):
-        authorize_url = 'https://graph.qq.com/oauth.0/authorize'
+        authorize_url = 'https://graph.qq.com/oauth2.0/authorize'
         context = {
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
@@ -31,7 +31,7 @@ class OauthQQ(object):
         return qq_auth_url
 
     def get_access_token(self, code):
-        get_access_token_url = 'https://graph.qq.com/oauth.0/token'
+        get_access_token_url = 'https://graph.qq.com/oauth2.0/token'
         context = {
             'code': code,  # authorization_code
             'client_id': self.client_id,
@@ -52,7 +52,7 @@ class OauthQQ(object):
         return data
 
     def get_openid(self):
-        get_openid_url = 'https://graph.qq.com/oauth.0/me'
+        get_openid_url = 'https://graph.qq.com/oauth2.0/me'
         context = {
             'access_token': self.access_token['access_token']
         }

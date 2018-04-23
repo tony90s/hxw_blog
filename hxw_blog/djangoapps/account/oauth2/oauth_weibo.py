@@ -17,7 +17,7 @@ class OauthWeibo(object):
         self.redirect_uri = redirect_uri
 
     def get_auth_url(self):
-        authorize_url = 'https://api.weibo.com/oauth/authorize'
+        authorize_url = 'https://api.weibo.com/oauth2/authorize'
         context = {
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
@@ -28,7 +28,7 @@ class OauthWeibo(object):
         return weibo_auth_url
 
     def get_access_token(self, code):
-        auth_url = 'https://api.weibo.com/oauth/access_token'
+        auth_url = 'https://api.weibo.com/oauth2/access_token'
         context = {
             'code': code,  # authorization_code
             'client_id': self.client_id,
