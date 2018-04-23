@@ -144,6 +144,22 @@ class ArticleList(generics.ListAPIView):
             articles = articles.order_by('-update_at')
         return articles
 
+    def clean_cache(self):
+        Article._Article__user_cache = dict()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response = Response(serializer.data)
+        self.clean_cache()
+        return response
+
 
 class CommentList(generics.ListAPIView):
     """

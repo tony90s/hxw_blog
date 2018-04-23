@@ -44,6 +44,7 @@ class Article(models.Model):
     release_at = models.DateTimeField(db_index=True, blank=True, null=True, verbose_name='发布时间')
     is_released = models.BooleanField(default=False, verbose_name='是否发布')
     page_views = models.IntegerField(default=0, verbose_name='浏览量')
+    __user_cache = dict()
 
     def __str__(self):
         return self.title
@@ -74,12 +75,15 @@ class Article(models.Model):
         return type_dict[value] if value in type_dict else ''
 
     def get_author_data(self):
+        if self.author_id in self.__user_cache:
+            return self.__user_cache[self.author_id]
         author = User.objects.using('read').get(id=self.author_id)
         author_data = {
             'user_id': author.id,
             'username': author.username if len(author.username) <= 10 else (author.username[:10] + '...'),
             'avatar': author.profile.avatar.url
         }
+        self.__user_cache.update({self.author_id: author_data})
         return author_data
 
     def get_comments_json(self):
