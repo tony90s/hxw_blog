@@ -166,12 +166,6 @@ class Article(models.Model):
         return context
 
 
-def get_user_articles(user_id):
-    articles = Article.objects.using('read').filter(author_id=user_id).order_by('-id')
-    articles_summarization = [article.get_summarization() for article in articles]
-    return articles_summarization
-
-
 class Comment(models.Model):
     article_id = models.IntegerField(db_index=True, verbose_name='博文', default=0)
     commentator_id = models.IntegerField(db_index=True, verbose_name='评论人', default=0)
@@ -261,9 +255,8 @@ class Comment(models.Model):
 
 
 def get_user_article_comments(user_id):
-    articles = Article.objects.using('read').filter(author_id=user_id)
-    article_ids = list(articles.values_list('id', flat=True))
-    comments = Comment.objects.using('read').filter(article_id__in=article_ids).order_by('-id')
+    article_ids = Article.objects.using('read').filter(author_id=user_id).values_list('id', flat=True)
+    comments = Comment.objects.using('read').filter(article_id__in=list(article_ids)).order_by('-id')
     return comments
 
 
