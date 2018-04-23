@@ -71,7 +71,8 @@ INSTALLED_APPS = [
     'index',
     'article',
     'site_info',
-    'restful_api'
+    'restful_api',
+    'oauth'
 ]
 
 MIDDLEWARE = [
@@ -290,3 +291,18 @@ ALIPAY_FORMAT = AUTH_TOKENS['ALIPAY']['FORMAT']
 ALIPAY_CHARSET = AUTH_TOKENS['ALIPAY']['CHARSET']
 ALIPAY_SIGN_TYPE = AUTH_TOKENS['ALIPAY']['SIGN_TYPE']
 ALIPAY_VERSION = AUTH_TOKENS['ALIPAY']['VERSION']
+
+# JWT Settings
+JWT_AUTH = {
+    # TODO Set JWT_SECRET_KEY to a secure value. By default, SECRET_KEY will be used.
+    'JWT_SECRET_KEY': '',
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_VERIFY_EXPIRATION': True,
+    # TODO Set JWT_ISSUER and JWT_AUDIENCE to values specific to your service/organization.
+    'JWT_ISSUER': 'change-me',
+    'JWT_AUDIENCE': None,
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER': lambda d: d.get('username'),
+    'JWT_LEEWAY': 1,
+    # Number of seconds before JWT tokens expire
+    'JWT_EXPIRATION': 30,
+}

@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^downloads$', downloads_views, name='downloads'),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^article/', include('article.urls', namespace='article')),
+    url(r'^oauth/', include('oauth.urls', namespace='oauth')),
     # url(r'^admin/', admin.site.urls),
     # url(r'^uetest', editor_test, name='uetest'),
     url(r'^ueEditorControler', handler),

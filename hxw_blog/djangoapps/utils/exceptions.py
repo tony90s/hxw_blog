@@ -20,3 +20,9 @@ def custom_exception_handler(exc, context):
         response.data['code'] = response.status_code
         response.status_code = 200    # in order to display the error msg
     return response
+
+
+class RateLimitException(Exception):
+    def __init__(self, msg, counts):
+        self.counts = counts
+        super(RateLimitException, self).__init__(msg)
