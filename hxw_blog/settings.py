@@ -292,14 +292,32 @@ ALIPAY_CHARSET = AUTH_TOKENS['ALIPAY']['CHARSET']
 ALIPAY_SIGN_TYPE = AUTH_TOKENS['ALIPAY']['SIGN_TYPE']
 ALIPAY_VERSION = AUTH_TOKENS['ALIPAY']['VERSION']
 
+OAUTH_EXPIRE_CONFIDENTIAL_CLIENT_DAYS = 365
+OAUTH_EXPIRE_PUBLIC_CLIENT_DAYS = 30
+
+################################## DJANGO OAUTH TOOLKIT #######################################
+
+OAUTH2_PROVIDER = {
+    'OAUTH2_VALIDATOR_CLASS': 'oauth.adapter_overrides.CustomOAuth2Validator',
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+        'email': 'Email scope',
+        'profile': 'Profile scope'
+    }
+}
+# This is required for the migrations in oauth_dispatch.models
+# otherwise it fails saying this attribute is not present in Settings
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
+
 # JWT Settings
 JWT_AUTH = {
     # TODO Set JWT_SECRET_KEY to a secure value. By default, SECRET_KEY will be used.
-    'JWT_SECRET_KEY': '',
+    'JWT_SECRET_KEY': AUTH_TOKENS['JWT_AUTH']['JWT_SECRET_KEY'],
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY_EXPIRATION': True,
     # TODO Set JWT_ISSUER and JWT_AUDIENCE to values specific to your service/organization.
-    'JWT_ISSUER': 'change-me',
+    'JWT_ISSUER': AUTH_TOKENS['JWT_AUTH']['JWT_ISSUER'],
     'JWT_AUDIENCE': None,
     'JWT_PAYLOAD_GET_USERNAME_HANDLER': lambda d: d.get('username'),
     'JWT_LEEWAY': 1,
