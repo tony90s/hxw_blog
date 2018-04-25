@@ -35,6 +35,10 @@ from account.models import UserProfile, OauthLogin
 from utils.file_handling import get_thumbnail
 from utils import generate_verification_code
 from utils.html_email_utils import send_html_mail
+from utils.rest_framework.authentication import (
+    OAuth2AuthenticationAllowInactiveUser,
+    SessionAuthenticationAllowInactiveUser
+)
 
 reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
 reg_password = re.compile('^[\.\w@_-]{6,32}$')
@@ -91,6 +95,7 @@ class LoginView(APIView):
 
 class UpdateUserInfoView(generics.UpdateAPIView):
     serializer_class = UserInfoSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
@@ -132,6 +137,7 @@ class ResetUserPasswordView(generics.UpdateAPIView):
 
 class UpdateUserPasswordView(generics.UpdateAPIView):
     serializer_class = UpdatePasswordSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
@@ -149,6 +155,7 @@ class UpdateUserPasswordView(generics.UpdateAPIView):
 
 class UpdateUserAvatarView(generics.UpdateAPIView):
     serializer_class = UpdateUserAvatarSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
@@ -251,6 +258,7 @@ class SendEmailToBindOrChangeEmail(APIView):
 
 class ChangeEmailView(generics.UpdateAPIView):
     serializer_class = ChangeEmailSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
