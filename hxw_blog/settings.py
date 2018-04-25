@@ -304,7 +304,8 @@ OAUTH2_PROVIDER = {
         'write': 'Write scope',
         'email': 'Email scope',
         'profile': 'Profile scope'
-    }
+    },
+    "ACCESS_TOKEN_EXPIRE_SECONDS": 7 * 24 * 60 * 60
 }
 # This is required for the migrations in oauth_dispatch.models
 # otherwise it fails saying this attribute is not present in Settings

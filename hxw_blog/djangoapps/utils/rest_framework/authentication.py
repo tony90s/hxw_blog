@@ -108,8 +108,8 @@ class OAuth2AuthenticationAllowInactiveUser(OAuth2Authentication):
             else:
                 error_code = OAUTH2_TOKEN_ERROR
             raise AuthenticationFailed({
-                u'error_code': error_code,
-                u'developer_message': exc.detail
+                'error_code': error_code,
+                'developer_message': exc.detail
             })
 
     def authenticate_credentials(self, request, access_token):
@@ -123,13 +123,13 @@ class OAuth2AuthenticationAllowInactiveUser(OAuth2Authentication):
         token = self.get_access_token(access_token)
         if not token:
             raise AuthenticationFailed({
-                u'error_code': OAUTH2_TOKEN_ERROR_NONEXISTENT,
-                u'developer_message': u'The provided access token does not match any valid tokens.'
+                'error_code': OAUTH2_TOKEN_ERROR_NONEXISTENT,
+                'developer_message': u'The provided access token does not match any valid tokens.'
             })
         elif token.expires < django.utils.timezone.now():
             raise AuthenticationFailed({
-                u'error_code': OAUTH2_TOKEN_ERROR_EXPIRED,
-                u'developer_message': u'The provided access token has expired and is no longer valid.',
+                'error_code': OAUTH2_TOKEN_ERROR_EXPIRED,
+                'developer_message': u'The provided access token has expired and is no longer valid.',
             })
         else:
             return token.user, token
