@@ -166,6 +166,11 @@
                             layer.alert(data.msg);
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.alert(response_json.msg);
+                        return false
                     }
                 });
             })

@@ -109,6 +109,11 @@
                                 console.log(json.msg);
                                 return false
                             }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            var response_json = XMLHttpRequest.responseJSON;
+                            console.log(response_json.msg);
+                            return false
                         }
                     });
                 }
@@ -195,14 +200,16 @@
                 layer.msg('请先填写回复内容', {time: 1000});
                 return false
             }
-            $.post(
-                    "{% url 'api:save_comment_reply' %}",
-                    {
+            $.ajax({
+                    type: 'POST',
+                    url: "{% url 'api:save_comment_reply' %}",
+                    data: {
                         "comment_id": comment_id,
                         "receiver_id": receiver_id,
                         "content": content
                     },
-                    function (json) {
+                    dataType: 'json',
+                    success: function (json) {
                         if (json.code == 200) {
                             oThis.parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
                             oThis.parents('.hf-con').remove();
@@ -212,8 +219,13 @@
                             layer.msg(json.msg, {time: 1000});
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1000});
+                        return false
                     }
-            );
+            });
         });
     </script>
     <!--删除评论块-->
@@ -260,6 +272,11 @@
                         layer.msg(json.msg, {time: 1000});
                         return false
                     }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    layer.msg(response_json.msg, {time: 1000});
+                    return false
                 }
             });
         })

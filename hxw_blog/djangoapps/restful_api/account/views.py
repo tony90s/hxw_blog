@@ -189,7 +189,7 @@ class SendEmailToResetPassword(APIView):
             send_html_mail(subject, template_path, context, default_from_address, [form.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
-            return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
+            return Response(status=500, data={'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
 
         # save verify code into request session
         request.session['verification_code'] = verification_code
@@ -214,7 +214,7 @@ class CheckEmailIsBind(APIView):
             send_html_mail(subject, template_path, context, default_from_address, [form.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
-            return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
+            return Response(status=500, data={'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
 
         # save verify code into request session
         request.session['verification_code'] = verification_code
@@ -240,7 +240,7 @@ class SendEmailToBindOrChangeEmail(APIView):
             send_html_mail(subject, template_path, context, default_from_address, [form.cleaned_data.get('email')])
         except Exception as ex:
             logger.error(ex)
-            return Response({'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
+            return Response(status=500, data={'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
 
         # save verify code into request session
         request.session['verification_code'] = verification_code

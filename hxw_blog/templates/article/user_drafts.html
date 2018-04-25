@@ -93,6 +93,11 @@
                             layer.msg(json.msg, {time: 1500});
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1500});
+                        return false
                     }
                 });
             }, function(index){
@@ -122,6 +127,11 @@
                         layer.msg(json.msg, {time: 1500});
                         return false
                     }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    layer.msg(response_json.msg, {time: 1500});
+                    return false
                 }
             });
         }

@@ -56,16 +56,18 @@ $(function () {
             return false
         }
 
-        $.post(
-            register_api_url,
-            {
+        $.ajax({
+            type: 'POST',
+            url: register_api_url,
+            data: {
                 "username": username,
                 "email": email,
                 "password": password,
                 "confirm_password": confirm_password,
                 "redirect_url": redirect_url
             },
-            function (data) {
+            dataType: 'json',
+            success: function (data) {
                 if (data.code == 200) {
                     layer.alert('注册成功，马上跳转。', function () {
                        window.location.href = data.redirect_url;
@@ -75,8 +77,13 @@ $(function () {
                     show_msg(warning_div, data.msg);
                     return false
                 }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                var response_json = XMLHttpRequest.responseJSON;
+                show_msg(warning_div, response_json.msg);
+                return false
             }
-        );
+        });
     });
 
     $("#btn_login").click(function (e) {

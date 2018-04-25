@@ -95,6 +95,11 @@
                                 console.log(json.msg);
                                 return false
                             }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            var response_json = XMLHttpRequest.responseJSON;
+                            console.log(response_json.msg);
+                            return false
                         }
                     });
                 }

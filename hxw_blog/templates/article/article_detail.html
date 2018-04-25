@@ -259,13 +259,15 @@
             //动态创建评论模块
             if (comment_content != '') {
                 var article_id = this.dataset.article_id;
-                $.post(
-                        "{% url 'api:save_comment' %}",
-                        {
+                $.ajax({
+                        type: 'POST',
+                        url: "{% url 'api:save_comment' %}",
+                        data: {
                             "article_id": article_id,
                             "content": comment_content
                         },
-                        function (json) {
+                        dataType: 'json',
+                        success: function (json) {
                             if (json.code == 200) {
                                 var avatar = json.data.commentator.avatar;
                                 var username = json.data.commentator.username;
@@ -317,8 +319,13 @@
                                 layer.msg(json.msg, {time: 1000});
                                 return false
                             }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            var response_json = XMLHttpRequest.responseJSON;
+                            layer.msg(response_json.msg, {time: 1000});
+                            return false
                         }
-                );
+                });
             }
             else {
                 layer.msg('请先填写评论', {time: 1000});
@@ -378,14 +385,16 @@
                 layer.msg('请先填写回复内容', {time: 1000});
                 return false
             }
-            $.post(
-                    "{% url 'api:save_comment_reply' %}",
-                    {
+            $.ajax({
+                    type: 'POST',
+                    url: "{% url 'api:save_comment_reply' %}",
+                    data: {
                         "comment_id": comment_id,
                         "receiver_id": receiver_id,
                         "content": content
                     },
-                    function (json) {
+                    dataType: 'json',
+                    success: function (json) {
                         if (json.code == 200) {
                             var comment_reply_id = json.data.comment_reply_id.toString();
                             var comment_id = json.data.comment_id.toString();
@@ -428,8 +437,13 @@
                             layer.msg(json.msg, {time: 1000});
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1000});
+                        return false
                     }
-            );
+            });
         });
     </script>
 
@@ -468,8 +482,8 @@
                 return false;
             }
             $.ajax({
-                url: url,
                 type: "DELETE",
+                url: url,
                 data: post_data,
                 dataType: "json",
                 success: function (json) {
@@ -488,6 +502,11 @@
                             layer.msg(json.msg, {time: 1000});
                             return false
                         }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    layer.msg(response_json.msg, {time: 1000});
+                    return false
                 }
             });
         })
@@ -530,6 +549,11 @@
                             layer.msg(json.msg, {time: 1000});
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1000});
+                        return false
                     }
                 });
             } else {
@@ -538,22 +562,29 @@
                     "parent_id": parent_id,
                     "praise_type": praise_type
                 };
-                $.post(
-                        url,
-                        post_data,
-                        function (json) {
-                            if (json.code == 200) {
-                                zNum++;
-                                like_icon.removeClass('icon-communityiconpraise4');
-                                like_icon.addClass('icon-communityiconpraisesel');
-                                $this.find('.z-num').html(zNum);
-                            }
-                            else {
-                                layer.msg(json.msg, {time: 1000});
-                                return false
-                            }
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: post_data,
+                    dataType: "json",
+                    success: function (json) {
+                        if (json.code == 200) {
+                            zNum++;
+                            like_icon.removeClass('icon-communityiconpraise4');
+                            like_icon.addClass('icon-communityiconpraisesel');
+                            $this.find('.z-num').html(zNum);
                         }
-                );
+                        else {
+                            layer.msg(json.msg, {time: 1000});
+                            return false
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1000});
+                        return false
+                    }
+                });
             }
         })
     </script>
@@ -594,6 +625,11 @@
                             layer.msg(json.msg, {time: 1000});
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1000});
+                        return false
                     }
                 });
             } else {
@@ -602,24 +638,31 @@
                     "parent_id": parent_id,
                     "praise_type": praise_type
                 };
-                $.post(
-                        url,
-                        post_data,
-                        function (json) {
-                            if (json.code == 200) {
-                                praise_times++;
-                                like_icon.removeClass('icon-communityiconpraise4');
-                                like_icon.addClass('icon-communityiconpraisesel');
-                                $this.removeClass('btn-default');
-                                $this.addClass('btn-success');
-                                $this.find('.praise_times').html(praise_times);
-                            }
-                            else {
-                                layer.msg(json.msg, {time: 1000});
-                                return false
-                            }
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: post_data,
+                    dataType: "json",
+                    success: function (json) {
+                        if (json.code == 200) {
+                            praise_times++;
+                            like_icon.removeClass('icon-communityiconpraise4');
+                            like_icon.addClass('icon-communityiconpraisesel');
+                            $this.removeClass('btn-default');
+                            $this.addClass('btn-success');
+                            $this.find('.praise_times').html(praise_times);
                         }
-                );
+                        else {
+                            layer.msg(json.msg, {time: 1000});
+                            return false
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1000});
+                        return false
+                    }
+                });
             }
 
         })

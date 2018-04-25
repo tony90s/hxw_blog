@@ -18,5 +18,4 @@ def custom_exception_handler(exc, context):
         response.data = dict()
         response.data['msg'] = error_msg
         response.data['code'] = response.status_code
-        response.status_code = 200    # in order to display the error msg
     return response

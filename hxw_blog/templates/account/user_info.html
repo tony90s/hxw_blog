@@ -301,9 +301,9 @@
             //var data = {};
             //data.img = img_data;
             $.ajax({
+                type: "PUT",
                 url: "{% url 'api:update_user_avatar' %}",
                 data: formData,
-                type: "PUT",
                 processData: false,
                 contentType: false,
                 success: function (re) {
@@ -314,6 +314,10 @@
                     else {
                         layer.alert(re.msg)
                     }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    layer.alert(response_json.msg);
                 }
             });
         }
@@ -414,6 +418,11 @@
                             show_msg(warning_div, data.msg);
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        show_msg(warning_div, response_json.msg);
+                        return false
                     }
                 });
             });
@@ -454,6 +463,11 @@
                             layer.alert(data.msg);
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.alert(response_json.msg);
+                        return false
                     }
                 });
             });
@@ -533,12 +547,12 @@
                     return false
                 }
                 $this.button('loading');
-                $.post(
-                        '{% url 'api:check_email_is_bind' %}',
-                        {
-                            "email": email
-                        },
-                        function (data) {
+                $.ajax({
+                        type: 'POST',
+                        url: '{% url 'api:check_email_is_bind' %}',
+                        data: {"email": email},
+                        dataType: 'json',
+                        success: function (data) {
                             $this.button('reset');
                             if (data.code == 200) {
                                 $(".step-1").addClass('hide');
@@ -559,8 +573,13 @@
                                 layer.msg(data.msg, {time: 1000});
                             }
                             return false
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            var response_json = XMLHttpRequest.responseJSON;
+                            layer.msg(response_json.msg, {time: 1000});
+                            return false
                         }
-                );
+                });
             });
 
             $(".send-verification-code").click(function (e) {
@@ -584,20 +603,26 @@
                     shade: 0.01,
                     time: 0
                 });
-                $.post(
-                        '{% url 'api:send_verification_to_bind_or_change_email' %}',
-                        {
-                            "email": email
-                        },
-                        function (data) {
+                $.ajax({
+                        type: 'POST',
+                        url: '{% url 'api:send_verification_to_bind_or_change_email' %}',
+                        data: {"email": email},
+                        dataType: 'json',
+                        success: function (data) {
                             layer.close(index);
                             layer.msg(data.msg, {time: 1000});
                             if (data.code == 200) {
                                 count_down_clock($this);
                             }
                             return false
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.close(index);
+                            var response_json = XMLHttpRequest.responseJSON;
+                            layer.msg(response_json.msg, {time: 1000});
+                            return false
                         }
-                );
+                });
             });
 
             $("#bind_email_btn").click(function (e) {
@@ -651,6 +676,11 @@
                             layer.msg(data.msg, {time: 1500});
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1500});
+                        return false
                     }
                 });
             });
@@ -694,6 +724,11 @@
                             layer.msg(data.msg, {time: 1500});
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1500});
+                        return false
                     }
                 });
             })
