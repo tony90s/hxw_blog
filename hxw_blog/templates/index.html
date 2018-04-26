@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}<title>LOVEITERS{% ifnotequal article_type.value 0 %} | {{ article_type.display_name }}{% endifnotequal %}</title>{% endblock %}
+{% block title %}<title>{{ site_name }}{% ifnotequal article_type.value 0 %} | {{ article_type.display_name }}{% endifnotequal %}</title>{% endblock %}
 {% block extra_header %}
     <link href="/static/css/index.css" rel="stylesheet">
     <!--
