@@ -210,24 +210,10 @@ class CheckEmailIsBind(APIView):
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
 
-        verification_code = generate_verification_code()
-        try:
-            context = {
-                'verification_code': verification_code
-            }
-            subject = '绑定/修改邮箱'
-            template_path = 'emails/bind_or_change_email.html'
-            default_from_address = settings.DEFAULT_FROM_EMAIL_DISPLAY
-            send_html_mail(subject, template_path, context, default_from_address, [form.cleaned_data.get('email')])
-        except Exception as ex:
-            logger.error(ex)
-            return Response(status=500, data={'code': 500, 'msg': '邮件发送失败，请稍后重试。'})
-
-        # save verify code into request session
-        request.session['verification_code'] = verification_code
-        request.session.set_expiry(5 * 60)
-
-        return Response({'code': 200, 'msg': '验证码已发送至邮箱，注意查收，若邮件未出现在收件箱，请留意垃圾箱。'})
+        return Response({
+            'code': 200,
+            'msg': '可以绑定'
+        })
 
 
 class SendEmailToBindOrChangeEmail(APIView):

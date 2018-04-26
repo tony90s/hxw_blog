@@ -3,6 +3,7 @@ import re
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from utils.file_handling import get_thumbnail
 from account.models import OauthLogin
@@ -129,14 +130,11 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class ChangeEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.using('read').all(), message='该邮箱已被绑定，换一个试试。')]
+    )
     verification_code = serializers.CharField(required=True, max_length=6)
-
-    def validate_email(self, value):
-        users = User.objects.using('read').filter(email=value)
-        if users.exists():
-            raise serializers.ValidationError('该邮箱已被绑定，换一个试试。')
-        return value
 
     def validate_verification_code(self, value):
         if not reg_verification_code.match(value):
@@ -159,16 +157,16 @@ class ChangeEmailSerializer(serializers.Serializer):
 
 
 class BindEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.using('read').all(), message='该邮箱已被绑定，换一个试试。')]
+    )
     verification_code = serializers.CharField(required=True, max_length=6)
     password = serializers.CharField(required=True, min_length=6, max_length=32)
 
     def validate_email(self, value):
         if self.context['request'].user.email:
             raise serializers.ValidationError('您已绑定邮箱，无需重复绑定。')
-        users = User.objects.using('read').filter(email=value)
-        if users.exists():
-            raise serializers.ValidationError('该邮箱已被绑定，换一个试试。')
         return value
 
     def validate_verification_code(self, value):

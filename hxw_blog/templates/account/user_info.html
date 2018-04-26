@@ -553,28 +553,50 @@
                         data: {"email": email},
                         dataType: 'json',
                         success: function (data) {
-                            $this.button('reset');
                             if (data.code == 200) {
-                                $(".step-1").addClass('hide');
-                                if (bind_or_change_email == 1) {
-                                    $(".step-2 .show-msg").html(data.msg);
-                                    $(".step-2 #bind_email_btn")[0].dataset.email = email;
-                                    $(".step-2 .send-verification-code")[0].dataset.email = email;
-                                    moveTo(2);
-                                }
-                                else {
-                                    $(".step-3 .show-msg").html(data.msg);
-                                    $(".step-3 .send-verification-code")[0].dataset.email = email;
-                                    $(".step-3 #change_email_btn")[0].dataset.email = email;
-                                    moveTo(3);
-                                }
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url 'api:send_verification_to_bind_or_change_email' %}',
+                                    data: {"email": email},
+                                    dataType: 'json',
+                                    success: function (json) {
+                                        $this.button('reset');
+                                        if (json.code == 200) {
+                                            $(".step-1").addClass('hide');
+                                            if (bind_or_change_email == 1) {
+                                                $(".step-2 .show-msg").html(json.msg);
+                                                $(".step-2 #bind_email_btn")[0].dataset.email = email;
+                                                $(".step-2 .send-verification-code")[0].dataset.email = email;
+                                                moveTo(2);
+                                            }
+                                            else {
+                                                $(".step-3 .show-msg").html(json.msg);
+                                                $(".step-3 .send-verification-code")[0].dataset.email = email;
+                                                $(".step-3 #change_email_btn")[0].dataset.email = email;
+                                                moveTo(3);
+                                            }
+                                        }
+                                        else {
+                                            layer.msg(json.msg, {time: 1000});
+                                            return false
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        $this.button('reset');
+                                        var response_json = XMLHttpRequest.responseJSON;
+                                        layer.msg(response_json.msg, {time: 1000});
+                                        return false
+                                    }
+                                });
                             }
                             else {
+                                $this.button('reset');
                                 layer.msg(data.msg, {time: 1000});
+                                return false
                             }
-                            return false
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $this.button('reset');
                             var response_json = XMLHttpRequest.responseJSON;
                             layer.msg(response_json.msg, {time: 1000});
                             return false
