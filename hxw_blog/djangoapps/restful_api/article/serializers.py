@@ -21,15 +21,15 @@ class SaveArticleSerializer(serializers.ModelSerializer):
         fields = ('author_id', 'title', 'type', 'content_txt', 'content_html', 'is_released')
 
     def create(self, validated_data):
-        is_released = validated_data.get('is_released')
+        is_released = validated_data.get('is_released') or 0
         now = timezone.now()
 
         article = Article()
         article.author_id = validated_data.get('author_id')
         article.title = validated_data.get('title')
         article.type = validated_data.get('type')
-        article.content_html = validated_data.get('content_html')
-        article.content_txt = validated_data.get('content_txt')
+        article.content_html = validated_data.get('content_html') or ''
+        article.content_txt = validated_data.get('content_txt') or ''
         article.is_released = is_released
         article.created_at = now
         if is_released:

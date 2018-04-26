@@ -23,7 +23,6 @@ from django.views.static import serve
 
 from error_handler.views import page_forbidden, page_not_found, page_error
 from index.views import index_views
-from ueditor.views import editor_test
 from ueditor.controller import handler
 from site_info.views import disclaimer_views, about_us_views, downloads_views
 
@@ -36,7 +35,6 @@ urlpatterns = [
     url(r'^article/', include('article.urls', namespace='article')),
     url(r'^oauth2/', include('oauth.urls', namespace='oauth2')),
     # url(r'^admin/', admin.site.urls),
-    # url(r'^uetest', editor_test, name='uetest'),
     url(r'^ueEditorControler', handler),
     url(r'^api/v1/', include('restful_api.urls', namespace='api')),
 ]

@@ -6,11 +6,56 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from utils.file_handling import get_thumbnail
-from account.models import OauthLogin
+from account.models import UserProfile, OauthLogin
 
 reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
 reg_password = re.compile('^[\.\w@_-]{6,32}$')
 reg_verification_code = re.compile('^\d{6}$')
+
+
+class RegisterSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        required=True,
+        min_length=2,
+        max_length=32,
+        validators=[UniqueValidator(queryset=User.objects.using('read').all(), message='昵称已被使用，请重新输入。')]
+    )
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.using('read').all(), message='Email已注册，请登录。')]
+    )
+    password = serializers.CharField(required=True, min_length=6, max_length=32)
+    confirm_password = serializers.CharField(required=True, min_length=6, max_length=32)
+
+    def validate_username(self, value):
+        if not reg_username.match(value):
+            raise serializers.ValidationError('昵称格式有误，请重新输入')
+        return value
+
+    def validate_password(self, value):
+        if not reg_password.match(value):
+            raise serializers.ValidationError('密码格式有误，请重新输入')
+        return value
+
+    def validate_confirm_password(self, value):
+        password = self.context['request'].data.get('password')
+        if password != value:
+            raise serializers.ValidationError('密码输入不一致')
+        return value
+
+    def create(self, validated_data):
+        username = validated_data.get('username')
+        email = validated_data.get('email')
+        password = validated_data.get('password')
+
+        user = User.objects.create_user(username, email, password)
+        user_profile = UserProfile()
+        user_profile.user = user
+        user_profile.save(using='write')
+        return user
+
+    def update(self, instance, validated_data):
+        return None
 
 
 class UserInfoSerializer(serializers.ModelSerializer):

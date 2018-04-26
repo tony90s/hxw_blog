@@ -14,6 +14,7 @@ from rest_framework import serializers, generics, permissions
 from rest_framework.response import Response
 
 from restful_api.account.serializers import (
+    RegisterSerializer,
     UserInfoSerializer,
     UpdateUserAvatarSerializer,
     UpdatePasswordSerializer,
@@ -22,7 +23,6 @@ from restful_api.account.serializers import (
     BindEmailSerializer
 )
 from restful_api.account.forms import (
-    RegisterForm,
     LoginForm,
     ResetPasswordForm,
     GeneralEmailForm,
@@ -47,13 +47,15 @@ reg_email = re.compile('^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
 logger = logging.getLogger('api.account')
 
 
-class RegisterView(APIView):
-    def post(self, request, *args, **kwargs):
-        form = RegisterForm(request.data)
-        if not form.is_valid():
-            raise serializers.ValidationError(form.errors)
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
 
-        user = form.create()
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        user = serializer.instance
         login(request, user)
 
         # send email to notice users when register successfully
