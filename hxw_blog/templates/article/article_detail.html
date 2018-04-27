@@ -3,9 +3,11 @@
 {% block extra_header %}
     <link rel="stylesheet" href="/static/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css">
     <link rel="stylesheet" href="/static/css/article/article_details.css">
+    <link rel="stylesheet" href="/static/zoomify/zoomify.css">
     <script src="/static/js/jquery.flexText.js"></script>
     <script src="/static/js/time_desc.js"></script>
     <script src="/static/js/qrcode.min.js"></script>
+    <script src="/static/zoomify/zoomify.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -153,6 +155,7 @@
             $('.content').flexText();
 
             $("[data-toggle='tooltip']").tooltip();
+            $('.content-html img').zoomify();
         });
     </script>
 
