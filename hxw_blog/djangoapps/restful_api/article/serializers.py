@@ -15,21 +15,23 @@ class CustomDateTimeField(fields.DateTimeField):
         return value
 
 
-class SaveArticleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Article
-        fields = ('author_id', 'title', 'type', 'content_txt', 'content_html', 'is_released')
+class SaveArticleSerializer(serializers.Serializer):
+    title = serializers.CharField(required=True, max_length=64)
+    type = serializers.ChoiceField(required=True, choices=Article.TYPE_CHOICES)
+    content_txt = serializers.CharField(default='', style={'type': 'textarea'})
+    content_html = serializers.CharField(required=True, style={'type': 'textarea'})
+    is_released = serializers.BooleanField(default=0)
 
     def create(self, validated_data):
-        is_released = validated_data.get('is_released') or 0
+        is_released = validated_data.get('is_released')
         now = timezone.now()
 
         article = Article()
         article.author_id = validated_data.get('author_id')
         article.title = validated_data.get('title')
         article.type = validated_data.get('type')
-        article.content_html = validated_data.get('content_html') or ''
-        article.content_txt = validated_data.get('content_txt') or ''
+        article.content_html = validated_data.get('content_html')
+        article.content_txt = validated_data.get('content_txt')
         article.is_released = is_released
         article.created_at = now
         if is_released:
@@ -55,65 +57,54 @@ class SaveArticleSerializer(serializers.ModelSerializer):
         return instance
 
 
-class SaveCommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ('article_id', 'commentator_id', 'content')
+class SaveCommentSerializer(serializers.Serializer):
+    article_id = serializers.IntegerField(required=True)
+    content = serializers.CharField(required=True, max_length=140)
 
-    def validate(self, attrs):
-        article_id = attrs.get('article_id')
-
-        if article_id is None:
-            raise serializers.ValidationError("'article_id' 参数缺失。")
-
-        articles = Article.objects.using('read').filter(id=article_id)
+    def validate_article_id(self, value):
+        articles = Article.objects.using('read').filter(id=value)
         if not articles.exists():
             raise serializers.ValidationError('所评论的博文不存在，请联系管理员')
-        return attrs
+        return value
 
     def create(self, validated_data):
         return Comment.objects.using('write').create(**validated_data)
 
+    def update(self, instance, validated_data):
+        return None
 
-class SaveCommentReplySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CommentReply
-        fields = ('comment_id', 'receiver_id', 'replier_id', 'content')
 
-    def validate(self, attrs):
-        comment_id = attrs.get('comment_id')
-        receiver_id = attrs.get('receiver_id')
+class SaveCommentReplySerializer(serializers.Serializer):
+    comment_id = serializers.IntegerField(required=True)
+    receiver_id = serializers.IntegerField(required=True)
+    content = serializers.CharField(required=True, max_length=140)
 
-        if comment_id is None:
-            raise serializers.ValidationError("'comment_id' 参数缺失。")
-        if receiver_id is None:
-            raise serializers.ValidationError("'receiver_id' 参数缺失。")
-
-        comments = Comment.objects.using('read').filter(id=comment_id)
+    def validate_comment_id(self, value):
+        comments = Comment.objects.using('read').filter(id=value)
         if not comments.exists():
             raise serializers.ValidationError('所回复评论不存在，请联系管理员')
-        receivers = User.objects.using('read').filter(id=receiver_id)
+        return value
+
+    def validate_receiver_id(self, value):
+        receivers = User.objects.using('read').filter(id=value)
         if not receivers.exists():
             raise serializers.ValidationError('所回复的童鞋不存在，请联系管理员')
-        return attrs
+        return value
 
     def create(self, validated_data):
         return CommentReply.objects.using('write').create(**validated_data)
 
+    def update(self, instance, validated_data):
+        return None
 
-class SavePraiseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Praise
-        fields = ('praise_type', 'parent_id', 'user_id')
+
+class SavePraiseSerializer(serializers.Serializer):
+    praise_type = serializers.ChoiceField(required=True, choices=Praise.TYPE_CHOICES)
+    parent_id = serializers.IntegerField(required=True)
 
     def validate(self, attrs):
         praise_type = attrs.get('praise_type')
         parent_id = attrs.get('parent_id')
-
-        if praise_type is None:
-            raise serializers.ValidationError("'praise_type' 参数缺失。")
-        if parent_id is None:
-            raise serializers.ValidationError("'parent_id' 参数缺失。")
 
         if praise_type == Praise.TYPE.ARTICLE:
             praise_parents = Article.objects.using('read').filter(id=parent_id)
@@ -134,6 +125,9 @@ class SavePraiseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Praise.objects.using('write').create(**validated_data)
+
+    def update(self, instance, validated_data):
+        return None
 
 
 class ArticleSerializer(serializers.ModelSerializer):
