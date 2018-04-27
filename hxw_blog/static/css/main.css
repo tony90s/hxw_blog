@@ -12,6 +12,16 @@ html {
   font-size: 100%;
 }
 
+a {
+    cursor: pointer;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+*, :after, :before {
+    box-sizing: border-box;
+}
+
 .header {
   padding-top:20px;
   padding-bottom:20px;

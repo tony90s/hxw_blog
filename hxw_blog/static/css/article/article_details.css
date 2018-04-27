@@ -560,3 +560,13 @@ textarea,
     vertical-align: top;
     margin-top: 28px;
 }
+
+.check-orig-img {
+    position: fixed;
+    bottom: 8%;
+    left: 50%;
+    transform: translate3d(-50%,0,0);
+    border-radius: 20px;
+    font-size: 14px;
+    z-index: 9999;
+}
