@@ -7,9 +7,8 @@ from rest_framework.validators import UniqueValidator
 
 from utils.file_handling import get_thumbnail
 from account.models import UserProfile, OauthLogin
+from restful_api.account.validators import RegMatchValidator
 
-reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
-reg_password = re.compile('^[\.\w@_-]{6,32}$')
 reg_verification_code = re.compile('^\d{6}$')
 
 
@@ -18,24 +17,22 @@ class RegisterSerializer(serializers.Serializer):
         required=True,
         min_length=2,
         max_length=32,
-        validators=[UniqueValidator(queryset=User.objects.using('read').all(), message='昵称已被使用，请重新输入。')]
+        validators=[
+            UniqueValidator(queryset=User.objects.using('read').all(), message='昵称已被使用，请重新输入。'),
+            RegMatchValidator(pattern=r'^[\w.@_\u4e00-\u9fa5]{2,32}$', message='昵称格式有误，请重新输入。')
+        ]
     )
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.using('read').all(), message='Email已注册，请登录。')]
     )
-    password = serializers.CharField(required=True, min_length=6, max_length=32)
+    password = serializers.CharField(
+        required=True,
+        min_length=6,
+        max_length=32,
+        validators=[RegMatchValidator(pattern=r'^[\w!@#$%^&*?,.;_]{6,32}$', message='密码格式有误，请重新输入。')]
+    )
     confirm_password = serializers.CharField(required=True, min_length=6, max_length=32)
-
-    def validate_username(self, value):
-        if not reg_username.match(value):
-            raise serializers.ValidationError('昵称格式有误，请重新输入')
-        return value
-
-    def validate_password(self, value):
-        if not reg_password.match(value):
-            raise serializers.ValidationError('密码格式有误，请重新输入')
-        return value
 
     def validate_confirm_password(self, value):
         password = self.context['request'].data.get('password')
@@ -65,12 +62,6 @@ class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'gender', 'bio')
-
-    def validate(self, attrs):
-        username = attrs.get('username')
-        if username and not reg_username.match(username):
-            raise serializers.ValidationError('昵称格式有误，请重新输入。')
-        return attrs
 
     def update(self, instance, validated_data):
         profile = instance.profile
@@ -110,17 +101,17 @@ class UpdateUserAvatarSerializer(serializers.Serializer):
 
 class UpdatePasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True, min_length=6, max_length=32)
-    new_password = serializers.CharField(required=True, min_length=6, max_length=32)
+    new_password = serializers.CharField(
+        required=True,
+        min_length=6,
+        max_length=32,
+        validators=[RegMatchValidator(pattern=r'^[\w!@#$%^&*?,.;_]{6,32}$', message='新密码格式有误，请重新输入。')]
+    )
     confirm_password = serializers.CharField(required=True, min_length=6, max_length=32)
 
     def validate_password(self, value):
         if not self.instance.check_password(value):
             raise serializers.ValidationError('原密码错误，请重新输入。')
-        return value
-
-    def validate_new_password(self, value):
-        if not reg_password.match(value):
-            raise serializers.ValidationError("新密码格式有误，请重新输入。")
         return value
 
     def validate_confirm_password(self, value):
@@ -140,7 +131,12 @@ class UpdatePasswordSerializer(serializers.Serializer):
 
 class ResetPasswordSerializer(serializers.Serializer):
     verification_code = serializers.CharField(required=True, max_length=6)
-    password = serializers.CharField(required=True, min_length=6, max_length=32)
+    password = serializers.CharField(
+        required=True,
+        min_length=6,
+        max_length=32,
+        validators=[RegMatchValidator(pattern=r'^[\w!@#$%^&*?,.;_]{6,32}$', message='密码格式有误，请重新输入。')]
+    )
     confirm_password = serializers.CharField(required=True, min_length=6, max_length=32)
 
     def validate_verification_code(self, value):
@@ -152,11 +148,6 @@ class ResetPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError('验证码已过期，请重新获取。')
         if value != verification_code_in_session:
             raise serializers.ValidationError('验证码错误，请重新输入。')
-        return value
-
-    def validate_password(self, value):
-        if not reg_password.match(value):
-            raise serializers.ValidationError('密码格式有误，请重新输入')
         return value
 
     def validate_confirm_password(self, value):
@@ -207,7 +198,12 @@ class BindEmailSerializer(serializers.Serializer):
         validators=[UniqueValidator(queryset=User.objects.using('read').all(), message='该邮箱已被绑定，换一个试试。')]
     )
     verification_code = serializers.CharField(required=True, max_length=6)
-    password = serializers.CharField(required=True, min_length=6, max_length=32)
+    password = serializers.CharField(
+        required=True,
+        min_length=6,
+        max_length=32,
+        validators=[RegMatchValidator(pattern=r'^[\w!@#$%^&*?,.;_]{6,32}$', message='密码格式有误，请重新输入。')]
+    )
 
     def validate_email(self, value):
         if self.context['request'].user.email:
@@ -223,11 +219,6 @@ class BindEmailSerializer(serializers.Serializer):
             raise serializers.ValidationError('验证码已过期，请重新获取。')
         if value != verification_code_in_session:
             raise serializers.ValidationError('验证码错误，请重新输入。')
-        return value
-
-    def validate_password(self, value):
-        if not reg_password.match(value):
-            raise serializers.ValidationError("密码格式有误，请重新输入。")
         return value
 
     def create(self, validated_data):

@@ -379,7 +379,7 @@
                 var confirm_password = form.find('[name="confirm_password"]').val();
                 var redirect_url = "{% url 'account:login' %}";
 
-                var reg_password = /^[\.\w@_-]{6,30}$/;
+                var reg_password = /^[\w!@#$%^&*?,.;_]{6,30}$/;
 
                 var msg = '';
                 var warning_div = $("#warning_msg");
@@ -436,11 +436,11 @@
                 var gender = form.find('[name="gender"]:checked').val();
                 var bio = form.find('[name="bio"]').val();
 
-                var reg_username = /^[\w_\u4e00-\u9fa5]{2,32}$/;
+                var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,32}$/;
 
                 var msg = '';
                 if (!reg_username.test(username)) {
-                    msg = "昵称格式有误，仅支持2-32位中英文、数字和'_'的组合。";
+                    msg = "昵称格式有误，仅支持2-32位中英文、数字、字符'_.@'的组合。";
                     layer.alert(msg);
                     return false
                 }
@@ -654,7 +654,7 @@
                 var password = parent_div.find('[name="password"]').val();
 
                 var reg_verification_code = /^[\d]{6}$/;
-                var reg_password = /^[\.\w@_-]{6,32}$/;
+                var reg_password = /^[\w!@#$%^&*?,.;_]{6,32}$/;
 
                 if (typeof(email) == 'undefined' || email == '') {
                     layer.msg('参数缺失，请重试。', {time: 1000});

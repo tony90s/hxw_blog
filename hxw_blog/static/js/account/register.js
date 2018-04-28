@@ -15,9 +15,9 @@ $(function () {
         var confirm_password = form.find('[name="confirm_password"]').val();
         var redirect_url = this.dataset.next;
         
-        var reg_username = /^[\w_\u4e00-\u9fa5]{2,32}$/;
+        var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,32}$/;
         var reg_email = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/;
-        var reg_password = /^[\.\w@_-]{6,32}$/;
+        var reg_password = /^[\w!@#$%^&*?,.;_]{6,32}$/;
         var warning_div = $("#warning_msg");
 
         if (username == '') {

@@ -1,13 +1,11 @@
-from copy import deepcopy
 import logging
 import os
-import re
 
 from django.conf import settings
 from django.http import Http404, QueryDict
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth import login
 
 from rest_framework.views import APIView
 from rest_framework import serializers, generics, permissions
@@ -32,17 +30,12 @@ from restful_api.account.forms import (
 )
 from account.cookies import set_logged_in_cookies
 from account.models import UserProfile, OauthLogin
-from utils.file_handling import get_thumbnail
 from utils import generate_verification_code
 from utils.html_email_utils import send_html_mail
 from utils.rest_framework.authentication import (
     OAuth2AuthenticationAllowInactiveUser,
     SessionAuthenticationAllowInactiveUser
 )
-
-reg_username = re.compile('^[\w_\u4e00-\u9fa5]{2,32}$')
-reg_password = re.compile('^[\.\w@_-]{6,32}$')
-reg_email = re.compile('^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
 
 logger = logging.getLogger('api.account')
 
