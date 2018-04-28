@@ -99,6 +99,9 @@
 		this.$image.addClass('zoomed').trigger('zoom-in.zoomify');
 		setTimeout(function () {
 			that.addShadow();
+			that.$image.css({
+				'z-index': 9999
+			});
 			$(".check-orig-img").remove();
 			$('body').append($('<a class="btn btn-default check-orig-img" href="' + that.$image['0'].src +
 			'" target="_blank">查看原图</a>'));
@@ -121,6 +124,9 @@
 		this.removeShadow();
 		this._zoomed = false;
 		$(".check-orig-img").remove();
+		this.$image.css({
+			'z-index': 0
+		});
 		enable_scroll();
 	};
 	
