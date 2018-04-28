@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from rest_framework import serializers, fields
 from article.models import Article, Comment, CommentReply, Praise
+from restful_api.article.validators import ObjectExistsValidator
 
 
 class CustomDateTimeField(fields.DateTimeField):
@@ -58,14 +59,11 @@ class SaveArticleSerializer(serializers.Serializer):
 
 
 class SaveCommentSerializer(serializers.Serializer):
-    article_id = serializers.IntegerField(required=True)
+    article_id = serializers.IntegerField(
+        required=True,
+        validators=[ObjectExistsValidator(model_class=Article, message='所评论的博文不存在，请联系管理员。')]
+    )
     content = serializers.CharField(required=True, max_length=140)
-
-    def validate_article_id(self, value):
-        articles = Article.objects.using('read').filter(id=value)
-        if not articles.exists():
-            raise serializers.ValidationError('所评论的博文不存在，请联系管理员')
-        return value
 
     def create(self, validated_data):
         return Comment.objects.using('write').create(**validated_data)
@@ -75,21 +73,15 @@ class SaveCommentSerializer(serializers.Serializer):
 
 
 class SaveCommentReplySerializer(serializers.Serializer):
-    comment_id = serializers.IntegerField(required=True)
-    receiver_id = serializers.IntegerField(required=True)
+    comment_id = serializers.IntegerField(
+        required=True,
+        validators=[ObjectExistsValidator(model_class=Comment, message='所回复评论不存在，请联系管理员。')]
+    )
+    receiver_id = serializers.IntegerField(
+        required=True,
+        validators=[ObjectExistsValidator(model_class=User, message='所回复的童鞋不存在，请联系管理员。')]
+    )
     content = serializers.CharField(required=True, max_length=140)
-
-    def validate_comment_id(self, value):
-        comments = Comment.objects.using('read').filter(id=value)
-        if not comments.exists():
-            raise serializers.ValidationError('所回复评论不存在，请联系管理员')
-        return value
-
-    def validate_receiver_id(self, value):
-        receivers = User.objects.using('read').filter(id=value)
-        if not receivers.exists():
-            raise serializers.ValidationError('所回复的童鞋不存在，请联系管理员')
-        return value
 
     def create(self, validated_data):
         return CommentReply.objects.using('write').create(**validated_data)
