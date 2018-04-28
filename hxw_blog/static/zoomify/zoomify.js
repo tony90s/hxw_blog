@@ -73,9 +73,7 @@
 		else this.zoomIn();
 	};
 	Zoomify.prototype.zoomIn = function () {
-		$('html, body').css({
-			"overflow-y": "hidden"
-		});
+		disable_scroll();
 		var that      = this,
 			transform = this.$image.css('transform');
 		
@@ -123,9 +121,7 @@
 		this.removeShadow();
 		this._zoomed = false;
 		$(".check-orig-img").remove();
-		$('html, body').css({
-			"overflow-y": "auto"
-		});
+		enable_scroll();
 	};
 	
 	// page listener callbacks
