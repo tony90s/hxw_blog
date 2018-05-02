@@ -211,7 +211,7 @@ LOGGING = {
             'when': 'D',
             'interval': 1,
             'encoding': 'utf-8',
-            'backupCount': 60
+            'backupCount': 30
         },
     },
     'loggers': {
