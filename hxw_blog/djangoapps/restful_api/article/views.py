@@ -35,7 +35,7 @@ from restful_api.article.permissions import (
     IsReplierOrReadOnly,
     IsPraiseOwnerOrReadOnly
 )
-from utils.paginators import SmallResultsSetPagination
+from utils.rest_framework.pagination import SmallResultsSetPagination
 from utils.rest_framework import generics as extra_generics
 
 reg_number = re.compile('^\d+$')
