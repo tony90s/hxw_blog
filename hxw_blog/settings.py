@@ -107,7 +107,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.csrf',
                 'django.contrib.messages.context_processors.messages',
-                'utils.context_processors.site_info'
+                'utils.context_processors.site_info',
+                'utils.context_processors.is_mobile'
             ],
         },
     },

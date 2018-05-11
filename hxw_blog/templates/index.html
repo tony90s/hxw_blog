@@ -10,6 +10,25 @@
     <script src="/static/js/time_desc.js"></script>
 {% endblock %}
 {% block content %}
+    {% if is_mobile_device %}
+    <div class="wrapper wrapper03" id="wrapper03">
+        <div class="scroller">
+            <ul class="clearfix">
+                <li><a href="javascript:void(0)" data-article_type="0">All</a></li>
+                <li><a href="javascript:void(0)" data-article_type="1">Python</a></li>
+                <li><a href="javascript:void(0)" data-article_type="2">Linux</a></li>
+                <li><a href="javascript:void(0)" data-article_type="3">Django</a></li>
+                <li><a href="javascript:void(0)" data-article_type="4">前端技术</a></li>
+                <li><a href="javascript:void(0)" data-article_type="5">随笔</a></li>
+                <li><a href="javascript:void(0)" data-article_type="6">历史</a></li>
+                <li><a href="javascript:void(0)" data-article_type="7">数码资讯</a></li>
+                <li><a href="javascript:void(0)" data-article_type="8">读书</a></li>
+                <li><a href="javascript:void(0)" data-article_type="9">问答</a></li>
+                <li><a href="javascript:void(0)" data-article_type="10">话题</a></li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
     <div class="container index">
         <div class="row">
             <div class="col-sm-6 col-sm-offset-3 main">
@@ -42,7 +61,7 @@
                         </ul>
                         <div class="read-more text-center">
                             <input type="hidden" value="{{ article_type.value }}" id="article_type">
-                            <button class="btn btn-info" id="btn_read_more" style="outline: none;">阅读更多</button>
+                            <button class="btn btn-info" id="btn_read_more" style="outline: none;display: none">阅读更多</button>
                             <p class="text-center not-more-content">更多内容，敬请期待...</p>
                         </div>
                     </div>
@@ -53,6 +72,8 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/js/iscroll.js"></script>
+    <script src="/static/js/navbarscroll.js"></script>
     <!--
     <script>
         $('#slideshow_2').cycle({
@@ -167,6 +188,7 @@
                                     return false;
                                 }
                                 page_index++;
+                                $("#btn_read_more").show();
                             } else {
                                 $("#btn_read_more").hide();
                                 $(".read-more .not-more-content").show();
@@ -174,11 +196,37 @@
                             }
                         });
             }
-            $(function() {
-                ajax_get_article();
-                $("#btn_read_more").click(function() {
-                    ajax_get_article()
-                });
+    </script>
+    <script>
+        function initAjax() {
+            $(".note-list li").remove();
+            page_index = 1;
+            $("#btn_read_more").show();
+            $(".read-more .not-more-content").hide();
+        }
+
+        $(function(){
+            $("#btn_read_more").click(function() {
+                ajax_get_article()
             });
+
+            if ($('.wrapper').length > 0) {
+                $('body .container.index').css('padding-top', '110px');
+            }
+            else {
+                ajax_get_article();
+            }
+
+            $('.wrapper').navbarscroll({
+                    className: 'cur',
+                    scrollerWidth: 32,
+                    endClickScroll: function (obj) {
+                        var article_type = obj[0].children[0].dataset.article_type;
+                        $("#article_type").val(article_type);
+                        initAjax();
+                        ajax_get_article()
+                    }
+            });
+        });
     </script>
 {% endblock %}
