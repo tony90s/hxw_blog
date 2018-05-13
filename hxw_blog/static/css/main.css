@@ -273,6 +273,15 @@ button {
     outline: none;
 }
 
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn.active.focus {
+    outline: none;
+}
+
 form {
     font-size: 14px;
 }

@@ -55,11 +55,11 @@ body > .container {
 
 .form .checkbox {
     font-weight: normal;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
 .form .form-group {
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
 .form .form-control {
@@ -84,7 +84,7 @@ body > .container {
 }
 
 .form .meta, .form-register .meta {
-    margin: 10px 0 40px;
+    margin: 14px 0 40px;
 }
 
 .form .social-login {

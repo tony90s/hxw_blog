@@ -147,6 +147,18 @@
     margin-right: 0;
 }
 
+.btn-change-email, .btn-bind-email {
+    float: right;
+    margin: 0 auto;
+    border-radius: 16px;
+}
+
+.btn-save-info {
+    display: block;
+    width: 50%;
+    border-radius: 16px;
+}
+
 .form-update-password {
     max-width: 330px;
     padding: 15px;
