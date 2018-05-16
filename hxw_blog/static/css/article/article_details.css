@@ -59,6 +59,11 @@
     font-weight: 400;
     line-height: 1.5em;
 }
+
+.article .show-content img {
+    width: 100%;
+}
+
 /*清除浮动*/
 .clearfix:before,
 .clearfix:after {
