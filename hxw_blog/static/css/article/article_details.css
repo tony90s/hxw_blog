@@ -54,10 +54,10 @@
 .article .show-content {
     color: #2f2f2f;
     word-break: break-word!important;
-    word-break: break-all;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 400;
     line-height: 1.5em;
+    letter-spacing: 0.04em;
 }
 
 .article .show-content img {
