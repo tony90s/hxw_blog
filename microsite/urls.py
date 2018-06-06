@@ -13,10 +13,20 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+import os
+
 from django.conf.urls import url
+from django.conf import settings
+from django.conf.urls.static import static
 
 from microsite_index.views import index_view
 
 urlpatterns = [
     url(r'^$', index_view, name='index'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static('/upload/', document_root=os.path.join(settings.ENV_ROOT, "upload"))
+    urlpatterns += static('/downloads/', document_root=os.path.join(settings.ENV_ROOT, "downloads"))

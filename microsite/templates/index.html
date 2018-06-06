@@ -1,10 +1,180 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}<title>主页</title>{% endblock %}
+{% block content %}
+    <div id="offCanvasWrapper" class="mui-off-canvas-wrap mui-slide-in mui-draggable">
+        <!--侧滑菜单部分-->
+        <aside id="offCanvasSide" class="mui-off-canvas-left">
+            <div id="offCanvasSideScroll" class="mui-scroll-wrapper background-white">
+                <div class="mui-scroll">
 
-</body>
-</html>
+                    <ul class="aside-menu">
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=0" {% if article_type.value == 0 %}class="active"{% endif %}><span>All</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=1" {% if article_type.value == 1 %}class="active"{% endif %}><span>Python</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=2" {% if article_type.value == 2 %}class="active"{% endif %}><span>Linux</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=3" {% if article_type.value == 3 %}class="active"{% endif %}><span>Django</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=4" {% if article_type.value == 4 %}class="active"{% endif %}><span>前端技术</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=5" {% if article_type.value == 5 %}class="active"{% endif %}><span>随笔</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=6" {% if article_type.value == 6 %}class="active"{% endif %}><span>历史</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=7" {% if article_type.value == 7 %}class="active"{% endif %}><span>数码资讯</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=8" {% if article_type.value == 8 %}class="active"{% endif %}><span>读书</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=9" {% if article_type.value == 9 %}class="active"{% endif %}><span>问答</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="{% url 'index' %}?article_type=10" {% if article_type.value == 10 %}class="active"{% endif %}><span>话题</span></a>
+                        </li>
+                        <li class="aside-menu-item">
+                            <a href="#"><span>关于</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+        <!--主界面部分-->
+        <div class="mui-inner-wrap">
+            <header class="mui-bar mui-bar-nav">
+                <a href="#offCanvasSide" class="mui-icon mui-action-menu mui-icon-bars mui-pull-left"></a>
+                <a class="mui-icon mui-icon-search mui-pull-right"></a>
+                <h1 class="mui-title">LOVEITERS</h1>
+            </header>
+            <div class="mui-content mui-scroll-wrapper" id="pull_refresh" data-scroll='1'>
+                <div class="mui-scroll">
+                    <div class="article-container">
+                        <ul class="article-list">
+
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+            <nav class="mui-bar mui-bar-tab">
+                <a class="mui-tab-item mui-active" href="{% url 'index' %}">
+                    <span class="mui-icon mui-icon-home"></span>
+                </a>
+                <a class="mui-tab-item" href="#">
+                    <span class="mui-icon-extra mui-icon-extra-notice">
+                        <!--<span class="mui-badge">9</span>-->
+                    </span>
+                </a>
+                <a class="mui-tab-item" href="#">
+                    <span class="mui-icon-extra mui-icon-extra-people"></span>
+                </a>
+            </nav>
+            <!-- off-canvas backdrop -->
+            <div class="mui-off-canvas-backdrop"></div>
+            <input type="hidden" value="{{ article_type.value }}" id="article_type">
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        mui.ready(function () {
+            mui('.mui-scroll-wrapper').scroll();
+        })
+    </script>
+    <script>
+        var page_index = 1;
+        mui.init({
+            pullRefresh: {
+                container: '#pull_refresh',
+                down: {
+                    auto: true,    //可选,默认false.自动下拉刷新一次
+                    contentdown: "下拉刷新",    //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+                    contentover: "松开刷新",    //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+                    contentrefresh: "正在刷新...",   //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+                    callback: fullDownRefresh
+                },
+                up: {
+                    //height : 50,//可选.默认50.触发上拉加载拖动距离
+                    //auto : true,//可选,默认false.自动上拉加载一次
+                    contentrefresh: "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+                    contentnomore: '没有更多内容了...',
+                    callback: ajax_get_articles
+                }
+            }
+        });
+
+        function ajax_get_articles() {
+            $.ajax({
+                type: 'GET',
+                url: "http://0.0.0.0:8000/api/v1/article/articles",
+                data: {
+                    'page': page_index,
+                    'article_type': $("#article_type").val(),
+                    'is_released': 1
+                },
+                dataType: 'json',
+                success: function (json) {
+                    if (json.hasOwnProperty('results') && json.results.length > 0) {
+                        $.each(json.results, function (index, array) {
+                            var article_id = array['article_id'];
+                            var title = array['title'];
+                            var type = array['type'];
+                            var cover_photo = array['cover_photo'];
+                            var abstract = array['abstract'];
+                            var release_time = array['release_time'];
+                            var release_time_desc = getDateDiff(release_time);
+                            var author = array['author'];
+                            var str = '<li data-article_id="' + article_id + '">' +
+                                    '<div class="content">';
+                            if (cover_photo) {
+                                str += '<img class="cover-photo" src="'  + cover_photo +
+                                        '" alt="' + title + '">';
+                            }
+                            str += '<p class="title">' + title + '</p>' +
+                                    '<p class="abstract">' + abstract + '</p>' +
+                                    '<div class="meta">' +
+                                    '<span class="time">' + release_time_desc + '</span>' +
+                                    '<span class="nickname">by ' + author['username'] + '</span>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</li>';
+
+                            $(".article-list").append(str);
+                        });
+                        if (page_index == 1) {
+                            mui('#pull_refresh').pullRefresh().endPulldownToRefresh(!json.next);
+                            mui('#pull_refresh').pullRefresh().refresh(true);
+                        }
+                        mui('#pull_refresh').pullRefresh().endPullupToRefresh(!json.next);
+                        if (json.next) {
+                            page_index++;
+                        }
+                    } else {
+                        if (page_index == 1) {
+                            mui('#pull_refresh').pullRefresh().endPulldownToRefresh(true);
+                            mui('#pull_refresh').pullRefresh().refresh(true);
+                        }
+                        mui('#pull_refresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                }
+            });
+        }
+
+        function fullDownRefresh() {
+            $(".article-list li").remove();
+            page_index = 1;
+            ajax_get_articles();
+        }
+
+    </script>
+{% endblock %}

@@ -135,14 +135,6 @@
             var register_url = "{% url 'account:register' %}";
             window.location.href = register_url + '?next=' + next;
         }
-
-        function timeDesc() {
-            $("span.comment-time").each(function () {
-                var time_str = this.dataset.comment_at;
-                var time_desc = getDateDiff(time_str);
-                $(this).text(time_desc)
-            })
-        }
     </script>
     <script>
         $(function () {
@@ -150,8 +142,6 @@
             var release_time = $(".article .author .info .meta .release-time");
             var format_release_time = release_time.html().substr(0,16);
             release_time.html(format_release_time);
-            // format comment time
-            timeDesc();
             // textarea高度自适应
             $('.content').flexText();
 
@@ -279,6 +269,7 @@
                                 var content = json.data.content;
                                 var comment_id = json.data.comment_id.toString();
                                 var comment_at = json.data.comment_at;
+                                var comment_at_desc = getDateDiff(comment_at);
                                 var praise_times = json.data.praise_times.toString();
                                 var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
                                         '<div class="comment-show-con-img">' +
@@ -290,8 +281,7 @@
                                         '<a target="_blank" href="/article/author/' + user_id +
                                         '" class="comment-size-name" data-commentator_id="' + user_id +
                                         '">' + username + '</a>' +
-                                        '<span class="comment-time" data-comment_at="' + comment_at +
-                                        '">' + '</span>' +
+                                        '<span class="comment-time">' + comment_at_desc + '</span>' +
                                         '</div>' +
                                         '<div class="comment-show-con-list clearfix">' +
                                         '<div class="date-dz">' +
@@ -316,7 +306,6 @@
                                         '</div>';
                                 $this.parents('.reviewArea ').siblings('.comment-show').prepend(comment_html);
                                 $this.siblings('.flex-text-wrap').find('.comment-input').prop('value', '').siblings('pre').find('span').text('');
-                                timeDesc();
                                 layer.msg(json.msg, {time: 1000});
                             }
                             else {
@@ -407,6 +396,7 @@
                             var receiver_username = json.data.receiver.username;
                             var replier_id = json.data.replier.user_id.toString();
                             var reply_at = json.data.reply_at;
+                            var reply_at_desc = getDateDiff(reply_at);
                             var reply_content = json.data.content;
                             var praise_times = json.data.praise_times.toString();
                             var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
@@ -414,8 +404,7 @@
                                     '<div class="pl-text hfpl-text clearfix">' +
                                     '<a target="_blank" href="/article/author/' + replier_id +
                                     '" class="comment-size-name">' + replier_username + '</a>' +
-                                    '<span class="comment-time" data-comment_at="' + reply_at +
-                                    '">' + '</span>' +
+                                    '<span class="comment-time">' + reply_at_desc + '</span>' +
                                     '</div>' +
                                     '<div class="date-dz">' +
                                     '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content  + '</p>' +
@@ -434,7 +423,6 @@
                             oThis.parents('.hf-con').parents('.comment-show-con-list').find('.hf-list-con').css('display', 'block').prepend(oHtml);
                             oThis.parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
                             oThis.parents('.hf-con').remove();
-                            timeDesc();
                             layer.msg(json.msg, {time: 1000});
                         }
                         else {
@@ -691,6 +679,7 @@
                                     var username = array['commentator']['username'];
                                     var user_id = array['commentator']['user_id'];
                                     var comment_at = array['comment_at'];
+                                    var comment_at_desc = getDateDiff(comment_at);
                                     var content = array['content'];
                                     var praise_times = array['praise_times'];
                                     var comment_replies = array['comment_replies'];
@@ -703,8 +692,7 @@
                                         '<div class="pl-text clearfix">' +
                                         '<a target="_blank" href="/article/author/' + user_id +  '" class="comment-size-name" data-commentator_id="' + user_id +
                                         '">' + username + '</a>' +
-                                        '<span class="comment-time" data-comment_at="' + comment_at +
-                                        '">' + '</span>' +
+                                        '<span class="comment-time">' + comment_at_desc + '</span>' +
                                         '</div>' +
                                         '<div class="comment-show-con-list clearfix">' +
                                         '<div class="date-dz">' +
@@ -733,14 +721,14 @@
                                         var receiver_username = reply['receiver']['username'];
                                         var replier_id = reply['replier']['user_id'].toString();
                                         var reply_at = reply['reply_at'];
+                                        var reply_at_desc = getDateDiff(reply_at);
                                         var reply_content = reply['content'];
                                         var praise_times = reply['praise_times'].toString();
                                         var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                                         var reply_html = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
                                             '<div class="pl-text hfpl-text clearfix">' +
                                             '<a target="_blank" href="/article/author/' + replier_id + '" class="comment-size-name">' + replier_username + '</a>' +
-                                            '<span class="comment-time" data-comment_at="' + reply_at +
-                                            '">' + '</span>' +
+                                            '<span class="comment-time">' + reply_at_desc + '</span>' +
                                             '</div>' +
                                             '<div class="date-dz">' +
                                             '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content  + '</p>' +
@@ -762,7 +750,6 @@
                                     comment_html +=  '</div>' + '</div>' + '</div>';
                                     $(".comment-show").append(comment_html);
                                 });
-                                timeDesc();
                                 if (!json.next) {
                                     $(".next-page").addClass("disabled");
                                 }

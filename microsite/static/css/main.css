@@ -1,0 +1,74 @@
+.mui-off-canvas-left, .mui-off-canvas-right {
+    width: 60%;
+}
+
+.background-white {
+    background: #fff;
+}
+
+.aside-menu {
+    list-style: none;
+    padding-top: 36px;
+    padding-left: 0;
+    text-align: center;
+    font-size: 16px;
+}
+
+.aside-menu li.aside-menu-item a {
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    vertical-align: middle;
+}
+
+.aside-menu li.aside-menu-item a.active {
+    background: lightskyblue;;
+}
+
+.aside-menu .aside-menu-item a span {
+    color: #000;
+}
+
+.article-container {
+    padding: 10px 0;
+}
+
+.article-list {
+    padding: 0;
+    list-style: none;
+}
+
+.article-list li {
+    position: relative;
+    padding: 10px;
+    margin-bottom: 12px;
+    background: #fff;
+}
+
+.article-list li img.cover-photo {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.article-list li .title {
+    font-size: 18px;
+    color: #2f2f2f;
+}
+
+.article-list li .abstract {
+    margin-top: 10px;
+    font-size: 15px;
+}
+
+.article-list li .meta {
+    position: relative;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #8f8f94;
+}
+
+.article-list li .meta span + span:before {
+    padding: 0 8px;
+    content: "/\00a0";
+}

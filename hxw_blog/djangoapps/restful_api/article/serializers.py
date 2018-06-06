@@ -139,8 +139,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         }
 
     def get_cover_photo(self, article):
-        cover_photo = article.cover_photo
-        return cover_photo.url if cover_photo.name else ''
+        cover_photo = article.article_cover
+        return cover_photo
 
     def get_author(self, article):
         article_info = article.get_author_data()

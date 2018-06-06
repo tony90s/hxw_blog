@@ -12,7 +12,8 @@ logger = logging.getLogger('microsite_index.views')
 @ensure_csrf_cookie
 def index_view(request):
     template = 'index.html'
+    article_type = int(request.GET.get('article_type', '0'))
     context = {
-        'article_type': {'value': 0, 'display_name': Article.get_type_name(0)}
+        'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)}
     }
-    return HttpResponse('coming soon')
+    return render(request, template, context)

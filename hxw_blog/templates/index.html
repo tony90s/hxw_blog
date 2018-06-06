@@ -104,18 +104,6 @@
         });
     </script>
     -->
-
-    <!--发布时间描述-->
-    <script>
-        function timeDesc() {
-            $("span.time").each(function () {
-                var time_str = this.dataset.release_at;
-                var time_desc = getDateDiff(time_str);
-                $(this).text(time_desc)
-            })
-        }
-    </script>
-
     <script type="text/javascript">
             var page_index = 1;
             function ajax_get_article() {
@@ -136,6 +124,7 @@
                                     var comment_times = array['comment_times'];
                                     var praise_times = array['praise_times'];
                                     var release_time = array['release_time'];
+                                    var release_time_desc = getDateDiff(release_time);
                                     var page_views = array['page_views'];
                                     var author = array['author'];
                                     var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
@@ -148,7 +137,7 @@
                                             '<div class="info">' +
                                                 '<a class="nickname" target="_blank" href="/article/author/' + author['user_id'] + '">' +
                                                  author['username'] + '</a>' +
-                                                '<span class="time" data-release_at="' + release_time + '">' + '</span>' +
+                                                '<span class="time">' + release_time_desc + '</span>' +
                                             '</div>' +
                                         '</div>' +
                                         '<div';
@@ -181,7 +170,6 @@
                                         '</li>';
                                     $(".note-list").append(str);
                                 });
-                                timeDesc();
                                 if (!json.next) {
                                     $("#btn_read_more").hide();
                                     $(".read-more .not-more-content").show();
@@ -220,7 +208,7 @@
 
             $('.wrapper').navbarscroll({
                     className: 'cur',
-                    scrollerWidth: 32,
+                    scrollerWidth: 70,
                     endClickScroll: function (obj) {
                         var article_type = obj[0].children[0].dataset.article_type;
                         $("#article_type").val(article_type);

@@ -81,7 +81,7 @@ class Article(models.Model):
         author_data = {
             'user_id': author.id,
             'username': author.username if len(author.username) <= 10 else (author.username[:10] + '...'),
-            'avatar': author.profile.avatar.url
+            'avatar': settings.HOST + author.profile.avatar.url
         }
         self.__user_cache.update({self.author_id: author_data})
         return author_data
@@ -112,7 +112,10 @@ class Article(models.Model):
     def article_cover(self):
         img_pattern = '<img[^>]+src="([^"]*)"'
         covers = re.findall(img_pattern, self.content_html, re.M)
-        return covers[0] if covers else ''
+        cover = covers[0] if covers else ''
+        if cover and 'http' not in cover:
+            cover = settings.HOST + cover
+        return cover
 
     def render_json(self):
         context = dict()
@@ -198,7 +201,7 @@ class Comment(models.Model):
         commentator_info = {
             'user_id': commentator.id,
             'username': commentator.username if len(commentator.username) <= 10 else (commentator.username[:10] + '...'),
-            'avatar': commentator.profile.avatar.url
+            'avatar': settings.HOST + commentator.profile.avatar.url
         }
         self.__user_cache.update({self.commentator_id: commentator_info})
         return commentator_info
@@ -295,7 +298,7 @@ class CommentReply(models.Model):
         replier_data = {
             'user_id': replier.id,
             'username': replier.username if len(replier.username) <= 10 else (replier.username[:10] + '...'),
-            'avatar': replier.profile.avatar.url
+            'avatar': settings.HOST + replier.profile.avatar.url
         }
         self.__user_cache.update({self.replier_id: replier_data})
         return replier_data
@@ -307,7 +310,7 @@ class CommentReply(models.Model):
         receiver_data = {
             'user_id': receiver.id,
             'username': receiver.username if len(receiver.username) <= 10 else (receiver.username[:10] + '...'),
-            'avatar': receiver.profile.avatar.url
+            'avatar': settings.HOST + receiver.profile.avatar.url
         }
         self.__user_cache.update({self.receiver_id: receiver_data})
         return receiver_data
@@ -377,7 +380,7 @@ class Praise(models.Model):
         user_data = {
             'user_id': user.id,
             'username': user.username if len(user.username) <= 10 else (user.username[:10] + '...'),
-            'avatar': user.profile.avatar.url
+            'avatar': settings.HOST + user.profile.avatar.url
         }
         self.__user_cache.update({self.user_id: user_data})
         return user_data

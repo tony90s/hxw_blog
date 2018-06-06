@@ -56,18 +56,6 @@
 {% endblock %}
 
 {% block extra_js %}
-
-    <!--发布时间描述-->
-    <script>
-        function timeDesc() {
-            $("span.time").each(function () {
-                var time_str = this.dataset.update_at;
-                var time_desc = getDateDiff(time_str);
-                $(this).text(time_desc)
-            })
-        }
-    </script>
-
     <!--博文操作(删除，发布)-->
     <script>
         function remove(obj) {
@@ -158,6 +146,7 @@
                                     var abstract = array['abstract'];
                                     var author = array['author'];
                                     var update_time = array['update_time'];
+                                    var update_time_desc = getDateDiff(update_time);
                                     var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
                                     str += '<div class="content">' +
                                         '<div class="author">' +
@@ -166,7 +155,7 @@
                                             '</a>' +
                                             '<div class="info">' +
                                                 '<a class="nickname" target="_blank" href="/article/author/' + author['user_id'] + '">' + author['username'] + '</a>' +
-                                                '<span class="time" data-update_at="' + update_time + '">' + '</span>' +
+                                                '<span class="time">' + update_time_desc + '</span>' +
                                             '</div>' +
                                         '</div>' +
                                         '<div';
@@ -200,7 +189,6 @@
                                         '</li>';
                                     $(".note-list").append(str);
                                 });
-                                timeDesc();
                                 if (!json.next) {
                                     $("#btn_read_more").hide();
                                     $(".read-more .not-more-content").show();
