@@ -163,7 +163,7 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(REPO_ROOT, 'staticfiles')
+STATIC_ROOT = os.path.join(REPO_ROOT, 'staticfiles/microsite/')
 
 MEDIA_ROOT = os.path.join(ENV_ROOT, 'media')
 MEDIA_URL = '/media/'
