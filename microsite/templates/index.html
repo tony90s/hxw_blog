@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}<title>主页</title>{% endblock %}
+{% block title %}<title>{{ article_type.display_name }} LOVEITERS</title>{% endblock %}
 {% block content %}
     <div id="offCanvasWrapper" class="mui-off-canvas-wrap mui-slide-in mui-draggable">
         <!--侧滑菜单部分-->
@@ -53,7 +53,7 @@
             <header class="mui-bar mui-bar-nav">
                 <a href="#offCanvasSide" class="mui-icon mui-action-menu mui-icon-bars mui-pull-left"></a>
                 <a class="mui-icon mui-icon-search mui-pull-right"></a>
-                <h1 class="mui-title">LOVEITERS</h1>
+                <h1 class="mui-title">{% if article_type.value != 0 %}{{ article_type.display_name }}{% else %}LOVEITERS{% endif %}</h1>
             </header>
             <div class="mui-content mui-scroll-wrapper" id="pull_refresh" data-scroll='1'>
                 <div class="mui-scroll">
@@ -116,7 +116,7 @@
         function ajax_get_articles() {
             $.ajax({
                 type: 'GET',
-                url: "http://0.0.0.0:8000/api/v1/article/articles",
+                url: "{{ main_site }}" + "/api/v1/article/articles",
                 data: {
                     'page': page_index,
                     'article_type': $("#article_type").val(),

@@ -50,6 +50,8 @@ DEBUG = ENV_TOKENS['DEBUG']
 SITE_NAME = ENV_TOKENS['SITE_NAME']
 HOST = ENV_TOKENS['HOST']
 HTTPS = ENV_TOKENS['HTTPS']
+MAIN_SITE = ENV_TOKENS['MAIN_SITE']
+MICROSITE = ENV_TOKENS['MICROSITE']
 
 ALLOWED_HOSTS = [
     '*'
@@ -101,7 +103,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.csrf',
-                'django.contrib.messages.context_processors.messages'
+                'django.contrib.messages.context_processors.messages',
+                'utils.context_processors.site_info',
             ],
         },
     },

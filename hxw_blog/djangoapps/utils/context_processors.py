@@ -3,7 +3,11 @@ from django.conf import settings
 
 
 def site_info(request):
-    return {'site_name': settings.SITE_NAME}
+    return {
+        'site_name': settings.SITE_NAME,
+        'main_site': settings.MAIN_SITE,
+        'microsite': settings.MICROSITE
+    }
 
 
 def is_mobile(request):
