@@ -1,0 +1,118 @@
+.mui-content {
+    background-color: #F5FFFA;
+}
+
+.article {
+    padding: 0 10px;
+}
+
+.article .title {
+    color: #000;
+    font-size: 28px;
+    margin-top: 48px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+.article .separate-line {
+    width: 15%;
+    border: 2px solid #000;
+    margin: 8px 0;
+}
+
+.article .separate-line-15 {
+    margin-top: 15px;
+}
+
+.article .meta {
+    margin-top: 10px;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.article .meta span + span:before {
+    padding: 0 8px;
+    content: "/\00a0";
+}
+
+.article .article-content {
+    margin-top: 20px;
+}
+
+.article .article-content p {
+    font-size: 16px;
+    line-height: 26px;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+.article .author {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.article .author .avatar {
+    display: inline-block;
+}
+
+.article .author .info {
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.article .author .info span {
+    display: block;
+}
+
+.article .separate-title {
+    margin-top: 32px;
+    color: #333;
+}
+
+.comments-container {
+    width: 100%;
+}
+
+.comments-list {
+    padding: 0;
+}
+
+.comments-list .comment {
+    position: relative;
+    padding: 10px;
+    margin-bottom: 12px;
+}
+
+.comments-list .comment .avatar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.comments-list .comment .info {
+    margin-left: 52px;
+    border-bottom: 1px solid #f0f0f0;;
+}
+
+.comments-list .comment .info .user {
+    position: relative;
+}
+
+.comments-list .comment .info .user .user-info span {
+    display: block;
+}
+
+
+.comments-list .comment .info .user .praise {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.comments-list .comment .info .comment-content{
+    margin-top: 10px;
+}

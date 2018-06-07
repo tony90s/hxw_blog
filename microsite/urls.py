@@ -15,7 +15,7 @@ Including another URLconf
 """
 import os
 
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -23,6 +23,7 @@ from microsite_index.views import index_view
 
 urlpatterns = [
     url(r'^$', index_view, name='index'),
+    url(r'^article/', include('microsite_article.urls', namespace='article')),
 ]
 
 if settings.DEBUG:

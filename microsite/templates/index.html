@@ -1,180 +1,338 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ article_type.display_name }} LOVEITERS</title>{% endblock %}
 {% block content %}
-    <div id="offCanvasWrapper" class="mui-off-canvas-wrap mui-slide-in mui-draggable">
-        <!--侧滑菜单部分-->
-        <aside id="offCanvasSide" class="mui-off-canvas-left">
-            <div id="offCanvasSideScroll" class="mui-scroll-wrapper background-white">
+    <header class="mui-bar mui-bar-nav">
+        <a class="mui-icon mui-icon-search mui-pull-right"></a>
+        <h1 class="mui-title">
+            {% if article_type.value != 0 %}{{ article_type.display_name }}{% else %}LOVEITERS{% endif %}</h1>
+    </header>
+    <div class="mui-content">
+        <div id="slider" class="mui-slider mui-fullscreen">
+            <div id="sliderSegmentedControl"
+                 class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted background-white">
                 <div class="mui-scroll">
-
-                    <ul class="aside-menu">
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=0" {% if article_type.value == 0 %}class="active"{% endif %}><span>All</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=1" {% if article_type.value == 1 %}class="active"{% endif %}><span>Python</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=2" {% if article_type.value == 2 %}class="active"{% endif %}><span>Linux</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=3" {% if article_type.value == 3 %}class="active"{% endif %}><span>Django</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=4" {% if article_type.value == 4 %}class="active"{% endif %}><span>前端技术</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=5" {% if article_type.value == 5 %}class="active"{% endif %}><span>随笔</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=6" {% if article_type.value == 6 %}class="active"{% endif %}><span>历史</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=7" {% if article_type.value == 7 %}class="active"{% endif %}><span>数码资讯</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=8" {% if article_type.value == 8 %}class="active"{% endif %}><span>读书</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=9" {% if article_type.value == 9 %}class="active"{% endif %}><span>问答</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="{% url 'index' %}?article_type=10" {% if article_type.value == 10 %}class="active"{% endif %}><span>话题</span></a>
-                        </li>
-                        <li class="aside-menu-item">
-                            <a href="#"><span>关于</span></a>
-                        </li>
-                    </ul>
+                    <a href="#tab0" class="mui-control-item mui-active">
+                        All
+                    </a>
+                    <a href="#tab1" class="mui-control-item">
+                        Python
+                    </a>
+                    <a href="#tab2" class="mui-control-item">
+                        Linux
+                    </a>
+                    <a href="#tab3" class="mui-control-item">
+                        Django
+                    </a>
+                    <a href="#tab4" class="mui-control-item">
+                        前端技术
+                    </a>
+                    <a href="#tab5" class="mui-control-item">
+                        随笔
+                    </a>
+                    <a href="#tab6" class="mui-control-item">
+                        历史
+                    </a>
+                    <a href="#tab7" class="mui-control-item">
+                        数码资讯
+                    </a>
+                    <a href="#tab8" class="mui-control-item">
+                        读书
+                    </a>
+                    <a href="#tab9" class="mui-control-item">
+                        问答
+                    </a>
+                    <a href="#tab10" class="mui-control-item">
+                        话题
+                    </a>
                 </div>
             </div>
-        </aside>
-        <!--主界面部分-->
-        <div class="mui-inner-wrap">
-            <header class="mui-bar mui-bar-nav">
-                <a href="#offCanvasSide" class="mui-icon mui-action-menu mui-icon-bars mui-pull-left"></a>
-                <a class="mui-icon mui-icon-search mui-pull-right"></a>
-                <h1 class="mui-title">{% if article_type.value != 0 %}{{ article_type.display_name }}{% else %}LOVEITERS{% endif %}</h1>
-            </header>
-            <div class="mui-content mui-scroll-wrapper" id="pull_refresh" data-scroll='1'>
-                <div class="mui-scroll">
-                    <div class="article-container">
-                        <ul class="article-list">
+            <div class="mui-slider-group">
+                <div id="tab0" class="mui-slider-item mui-slider-item-no-border mui-control-content mui-active">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+                                </ul>
+                                <input type="hidden" value="0" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab1" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
 
-                        </ul>
+                                </ul>
+                                <input type="hidden" value="1" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab2" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
 
+                                </ul>
+                                <input type="hidden" value="2" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab3" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+
+                                </ul>
+                                <input type="hidden" value="3" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab4" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+
+                                </ul>
+                                <input type="hidden" value="4" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab5" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+
+                                </ul>
+                                <input type="hidden" value="5" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab6" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+                                </ul>
+                                <input type="hidden" value="6" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab7" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+
+                                </ul>
+                                <input type="hidden" value="7" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab8" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+
+                                </ul>
+                                <input type="hidden" value="8" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab9" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+
+                                </ul>
+                                <input type="hidden" value="9" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab10" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="article-container">
+                                <ul class="article-list">
+
+                                </ul>
+                                <input type="hidden" value="10" name="article_type">
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <nav class="mui-bar mui-bar-tab">
-                <a class="mui-tab-item mui-active" href="{% url 'index' %}">
-                    <span class="mui-icon mui-icon-home"></span>
-                </a>
-                <a class="mui-tab-item" href="#">
+        </div>
+    </div>
+
+    <nav class="mui-bar mui-bar-tab">
+        <a class="mui-tab-item mui-active" href="{% url 'index' %}">
+            <span class="mui-icon mui-icon-home"></span>
+        </a>
+        <a class="mui-tab-item" href="#">
                     <span class="mui-icon-extra mui-icon-extra-notice">
                         <!--<span class="mui-badge">9</span>-->
                     </span>
-                </a>
-                <a class="mui-tab-item" href="#">
-                    <span class="mui-icon-extra mui-icon-extra-people"></span>
-                </a>
-            </nav>
-            <!-- off-canvas backdrop -->
-            <div class="mui-off-canvas-backdrop"></div>
-            <input type="hidden" value="{{ article_type.value }}" id="article_type">
-        </div>
-    </div>
+        </a>
+        <a class="mui-tab-item" href="#">
+            <span class="mui-icon-extra mui-icon-extra-people"></span>
+        </a>
+    </nav>
+    <!-- off-canvas backdrop -->
+    <div class="mui-off-canvas-backdrop"></div>
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/mui/js/mui.pullToRefresh.js"></script>
+    <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
     <script>
-        mui.ready(function () {
-            mui('.mui-scroll-wrapper').scroll();
-        })
-    </script>
-    <script>
-        var page_index = 1;
-        mui.init({
-            pullRefresh: {
-                container: '#pull_refresh',
-                down: {
-                    auto: true,    //可选,默认false.自动下拉刷新一次
-                    contentdown: "下拉刷新",    //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
-                    contentover: "松开刷新",    //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
-                    contentrefresh: "正在刷新...",   //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
-                    callback: fullDownRefresh
-                },
-                up: {
-                    //height : 50,//可选.默认50.触发上拉加载拖动距离
-                    //auto : true,//可选,默认false.自动上拉加载一次
-                    contentrefresh: "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
-                    contentnomore: '没有更多内容了...',
-                    callback: ajax_get_articles
-                }
-            }
+        mui('.article-list').on('tap', 'li.article', function () {
+            var article_id = this.dataset.article_id;
+            document.location.href = '/article/details/' + article_id;
         });
+        mui.init();
+        (function ($) {
+            //阻尼系数
+            var deceleration = mui.os.ios ? 0.003 : 0.0009;
+            $('.mui-scroll-wrapper').scroll({
+                bounce: false,
+                indicators: true, //是否显示滚动条
+                deceleration: deceleration
+            });
+            $.ready(function () {
+                //循环初始化所有下拉刷新，上拉加载。
+                $.each(document.querySelectorAll('.mui-slider-group .mui-scroll'), function (index, pullRefreshEl) {
+                    $(pullRefreshEl).pullToRefresh({
+                        down: {
+                            callback: pullDownRefresh
+                        },
+                        up: {
+                            callback: pullUpRefresh
+                        }
+                    });
+                });
+            });
+        })(mui);
 
-        function ajax_get_articles() {
+        function create_article(ul, json) {
+            $.each(json.results, function (index, array) {
+                var article_id = array['article_id'];
+                var title = array['title'];
+                var type = array['type'];
+                var cover_photo = array['cover_photo'];
+                var abstract = array['abstract'];
+                var release_time = array['release_time'];
+                var release_time_desc = getDateDiff(release_time);
+                var author = array['author'];
+                var str = '<li class="article" data-article_id="' + article_id + '">' +
+                        '<div class="content">';
+                if (cover_photo) {
+                    str += '<img class="cover-photo" src="' + cover_photo +
+                            '" alt="' + title + '">';
+                }
+                str += '<p class="title">' + title + '</p>' +
+                        '<p class="abstract">' + abstract + '</p>' +
+                        '<div class="meta">' +
+                        '<span class="time">' + release_time_desc + '</span>' +
+                        '<span class="nickname">by ' + author['username'] + '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '</li>';
+                ul.append(str);
+            });
+        }
+        function pullUpRefresh() {
+            var self = this;
+            var scroll_div = $(this.element);
+            var ul = scroll_div.find('.article-list');
+            var page_index = scroll_div.find('input[name="page_index"]');
+            var article_type = scroll_div.find('input[name="article_type"]');
+            var page = page_index.val();
             $.ajax({
                 type: 'GET',
                 url: "{{ main_site }}" + "/api/v1/article/articles",
                 data: {
-                    'page': page_index,
-                    'article_type': $("#article_type").val(),
+                    'page': page,
+                    'article_type': article_type.val(),
                     'is_released': 1
                 },
                 dataType: 'json',
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
-                        $.each(json.results, function (index, array) {
-                            var article_id = array['article_id'];
-                            var title = array['title'];
-                            var type = array['type'];
-                            var cover_photo = array['cover_photo'];
-                            var abstract = array['abstract'];
-                            var release_time = array['release_time'];
-                            var release_time_desc = getDateDiff(release_time);
-                            var author = array['author'];
-                            var str = '<li data-article_id="' + article_id + '">' +
-                                    '<div class="content">';
-                            if (cover_photo) {
-                                str += '<img class="cover-photo" src="'  + cover_photo +
-                                        '" alt="' + title + '">';
-                            }
-                            str += '<p class="title">' + title + '</p>' +
-                                    '<p class="abstract">' + abstract + '</p>' +
-                                    '<div class="meta">' +
-                                    '<span class="time">' + release_time_desc + '</span>' +
-                                    '<span class="nickname">by ' + author['username'] + '</span>' +
-                                    '</div>' +
-                                    '</div>' +
-                                    '</li>';
-
-                            $(".article-list").append(str);
-                        });
-                        if (page_index == 1) {
-                            mui('#pull_refresh').pullRefresh().endPulldownToRefresh(!json.next);
-                            mui('#pull_refresh').pullRefresh().refresh(true);
-                        }
-                        mui('#pull_refresh').pullRefresh().endPullupToRefresh(!json.next);
+                        create_article(ul, json);
+                        self.endPullUpToRefresh(!json.next);
                         if (json.next) {
-                            page_index++;
+                            page++;
+                            page_index.val(page)
                         }
                     } else {
-                        if (page_index == 1) {
-                            mui('#pull_refresh').pullRefresh().endPulldownToRefresh(true);
-                            mui('#pull_refresh').pullRefresh().refresh(true);
-                        }
-                        mui('#pull_refresh').pullRefresh().endPullupToRefresh(true);
+                        self.endPullUpToRefresh(true);
                     }
                 }
             });
         }
-
-        function fullDownRefresh() {
-            $(".article-list li").remove();
-            page_index = 1;
-            ajax_get_articles();
+        function pullDownRefresh() {
+            var self = this;
+            var scroll_div = $(this.element);
+            var ul = scroll_div.find('.article-list');
+            scroll_div.find('.article-list li').remove();
+            var page_index = scroll_div.find('input[name="page_index"]');
+            var article_type = scroll_div.find('input[name="article_type"]');
+            page_index.val('1');
+            var page = 1;
+            $.ajax({
+                type: 'GET',
+                url: "{{ main_site }}" + "/api/v1/article/articles",
+                data: {
+                    'page': page,
+                    'article_type': article_type.val(),
+                    'is_released': 1
+                },
+                dataType: 'json',
+                success: function (json) {
+                    if (json.hasOwnProperty('results') && json.results.length > 0) {
+                        create_article(ul, json);
+                        self.endPullDownToRefresh(!json.next);
+                        self.refresh(true);
+                        self.endPullUpToRefresh(!json.next);
+                        if (json.next) {
+                            page++;
+                            page_index.val(page);
+                        }
+                    } else {
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
+                        self.endPullUpToRefresh(true);
+                    }
+                }
+            });
         }
-
     </script>
 {% endblock %}

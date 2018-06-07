@@ -69,7 +69,9 @@ INSTALLED_APPS = [
     'utils',
     'error_handler',
     'account',
-    'article'
+    'article',
+    'microsite_account',
+    'microsite_article'
 ]
 
 MIDDLEWARE = [

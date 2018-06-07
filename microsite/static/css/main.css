@@ -1,9 +1,100 @@
+ul, ol {
+    list-style: none;
+}
+
+img {
+    width: 100%;
+    height: auto;
+}
+
+p {
+    font-size: 15px;
+    color: #333;
+}
+
+.mui-bar ~ .mui-content .mui-fullscreen {
+    top: 44px;
+    height: auto;
+}
+
+.mui-pull-top-tips {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    margin-left: -25px;
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+}
+
+.mui-bar ~ .mui-pull-top-tips {
+    top: 24px;
+}
+
+.mui-pull-top-wrapper {
+    width: 42px;
+    height: 42px;
+    display: block;
+    text-align: center;
+    background-color: #efeff4;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    background-clip: padding-box;
+    box-shadow: 0 4px 10px #bbb;
+    overflow: hidden;
+}
+
+.mui-pull-top-tips.mui-transitioning {
+    -webkit-transition-duration: 200ms;
+    transition-duration: 200ms;
+}
+
+.mui-pull-top-tips .mui-pull-loading {
+    margin: 0;
+}
+
+.mui-pull-top-wrapper .mui-icon,
+.mui-pull-top-wrapper .mui-spinner {
+    margin-top: 7px;
+}
+
+.mui-pull-bottom-tips {
+    text-align: center;
+    background-color: #efeff4;
+    font-size: 15px;
+    line-height: 40px;
+    color: #777;
+}
+
+.mui-pull-top-canvas {
+    overflow: hidden;
+    background-color: #fafafa;
+    border-radius: 40px;
+    box-shadow: 0 4px 10px #bbb;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+}
+
+.mui-pull-top-canvas canvas {
+    width: 40px;
+}
+
+.mui-slider-indicator.mui-segmented-control {
+    background-color: #fff;
+}
+
 .mui-off-canvas-left, .mui-off-canvas-right {
     width: 60%;
 }
 
+.mui-slider .mui-segmented-control.mui-segmented-control-inverted~.mui-slider-group .mui-slider-item {
+    border-top: 0;
+    border-bottom: 0;
+}
+
 .background-white {
-    background: #fff;
+    background-color: #fff;
 }
 
 .aside-menu {
@@ -34,8 +125,8 @@
 }
 
 .article-list {
+    margin: 0;
     padding: 0;
-    list-style: none;
 }
 
 .article-list li {
@@ -53,22 +144,39 @@
 
 .article-list li .title {
     font-size: 18px;
-    color: #2f2f2f;
+    color: #000;
 }
 
 .article-list li .abstract {
     margin-top: 10px;
-    font-size: 15px;
 }
 
 .article-list li .meta {
     position: relative;
     margin-top: 10px;
     font-size: 14px;
-    color: #8f8f94;
+    color: rgba(0, 0, 0, 0.6);
 }
 
 .article-list li .meta span + span:before {
     padding: 0 8px;
     content: "/\00a0";
+}
+
+.avatar {
+    display: block;
+    width: 42px;
+    height: 42px;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.text-time {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
 }

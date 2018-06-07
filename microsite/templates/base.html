@@ -13,6 +13,7 @@
     {% block title %} {% endblock %}
     <link rel="stylesheet" href="/static/mui/css/mui.min.css">
     <link rel="stylesheet" href="/static/mui/css/icons-extra.css">
+    <link rel="stylesheet" href="/static/iconfont/iconfont.css">
     <link rel="stylesheet" href="/static/css/main.css">
     <script src="/static/jquery-2.1.4/jquery.min.js"></script>
     <script src="/static/mui/js/mui.min.js"></script>
@@ -23,16 +24,7 @@
 <body>
 {% block content %}
 {% endblock %}
-<script>
-    mui('body').on('tap', 'a', function() {
-        var _a_obj = $(this);
-        var _url = _a_obj.attr('href');
-        _url = _url ? _url : '#';
-        if (_url != '#' && _url && _url.indexOf('javascript') < 0) {
-            document.location.href = _url;
-        }
-    });
-</script>
+
 {% block extra_js %}
 {% endblock %}
 </body>
