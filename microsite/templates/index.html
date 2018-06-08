@@ -210,8 +210,6 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="/static/mui/js/mui.lazyload.js"></script>
-	<script src="/static/mui/js/mui.lazyload.img.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
     <script>
@@ -247,9 +245,6 @@
                             success: function (json) {
                                 if (json.hasOwnProperty('results') && json.results.length > 0) {
                                    articles_ul.appendChild(create_article(json));
-                                    mui(document).imageLazyload({
-				                        placeholder: '/static/images/default_article_background.jpg'
-			                        });
                                 }
                                 page++;
                                 page_index.value = page;
@@ -297,7 +292,7 @@
                 li.dataset.article_id = article_id;
                 var str = '<div class="content">';
                 if (cover_photo) {
-                    str += '<img class="cover-photo" data-lazyload="' + cover_photo +
+                    str += '<img class="cover-photo" src="' + cover_photo +
                             '" alt="' + title + '">';
                 }
                 str += '<p class="title">' + title + '</p>' +
@@ -331,9 +326,6 @@
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
                         ul.appendChild(create_article(json));
-                        mui(document).imageLazyload({
-				            placeholder: '/static/images/default_article_background.jpg'
-			            });
                         self.endPullUpToRefresh(!json.next);
                         if (json.next) {
                             page++;
@@ -369,9 +361,6 @@
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
                         ul.appendChild(create_article(json));
-                        mui(document).imageLazyload({
-				            placeholder: '/static/images/default_article_background.jpg'
-			            });
                         self.endPullDownToRefresh(!json.next);
                         self.refresh(true);
                         self.endPullUpToRefresh(!json.next);
