@@ -5,7 +5,7 @@
 {% endblock %}
 {% block content %}
     <header class="mui-bar mui-bar-nav">
-        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+        <a class="mui-icon mui-icon-left-nav mui-pull-left" href="javascript:history.go(-1)"></a>
         <h1 class="mui-title"></h1>
     </header>
     <div class="mui-content">
@@ -27,12 +27,12 @@
                     {{ article_details.content_html }}
                 {% endautoescape %}
             </div>
-
+            <!--
             <p class="separate-title">评论 <span class="article-praise-times">{{ article_details.comment_times }}</span></p>
             <hr class="separate-line">
             <div class="comments-container">
                 <ul class="comments-list">
-                    <!--
+
                     <li class="comment">
                         <a class="avatar" target="_blank" href="javascript:void(0)">
                             <img src="http://www.loveiters.com/media/avatar/20180402531030866076.jpg" alt="旺仔">
@@ -51,9 +51,9 @@
                             <p class="comment-content">好的亚</p>
                         </div>
                     </li>
-                    -->
                 </ul>
             </div>
+            -->
         </div>
     </div>
 {% endblock %}

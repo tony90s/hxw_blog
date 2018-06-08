@@ -37,6 +37,10 @@ from restful_api.article.permissions import (
 )
 from utils.rest_framework.pagination import SmallResultsSetPagination
 from utils.rest_framework import generics as extra_generics
+from utils.rest_framework.authentication import (
+    OAuth2AuthenticationAllowInactiveUser,
+    SessionAuthenticationAllowInactiveUser
+)
 
 reg_number = re.compile('^\d+$')
 logger = logging.getLogger('api.article')
@@ -44,6 +48,7 @@ logger = logging.getLogger('api.article')
 
 class CreateArticleView(generics.CreateAPIView):
     serializer_class = SaveArticleSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser,)
 
     def perform_create(self, serializer):
@@ -66,6 +71,7 @@ class CreateArticleView(generics.CreateAPIView):
 
 class UpdateDestroyArticleView(extra_generics.UpdateDestroyAPIView):
     serializer_class = SaveArticleSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly,)
 
     def get_object(self):
@@ -244,6 +250,7 @@ class PraiseList(generics.ListAPIView):
 
 class SaveCommentView(generics.CreateAPIView):
     serializer_class = SaveCommentSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated,)
 
     def perform_create(self, serializer):
@@ -262,6 +269,7 @@ class SaveCommentView(generics.CreateAPIView):
 
 
 class DeleteCommentView(generics.DestroyAPIView):
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated, IsCommentatorOrReadOnly,)
 
     def get_object(self):
@@ -296,6 +304,7 @@ class DeleteCommentView(generics.DestroyAPIView):
 
 class SaveCommentReplyView(generics.CreateAPIView):
     serializer_class = SaveCommentReplySerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated,)
 
     def perform_create(self, serializer):
@@ -315,6 +324,7 @@ class SaveCommentReplyView(generics.CreateAPIView):
 
 
 class DeleteCommentReplyView(generics.DestroyAPIView):
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated, IsReplierOrReadOnly,)
 
     def get_object(self):
@@ -344,6 +354,7 @@ class DeleteCommentReplyView(generics.DestroyAPIView):
 
 class SavePraiseView(generics.CreateAPIView):
     serializer_class = SavePraiseSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated,)
 
     def perform_create(self, serializer):
@@ -363,6 +374,7 @@ class SavePraiseView(generics.CreateAPIView):
 
 
 class CancelPraiseView(generics.DestroyAPIView):
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated, IsPraiseOwnerOrReadOnly,)
 
     def get_object(self):
@@ -415,6 +427,7 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
 
 
 class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser, IsAuthorOrReadOnly,)
 
     def get_object(self):

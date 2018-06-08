@@ -227,10 +227,44 @@
                 deceleration: deceleration
             });
             $.ready(function () {
+                document.querySelector('.mui-slider').addEventListener('slide', function (event) {
+                    var acticeSliderItem = document.querySelectorAll('.mui-slider .mui-slider-group .mui-slider-item')[event.detail.slideNumber];
+                    var activeScroll = acticeSliderItem.querySelector('.mui-scroll');
+                    var articles_ul = acticeSliderItem.querySelector('.article-list');
+                    if (articles_ul.querySelectorAll('li').length == 0) {
+                        var page_index = activeScroll.querySelector('input[name="page_index"]');
+                        var article_type = activeScroll.querySelector('input[name="article_type"]');
+                        page_index.value = 1;
+                        var page = 1;
+                        $.ajax({
+                            type: 'GET',
+                            url: "{{ main_site }}" + "/api/v1/article/articles",
+                            data: {
+                                'page': page,
+                                'article_type': article_type.value,
+                                'is_released': 1
+                            },
+                            dataType: 'json',
+                            success: function (json) {
+                                if (json.hasOwnProperty('results') && json.results.length > 0) {
+                                    create_article(articles_ul, json);
+                                }
+                                page++;
+                                page_index.value = page;
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                var response_json = XMLHttpRequest.responseJSON;
+                                console.log(response_json.msg);
+                                return false
+                            }
+                        });
+                    }
+                });
                 //循环初始化所有下拉刷新，上拉加载。
                 $.each(document.querySelectorAll('.mui-slider-group .mui-scroll'), function (index, pullRefreshEl) {
                     $(pullRefreshEl).pullToRefresh({
                         down: {
+                            auto: index == 0,
                             callback: pullDownRefresh
                         },
                         up: {
@@ -242,6 +276,9 @@
         })(mui);
 
         function create_article(ul, json) {
+            if (!(ul instanceof jQuery)) {
+                ul = $(ul);
+            }
             $.each(json.results, function (index, array) {
                 var article_id = array['article_id'];
                 var title = array['title'];
@@ -295,6 +332,9 @@
                     } else {
                         self.endPullUpToRefresh(true);
                     }
+                },
+                error: function () {
+                    self.endPullUpToRefresh(true);
                 }
             });
         }
@@ -331,6 +371,11 @@
                         self.refresh(true);
                         self.endPullUpToRefresh(true);
                     }
+                },
+                error: function () {
+                    self.endPullDownToRefresh(true);
+                    self.refresh(true);
+                    self.endPullUpToRefresh(true);
                 }
             });
         }
