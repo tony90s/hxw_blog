@@ -210,6 +210,8 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/mui/js/mui.lazyload.js"></script>
+	<script src="/static/mui/js/mui.lazyload.img.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
     <script>
@@ -233,7 +235,7 @@
                         var article_type = activeScroll.querySelector('input[name="article_type"]');
                         page_index.value = 1;
                         var page = 1;
-                        $.ajax({
+                        mui.ajax({
                             type: 'GET',
                             url: "{{ main_site }}" + "/api/v1/article/articles",
                             data: {
@@ -244,7 +246,10 @@
                             dataType: 'json',
                             success: function (json) {
                                 if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                    create_article(articles_ul, json);
+                                   articles_ul.appendChild(create_article(json));
+                                    mui(document).imageLazyload({
+				                        placeholder: '/static/images/default_article_background.jpg'
+			                        });
                                 }
                                 page++;
                                 page_index.value = page;
@@ -275,11 +280,10 @@
             });
         })(mui);
 
-        function create_article(ul, json) {
-            if (!(ul instanceof jQuery)) {
-                ul = $(ul);
-            }
-            $.each(json.results, function (index, array) {
+        function create_article(json) {
+            var fragment = document.createDocumentFragment();
+			var li;
+            mui.each(json.results, function (index, array) {
                 var article_id = array['article_id'];
                 var title = array['title'];
                 var type = array['type'];
@@ -288,10 +292,12 @@
                 var release_time = array['release_time'];
                 var release_time_desc = getDateDiff(release_time);
                 var author = array['author'];
-                var str = '<li class="article" data-article_id="' + article_id + '">' +
-                        '<div class="content">';
+                li = document.createElement('li');
+				li.className = 'article';
+                li.dataset.article_id = article_id;
+                var str = '<div class="content">';
                 if (cover_photo) {
-                    str += '<img class="cover-photo" src="' + cover_photo +
+                    str += '<img class="cover-photo" data-lazyload="' + cover_photo +
                             '" alt="' + title + '">';
                 }
                 str += '<p class="title">' + title + '</p>' +
@@ -300,34 +306,38 @@
                         '<span class="time">' + release_time_desc + '</span>' +
                         '<span class="nickname">by ' + author['username'] + '</span>' +
                         '</div>' +
-                        '</div>' +
-                        '</li>';
-                ul.append(str);
+                        '</div>';
+                li.innerHTML = str;
+                fragment.appendChild(li);
             });
+            return fragment;
         }
         function pullUpRefresh() {
             var self = this;
-            var scroll_div = $(this.element);
-            var ul = scroll_div.find('.article-list');
-            var page_index = scroll_div.find('input[name="page_index"]');
-            var article_type = scroll_div.find('input[name="article_type"]');
-            var page = page_index.val();
-            $.ajax({
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.article-list');
+            var page_index = scroll_div.querySelector('input[name="page_index"]');
+            var article_type = scroll_div.querySelector('input[name="article_type"]');
+            var page = page_index.value;
+            mui.ajax({
                 type: 'GET',
                 url: "{{ main_site }}" + "/api/v1/article/articles",
                 data: {
                     'page': page,
-                    'article_type': article_type.val(),
+                    'article_type': article_type.value,
                     'is_released': 1
                 },
                 dataType: 'json',
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
-                        create_article(ul, json);
+                        ul.appendChild(create_article(json));
+                        mui(document).imageLazyload({
+				            placeholder: '/static/images/default_article_background.jpg'
+			            });
                         self.endPullUpToRefresh(!json.next);
                         if (json.next) {
                             page++;
-                            page_index.val(page)
+                            page_index.value = page
                         }
                     } else {
                         self.endPullUpToRefresh(true);
@@ -340,31 +350,34 @@
         }
         function pullDownRefresh() {
             var self = this;
-            var scroll_div = $(this.element);
-            var ul = scroll_div.find('.article-list');
-            scroll_div.find('.article-list li').remove();
-            var page_index = scroll_div.find('input[name="page_index"]');
-            var article_type = scroll_div.find('input[name="article_type"]');
-            page_index.val('1');
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.article-list');
+            ul.innerHTML = '';
+            var page_index = scroll_div.querySelector('input[name="page_index"]');
+            var article_type = scroll_div.querySelector('input[name="article_type"]');
+            page_index.value = 1;
             var page = 1;
-            $.ajax({
+            mui.ajax({
                 type: 'GET',
                 url: "{{ main_site }}" + "/api/v1/article/articles",
                 data: {
                     'page': page,
-                    'article_type': article_type.val(),
+                    'article_type': article_type.value,
                     'is_released': 1
                 },
                 dataType: 'json',
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
-                        create_article(ul, json);
+                        ul.appendChild(create_article(json));
+                        mui(document).imageLazyload({
+				            placeholder: '/static/images/default_article_background.jpg'
+			            });
                         self.endPullDownToRefresh(!json.next);
                         self.refresh(true);
                         self.endPullUpToRefresh(!json.next);
                         if (json.next) {
                             page++;
-                            page_index.val(page);
+                            page_index.value = page;
                         }
                     } else {
                         self.endPullDownToRefresh(true);
