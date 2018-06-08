@@ -233,7 +233,7 @@
                         var article_type = activeScroll.querySelector('input[name="article_type"]');
                         page_index.value = 1;
                         var page = 1;
-                        mui.ajax({
+                        $.ajax({
                             type: 'GET',
                             url: "{{ main_site }}" + "/api/v1/article/articles",
                             data: {
@@ -244,7 +244,7 @@
                             dataType: 'json',
                             success: function (json) {
                                 if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                   articles_ul.appendChild(create_article(json));
+                                    articles_ul.appendChild(create_article(json));
                                 }
                                 page++;
                                 page_index.value = page;
@@ -263,7 +263,7 @@
                 $.each(document.querySelectorAll('.mui-slider-group .mui-scroll'), function (index, pullRefreshEl) {
                     $(pullRefreshEl).pullToRefresh({
                         down: {
-                            height: 30*dpr,
+                            height: 30 * dpr,
                             callback: pullDownRefresh
                         },
                         up: {
@@ -277,7 +277,7 @@
 
         function create_article(json) {
             var fragment = document.createDocumentFragment();
-			var li;
+            var li;
             mui.each(json.results, function (index, array) {
                 var article_id = array['article_id'];
                 var title = array['title'];
@@ -288,7 +288,7 @@
                 var release_time_desc = getDateDiff(release_time);
                 var author = array['author'];
                 li = document.createElement('li');
-				li.className = 'article';
+                li.className = 'article';
                 li.dataset.article_id = article_id;
                 var str = '<div class="content">';
                 if (cover_photo) {
@@ -314,31 +314,33 @@
             var page_index = scroll_div.querySelector('input[name="page_index"]');
             var article_type = scroll_div.querySelector('input[name="article_type"]');
             var page = page_index.value;
-            mui.ajax({
-                type: 'GET',
-                url: "{{ main_site }}" + "/api/v1/article/articles",
-                data: {
-                    'page': page,
-                    'article_type': article_type.value,
-                    'is_released': 1
-                },
-                dataType: 'json',
-                success: function (json) {
-                    if (json.hasOwnProperty('results') && json.results.length > 0) {
-                        ul.appendChild(create_article(json));
-                        self.endPullUpToRefresh(!json.next);
-                        if (json.next) {
-                            page++;
-                            page_index.value = page
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ main_site }}" + "/api/v1/article/articles",
+                    data: {
+                        'page': page,
+                        'article_type': article_type.value,
+                        'is_released': 1
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_article(json));
+                            self.endPullUpToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                page_index.value = page
+                            }
+                        } else {
+                            self.endPullUpToRefresh(true);
                         }
-                    } else {
+                    },
+                    error: function () {
                         self.endPullUpToRefresh(true);
                     }
-                },
-                error: function () {
-                    self.endPullUpToRefresh(true);
-                }
-            });
+                });
+            }, 1000);
         }
         function pullDownRefresh() {
             var self = this;
@@ -349,37 +351,39 @@
             var article_type = scroll_div.querySelector('input[name="article_type"]');
             page_index.value = 1;
             var page = 1;
-            mui.ajax({
-                type: 'GET',
-                url: "{{ main_site }}" + "/api/v1/article/articles",
-                data: {
-                    'page': page,
-                    'article_type': article_type.value,
-                    'is_released': 1
-                },
-                dataType: 'json',
-                success: function (json) {
-                    if (json.hasOwnProperty('results') && json.results.length > 0) {
-                        ul.appendChild(create_article(json));
-                        self.endPullDownToRefresh(!json.next);
-                        self.refresh(true);
-                        self.endPullUpToRefresh(!json.next);
-                        if (json.next) {
-                            page++;
-                            page_index.value = page;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ main_site }}" + "/api/v1/article/articles",
+                    data: {
+                        'page': page,
+                        'article_type': article_type.value,
+                        'is_released': 1
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_article(json));
+                            self.endPullDownToRefresh(!json.next);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                page_index.value = page;
+                            }
+                        } else {
+                            self.endPullDownToRefresh(true);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(true);
                         }
-                    } else {
+                    },
+                    error: function () {
                         self.endPullDownToRefresh(true);
                         self.refresh(true);
                         self.endPullUpToRefresh(true);
                     }
-                },
-                error: function () {
-                    self.endPullDownToRefresh(true);
-                    self.refresh(true);
-                    self.endPullUpToRefresh(true);
-                }
-            });
+                });
+            }, 1000);
         }
     </script>
 {% endblock %}

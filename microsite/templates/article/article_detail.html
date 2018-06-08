@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ article_details.title }}</title>{% endblock %}
 {% block extra_header %}
-<link rel="stylesheet" href="/static/css/article/article_detail.css">
+    <link rel="stylesheet" href="/static/css/article/article_detail.css">
 {% endblock %}
 {% block content %}
     <header class="mui-bar mui-bar-nav">
@@ -27,40 +27,83 @@
                     {{ article_details.content_html }}
                 {% endautoescape %}
             </div>
-            <!--
-            <p class="separate-title">评论 <span class="article-praise-times">{{ article_details.comment_times }}</span></p>
-            <hr class="separate-line">
-            <div class="comments-container">
-                <ul class="comments-list">
+        </div>
+        <div class="comments-container">
+            <p class="separate-title">最新评论</p>
+            <ul class="comments-list">
 
-                    <li class="comment">
-                        <a class="avatar" target="_blank" href="javascript:void(0)">
-                            <img src="http://www.loveiters.com/media/avatar/20180402531030866076.jpg" alt="旺仔">
-                        </a>
-                        <div class="info">
-                            <div class="user">
-                                <div class="user-info">
-                                    <span class="nickname">旺仔</span>
-                                    <span class="text-time">05-27 18:28</span>
-                                </div>
-                                <div class="praise">
-                                    <span class="comment-praise-times">0</span>
-                                    <i class="iconfont icon-communityiconpraise4"></i>
-                                </div>
-                            </div>
-                            <p class="comment-content">好的亚</p>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            -->
+            </ul>
+            <span class="no-more-text">还没有评论，快来抢沙发吧</span>
+            <a class="check-more-link" href="javascript:void(0)">查看更多评论</a>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-
-
-</script>
+    <script>
+        mui.ready(function () {
+            $.ajax({
+                type: 'GET',
+                url: "{{ main_site }}" + "/api/v1/article/comments",
+                data: {
+                    'page': 1,
+                    'article_id': {{ article_details.article_id }}
+                },
+                dataType: 'json',
+                success: function (json) {
+                    if (json.hasOwnProperty('results') && json.results.length > 0) {
+                        var fragment = document.createDocumentFragment();
+                        var li;
+                        $.each(json.results, function (index, array) {
+                            var comment_id = array['comment_id'];
+                            var avatar = array['commentator']['avatar'];
+                            var username = array['commentator']['username'];
+                            var user_id = array['commentator']['user_id'];
+                            var comment_at = array['comment_at'];
+                            var comment_at_desc = getDateDiff(comment_at);
+                            var content = array['content'];
+                            var praise_times = array['praise_times'];
+                            li = document.createElement('li');
+                            li.className = 'comment';
+                            li.dataset.comment_id = comment_id;
+                            var comment_html_str = '<a class="avatar" href="javascript:void(0)">' +
+                                    '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
+                                    '<div class="info">' +
+                                    '<div class="user">' +
+                                    '<div class="user-info">' +
+                                    '<span class="nickname">' + username + '</span>' +
+                                    '<span class="text-time">' + comment_at_desc + '</span>' +
+                                    '</div>' +
+                                    '<div class="praise">' +
+                                    '<i class="iconfont icon-communityiconpraise4"></i>' +
+                                    '<span class="comment-praise-times">' + praise_times + '</span>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<p class="comment-content">' + content + '</p>' +
+                                    '</div>';
+                            li.innerHTML = comment_html_str;
+                            fragment.appendChild(li);
+                        });
+                        var ul = document.querySelector('.comments-list');
+                        ul.appendChild(fragment);
+                        if (json.results.length > 0) {
+                            $('.check-more-link').css('display', 'block')
+                        }
+                        else {
+                            $('.no-more-text').css('display', 'block')
+                        }
+                    }
+                    else {
+                        $('.no-more-text').css('display', 'block')
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    console.log(response_json.msg);
+                    $('.no-more-text').css('display', 'block');
+                    return false
+                }
+            })
+        })
+    </script>
 {% endblock %}

@@ -8,7 +8,7 @@ img {
 }
 
 p {
-    font-size: 15px;
+    font-size: 16px;
     color: #333;
 }
 
@@ -132,7 +132,7 @@ p {
 
 .article-list li {
     position: relative;
-    padding: 10px;
+    padding: 15px;
     margin-bottom: 12px;
     background: #fff;
 }
@@ -180,4 +180,17 @@ p {
 .text-time {
     font-size: 14px;
     color: rgba(0, 0, 0, 0.6);
+}
+
+.no-more-text {
+    display: none;
+    font-size: 14px;
+    color: #777;
+    text-align: center;
+}
+
+.check-more-link {
+    display: none;
+    font-size: 14px;
+    text-align: center;
 }

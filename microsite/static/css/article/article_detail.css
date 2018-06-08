@@ -1,19 +1,11 @@
-html, body {
-    background-color: #F5FFFA;
-}
-
-.mui-content {
-    background-color: #F5FFFA;
-}
-
 .article {
-    padding: 0 10px;
+    background-color: #fff;
+    padding: 15px;
 }
 
 .article .title {
     color: #000;
     font-size: 28px;
-    margin-top: 48px;
     font-weight: bold;
     line-height: 1.5;
 }
@@ -51,7 +43,7 @@ html, body {
 }
 
 .article .author {
-    margin-top: 5px;
+    margin-top: 10px;
     font-size: 14px;
     color: #333;
 }
@@ -76,23 +68,26 @@ html, body {
 }
 
 .comments-container {
+    background-color: #fff;
     width: 100%;
+    padding: 15px;
+    margin-top: 10px;
 }
 
 .comments-list {
     padding: 0;
+    margin: 24px 0;
 }
 
 .comments-list .comment {
     position: relative;
-    padding: 10px;
     margin-bottom: 12px;
 }
 
 .comments-list .comment .avatar {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 0;
+    left: 0;
 }
 
 .comments-list .comment .info {
@@ -105,6 +100,7 @@ html, body {
 }
 
 .comments-list .comment .info .user .user-info span {
+    font-size: 14px;
     display: block;
 }
 
@@ -115,6 +111,10 @@ html, body {
     top: 0;
     font-size: 14px;
     color: rgba(0, 0, 0, 0.6);
+}
+
+.comments-list .comment .info .user .praise .comment-praise-times {
+    margin-left: 2px;
 }
 
 .comments-list .comment .info .comment-content{
