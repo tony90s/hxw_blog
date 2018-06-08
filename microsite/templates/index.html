@@ -219,12 +219,9 @@
         });
         mui.init();
         (function ($) {
-            //阻尼系数
-            var deceleration = mui.os.ios ? 0.003 : 0.0009;
             $('.mui-scroll-wrapper').scroll({
                 bounce: false,
-                indicators: true, //是否显示滚动条
-                deceleration: deceleration
+                indicators: true
             });
             $.ready(function () {
                 document.querySelector('.mui-slider').addEventListener('slide', function (event) {
@@ -260,10 +257,13 @@
                         });
                     }
                 });
+
+                var dpr = lib.flexible.dpr || 1;
                 //循环初始化所有下拉刷新，上拉加载。
                 $.each(document.querySelectorAll('.mui-slider-group .mui-scroll'), function (index, pullRefreshEl) {
                     $(pullRefreshEl).pullToRefresh({
                         down: {
+                            height: 30*dpr,
                             callback: pullDownRefresh
                         },
                         up: {
