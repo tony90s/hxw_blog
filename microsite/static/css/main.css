@@ -16,6 +16,14 @@ code, kbd, pre, samp {
     font-size: 16px;
 }
 
+pre{
+    white-space:pre-wrap;
+    white-space:-moz-pre-wrap;
+    white-space:-webkit-pre-wrap;
+    white-space:-o-pre-wrap;
+    word-wrap:break-word;
+}
+
 .mui-bar ~ .mui-content .mui-fullscreen {
     top: 44px;
     height: auto;

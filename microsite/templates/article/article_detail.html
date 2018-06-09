@@ -183,17 +183,12 @@
         mui.init({
             pullRefresh: {
                 container: '#pull_refresh',
-                scrollX: true,
                 down: {
                     height: 30 * dpr,
                     auto: true,    //可选,默认false.自动下拉刷新一次
-                    contentdown: "下拉刷新",    //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
-                    contentover: "释放立即刷新",    //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
-                    contentrefresh: "正在刷新...",   //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
                     callback: pulldownRefresh
                 },
                 up: {
-                    contentrefresh: "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
                     contentnomore: '没有更多评论了',
                     callback: pullupRefresh
                 }

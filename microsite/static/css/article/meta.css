@@ -1,3 +1,8 @@
+.mui-plus-pullrefresh .mui-scroll {
+    position: static;
+    width: auto;
+}
+
 .article {
     background-color: #fff;
     padding: 15px;
