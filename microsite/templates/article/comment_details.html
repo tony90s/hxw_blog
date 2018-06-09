@@ -152,13 +152,6 @@
             })
         }
 
-        (function ($) {
-            $('.mui-scroll-wrapper').scroll({
-                bounce: false,
-                indicators: true
-            });
-        })(mui);
-
         var dpr = lib.flexible.dpr || 1;
         mui.init({
             pullRefresh: {
@@ -167,7 +160,7 @@
                     height: 30 * dpr,
                     auto: true,    //可选,默认false.自动下拉刷新一次
                     contentdown: "下拉刷新",    //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
-                    contentover: "松开刷新",    //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+                    contentover: "释放立即刷新",    //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
                     contentrefresh: "正在刷新...",   //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
                     callback: pulldownRefresh
                 },
