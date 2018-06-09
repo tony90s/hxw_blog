@@ -10,13 +10,13 @@
     line-height: 1.5;
 }
 
-.article .separate-line {
+.separate-line {
     width: 15%;
     border: 2px solid #000;
     margin: 8px 0;
 }
 
-.article .separate-line-15 {
+.separate-line-15 {
     margin-top: 15px;
 }
 
@@ -62,50 +62,49 @@
     display: block;
 }
 
-.article .separate-title {
-    margin-top: 32px;
+.separate-title {
+    margin-top: 5px;
     color: #333;
 }
 
-.comments-container {
+.comments-container, .replies-container {
     background-color: #fff;
     width: 100%;
     padding: 15px;
     margin-top: 10px;
 }
 
-.comments-list {
+ul.comments-list, ul.comment-replies-list {
     padding: 0;
     margin: 24px 0;
 }
 
-.comments-list .comment {
+.comment, .comment-reply {
     position: relative;
     margin-bottom: 12px;
 }
 
-.comments-list .comment .avatar {
+.comment .avatar, .comment-reply .avatar {
     position: absolute;
     top: 0;
     left: 0;
 }
 
-.comments-list .comment .info {
+.comment .info, .comment-reply .info {
     margin-left: 52px;
     border-bottom: 1px solid #f0f0f0;;
 }
 
-.comments-list .comment .info .user {
+.comment .info .user, .comment-reply .info .user {
     position: relative;
 }
 
-.comments-list .comment .info .user .user-info span {
+.comment .info .user .user-info span, .comment-reply .info .user .user-info span {
     font-size: 14px;
     display: block;
 }
 
-
-.comments-list .comment .info .user .praise {
+.comment .info .user .praise, .comment-reply .info .user .praise {
     position: absolute;
     right: 0;
     top: 0;
@@ -113,10 +112,21 @@
     color: rgba(0, 0, 0, 0.6);
 }
 
-.comments-list .comment .info .user .praise .comment-praise-times {
+.comment .info .user .praise .comment-praise-times, .comment-reply .info .user .praise .comment-praise-times {
     margin-left: 2px;
 }
 
-.comments-list .comment .info .comment-content{
+.comment .info .content, .comment-reply .info .content {
     margin-top: 10px;
+}
+
+.comment .info .replies-list {
+    background-color: #efeff4;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.comment .info .replies-list p {
+    font-size: 14px;
 }

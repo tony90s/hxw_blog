@@ -1,109 +1,218 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ article_details.title }}</title>{% endblock %}
 {% block extra_header %}
-    <link rel="stylesheet" href="/static/css/article/article_detail.css">
+    <link rel="stylesheet" href="/static/css/article/meta.css">
 {% endblock %}
 {% block content %}
     <header class="mui-bar mui-bar-nav">
         <a class="mui-icon mui-icon-left-nav mui-pull-left" href="javascript:history.go(-1)"></a>
         <h1 class="mui-title"></h1>
     </header>
-    <div class="mui-content">
-        <div class="article">
-            <h1 class="title">{{ article_details.title }}</h1>
+    <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
+        <div class="mui-scroll">
+            <div class="article" data-article_id="{{ article_details.article_id }}">
+                <h1 class="title">{{ article_details.title }}</h1>
 
-            <div class="author">
-                <a class="avatar" target="_blank" href="javascript:void(0)">
-                    <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
-                </a>
-                <div class="info">
-                    <span class="name">{{ article_details.author.username }}</span>
-                    <span class="text-time">{{ article_details.release_time }} </span>
+                <div class="author">
+                    <a class="avatar" target="_blank" href="javascript:void(0)">
+                        <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
+                    </a>
+                    <div class="info">
+                        <span class="name">{{ article_details.author.username }}</span>
+                        <span class="text-time">{{ article_details.release_time }} </span>
+                    </div>
+                </div>
+
+                <div class="article-content">
+                    {% autoescape off %}
+                        {{ article_details.content_html }}
+                    {% endautoescape %}
                 </div>
             </div>
+            <div class="comments-container">
+                <p class="separate-title">最新评论</p>
+                <ul class="comments-list">
 
-            <div class="article-content">
-                {% autoescape off %}
-                    {{ article_details.content_html }}
-                {% endautoescape %}
+                </ul>
             </div>
-        </div>
-        <div class="comments-container">
-            <p class="separate-title">最新评论</p>
-            <ul class="comments-list">
-
-            </ul>
-            <span class="no-more-text">还没有评论，快来抢沙发吧</span>
-            <a class="check-more-link" href="javascript:void(0)">查看更多评论</a>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
     <script>
-        mui.ready(function () {
-            $.ajax({
-                type: 'GET',
-                url: "{{ main_site }}" + "/api/v1/article/comments",
-                data: {
-                    'page': 1,
-                    'article_id': {{ article_details.article_id }}
-                },
-                dataType: 'json',
-                success: function (json) {
-                    if (json.hasOwnProperty('results') && json.results.length > 0) {
-                        var fragment = document.createDocumentFragment();
-                        var li;
-                        $.each(json.results, function (index, array) {
-                            var comment_id = array['comment_id'];
-                            var avatar = array['commentator']['avatar'];
-                            var username = array['commentator']['username'];
-                            var user_id = array['commentator']['user_id'];
-                            var comment_at = array['comment_at'];
-                            var comment_at_desc = getDateDiff(comment_at);
-                            var content = array['content'];
-                            var praise_times = array['praise_times'];
-                            li = document.createElement('li');
-                            li.className = 'comment';
-                            li.dataset.comment_id = comment_id;
-                            var comment_html_str = '<a class="avatar" href="javascript:void(0)">' +
-                                    '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
-                                    '<div class="info">' +
-                                    '<div class="user">' +
-                                    '<div class="user-info">' +
-                                    '<span class="nickname">' + username + '</span>' +
-                                    '<span class="text-time">' + comment_at_desc + '</span>' +
-                                    '</div>' +
-                                    '<div class="praise">' +
-                                    '<i class="iconfont icon-communityiconpraise4"></i>' +
-                                    '<span class="comment-praise-times">' + praise_times + '</span>' +
-                                    '</div>' +
-                                    '</div>' +
-                                    '<p class="comment-content">' + content + '</p>' +
-                                    '</div>';
-                            li.innerHTML = comment_html_str;
-                            fragment.appendChild(li);
-                        });
-                        var ul = document.querySelector('.comments-list');
-                        ul.appendChild(fragment);
-                        if (json.results.length > 0) {
-                            $('.check-more-link').css('display', 'block')
+        var page = 1;
+        var article_id = {{ article_details.article_id }};
+        function create_article_comments(json) {
+            var fragment = document.createDocumentFragment();
+            var li;
+            $.each(json.results, function (index, array) {
+                var comment_id = array['comment_id'];
+                var avatar = array['commentator']['avatar'];
+                var username = array['commentator']['username'];
+                var user_id = array['commentator']['user_id'];
+                var comment_at = array['comment_at'];
+                var comment_at_desc = getDateDiff(comment_at);
+                var content = array['content'];
+                var praise_times = array['praise_times'];
+                var replies_count = array['replies_count'].toString();
+                var comment_replies = array['comment_replies'].slice(0, 2);
+                li = document.createElement('li');
+                li.className = 'comment';
+                li.dataset.comment_id = comment_id;
+                var comment_html_str = '<a class="avatar" href="javascript:void(0)">' +
+                        '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
+                        '<div class="info">' +
+                        '<div class="user">' +
+                        '<div class="user-info">' +
+                        '<span class="nickname">' + username + '</span>' +
+                        '<span class="text-time">' + comment_at_desc + '</span>' +
+                        '</div>' +
+                        '<div class="praise">' +
+                        '<i class="iconfont icon-communityiconpraise4"></i>' +
+                        '<span class="comment-praise-times">' + praise_times + '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<p class="content">' + content + '</p>';
+                if (comment_replies.length > 0) {
+                    comment_html_str += '<div class="replies-list">';
+                    $.each(comment_replies, function (index, reply) {
+                        var comment_reply_id = reply['comment_reply_id'].toString();
+                        var comment_id = reply['comment_id'].toString();
+                        var replier_user_id = reply['replier']['user_id'].toString();
+                        var replier_username = reply['replier']['username'];
+                        var receiver_user_id = reply['receiver']['user_id'].toString();
+                        var receiver_username = reply['receiver']['username'];
+                        var reply_content = reply['content'];
+                        var reply_html = '<p>' +
+                                '<a href="javascript:void(0)">' + replier_username + '</a>';
+                        if (receiver_user_id != user_id) {
+                            reply_html += '&nbsp;回复' +
+                                    '<a href="javascript:void(0)">@' + receiver_username + '</a>';
+                        }
+                        reply_html += ':&nbsp;' + reply_content +
+                                '</p>';
+                        comment_html_str += reply_html;
+                    });
+                    if (replies_count >= 3) {
+                        comment_html_str += '<a class="replies-count" href="javascript:void(0)">共' + replies_count +
+                                '条回复</a>';
+                    }
+                    comment_html_str += '</div>';
+                }
+                comment_html_str += '</div>';
+                li.innerHTML = comment_html_str;
+                fragment.appendChild(li);
+            });
+            return fragment
+        }
+
+        function pulldownRefresh() {
+            var self = this;
+            $('.comments-list li').remove();
+            page = 1;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ main_site }}" + "/api/v1/article/comments",
+                    data: {
+                        'page': page,
+                        'article_id': {{ article_details.article_id }}
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            var ul = document.querySelector('.comments-list');
+                            ul.appendChild(create_article_comments(json));
+                            self.endPulldownToRefresh(!json.next);
+                            self.refresh(true);
+                            self.endPullupToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                            }
                         }
                         else {
-                            $('.no-more-text').css('display', 'block')
+                            self.endPulldownToRefresh(true);
+                            self.refresh(true);
+                            self.endPullupToRefresh(true);
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        self.endPulldownToRefresh(true);
+                        self.refresh(true);
+                        self.endPullupToRefresh(true);
+                        return false
                     }
-                    else {
-                        $('.no-more-text').css('display', 'block')
+                });
+            }, 200);
+        }
+
+        function pullupRefresh() {
+            var self = this;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ main_site }}" + "/api/v1/article/comments",
+                    data: {
+                        'page': page,
+                        'article_id': {{ article_details.article_id }}
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            var ul = document.querySelector('.comments-list');
+                            ul.appendChild(create_article_comments(json));
+                            self.endPullupToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                            }
+                        }
+                        else {
+                            self.endPullupToRefresh(true);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        self.endPullupToRefresh(true);
+                        return false
                     }
+                });
+            }, 100);
+        }
+
+        (function ($) {
+            $('.mui-scroll-wrapper').scroll({
+                bounce: false,
+                indicators: true
+            });
+        })(mui);
+
+        var dpr = lib.flexible.dpr || 1;
+        mui.init({
+            pullRefresh: {
+                container: '#pull_refresh',
+                down: {
+                    height: 30 * dpr,
+                    auto: true,    //可选,默认false.自动下拉刷新一次
+                    contentdown: "下拉刷新",    //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+                    contentover: "松开刷新",    //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+                    contentrefresh: "正在刷新...",   //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+                    callback: pulldownRefresh
                 },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    var response_json = XMLHttpRequest.responseJSON;
-                    console.log(response_json.msg);
-                    $('.no-more-text').css('display', 'block');
-                    return false
+                up: {
+                    //height : 50,//可选.默认50.触发上拉加载拖动距离
+                    //auto : true,//可选,默认false.自动上拉加载一次
+                    contentrefresh: "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+                    contentnomore: '没有更多评论了',
+                    callback: pullupRefresh
                 }
-            })
+            }
+        });
+        mui.ready(function () {
+            mui('.comments-list').on('tap', '.replies-count', function () {
+                var parent = $(this).parent('div').parent('div').parent('li.comment');
+                var comment_id = parent[0].dataset.comment_id;
+                document.location.href = '/article/comment/details/' + comment_id;
+            });
         })
     </script>
 {% endblock %}

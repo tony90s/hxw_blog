@@ -191,6 +191,11 @@ class Comment(models.Model):
         return praises.count()
 
     @property
+    def replies_count(self):
+        comment_replies = CommentReply.objects.using('read').filter(Q(comment_id=self.id))
+        return comment_replies.count()
+
+    @property
     def unified_reply_at(self):
         return timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -254,6 +259,16 @@ class Comment(models.Model):
         context['content'] = self.content
         context['is_viewed'] = int(self.is_viewed)
 
+        return context
+
+    def get_comment_summary(self):
+        context = dict()
+        context['comment_id'] = self.id
+        context['commentator'] = self.get_commentator_info()
+        context['comment_at'] = timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")
+        context['content'] = self.content
+        context['praise_times'] = self.praise_times
+        context['replies_count'] = self.replies_count
         return context
 
 

@@ -14,6 +14,7 @@ from article.models import Article, Comment, CommentReply, Praise, get_user_be_p
 from restful_api.article.serializers import (
     ArticleSerializer,
     CommentSerializer,
+    CommentReplySerializer,
     PraiseSerializer,
     SaveArticleSerializer,
     SaveCommentSerializer,
@@ -26,8 +27,8 @@ from restful_api.article.forms import (
     CancelPraiseForm,
     UpdateIsViewedStatusForm,
     CheckArticleIdForm,
-    DeleteCommentReplyForm,
-    DeleteCommentForm
+    CheckCommentReplyIdForm,
+    CheckCommentIdForm
 )
 from restful_api.article.permissions import (
     IsAuthorOrReadOnly,
@@ -210,6 +211,49 @@ class CommentList(generics.ListAPIView):
         return response
 
 
+class CommentReplyList(generics.ListAPIView):
+    """
+    List all replies of a comment
+    """
+
+    pagination_class = SmallResultsSetPagination
+    serializer_class = CommentReplySerializer
+
+    def get_queryset(self):
+        form = CheckCommentIdForm(self.request.query_params)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        comment_id = form.cleaned_data.get('comment_id')
+        comments = Comment.objects.using('read').filter(id=comment_id)
+        if not comments.exists():
+            raise Http404
+
+        comment_replies = CommentReply.objects.using('read').filter(Q(comment_id=comment_id)).order_by('-id')
+        return comment_replies
+
+    def clean_cache(self):
+        Comment._Comment__user_cache = dict()
+        Comment._Comment__article_info_cache = dict()
+        CommentReply._CommentReply__user_cache = dict()
+        CommentReply._CommentReply__article_info_cache = dict()
+        Praise._Praise__user_cache = dict()
+        Praise._Praise__article_info_cache = dict()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response = Response(serializer.data)
+        self.clean_cache()
+        return response
+
+
 class PraiseList(generics.ListAPIView):
     """
     List all user be_praises.
@@ -273,7 +317,7 @@ class DeleteCommentView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, IsCommentatorOrReadOnly,)
 
     def get_object(self):
-        form = DeleteCommentForm(self.request.data)
+        form = CheckCommentIdForm(self.request.data)
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
 
@@ -328,7 +372,7 @@ class DeleteCommentReplyView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, IsReplierOrReadOnly,)
 
     def get_object(self):
-        form = DeleteCommentReplyForm(self.request.data)
+        form = CheckCommentReplyIdForm(self.request.data)
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
 

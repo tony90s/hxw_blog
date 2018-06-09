@@ -25,4 +25,20 @@ def article_details(request, article_id):
     context = {
         'article_details': article.render_json()
     }
+    Article._Article__user_cache = dict()
+    return render(request, template_name, context)
+
+
+def comment_details(request, comment_id):
+    template_name = 'article/comment_details.html'
+
+    comments = Comment.objects.using('read').filter(id=comment_id)
+    if not comments.exists():
+        raise Http404
+    comment = comments[0]
+
+    context = {
+        'comment': comment.get_comment_summary()
+    }
+    Comment._Comment__user_cache = dict()
     return render(request, template_name, context)

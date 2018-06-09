@@ -49,9 +49,9 @@ class CheckArticleIdForm(forms.Form):
     article_id = forms.IntegerField(required=True)
 
 
-class DeleteCommentReplyForm(forms.Form):
+class CheckCommentReplyIdForm(forms.Form):
     comment_reply_id = forms.IntegerField(required=True)
 
 
-class DeleteCommentForm(forms.Form):
+class CheckCommentIdForm(forms.Form):
     comment_id = forms.IntegerField(required=True)

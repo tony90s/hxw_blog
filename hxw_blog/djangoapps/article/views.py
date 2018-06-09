@@ -83,6 +83,7 @@ def article_details(request, article_id):
     context = {
         'article_details': article.render_json()
     }
+    Article._Article__user_cache = dict()
     return render(request, template_name, context)
 
 

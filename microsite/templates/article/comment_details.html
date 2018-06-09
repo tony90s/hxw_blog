@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ comment.replies_count }}条回复</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/article/meta.css">
+{% endblock %}
+{% block content %}
+    <header class="mui-bar mui-bar-nav">
+        <a class="mui-icon mui-icon-left-nav mui-pull-left" href="javascript:history.go(-1)"></a>
+        <h1 class="mui-title">{{ comment.replies_count }}条回复</h1>
+    </header>
+    <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
+        <div class="mui-scroll">
+            <div class="comments-container">
+                <div class="comment" data-comment_id="{{ comment.comment_id }}">
+                    <a class="avatar" href="javascript:void(0)">
+                        <img src="{{ comment.commentator.avatar }}" alt="{{ comment.commentator.username }}">
+                    </a>
+                    <div class="info" style="border: 0">
+                        <div class="user">
+                            <div class="user-info">
+                                <span class="nickname">{{ comment.commentator.username }}</span>
+                                <span class="text-time" data-time="{{ comment.comment_at }}"></span>
+                            </div>
+                            <div class="praise">
+                                <i class="iconfont icon-communityiconpraise4"></i>
+                                <span class="comment-praise-times">{{ comment.praise_times }}</span>
+                            </div>
+                        </div>
+                        <p class="content">{{ comment.content }}</p>
+                    </div>
+                </div>
+                <input type="hidden" id="comment_id" value="{{ comment.comment_id }}">
+                <input type="hidden" id="commentator_id" value="{{ comment.commentator.user_id }}">
+            </div>
+            <div class="replies-container">
+                <p class="separate-title">最新回复</p>
+                <ul class="comment-replies-list">
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        var page = 1;
+        var commentator_id = $("#commentator_id").val();
+        var comment_id = $("#comment_id").val();
+        function create_comment_replies(json) {
+            var fragment = document.createDocumentFragment();
+            var li;
+            $.each(json.results, function (index, array) {
+                var comment_reply_id = array['comment_reply_id'];
+                var replier = array['replier'];
+                var receiver = array['receiver'];
+                var reply_at = array['reply_at'];
+                var reply_at_desc = getDateDiff(reply_at);
+                var content = array['content'];
+                var praise_times = array['praise_times'];
+                li = document.createElement('li');
+                li.className = 'comment-reply';
+                li.dataset.comment_reply_id = comment_reply_id;
+                var comment_reply_html = '<a class="avatar" href="javascript:void(0)">' +
+                        '<img src="' + replier['avatar'] + '" alt="' + replier['username'] + '">' + '</a>' +
+                        '<div class="info">' +
+                        '<div class="user">' +
+                        '<div class="user-info">' +
+                        '<span class="nickname">' + replier['username'] + '</span>' +
+                        '<span class="text-time">' + reply_at_desc + '</span>' +
+                        '</div>' +
+                        '<div class="praise">' +
+                        '<i class="iconfont icon-communityiconpraise4"></i>' +
+                        '<span class="comment-praise-times">' + praise_times + '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<p class="content">';
+                if (receiver['user_id'] != commentator_id) {
+                    comment_reply_html += '回复' +
+                            '<a href="javascript:void(0)">@' + receiver['username'] + '</a>:&nbsp;'
+                }
+                comment_reply_html += content + '</p></div>';
+                li.innerHTML = comment_reply_html;
+                fragment.appendChild(li);
+            });
+            return fragment
+        }
+
+        function pulldownRefresh() {
+            var self = this;
+            $('.comment-replies-list li').remove();
+            page = 1;
+            $.ajax({
+                type: 'GET',
+                url: "{{ main_site }}" + "/api/v1/article/comment/replies",
+                data: {
+                    'page': page,
+                    'comment_id': comment_id
+                },
+                dataType: 'json',
+                success: function (json) {
+                    if (json.hasOwnProperty('results') && json.results.length > 0) {
+                        var ul = document.querySelector('.comment-replies-list');
+                        ul.appendChild(create_comment_replies(json));
+                        self.endPulldownToRefresh(!json.next);
+                        self.refresh(true);
+                        self.endPullupToRefresh(!json.next);
+                        if (json.next) {
+                            page++;
+                        }
+                    }
+                    else {
+                        self.endPulldownToRefresh(true);
+                        self.refresh(true);
+                        self.endPullupToRefresh(true);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    self.endPulldownToRefresh(true);
+                    self.refresh(true);
+                    self.endPullupToRefresh(true);
+                    return false
+                }
+            })
+        }
+
+        function pullupRefresh() {
+            var self = this;
+            $.ajax({
+                type: 'GET',
+                url: "{{ main_site }}" + "/api/v1/article/comment/replies",
+                data: {
+                    'page': page,
+                    'comment_id': comment_id
+                },
+                dataType: 'json',
+                success: function (json) {
+                    if (json.hasOwnProperty('results') && json.results.length > 0) {
+                        var ul = document.querySelector('.comment-replies-list');
+                        ul.appendChild(create_comment_replies(json));
+                        self.endPullupToRefresh(!json.next);
+                        if (json.next) {
+                            page++;
+                        }
+                    }
+                    else {
+                        self.endPullupToRefresh(true);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    self.endPullupToRefresh(true);
+                }
+            })
+        }
+
+        (function ($) {
+            $('.mui-scroll-wrapper').scroll({
+                bounce: false,
+                indicators: true
+            });
+        })(mui);
+
+        var dpr = lib.flexible.dpr || 1;
+        mui.init({
+            pullRefresh: {
+                container: '#pull_refresh',
+                down: {
+                    height: 30 * dpr,
+                    auto: true,    //可选,默认false.自动下拉刷新一次
+                    contentdown: "下拉刷新",    //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+                    contentover: "松开刷新",    //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+                    contentrefresh: "正在刷新...",   //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+                    callback: pulldownRefresh
+                },
+                up: {
+                    //height : 50,//可选.默认50.触发上拉加载拖动距离
+                    //auto : true,//可选,默认false.自动上拉加载一次
+                    contentrefresh: "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+                    contentnomore: '没有更多回复了',
+                    callback: pullupRefresh
+                }
+            }
+        });
+        mui.ready(function () {
+            var comment_at = $('.comment .text-time')[0];
+            var time_desc = getDateDiff(comment_at.dataset.time);
+            comment_at.innerHTML = time_desc;
+        })
+
+    </script>
+{% endblock %}

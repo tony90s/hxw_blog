@@ -193,13 +193,13 @@
     </div>
 
     <nav class="mui-bar mui-bar-tab">
-        <a class="mui-tab-item mui-active" href="{% url 'index' %}">
+        <a class="mui-tab-item mui-active" id="reload_index" href="javascript:void(0);">
             <span class="mui-icon mui-icon-home"></span>
         </a>
         <a class="mui-tab-item" href="#">
-                    <span class="mui-icon-extra mui-icon-extra-notice">
-                        <!--<span class="mui-badge">9</span>-->
-                    </span>
+            <span class="mui-icon-extra mui-icon-extra-notice">
+                <!--<span class="mui-badge">9</span>-->
+            </span>
         </a>
         <a class="mui-tab-item" href="#">
             <span class="mui-icon-extra mui-icon-extra-people"></span>
@@ -217,6 +217,11 @@
             var article_id = this.dataset.article_id;
             document.location.href = '/article/details/' + article_id;
         });
+
+        mui('body').on('tap', '#reload_index', function () {
+            location.reload()
+        });
+
         mui.init();
         (function ($) {
             $('.mui-scroll-wrapper').scroll({
@@ -340,7 +345,7 @@
                         self.endPullUpToRefresh(true);
                     }
                 });
-            }, 1000);
+            }, 100);
         }
         function pullDownRefresh() {
             var self = this;
@@ -383,7 +388,7 @@
                         self.endPullUpToRefresh(true);
                     }
                 });
-            }, 1000);
+            }, 200);
         }
     </script>
 {% endblock %}
