@@ -41,6 +41,7 @@
 
 {% block extra_js %}
     <script>
+        var articleCommentsApiUrl = "{% url 'api:comments' %}";
         var page = 1;
         var article_id = {{ article_details.article_id }};
         function create_article_comments(json) {
@@ -114,7 +115,7 @@
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
-                    url: "{{ main_site }}" + "/api/v1/article/comments",
+                    url: articleCommentsApiUrl,
                     data: {
                         'page': page,
                         'article_id': {{ article_details.article_id }}
@@ -152,7 +153,7 @@
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
-                    url: "{{ main_site }}" + "/api/v1/article/comments",
+                    url: articleCommentsApiUrl,
                     data: {
                         'page': page,
                         'article_id': {{ article_details.article_id }}

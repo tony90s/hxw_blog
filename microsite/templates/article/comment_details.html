@@ -43,6 +43,7 @@
 
 {% block extra_js %}
     <script>
+        var CommentRepliesApiUrl = "{% url 'api:comment_replies' %}"
         var page = 1;
         var commentator_id = $("#commentator_id").val();
         var comment_id = $("#comment_id").val();
@@ -91,7 +92,7 @@
             page = 1;
             $.ajax({
                 type: 'GET',
-                url: "{{ main_site }}" + "/api/v1/article/comment/replies",
+                url: CommentRepliesApiUrl,
                 data: {
                     'page': page,
                     'comment_id': comment_id
@@ -127,7 +128,7 @@
             var self = this;
             $.ajax({
                 type: 'GET',
-                url: "{{ main_site }}" + "/api/v1/article/comment/replies",
+                url: CommentRepliesApiUrl,
                 data: {
                     'page': page,
                     'comment_id': comment_id

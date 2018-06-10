@@ -16,12 +16,53 @@ code, kbd, pre, samp {
     font-size: 16px;
 }
 
-pre{
-    white-space:pre-wrap;
-    white-space:-moz-pre-wrap;
-    white-space:-webkit-pre-wrap;
-    white-space:-o-pre-wrap;
-    word-wrap:break-word;
+pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -webkit-pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+form {
+    font-size: 16px;
+}
+
+.mui-input-group:first-child {
+    margin-top: 10px;
+}
+
+.mui-input-group label {
+    width: 22%;
+}
+
+.mui-input-row label ~ input,
+.mui-input-row label ~ select,
+.mui-input-row label ~ textarea {
+    width: 78%;
+}
+
+.mui-table-view:before {
+    left: 15px;
+}
+
+.mui-table-view:after {
+    left: 15px;
+}
+
+.mui-content-padded {
+    margin-top: 25px;
+}
+
+.mui-btn {
+    padding: 10px;
+}
+
+.mui-btn-block {
+    font-size: 16px;
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
 }
 
 .mui-bar ~ .mui-content .mui-fullscreen {
@@ -101,13 +142,28 @@ pre{
     width: 60%;
 }
 
-.mui-slider .mui-segmented-control.mui-segmented-control-inverted~.mui-slider-group .mui-slider-item {
+.mui-slider .mui-segmented-control.mui-segmented-control-inverted ~ .mui-slider-group .mui-slider-item {
     border-top: 0;
     border-bottom: 0;
 }
 
+.mui-toast-container {
+    bottom: 90% !important;
+}
+
+.mui-toast-message {
+    width: 250px;
+    padding: 15px 10px;
+}
+
 .background-white {
     background-color: #fff;
+}
+
+header .avatar {
+    margin: 6px 0;
+    width: 32px;
+    height: 32px;
 }
 
 .aside-menu {

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}<title>登录</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/account/meta.css">
+{% endblock %}
+{% block content %}
+    <header class="mui-bar mui-bar-nav">
+        <a class="mui-icon mui-icon-left-nav mui-pull-left" href="javascript:history.go(-1)"></a>
+        <h1 class="mui-title">登录</h1>
+    </header>
+    <div class="mui-content">
+        <form id='login_form' class="mui-input-group">
+            <div class="mui-input-row">
+                <label>账号</label>
+                <input id='account' name="account" type="text" class="mui-input-clear mui-input" placeholder="请输入账号">
+            </div>
+            <div class="mui-input-row">
+                <label>密码</label>
+                <input id='password' name="password" type="password" class="mui-input-clear mui-input"
+                       placeholder="请输入密码">
+            </div>
+
+            <ul class="mui-table-view">
+                <li class="mui-table-view-cell">
+                    <span>记住登录</span>
+                    <div id="remember_login" class="mui-switch mui-switch-blue mui-active">
+                        <div class="mui-switch-handle"></div>
+                    </div>
+                </li>
+            </ul>
+            <div class="mui-content-padded">
+                <button id='btn_login' type="button" class="mui-btn mui-btn-block mui-btn-primary"
+                        data-next="{{ next }}">登录
+                </button>
+                <div class="link-area">
+                    <a id='register' data-next="{{ next }}">注册账号</a>
+                    <span class="spliter">|</span>
+                    <a id='forgetPassword' href="javascript:void(0)">忘记密码</a>
+                </div>
+            </div>
+        </form>
+        <!--
+        <div class="mui-content-padded oauth-area">
+
+            <a class="oauth-btn weibo" href="javascript:void(0)" data-next="{{ next }}"
+               data-url="{% url 'account:social_weibo_login' %}">
+                <img class="weibo-logo" src="/static/images/socialization_logo/weibo.png">
+            </a>
+            <a class="oauth-btn qq" href="javascript:void(0)" data-next="{{ next }}"
+               data-url="{% url 'account:social_qq_login' %}">
+                <img class="qq-logo" src="/static/images/socialization_logo/qq.png">
+            </a>
+
+        </div>
+        -->
+    </div>
+
+{% endblock %}
+{% block extra_js %}
+    <script src="/static/mui/js/mui.enterfocus.js"></script>
+    <script>
+        var toast_option = {
+            duration: 1000
+        };
+
+        var login_url = '{% url 'account:login' %}';
+        var login_api_url = '{% url 'api:login' %}';
+        var register_url = '{% url 'account:register' %}';
+        var register_api_url = '{% url 'api:register' %}';
+
+        var login_form = document.getElementById('login_form');
+        var RememberLogin = true;
+        var RememberLoginButton = document.getElementById('remember_login');
+        RememberLoginButton.addEventListener('toggle', function (event) {
+            RememberLogin = event.detail.isActive;
+        }, false);
+
+        mui('.oauth-area').on('tap', '.oauth-btn', function () {
+            var api_url = this.dataset.url;
+            var redirect_url = this.dataset.next;
+            window.location.href = api_url + '?redirect_url=' + redirect_url;
+        });
+
+        mui('form').on('tap', '#register', function () {
+            var redirect_url = this.dataset.next;
+            window.location.href = register_url + '?next=' + redirect_url;
+        });
+
+        mui('form').on('tap', '#btn_login', function () {
+            var account = login_form.querySelector('input[name="account"]').value;
+            var password = login_form.querySelector('input[name="password"]').value;
+            var redirect_url = this.dataset.next;
+
+            var reg_email = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/;
+            var reg_password = /^[\.\w@_-]{6,30}$/;
+
+            if ((account == '') || (password == '')) {
+                mui.toast('请输入账户和密码', toast_option);
+                return false
+            }
+            else if (!reg_email.test(account)) {
+                mui.toast('账号格式有误，请重新输入', toast_option);
+                return false
+            }
+            else {
+                if (!reg_password.test(password)) {
+                    mui.toast('密码格式有误，请重新输入', toast_option);
+                    return false
+                }
+            }
+            $.ajax({
+                type: 'POST',
+                url: login_api_url,
+                data: {
+                    "account": account,
+                    "password": password,
+                    "redirect_url": redirect_url,
+                    "remember": RememberLogin
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.code == 200) {
+                        location.href = data.redirect_url;
+                    }
+                    else {
+                        mui.toast(data.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        });
+    </script>
+{% endblock %}

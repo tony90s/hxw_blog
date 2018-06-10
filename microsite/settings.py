@@ -66,10 +66,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'oauth2_provider',
+    'oauth',
     'utils',
     'error_handler',
     'account',
     'article',
+    'restful_api',
     'microsite_account',
     'microsite_article'
 ]
@@ -259,6 +263,16 @@ CACHES = {
 # CACHE_MIDDLEWARE_SECONDS = 60 * 5
 # CACHE_MIDDLEWARE_KEY_PREFIX = ""
 
+
+# Django rest framework
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'utils.rest_framework.pagination.StandardResultsSetPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+    'EXCEPTION_HANDLER': 'utils.exceptions.custom_exception_handler'
+}
 
 ################################## Social login ################################
 WEIBO_APP_KEY = AUTH_TOKENS['WEIBO']['APP_KEY']

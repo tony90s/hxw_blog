@@ -1,7 +1,10 @@
 from django.conf.urls import url
-from microsite_article.views import (
+from article.views import (
     article_details,
-    comment_details
+)
+
+from microsite_article.views import (
+    comment_details,
 )
 
 urlpatterns = [

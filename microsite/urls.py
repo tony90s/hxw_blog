@@ -23,7 +23,9 @@ from microsite_index.views import index_view
 
 urlpatterns = [
     url(r'^$', index_view, name='index'),
+    url(r'^account/', include('microsite_account.urls', namespace='account')),
     url(r'^article/', include('microsite_article.urls', namespace='article')),
+    url(r'^api/v1/', include('api.urls', namespace='api')),
 ]
 
 if settings.DEBUG:
