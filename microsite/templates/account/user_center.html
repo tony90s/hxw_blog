@@ -58,7 +58,7 @@
             var username_span = document.querySelector('span.username');
             var bio_span = document.querySelector('p.bio');
             var username = username_span.dataset.username;
-            var bio = bio_span.dataset.bio;
+            var bio = bio_span.dataset.bio || '哈哈，写个响亮slogan吧';
             username = username.length > 10 ? (username.slice(0, 10) + '...') : username;
             bio = bio.length > 16 ? (bio.slice(0, 16) + '...') : bio;
             username_span.innerHTML = username;
