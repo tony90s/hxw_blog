@@ -157,6 +157,26 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 class PraiseSerializer(serializers.ModelSerializer):
     praise_id = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
+
+    serializer_field_mapping = serializers.ModelSerializer.serializer_field_mapping
+    serializer_field_mapping.update({
+        models.DateTimeField: CustomDateTimeField
+    })
+
+    def get_praise_id(self, praise):
+        return praise.id
+
+    def get_user(self, praise):
+        return praise.get_user_info()
+
+    class Meta:
+        model = Praise
+        fields = ('praise_id', 'parent_id', 'praise_type', 'user', 'praise_at')
+
+
+class UserPraiseSerializer(serializers.ModelSerializer):
+    praise_id = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField()
     article_info = serializers.SerializerMethodField()

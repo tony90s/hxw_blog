@@ -11,11 +11,15 @@ from account.views import (
     alipay_login,
     alipay_login_done
 )
+from microsite_account.views import (
+    user_center,
+)
 
 urlpatterns = [
     url(r'^register$', RegisterView.as_view(), name='register'),
     url(r'^login$', LoginView.as_view(), name='login'),
     url(r'^logout$', logout_view, name='logout'),
+    url(r'^center$', user_center, name='user_center'),
 ]
 
 urlpatterns += [

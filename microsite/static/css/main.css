@@ -28,6 +28,18 @@ form {
     font-size: 16px;
 }
 
+.mui-bottom-bar {
+    bottom: 0;
+    -webkit-box-shadow: 0 1px 6px #ccc;
+    box-shadow: 0 1px 6px #ccc;
+}
+
+.mui-bottom-bar .write-comment {
+    padding: 10px 0 10px 5px;
+    font-size: 15px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
 .mui-input-group:first-child {
     margin-top: 10px;
 }
@@ -42,11 +54,11 @@ form {
     width: 78%;
 }
 
-.mui-table-view:before {
+form .mui-table-view:before {
     left: 15px;
 }
 
-.mui-table-view:after {
+form .mui-table-view:after {
     left: 15px;
 }
 
@@ -148,7 +160,7 @@ form {
 }
 
 .mui-toast-container {
-    bottom: 90% !important;
+    bottom: 50% !important;
 }
 
 .mui-toast-message {
@@ -261,4 +273,27 @@ header .avatar {
     display: none;
     font-size: 14px;
     text-align: center;
+}
+
+.comment-box {
+    position: relative;
+}
+
+.comment-box textarea {
+    display: block;
+    width: 100%;
+    height: 108px;
+    padding-right: 55px;
+    margin-bottom: 0;
+    font-size: 16px;
+    border: 0;
+    border-radius: 0;
+}
+
+.comment-box #send-text {
+    position: absolute;
+    bottom: 30px;
+    font-size: 46px;
+    width: 55px;
+    right: 0;
 }

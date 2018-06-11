@@ -5,7 +5,7 @@
         <h1 class="mui-title">
             {% if article_type.value != 0 %}{{ article_type.display_name }}{% else %}LOVEITERS{% endif %}
         </h1>
-        <a class="avatar mui-pull-right" href="javascript:void(0)" data-is_authenticated="{% if user.is_authenticated %}1{% else %}0{% endif %}">
+        <a class="avatar mui-pull-right" href="javascript:void (0)">
             <img src="{% if user.is_authenticated %}{{ user.profile.avatar.url }}{% else %}/media/avatar/default_avatar_1.jpg{% endif %}" alt="头像">
         </a>
     </header>
@@ -204,7 +204,7 @@
                 <!--<span class="mui-badge">9</span>-->
             </span>
         </a>
-        <a class="mui-tab-item" href="#">
+        <a class="mui-tab-item" id="go_to_user_center" href="javascript:void(0)">
             <span class="mui-icon-extra mui-icon-extra-people"></span>
         </a>
     </nav>
@@ -223,15 +223,16 @@
             document.location.href = '/article/details/' + article_id;
         });
 
+        mui('header').on('tap', '.avatar', function () {
+            location.href =  "{% url 'account:user_center' %}";
+        });
+
         mui('body').on('tap', '#reload_index', function () {
             location.reload()
         });
 
-        mui('header').on('tap', '.avatar', function () {
-            var is_authenticated = parseInt(this.dataset.is_authenticated);
-            if (!is_authenticated) {
-                document.location.href = "{% url 'account:login' %}";
-            }
+        mui('body').on('tap', '#go_to_user_center', function () {
+             document.location.href = "{% url 'account:user_center' %}";
         });
 
         mui.init();
@@ -357,7 +358,7 @@
                         self.endPullUpToRefresh(true);
                     }
                 });
-            }, 100);
+            }, 0);
         }
         function pullDownRefresh() {
             var self = this;

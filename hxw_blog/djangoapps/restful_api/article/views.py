@@ -16,6 +16,7 @@ from restful_api.article.serializers import (
     CommentSerializer,
     CommentReplySerializer,
     PraiseSerializer,
+    UserPraiseSerializer,
     SaveArticleSerializer,
     SaveCommentSerializer,
     SaveCommentReplySerializer,
@@ -24,7 +25,7 @@ from restful_api.article.serializers import (
 from restful_api.article.forms import (
     ArticleListForm,
     PraiseListForm,
-    CancelPraiseForm,
+    CommonPraiseForm,
     UpdateIsViewedStatusForm,
     CheckArticleIdForm,
     CheckCommentReplyIdForm,
@@ -256,11 +257,46 @@ class CommentReplyList(generics.ListAPIView):
 
 class PraiseList(generics.ListAPIView):
     """
-    List all user be_praises.
+    List all praises.
     """
 
     pagination_class = SmallResultsSetPagination
     serializer_class = PraiseSerializer
+
+    def get_queryset(self):
+        form = CommonPraiseForm(self.request.query_params)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        praise_type = form.cleaned_data.get('praise_type')
+        parent_id = form.cleaned_data.get('parent_id')
+        praises = Praise.objects.using('read').filter(praise_type=praise_type, parent_id=parent_id).order_by('-id')
+        return praises
+
+    def clean_cache(self):
+        Praise._Praise__user_cache = dict()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response = Response(serializer.data)
+        self.clean_cache()
+        return response
+
+
+class UserPraiseList(generics.ListAPIView):
+    """
+    List all user be_praises.
+    """
+
+    pagination_class = SmallResultsSetPagination
+    serializer_class = UserPraiseSerializer
 
     def get_queryset(self):
         form = PraiseListForm(self.request.query_params)
@@ -422,7 +458,7 @@ class CancelPraiseView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated, IsPraiseOwnerOrReadOnly,)
 
     def get_object(self):
-        form = CancelPraiseForm(self.request.data)
+        form = CommonPraiseForm(self.request.data)
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
 

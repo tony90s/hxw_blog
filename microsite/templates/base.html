@@ -27,7 +27,13 @@
 <body>
 {% block content %}
 {% endblock %}
-
+<script>
+    mui('header').on('tap', '.mui-action-back', function () {
+        if (mui.os.ios) {
+            history.go(-1)
+        }
+    });
+</script>
 {% block extra_js %}
 {% endblock %}
 </body>

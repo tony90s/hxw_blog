@@ -135,3 +135,52 @@ ul.comments-list, ul.comment-replies-list {
 .comment .info .replies-list p {
     font-size: 14px;
 }
+
+
+.praise-container {
+    width: 100%;
+    text-align: center;
+    background-color: #fff;
+    margin: 0;
+    padding: 20px 0;
+    font-size: 16px;
+}
+
+.praise-container .praise-link {
+    width: 40%;
+    height: 36px;
+    border: 1px solid #007aff;
+    border-radius: 25px;
+    padding: 4px 20px;
+    margin: 0 auto;
+    text-align: center;
+    color: #007aff;
+}
+
+.praise-container .praise-link span {
+    line-height: 28px;
+    vertical-align: middle;
+}
+
+.praise-container .praise-link i {
+    font-size: 22px;
+    line-height: 28px;
+    vertical-align: middle;
+}
+
+.praise-container .praise-users-box {
+    margin-top: 10px;
+}
+
+.praise-container .praise-users-box .praise-user {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    margin: 0 6px;
+}
+
+.praise-container .praise-users-box .praise-user img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}

@@ -19,7 +19,7 @@ class PraiseListForm(forms.Form):
     user_id = forms.IntegerField(required=True)
 
 
-class CancelPraiseForm(forms.Form):
+class CommonPraiseForm(forms.Form):
     praise_type = forms.IntegerField(required=True)
     parent_id = forms.IntegerField(required=True)
 

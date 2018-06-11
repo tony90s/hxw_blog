@@ -5,7 +5,7 @@
 {% endblock %}
 {% block content %}
     <header class="mui-bar mui-bar-nav">
-        <a class="mui-icon mui-icon-left-nav mui-pull-left" href="javascript:history.go(-1)"></a>
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
         <h1 class="mui-title"></h1>
     </header>
     <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
@@ -29,6 +29,14 @@
                     {% endautoescape %}
                 </div>
             </div>
+            <div class="praise-container">
+                <div class="praise-link" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">
+                    <i class="iconfont icon-communityiconpraise4"></i>
+                    <span class="praise-times-text">{{ article_details.praise_times }}</span>
+                </div>
+                <div class="praise-users-box">
+                </div>
+            </div>
             <div class="comments-container">
                 <p class="separate-title">最新评论</p>
                 <ul class="comments-list">
@@ -37,13 +45,46 @@
             </div>
         </div>
     </div>
+    <nav class="mui-bar mui-bottom-bar">
+        <div class="write-comment">
+            <span id="preview-text">添加评论···</span>
+        </div>
+    </nav>
+    <div id="comment-popover" class="mui-popover mui-popover-action mui-popover-bottom">
+        <div class="comment-box">
+            <textarea id="textarea" placeholder="添加评论···" onchange="this.value=this.value.substring(0, 140)"
+                onkeydown="this.value=this.value.substring(0, 140)"
+                onkeyup="this.value=this.value.substring(0, 140)"></textarea>
+            <a id="send-text" data-article_id="{{ article_details.article_id }}" class="mui-icon mui-icon-paperplane"></a>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
     <script>
+        var praiseType = {
+            'article': '1',
+            'comment': '2'
+        };
+        function redirect_to_login() {
+            var next = window.location.href;
+            var login_url = "{% url 'account:login' %}";
+            window.location.href = login_url + '?next=' + next;
+        }
+
+        var is_authenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        var login_user_id = {% if user.is_authenticated %}{{ user.id }}{% else %}0{% endif %};
+        var toast_option = {
+            duration: 1000
+        };
         var articleCommentsApiUrl = "{% url 'api:comments' %}";
         var page = 1;
         var article_id = {{ article_details.article_id }};
+        var textarea = document.getElementById('textarea');
+        var preview_text = document.getElementById('preview-text');
+        var send_text_link = document.getElementById('send-text');
+        var praise_users_box = $(".praise-users-box");
+
         function create_article_comments(json) {
             var fragment = document.createDocumentFragment();
             var li;
@@ -61,6 +102,8 @@
                 li = document.createElement('li');
                 li.className = 'comment';
                 li.dataset.comment_id = comment_id;
+                li.dataset.receiver_id = user_id;
+                li.dataset.receiver_username = username;
                 var comment_html_str = '<a class="avatar" href="javascript:void(0)">' +
                         '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
                         '<div class="info">' +
@@ -69,7 +112,7 @@
                         '<span class="nickname">' + username + '</span>' +
                         '<span class="text-time">' + comment_at_desc + '</span>' +
                         '</div>' +
-                        '<div class="praise">' +
+                        '<div class="praise" data-parent_id="' + comment_id + '" data-praise_type="' + praiseType['comment'] + '">' +
                         '<i class="iconfont icon-communityiconpraise4"></i>' +
                         '<span class="comment-praise-times">' + praise_times + '</span>' +
                         '</div>' +
@@ -91,7 +134,7 @@
                             reply_html += '&nbsp;回复' +
                                     '<a href="javascript:void(0)">@' + receiver_username + '</a>';
                         }
-                        reply_html += ':&nbsp;' + reply_content +
+                        reply_html += ':&nbsp;' + '<span class="reply-content">' + reply_content + '</span>' +
                                 '</p>';
                         comment_html_str += reply_html;
                     });
@@ -195,12 +238,278 @@
                 }
             }
         });
+        function cleanData() {
+            textarea.blur();
+            textarea.value = '';
+            textarea.setAttribute("placeholder", "添加评论···");
+            preview_text.innerHTML = '添加评论···';
+            delete send_text_link.dataset.comment_id;
+            delete send_text_link.dataset.receiver_id;
+        }
         mui.ready(function () {
-            mui('.comments-list').on('tap', '.replies-count', function () {
-                var parent = $(this).parent('div').parent('div').parent('li.comment');
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'api:praises' %}",
+                data: {
+                    'praise_type': parseInt(praiseType['article']),
+                    'parent_id': {{ article_details.article_id }}
+                },
+                dataType: 'JSON',
+                success: function (json) {
+                    if (json.hasOwnProperty('results') && json.results.length > 0) {
+                        var praise_users = json.results.splice(0, 4);
+                        $.each(praise_users, function (index, array) {
+                            var avatar = array['user']['avatar'];
+                            var username = array['user']['username'];
+                            var praise_user_html = '<a class="praise-user" href="javascript:void(0)">' +
+                                '<img class="avatar" src="' + avatar + '" alt="' + username + '">' + '</a>';
+                            praise_users_box.append(praise_user_html);
+                        });
+                        if (json.count > 4) {
+                            praise_users_box.append('<span>···</span>')
+                        }
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    console.log(response_json.msg);
+                }
+            });
+
+            mui('.comments-list').on('tap', '.replies-list', function () {
+                var parent = $(this).parents('li.comment');
                 var comment_id = parent[0].dataset.comment_id;
                 document.location.href = '/article/comment/details/' + comment_id;
             });
-        })
+
+            mui('body').on('tap', '.write-comment', function () {
+                mui('#comment-popover').popover('show');
+                textarea.focus()
+            });
+            mui('body').on('tap', '#send-text', function () {
+                var self = this;
+                if (!is_authenticated) {
+                    redirect_to_login();
+                    return false;
+                }
+                var content = textarea.value.replace(/(^\s*)|(\s*$)/g, "");
+                if (content == '') {
+                    mui.toast('请先编写评论', toast_option);
+                    return false
+                }
+                var article_id = this.dataset.article_id;
+                var comment_id = this.dataset.comment_id;
+                var receiver_id = this.dataset.receiver_id;
+                if (comment_id != undefined) {
+                    var url = "{% url 'api:save_comment_reply' %}";
+                    var post_data = {
+                        "comment_id": comment_id,
+                        "receiver_id": receiver_id,
+                        "content": content
+                    }
+                } else {
+                    var url = "{% url 'api:save_comment' %}";
+                    var post_data = {
+                        "article_id": article_id,
+                        "content": content
+                    }
+                }
+                cleanData();
+                mui('#comment-popover').popover('hide');
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: post_data,
+                    dataType: 'json',
+                    success: function (json) {
+                        mui.toast(json.msg, toast_option);
+                        if (json.code == 200) {
+                            if (comment_id == undefined) {
+                                /*
+                                 var comment_id = json.data.comment_id.toString();
+                                 var avatar = json.data.commentator.avatar;
+                                 var username = json.data.commentator.username;
+                                 var user_id = json.data.commentator.user_id.toString();
+                                 var comment_at = json.data.comment_at;
+                                 var comment_at_desc = getDateDiff(comment_at);
+                                 var content = json.data.content;
+                                 var praise_times = json.data.praise_times.toString();
+                                 var li = document.createElement('li');
+                                 li.className = 'comment';
+                                 li.dataset.comment_id = comment_id;
+                                 var comment_html_str = '<a class="avatar" href="javascript:void(0)">' +
+                                 '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
+                                 '<div class="info">' +
+                                 '<div class="user">' +
+                                 '<div class="user-info">' +
+                                 '<span class="nickname">' + username + '</span>' +
+                                 '<span class="text-time">' + comment_at_desc + '</span>' +
+                                 '</div>' +
+                                 '<div class="praise">' +
+                                 '<i class="iconfont icon-communityiconpraise4"></i>' +
+                                 '<span class="comment-praise-times">' + praise_times + '</span>' +
+                                 '</div>' +
+                                 '</div>' +
+                                 '<p class="content">' + content + '</p></div>';
+                                 li.innerHTML = comment_html_str;
+                                 var ul = document.querySelector('.comments-list');
+                                 ul.insertBefore(li, ul.childNodes[0]);
+                                 */
+                                mui('#pull_refresh').pullRefresh().pulldownLoading();
+                            }
+                            else {
+                                window.location.href = '/article/comment/details/' + comment_id;
+                            }
+                        }
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        mui.toast(response_json.msg, toast_option);
+                    }
+                });
+            });
+
+            mui('body').on('tap', '.user-info, .content', function () {
+                var parent_comment = $(this).parents('li.comment')[0];
+                var comment_id = parent_comment.dataset.comment_id;
+                var receiver_id = parent_comment.dataset.receiver_id;
+                var receiver_username = parent_comment.dataset.receiver_username;
+                send_text_link.dataset.comment_id = comment_id;
+                send_text_link.dataset.receiver_id = receiver_id;
+                mui('#comment-popover').popover('show');
+                textarea.setAttribute("placeholder", "回复 " + receiver_username);
+                textarea.focus()
+            });
+
+            mui('body').on('hidden', '#comment-popover', function (e) {
+                cleanData()
+            });
+        });
+
+        $('#textarea').change(function () {
+            var text = $('#textarea').val();
+            $("#preview-text").html(text.slice(0, 20) + '...')
+        });
+
+        function ajaxPostPraise(post_data, praise_times, like_icon, praise_times_span) {
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'api:save_praise' %}",
+                data: post_data,
+                dataType: "json",
+                success: function (json) {
+                    if (json.code == 200) {
+                        praise_times++;
+                        like_icon.removeClass('icon-communityiconpraise4');
+                        like_icon.addClass('icon-communityiconpraisesel');
+                        praise_times_span.innerHTML = praise_times;
+                        if (post_data['praise_type'] == praiseType['article']) {
+                            var avatar = '{{ user.profile.avatar.url }}';
+                            var username= '{{ user.username }}';
+                            var praise_user_html = '<a class="praise-user" href="javascript:void(0)">' +
+                                '<img class="avatar" src="' + avatar + '" alt="' + username + '">' + '</a>';
+                            praise_users_box.prepend(praise_user_html)
+                        }
+                    }
+                    else {
+                        mui.toast(json.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        }
+
+        function ajaxDeletePraise(post_data, praise_times, like_icon, praise_times_span) {
+            $.ajax({
+                url: "{% url 'api:cancel_praise' %}",
+                type: "DELETE",
+                data: post_data,
+                dataType: "json",
+                success: function (json) {
+                    if (json.code == 200) {
+                        praise_times--;
+                        like_icon.removeClass('icon-communityiconpraisesel');
+                        like_icon.addClass('icon-communityiconpraise4');
+                        praise_times_span.innerHTML = praise_times;
+                        if (post_data['praise_type'] == praiseType['article']) {
+                            praise_users_box.find('.praise-user:first').remove()
+                        }
+                    }
+                    else {
+                        mui.toast(json.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        }
+        mui('.comments-list').on('tap', '.praise', function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            var like_icon = $(this.querySelector('i'));
+            var parent_id = parseInt(this.dataset.parent_id);
+            var praise_type = parseInt(this.dataset.praise_type);
+            if (parent_id == undefined || praise_type == undefined) {
+                mui.toast('参数错误，请联系管理员', toast_option);
+                return false;
+            }
+            var praise_times_span = this.querySelector('.comment-praise-times');
+            var praise_times = praise_times_span.innerHTML;
+            if (like_icon.hasClass('icon-communityiconpraisesel')) {
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                ajaxDeletePraise(post_data, praise_times, like_icon, praise_times_span)
+            } else {
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                ajaxPostPraise(post_data, praise_times, like_icon, praise_times_span)
+            }
+        });
+
+        mui('.praise-container').on('tap', '.praise-link', function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            var like_icon = $(this.querySelector('i'));
+            var parent_id = parseInt(this.dataset.parent_id);
+            var praise_type = parseInt(this.dataset.praise_type);
+            if (parent_id == undefined || praise_type == undefined) {
+                mui.toast('参数错误，请联系管理员', toast_option);
+                return false;
+            }
+            var praise_times_span = this.querySelector('.praise-times-text');
+            var praise_times = praise_times_span.innerHTML;
+            if (like_icon.hasClass('icon-communityiconpraisesel')) {
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                ajaxDeletePraise(post_data, praise_times, like_icon, praise_times_span);
+            } else {
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                ajaxPostPraise(post_data, praise_times, like_icon, praise_times_span);
+            }
+        });
+
     </script>
 {% endblock %}

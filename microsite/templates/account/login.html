@@ -16,7 +16,7 @@
             </div>
             <div class="mui-input-row">
                 <label>密码</label>
-                <input id='password' name="password" type="password" class="mui-input-clear mui-input"
+                <input id='password' name="password" type="password" class="mui-input-password"
                        placeholder="请输入密码">
             </div>
 
@@ -39,20 +39,18 @@
                 </div>
             </div>
         </form>
-        <!--
         <div class="mui-content-padded oauth-area">
-
+            <!--
             <a class="oauth-btn weibo" href="javascript:void(0)" data-next="{{ next }}"
                data-url="{% url 'account:social_weibo_login' %}">
                 <img class="weibo-logo" src="/static/images/socialization_logo/weibo.png">
             </a>
+            -->
             <a class="oauth-btn qq" href="javascript:void(0)" data-next="{{ next }}"
                data-url="{% url 'account:social_qq_login' %}">
                 <img class="qq-logo" src="/static/images/socialization_logo/qq.png">
             </a>
-
         </div>
-        -->
     </div>
 
 {% endblock %}

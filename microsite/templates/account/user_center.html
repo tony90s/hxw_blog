@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}<title>用户设置</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/account/meta.css">
+{% endblock %}
+
+{% block content %}
+    <header class="mui-bar mui-bar-nav">
+        <a class="mui-icon mui-icon-home mui-pull-left" href="{% url 'index' %}"></a>
+        <h1 class="mui-title">用户设置</h1>
+    </header>
+
+    <div class="mui-content mui-scroll-wrapper">
+        <div class="mui-scroll">
+            <ul class="mui-table-view mui-table-view-chevron settings-group">
+                <li class="mui-table-view-cell mui-media">
+                    <a class="mui-navigate-right" href="#">
+                        <img class="mui-media-object mui-pull-left head-img" src="{{ user.profile.avatar.url }}">
+                        <div class="mui-media-body">
+                            <span class="username" data-username="{{ user.username }}"></span>
+                            <p class='bio' data-bio="{{ user.profile.bio }}"></p>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+            <ul class="mui-table-view mui-table-view-chevron settings-group">
+                <li class="mui-table-view-cell">
+                    <a href="#" class="mui-navigate-right">个人资料</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a href="#" class="mui-navigate-right">更新密码</a>
+                </li>
+            </ul>
+            <ul class="mui-table-view mui-table-view-chevron settings-group">
+                <li class="mui-table-view-cell">
+                    <a href="#" class="mui-navigate-right">关于{{ site_name }}</a>
+                </li>
+            </ul>
+            <ul class="mui-table-view settings-group">
+                <li class="mui-table-view-cell" style="text-align: center;">
+                    <a href="{% url 'account:logout' %}">退出登录</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        mui('body').on('tap','a',function(){
+            var reg_link = /[\/]+/;
+            if(reg_link.test(this.href)){
+                document.location.href=this.href;
+            }
+        });
+
+        mui.ready(function () {
+            var username_span = document.querySelector('span.username');
+            var bio_span = document.querySelector('p.bio');
+            var username = username_span.dataset.username;
+            var bio = bio_span.dataset.bio;
+            username = username.length > 10 ? (username.slice(0, 10) + '...') : username;
+            bio = bio.length > 16 ? (bio.slice(0, 16) + '...') : bio;
+            username_span.innerHTML = username;
+            bio_span.innerHTML = bio;
+        })
+    </script>
+{% endblock %}

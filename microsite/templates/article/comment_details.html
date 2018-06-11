@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}<title>{{ comment.replies_count }}条回复</title>{% endblock %}
+{% block title %}<title>评论详情</title>{% endblock %}
 {% block extra_header %}
     <link rel="stylesheet" href="/static/css/article/meta.css">
 {% endblock %}
 {% block content %}
     <header class="mui-bar mui-bar-nav">
-        <a class="mui-icon mui-icon-left-nav mui-pull-left" href="javascript:history.go(-1)"></a>
-        <h1 class="mui-title">{{ comment.replies_count }}条回复</h1>
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+        <h1 class="mui-title"><span id="comment_replies_count">{{ comment.replies_count }}</span>条回复</h1>
     </header>
     <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
         <div class="mui-scroll">
@@ -21,7 +21,7 @@
                                 <span class="nickname">{{ comment.commentator.username }}</span>
                                 <span class="text-time" data-time="{{ comment.comment_at }}"></span>
                             </div>
-                            <div class="praise">
+                            <div class="praise" data-praise_type="2" data-parent_id="{{ comment.comment_id }}">
                                 <i class="iconfont icon-communityiconpraise4"></i>
                                 <span class="comment-praise-times">{{ comment.praise_times }}</span>
                             </div>
@@ -39,14 +39,51 @@
             </div>
         </div>
     </div>
+    <nav class="mui-bar mui-bottom-bar">
+        <div class="write-comment">
+            <span id="preview-text">回复 {{ comment.commentator.username }}</span>
+        </div>
+    </nav>
+    <div id="comment-popover" class="mui-popover mui-popover-action mui-popover-bottom">
+        <div class="comment-box">
+            <textarea id="textarea" placeholder="回复 {{ comment.commentator.username }}"
+                      onchange="this.value=this.value.substring(0, 140)"
+                      onkeydown="this.value=this.value.substring(0, 140)"
+                      onkeyup="this.value=this.value.substring(0, 140)"></textarea>
+            <a id="send-text" data-comment_id="{{ comment.comment_id }}"
+               data-receiver_id="{{ comment.commentator.user_id }}" class="mui-icon mui-icon-paperplane"></a>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
     <script>
-        var CommentRepliesApiUrl = "{% url 'api:comment_replies' %}"
+        var praiseType = {
+            'article': '1',
+            'comment': '2',
+            'comment_reply': '3'
+        };
+        var toast_option = {
+            duration: 1000
+        };
+        function redirect_to_login() {
+            var next = window.location.href;
+            var login_url = "{% url 'account:login' %}";
+            window.location.href = login_url + '?next=' + next;
+        }
+
+        var is_authenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        var login_user_id = {% if user.is_authenticated %}{{ user.id }}{% else %}0{% endif %};
+
+        var CommentRepliesApiUrl = "{% url 'api:comment_replies' %}";
         var page = 1;
-        var commentator_id = $("#commentator_id").val();
-        var comment_id = $("#comment_id").val();
+        var commentator_id = "{{ comment.commentator.user_id }}";
+        var commentator_username = "{{ comment.commentator.username }}";
+        var comment_id = "{{ comment.comment_id }}";
+        var preview_text = document.getElementById('preview-text');
+        var send_text_link = document.getElementById('send-text');
+        var comment_replies_count_span = document.getElementById('comment_replies_count');
+
         function create_comment_replies(json) {
             var fragment = document.createDocumentFragment();
             var li;
@@ -61,6 +98,8 @@
                 li = document.createElement('li');
                 li.className = 'comment-reply';
                 li.dataset.comment_reply_id = comment_reply_id;
+                li.dataset.replier_id = replier['user_id'];
+                li.dataset.replier_username = replier['username'];
                 var comment_reply_html = '<a class="avatar" href="javascript:void(0)">' +
                         '<img src="' + replier['avatar'] + '" alt="' + replier['username'] + '">' + '</a>' +
                         '<div class="info">' +
@@ -69,7 +108,8 @@
                         '<span class="nickname">' + replier['username'] + '</span>' +
                         '<span class="text-time">' + reply_at_desc + '</span>' +
                         '</div>' +
-                        '<div class="praise">' +
+                        '<div class="praise" data-praise_type="' + praiseType['comment_reply'] + '" data-parent_id="' + comment_reply_id +
+                        '">' +
                         '<i class="iconfont icon-communityiconpraise4"></i>' +
                         '<span class="comment-praise-times">' + praise_times + '</span>' +
                         '</div>' +
@@ -100,6 +140,7 @@
                 dataType: 'json',
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
+                        comment_replies_count_span.innerHTML = json.count;
                         var ul = document.querySelector('.comment-replies-list');
                         ul.appendChild(create_comment_replies(json));
                         self.endPulldownToRefresh(!json.next);
@@ -174,11 +215,166 @@
                 }
             }
         });
+
+        function initData() {
+            textarea.blur();
+            textarea.value = '';
+            textarea.setAttribute("placeholder", "回复 {{ comment.commentator.username }}");
+            preview_text.innerHTML = '回复 {{ comment.commentator.username }}';
+            send_text_link.dataset.receiver_id = "{{ comment.commentator.user_id }}";
+        }
+
+        function ajaxPostPraise(post_data, praise_times, like_icon, praise_times_span) {
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'api:save_praise' %}",
+                data: post_data,
+                dataType: "json",
+                success: function (json) {
+                    if (json.code == 200) {
+                        praise_times++;
+                        like_icon.removeClass('icon-communityiconpraise4');
+                        like_icon.addClass('icon-communityiconpraisesel');
+                        praise_times_span.innerHTML = praise_times;
+                    }
+                    else {
+                        mui.toast(json.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        }
+
+        function ajaxDeletePraise(post_data, praise_times, like_icon, praise_times_span) {
+            $.ajax({
+                url: "{% url 'api:cancel_praise' %}",
+                type: "DELETE",
+                data: post_data,
+                dataType: "json",
+                success: function (json) {
+                    if (json.code == 200) {
+                        praise_times--;
+                        like_icon.removeClass('icon-communityiconpraisesel');
+                        like_icon.addClass('icon-communityiconpraise4');
+                        praise_times_span.innerHTML = praise_times;
+                    }
+                    else {
+                        mui.toast(json.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        }
+
         mui.ready(function () {
             var comment_at = $('.comment .text-time')[0];
             var time_desc = getDateDiff(comment_at.dataset.time);
             comment_at.innerHTML = time_desc;
-        })
+
+            mui('body').on('tap', '.write-comment', function () {
+                mui('#comment-popover').popover('show');
+                textarea.focus()
+            });
+
+            mui('body').on('tap', '.user-info, .content', function () {
+                var parent_comment = $(this).parents('li.comment-reply')[0];
+                var receiver_id = parent_comment.dataset.replier_id;
+                var receiver_username = parent_comment.dataset.replier_username;
+                send_text_link.dataset.receiver_id = receiver_id;
+                mui('#comment-popover').popover('show');
+                textarea.setAttribute("placeholder", "回复 " + receiver_username);
+                textarea.focus()
+            });
+
+            mui('body').on('tap', '#send-text', function () {
+                var self = this;
+                if (!is_authenticated) {
+                    redirect_to_login();
+                    return false;
+                }
+                var content = textarea.value.replace(/(^\s*)|(\s*$)/g, "");
+                if (content == '') {
+                    mui.toast('请先编写回复内容', toast_option);
+                    return false
+                }
+                var comment_id = this.dataset.comment_id;
+                var receiver_id = this.dataset.receiver_id;
+                var url = "{% url 'api:save_comment_reply' %}";
+                var post_data = {
+                    "comment_id": comment_id,
+                    "receiver_id": receiver_id,
+                    "content": content
+                };
+                initData();
+                mui('#comment-popover').popover('hide');
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: post_data,
+                    dataType: 'json',
+                    success: function (json) {
+                        mui.toast(json.msg, toast_option);
+                        if (json.code == 200) {
+                            mui('#pull_refresh').pullRefresh().pulldownLoading();
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        mui.toast(response_json.msg, toast_option);
+                    }
+                });
+            });
+
+            mui('body').on('hidden', '#comment-popover', function (e) {
+                initData()
+            });
+
+        });
+
+        $('#textarea').change(function () {
+            var text = $('#textarea').val();
+            $("#preview-text").html(text.slice(0, 20) + '...')
+        });
+
+        mui('body').on('tap', '.praise', function () {
+            if (!is_authenticated) {
+                redirect_to_login();
+                return false;
+            }
+            var like_icon = $(this.querySelector('i'));
+            var parent_id = parseInt(this.dataset.parent_id);
+            var praise_type = parseInt(this.dataset.praise_type);
+            if (parent_id == undefined || praise_type == undefined) {
+                mui.toast('参数错误，请联系管理员', toast_option);
+                return false;
+            }
+            var praise_times_span = this.querySelector('.comment-praise-times');
+            var praise_times = praise_times_span.innerHTML;
+            if (like_icon.hasClass('icon-communityiconpraisesel')) {
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                ajaxDeletePraise(post_data, praise_times, like_icon, praise_times_span)
+            } else {
+                var post_data = {
+                    "parent_id": parent_id,
+                    "praise_type": praise_type
+                };
+                ajaxPostPraise(post_data, praise_times, like_icon, praise_times_span)
+            }
+        });
+
 
     </script>
 {% endblock %}
