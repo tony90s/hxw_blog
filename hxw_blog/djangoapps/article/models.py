@@ -219,7 +219,7 @@ class Comment(models.Model):
         context['comment_at'] = timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")
         context['content'] = self.content
 
-        comment_replies = CommentReply.objects.using('read').filter(Q(comment_id=self.id)).order_by("-id")
+        comment_replies = CommentReply.objects.using('read').filter(Q(comment_id=self.id)).order_by("-id")[:2]
         comment_replies_data = list()
         for comment_reply in comment_replies:
             comment_replies_data.append(comment_reply.render_json())

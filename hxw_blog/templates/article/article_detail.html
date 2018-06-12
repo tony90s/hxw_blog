@@ -18,11 +18,13 @@
                 <div class="article">
                     <h1 class="title text-center">{{ article_details.title }}</h1>
                     <div class="author">
-                        <a class="avatar" target="_blank" href="{% url 'article:user_articles' article_details.author.user_id %}">
+                        <a class="avatar" target="_blank"
+                           href="{% url 'article:user_articles' article_details.author.user_id %}">
                             <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
                         </a>
                         <div class="info">
-                            <span class="name"><a target="_blank" href="{% url 'article:user_articles' article_details.author.user_id %}">{{ article_details.author.username }}</a></span>
+                            <span class="name"><a target="_blank"
+                                                  href="{% url 'article:user_articles' article_details.author.user_id %}">{{ article_details.author.username }}</a></span>
                             <div class="meta">
                                 <span class="release-time">{{ article_details.release_time }}</span>
                                 <span class="page-views">阅读 {{ article_details.page_views }}</span>
@@ -41,28 +43,38 @@
 
                     <div class="social">
                         <div class="praise_box">
-                            <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">赞<i class="iconfont icon-communityiconpraise4"></i><span class="praise_times">{{ article_details.praise_times }}</span></button>
+                            <button class="btn btn-default btn-lg" id="btn-praise-article" style="outline: none;"
+                                    data-parent_id="{{ article_details.article_id }}" data-praise_type="1">赞<i
+                                    class="iconfont icon-communityiconpraise4"></i><span
+                                    class="praise_times">{{ article_details.praise_times }}</span></button>
                         </div>
                         <div class="share-buttons">
-                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到微博" onclick="openShareWeibo();">
+                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank"
+                               data-original-title="分享到微博" onclick="openShareWeibo();">
                                 <i class="iconfont icon-weibo"></i>
                             </a>
-                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到QQ空间" onclick="openShareQQSpace();">
+                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank"
+                               data-original-title="分享到QQ空间" onclick="openShareQQSpace();">
                                 <i class="iconfont icon-qqkongjian"></i>
                             </a>
-                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank" data-original-title="分享到微信" onclick="showQrcode();">
+                            <a class="circle-link" data-toggle="tooltip" href="javascript:void(0)" target="_blank"
+                               data-original-title="分享到微信" onclick="showQrcode();">
                                 <i class="iconfont icon-wechat"></i>
                             </a>
                         </div>
                     </div>
                     {% if not user.is_authenticated %}
-                    <div class="comment-box">
-                        <div id="comment_form">
-                            <div class="guest_link">
-                                <span class="log_ico"><a href="javascript:void(0)" onclick="clickLogin(this)"><i class="fa fa-user-circle fa-3x"></i></a></span><span class="txt">目前您尚未登录，请 <a href="javascript:void(0)" onclick="clickLogin(this)">登录</a> 或 <a href="javascript:void(0)" onclick="clickRegister(this)">注册</a> 后进行评论</span>
+                        <div class="comment-box">
+                            <div id="comment_form">
+                                <div class="guest_link">
+                                    <span class="log_ico"><a href="javascript:void(0)" onclick="clickLogin(this)"><i
+                                            class="fa fa-user-circle fa-3x"></i></a></span><span
+                                        class="txt">目前您尚未登录，请 <a href="javascript:void(0)"
+                                                                 onclick="clickLogin(this)">登录</a> 或 <a
+                                        href="javascript:void(0)" onclick="clickRegister(this)">注册</a> 后进行评论</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     {% endif %}
 
                     <div class="commentAll" id="comments">
@@ -81,7 +93,7 @@
                         </div>
                         <!--回复区域 end-->
                         <div class="more-comment text-center">
-                            <input type="hidden" value="{{article_details.article_id }}" id="article_id">
+                            <input type="hidden" value="{{ article_details.article_id }}" id="article_id">
                             <ul class="pager">
                                 <li><a class="btn btn-info prev-page disabled" href="javascript:void(0)">上一页</a></li>
                                 <li><a class="btn btn-success next-page" href="javascript:void(0)">下一页</a></li>
@@ -140,7 +152,7 @@
         $(function () {
             // adjust article release time
             var release_time = $(".article .author .info .meta .release-time");
-            var format_release_time = release_time.html().substr(0,16);
+            var format_release_time = release_time.html().substr(0, 16);
             release_time.html(format_release_time);
             // textarea高度自适应
             $('.content').flexText();
@@ -151,8 +163,8 @@
     </script>
 
     <script language="JavaScript">
-		var article_title = document.title;
-		var article_link = location.href;
+        var article_title = document.title;
+        var article_link = location.href;
 
         function get_first_img_src() {
             var first_img_src = $(".show-content img:first").attr('src') || '';
@@ -164,9 +176,9 @@
             return first_img_src
         }
 
-		function getSocialLink(s){
-			switch(s){
-				case "weibo":
+        function getSocialLink(s) {
+            switch (s) {
+                case "weibo":
                     var context = {
                         'appkey': '4164482519',
                         'ralateUid': '2728305845',
@@ -175,10 +187,10 @@
                         'pic': get_first_img_src()
                     };
                     var query_params = [];
-                    for(var i in context){
-                        query_params.push(i + '=' + encodeURIComponent(context[i]||''));
+                    for (var i in context) {
+                        query_params.push(i + '=' + encodeURIComponent(context[i] || ''));
                     }
-				    return ["http://service.weibo.com/share/share.php?", query_params.join('&')].join('');
+                    return ["http://service.weibo.com/share/share.php?", query_params.join('&')].join('');
                 case "qq":
                     var context = {
                         'url': article_link,
@@ -186,12 +198,12 @@
                         'pics': get_first_img_src()
                     };
                     var query_params = [];
-                    for(var i in context){
-                        query_params.push(i + '=' + encodeURIComponent(context[i]||''));
+                    for (var i in context) {
+                        query_params.push(i + '=' + encodeURIComponent(context[i] || ''));
                     }
-				    return ["http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?", query_params.join('&')].join('');
-			}
-		}
+                    return ["http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?", query_params.join('&')].join('');
+            }
+        }
 
         function openWindom(url) {
             var name = '';                             //网页名称，可为空;
@@ -213,16 +225,16 @@
             var url = getSocialLink("qq");
             openWindom(url)
         }
-	</script>
+    </script>
 
     <script type="text/javascript">
         var qrcode = new QRCode(document.getElementById("qrcode"), {
-	        width : 180,
-	        height : 180
+            width: 180,
+            height: 180
         });
 
         function showQrcode() {
-	        qrcode.makeCode(article_link);
+            qrcode.makeCode(article_link);
             $('#show_qrcode').modal('show')
         }
 
@@ -254,70 +266,70 @@
             if (comment_content != '') {
                 var article_id = this.dataset.article_id;
                 $.ajax({
-                        type: 'POST',
-                        url: "{% url 'api:save_comment' %}",
-                        data: {
-                            "article_id": article_id,
-                            "content": comment_content
-                        },
-                        dataType: 'json',
-                        success: function (json) {
-                            if (json.code == 200) {
-                                var avatar = json.data.commentator.avatar;
-                                var username = json.data.commentator.username;
-                                var user_id = json.data.commentator.user_id.toString();
-                                var content = json.data.content;
-                                var comment_id = json.data.comment_id.toString();
-                                var comment_at = json.data.comment_at;
-                                var comment_at_desc = getDateDiff(comment_at);
-                                var praise_times = json.data.praise_times.toString();
-                                var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
-                                        '<div class="comment-show-con-img">' +
-                                        '<a target="_blank" href="/article/author/' + user_id + '">' +
-                                        '<img src="' + avatar + '" alt="' + username + '">' +
-                                        '</a>' +
-                                        '</div> ' +
-                                        '<div class="pl-text clearfix">' +
-                                        '<a target="_blank" href="/article/author/' + user_id +
-                                        '" class="comment-size-name" data-commentator_id="' + user_id +
-                                        '">' + username + '</a>' +
-                                        '<span class="comment-time">' + comment_at_desc + '</span>' +
-                                        '</div>' +
-                                        '<div class="comment-show-con-list clearfix">' +
-                                        '<div class="date-dz">' +
-                                        '<p class="date-dz-left my-pl-con">' + content + '</p>' +
-                                        '<div class="date-dz-right pull-right comment-pl-block">';
+                    type: 'POST',
+                    url: "{% url 'api:save_comment' %}",
+                    data: {
+                        "article_id": article_id,
+                        "content": comment_content
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.code == 200) {
+                            var avatar = json.data.commentator.avatar;
+                            var username = json.data.commentator.username;
+                            var user_id = json.data.commentator.user_id.toString();
+                            var content = json.data.content;
+                            var comment_id = json.data.comment_id.toString();
+                            var comment_at = json.data.comment_at;
+                            var comment_at_desc = getDateDiff(comment_at);
+                            var praise_times = json.data.praise_times.toString();
+                            var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
+                                    '<div class="comment-show-con-img">' +
+                                    '<a target="_blank" href="/article/author/' + user_id + '">' +
+                                    '<img src="' + avatar + '" alt="' + username + '">' +
+                                    '</a>' +
+                                    '</div> ' +
+                                    '<div class="pl-text clearfix">' +
+                                    '<a target="_blank" href="/article/author/' + user_id +
+                                    '" class="comment-size-name" data-commentator_id="' + user_id +
+                                    '">' + username + '</a>' +
+                                    '<span class="comment-time">' + comment_at_desc + '</span>' +
+                                    '</div>' +
+                                    '<div class="comment-show-con-list clearfix">' +
+                                    '<div class="date-dz">' +
+                                    '<p class="date-dz-left my-pl-con">' + content + '</p>' +
+                                    '<div class="date-dz-right pull-right comment-pl-block">';
 
-                                if (login_user_id.toString() == user_id) {
-                                    comment_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id +
-                                            '">删除</a>';
-                                }
+                            if (login_user_id.toString() == user_id) {
+                                comment_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id +
+                                        '">删除</a>';
+                            }
 
-                                comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id +
-                                        '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
-                                        '">回复</a>' +
-                                        '<span class="date-dz-line">|</span>' +
-                                        '<a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
-                                        '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a>' +
-                                        '</div>' +
-                                        '</div>' +
-                                        '<div class="hf-list-con"></div>' +
-                                        '</div>' +
-                                        '</div>';
-                                $this.parents('.reviewArea ').siblings('.comment-show').prepend(comment_html);
-                                $this.siblings('.flex-text-wrap').find('.comment-input').prop('value', '').siblings('pre').find('span').text('');
-                                layer.msg(json.msg, {time: 1000});
-                            }
-                            else {
-                                layer.msg(json.msg, {time: 1000});
-                                return false
-                            }
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            var response_json = XMLHttpRequest.responseJSON;
-                            layer.msg(response_json.msg, {time: 1000});
+                            comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id +
+                                    '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
+                                    '">回复</a>' +
+                                    '<span class="date-dz-line">|</span>' +
+                                    '<a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
+                                    '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="hf-list-con"></div>' +
+                                    '</div>' +
+                                    '</div>';
+                            $this.parents('.reviewArea ').siblings('.comment-show').prepend(comment_html);
+                            $this.siblings('.flex-text-wrap').find('.comment-input').prop('value', '').siblings('pre').find('span').text('');
+                            layer.msg(json.msg, {time: 1000});
+                        }
+                        else {
+                            layer.msg(json.msg, {time: 1000});
                             return false
                         }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        layer.msg(response_json.msg, {time: 1000});
+                        return false
+                    }
                 });
             }
             else {
@@ -379,62 +391,62 @@
                 return false
             }
             $.ajax({
-                    type: 'POST',
-                    url: "{% url 'api:save_comment_reply' %}",
-                    data: {
-                        "comment_id": comment_id,
-                        "receiver_id": receiver_id,
-                        "content": content
-                    },
-                    dataType: 'json',
-                    success: function (json) {
-                        if (json.code == 200) {
-                            var comment_reply_id = json.data.comment_reply_id.toString();
-                            var comment_id = json.data.comment_id.toString();
-                            var replier_username = json.data.replier.username;
-                            var receiver_user_id = json.data.receiver.user_id.toString();
-                            var receiver_username = json.data.receiver.username;
-                            var replier_id = json.data.replier.user_id.toString();
-                            var reply_at = json.data.reply_at;
-                            var reply_at_desc = getDateDiff(reply_at);
-                            var reply_content = json.data.content;
-                            var praise_times = json.data.praise_times.toString();
-                            var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
-                            var oHtml = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
-                                    '<div class="pl-text hfpl-text clearfix">' +
-                                    '<a target="_blank" href="/article/author/' + replier_id +
-                                    '" class="comment-size-name">' + replier_username + '</a>' +
-                                    '<span class="comment-time">' + reply_at_desc + '</span>' +
-                                    '</div>' +
-                                    '<div class="date-dz">' +
-                                    '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content  + '</p>' +
-                                    '<div class="date-dz-right pull-right comment-pl-block">';
-                            if (login_user_id.toString() == replier_id) {
-                                oHtml += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
-                                        '">删除</a>';
-                            }
-                            oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
-                                    '">回复</a>' +
-                                    '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
-                                    '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
-                                    '</div> ' +
-                                    '</div>' +
-                                    '</div>';
-                            oThis.parents('.hf-con').parents('.comment-show-con-list').find('.hf-list-con').css('display', 'block').prepend(oHtml);
-                            oThis.parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
-                            oThis.parents('.hf-con').remove();
-                            layer.msg(json.msg, {time: 1000});
+                type: 'POST',
+                url: "{% url 'api:save_comment_reply' %}",
+                data: {
+                    "comment_id": comment_id,
+                    "receiver_id": receiver_id,
+                    "content": content
+                },
+                dataType: 'json',
+                success: function (json) {
+                    if (json.code == 200) {
+                        var comment_reply_id = json.data.comment_reply_id.toString();
+                        var comment_id = json.data.comment_id.toString();
+                        var replier_username = json.data.replier.username;
+                        var receiver_user_id = json.data.receiver.user_id.toString();
+                        var receiver_username = json.data.receiver.username;
+                        var replier_id = json.data.replier.user_id.toString();
+                        var reply_at = json.data.reply_at;
+                        var reply_at_desc = getDateDiff(reply_at);
+                        var reply_content = json.data.content;
+                        var praise_times = json.data.praise_times.toString();
+                        var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
+                        var oHtml = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
+                                '<div class="pl-text hfpl-text clearfix">' +
+                                '<a target="_blank" href="/article/author/' + replier_id +
+                                '" class="comment-size-name">' + replier_username + '</a>' +
+                                '<span class="comment-time">' + reply_at_desc + '</span>' +
+                                '</div>' +
+                                '<div class="date-dz">' +
+                                '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content + '</p>' +
+                                '<div class="date-dz-right pull-right comment-pl-block">';
+                        if (login_user_id.toString() == replier_id) {
+                            oHtml += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
+                                    '">删除</a>';
                         }
-                        else {
-                            layer.msg(json.msg, {time: 1000});
-                            return false
-                        }
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        var response_json = XMLHttpRequest.responseJSON;
-                        layer.msg(response_json.msg, {time: 1000});
+                        oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
+                                '">回复</a>' +
+                                '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
+                                '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
+                                '</div> ' +
+                                '</div>' +
+                                '</div>';
+                        oThis.parents('.hf-con').parents('.comment-show-con-list').find('.hf-list-con').css('display', 'block').prepend(oHtml);
+                        oThis.parents('.hf-con').siblings('.date-dz-right').find('.pl-hf').addClass('hf-con-block');
+                        oThis.parents('.hf-con').remove();
+                        layer.msg(json.msg, {time: 1000});
+                    }
+                    else {
+                        layer.msg(json.msg, {time: 1000});
                         return false
                     }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    layer.msg(response_json.msg, {time: 1000});
+                    return false
+                }
             });
         });
     </script>
@@ -479,21 +491,21 @@
                 data: post_data,
                 dataType: "json",
                 success: function (json) {
-                        if (json.code == 200) {
-                            var oT = $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con');
-                            if (oT.siblings('.all-pl-con').length >= 1) {
-                                oT.remove();
-                            } else {
-                                $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con').parents('.hf-list-con').css('display', 'none');
-                                oT.remove();
-                            }
-                            $this.parents('.date-dz-right').parents('.date-dz').parents('.comment-show-con-list').parents('.comment-show-con').remove();
-                            layer.msg(json.msg, {time: 1000});
+                    if (json.code == 200) {
+                        var oT = $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con');
+                        if (oT.siblings('.all-pl-con').length >= 1) {
+                            oT.remove();
+                        } else {
+                            $this.parents('.date-dz-right').parents('.date-dz').parents('.all-pl-con').parents('.hf-list-con').css('display', 'none');
+                            oT.remove();
                         }
-                        else {
-                            layer.msg(json.msg, {time: 1000});
-                            return false
-                        }
+                        $this.parents('.date-dz-right').parents('.date-dz').parents('.comment-show-con-list').parents('.comment-show-con').remove();
+                        layer.msg(json.msg, {time: 1000});
+                    }
+                    else {
+                        layer.msg(json.msg, {time: 1000});
+                        return false
+                    }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     var response_json = XMLHttpRequest.responseJSON;
@@ -661,36 +673,37 @@
     </script>
 
     <script type="text/javascript">
-            var page_index = 1;
-            var article_id = $("#article_id").val();
-            function ajaxGetComment(article_id, page_index) {
-                $.getJSON("{% url 'api:comments' %}",
-                            {
-                                'page': page_index,
-                                'article_id': article_id
-                            }, function(json) {
-                            if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                $(".comment-show").html('');
-                                $.each(json.results, function(index, array) {
-                                    var article_id = array['article_id'];
-                                    var comment_id = array['comment_id'];
-                                    //var commentator = array['commentator'];
-                                    var avatar = array['commentator']['avatar'];
-                                    var username = array['commentator']['username'];
-                                    var user_id = array['commentator']['user_id'];
-                                    var comment_at = array['comment_at'];
-                                    var comment_at_desc = getDateDiff(comment_at);
-                                    var content = array['content'];
-                                    var praise_times = array['praise_times'];
-                                    var comment_replies = array['comment_replies'];
-                                    var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
+        var page_index = 1;
+        var article_id = $("#article_id").val();
+        function ajaxGetComment(article_id, page_index) {
+            $.getJSON("{% url 'api:comments' %}",
+                    {
+                        'page': page_index,
+                        'article_id': article_id
+                    }, function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            $(".comment-show").html('');
+                            $.each(json.results, function (index, array) {
+                                var article_id = array['article_id'];
+                                var comment_id = array['comment_id'];
+                                //var commentator = array['commentator'];
+                                var avatar = array['commentator']['avatar'];
+                                var username = array['commentator']['username'];
+                                var user_id = array['commentator']['user_id'];
+                                var comment_at = array['comment_at'];
+                                var comment_at_desc = getDateDiff(comment_at);
+                                var content = array['content'];
+                                var praise_times = array['praise_times'];
+                                var comment_replies = array['comment_replies'];
+                                var replies_count = array['replies_count'];
+                                var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
                                         '<div class="comment-show-con-img">' +
                                         '<a target="_blank" href="/article/author/' + user_id + '">' +
                                         '<img src="' + avatar + '" alt="' + username + '">' +
                                         '</a>' +
                                         '</div> ' +
                                         '<div class="pl-text clearfix">' +
-                                        '<a target="_blank" href="/article/author/' + user_id +  '" class="comment-size-name" data-commentator_id="' + user_id +
+                                        '<a target="_blank" href="/article/author/' + user_id + '" class="comment-size-name" data-commentator_id="' + user_id +
                                         '">' + username + '</a>' +
                                         '<span class="comment-time">' + comment_at_desc + '</span>' +
                                         '</div>' +
@@ -699,11 +712,11 @@
                                         '<p class="date-dz-left my-pl-con">' + content + '</p>' +
                                         '<div class="date-dz-right pull-right comment-pl-block">';
 
-                                    if (login_user_id.toString() == user_id) {
-                                        comment_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id + '">删除</a>';
-                                    }
+                                if (login_user_id.toString() == user_id) {
+                                    comment_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id + '">删除</a>';
+                                }
 
-                                    comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id +
+                                comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id +
                                         '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
                                         '">回复</a>' +
                                         '<span class="date-dz-line">|</span>' +
@@ -711,80 +724,114 @@
                                         '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a>' +
                                         '</div>' +
                                         '</div>' +
-                                        '<div class="hf-list-con">';
+                                        '<div class="hf-list-con"></div>';
+                                if (replies_count > 0) {
+                                    comment_html += '<a class="get-more-comment-replies" style="font-size:12px" data-page="0" data-comment_id="' + comment_id + '">获取全部回复</a>';
+                                }
+                                comment_html += '</div>' + '</div>';
+                                $(".comment-show").append(comment_html);
+                            });
+                            $(".get-more-comment-replies").bind('click', ajaxGetCommentReplies);
+                            if (!json.next) {
+                                $(".next-page").addClass("disabled");
+                            }
+                            else {
+                                $(".next-page").removeClass("disabled");
+                            }
+                            if (page_index == 1) {
+                                $(".prev-page").addClass("disabled");
+                            }
+                            else {
+                                $(".prev-page").removeClass("disabled");
+                            }
+                        }
+                        else {
+                            $(".next-page").addClass("disabled");
+                            return false
+                        }
+                    });
+        }
 
-                                    $.each(comment_replies, function(index, reply) {
-                                        var comment_reply_id = reply['comment_reply_id'].toString();
-                                        var comment_id = reply['comment_id'].toString();
-                                        var replier_username = reply['replier']['username'];
-                                        var receiver_user_id = reply['receiver']['user_id'].toString();
-                                        var receiver_username = reply['receiver']['username'];
-                                        var replier_id = reply['replier']['user_id'].toString();
-                                        var reply_at = reply['reply_at'];
-                                        var reply_at_desc = getDateDiff(reply_at);
-                                        var reply_content = reply['content'];
-                                        var praise_times = reply['praise_times'].toString();
-                                        var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
-                                        var reply_html = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
+        function ajaxGetCommentReplies() {
+                    var self = this;
+                    var comment_replies_container = $(this).siblings('.hf-list-con');
+                    self.dataset.page = parseInt(self.dataset.page) + 1;
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'api:comment_replies' %}",
+                        data: {
+                            "page": self.dataset.page,
+                            "comment_id": self.dataset.comment_id
+                        },
+                        dataType: "JSON",
+                        success: function (json) {
+                            if (json.hasOwnProperty('results') && json.results.length > 0) {
+                                $.each(json.results, function (index, reply) {
+                                    var comment_reply_id = reply['comment_reply_id'].toString();
+                                    var comment_id = reply['comment_id'].toString();
+                                    var replier_username = reply['replier']['username'];
+                                    var receiver_user_id = reply['receiver']['user_id'].toString();
+                                    var receiver_username = reply['receiver']['username'];
+                                    var replier_id = reply['replier']['user_id'].toString();
+                                    var reply_at = reply['reply_at'];
+                                    var reply_at_desc = getDateDiff(reply_at);
+                                    var reply_content = reply['content'];
+                                    var praise_times = reply['praise_times'].toString();
+                                    var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
+                                    var reply_html = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
                                             '<div class="pl-text hfpl-text clearfix">' +
                                             '<a target="_blank" href="/article/author/' + replier_id + '" class="comment-size-name">' + replier_username + '</a>' +
                                             '<span class="comment-time">' + reply_at_desc + '</span>' +
                                             '</div>' +
                                             '<div class="date-dz">' +
-                                            '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content  + '</p>' +
+                                            '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content + '</p>' +
                                             '<div class="date-dz-right pull-right comment-pl-block">';
-                                        if (login_user_id.toString() == replier_id) {
-                                            reply_html += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
+                                    if (login_user_id.toString() == replier_id) {
+                                        reply_html += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
                                                 '">删除</a>';
-                                        }
-                                        reply_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
+                                    }
+                                    reply_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
                                             '">回复</a>' +
                                             '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
                                             '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
                                             '</div> ' +
                                             '</div>' +
                                             '</div>';
-                                        comment_html += reply_html;
-                                    });
-
-                                    comment_html +=  '</div>' + '</div>' + '</div>';
-                                    $(".comment-show").append(comment_html);
+                                    comment_replies_container.append(reply_html)
                                 });
                                 if (!json.next) {
-                                    $(".next-page").addClass("disabled");
+                                    layer.msg('已获取完所有回复列表', {time: 1500});
+                                    $(self).remove();
+                                    return false
                                 }
-                                else {
-                                    $(".next-page").removeClass("disabled");
-                                }
-                                if (page_index == 1) {
-                                    $(".prev-page").addClass("disabled");
-                                }
-                                else {
-                                    $(".prev-page").removeClass("disabled");
-                                }
+                            } else {
+                                layer.msg('发生了一些错误，请稍后重试', {time: 1000});
                             }
-                            else {
-                                $(".next-page").addClass("disabled");
-                                return false
-                            }
-                        });
-            }
-            $(function() {
-                ajaxGetComment(article_id, page_index);
-                $(".next-page").click(function() {
-                    page_index ++;
-                    ajaxGetComment(article_id, page_index);
-                    location.href = "#comments";
-                    //$("html,body").animate({scrollTop: $(".comment-show").offset().top}, 500);
-                });
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            var response_json = XMLHttpRequest.responseJSON;
+                            layer.msg(response_json.msg, {time: 1000});
+                            return false
+                        }
+                    })
+                }
 
-                $(".prev-page").click(function() {
-                    page_index --;
-                    ajaxGetComment(article_id, page_index);
-                    location.href = "#comments";
-                    //$("html,body").animate({scrollTop: $(".comment-show").offset().top}, 500);
-                });
+        $(function () {
+            ajaxGetComment(article_id, page_index);
+            $(".next-page").click(function () {
+                page_index++;
+                ajaxGetComment(article_id, page_index);
+                location.href = "#comments";
+                //$("html,body").animate({scrollTop: $(".comment-show").offset().top}, 500);
             });
+
+            $(".prev-page").click(function () {
+                page_index--;
+                ajaxGetComment(article_id, page_index);
+                location.href = "#comments";
+                //$("html,body").animate({scrollTop: $(".comment-show").offset().top}, 500);
+            });
+        });
     </script>
 
 {% endblock %}

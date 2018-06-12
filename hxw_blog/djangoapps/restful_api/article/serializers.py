@@ -262,7 +262,7 @@ class CommentSerializer(serializers.ModelSerializer):
         return commentator_info
 
     def get_comment_replies(self, comment):
-        comment_replies = CommentReply.objects.using('read').filter(comment_id=comment.id).order_by("-id")
+        comment_replies = CommentReply.objects.using('read').filter(comment_id=comment.id).order_by("-id")[:2]
         comment_replies_data = list()
         for comment_reply in comment_replies:
             comment_replies_data.append(comment_reply.render_json())
