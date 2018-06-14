@@ -141,7 +141,7 @@
                                     绑定邮箱{% endif %}</span>
                             </a>
                         </li>
-                        <li class="mui-table-view-cell">
+                        <li class="mui-table-view-cell{% if not user.email %} mui-hidden{% endif %}">
                             <a href="#update_password" class="mui-navigate-right">更新密码</a>
                         </li>
                     </ul>
