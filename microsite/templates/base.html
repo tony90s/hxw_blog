@@ -2,8 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <meta content="yes" name="apple-mobile-web-app-capable">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <meta name="description" content="LOVEITERS是一个分享社区，在这里，你可以分享技术干货，分享读书心得，分享生活的点点滴滴，社区因你而不同。">
     <meta name="keywords" content="HTML, CSS, JS, JavaScript, Jquery, bootstrap, Python, Django，博客">
@@ -12,11 +13,13 @@
 
     {% block title %} {% endblock %}
     <link rel="stylesheet" href="/static/mui/css/mui.min.css">
+    <link rel="stylesheet" href="/static/mui/css/mui.show_loading.css">
     <link rel="stylesheet" href="/static/mui/css/icons-extra.css">
     <link rel="stylesheet" href="/static/iconfont/iconfont.css">
     <link rel="stylesheet" href="/static/css/main.css">
     <script src="/static/jquery-2.1.4/jquery.min.js"></script>
     <script src="/static/mui/js/mui.min.js"></script>
+    <script src="/static/mui/js/mui.show_loading.js"></script>
     <script src="/static/js/jquery.cookie.js"></script>
     <script src="/static/js/jquery.csrf.token.js"></script>
     <script src='/static/js/flexiable.min.js'></script>
@@ -28,11 +31,12 @@
 {% block content %}
 {% endblock %}
 <script>
+    /*
     mui('header').on('tap', '.mui-action-back', function () {
         if (mui.os.ios) {
             history.go(-1)
         }
-    });
+    });*/
 </script>
 {% block extra_js %}
 {% endblock %}

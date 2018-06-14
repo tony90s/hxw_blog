@@ -53,6 +53,15 @@ class EmailToResetPasswordForm(GeneralEmailForm):
         return self.cleaned_data['email']
 
 
+class CheckAccountIsExistsForm(GeneralEmailForm):
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        users = User.objects.using('read').filter(email=email)
+        if not users.exists():
+            raise forms.ValidationError('该邮箱尚未注册。')
+        return self.cleaned_data['email']
+
+
 class CheckEmailIsBindForm(GeneralEmailForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')

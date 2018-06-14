@@ -57,7 +57,7 @@ class RegisterSerializer(serializers.Serializer):
 
 class UserInfoSerializer(serializers.ModelSerializer):
     gender = serializers.CharField(source='profile.gender')
-    bio = serializers.CharField(source='profile.bio')
+    bio = serializers.CharField(required=False, max_length=48, default='')
 
     class Meta:
         model = User
@@ -67,7 +67,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         profile = instance.profile
         instance.username = validated_data.get('username', instance.username)
         profile.gender = validated_data.get('profile').get('gender', profile.gender)
-        profile.bio = validated_data.get('profile').get('bio', profile.bio)
+        profile.bio = validated_data.get('bio', profile.bio)
         instance.save(using='write')
         profile.save(using='write')
         return instance

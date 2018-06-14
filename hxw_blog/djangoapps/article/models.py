@@ -263,6 +263,7 @@ class Comment(models.Model):
 
     def get_comment_summary(self):
         context = dict()
+        context['article_id'] = self.article_id
         context['comment_id'] = self.id
         context['commentator'] = self.get_commentator_info()
         context['comment_at'] = timezone.localtime(self.comment_at).strftime("%Y-%m-%d %H:%M:%S")

@@ -8,12 +8,12 @@ class UserProfile(models.Model):
         FEMALE = 'f'
 
     GENDER_CHOICES = (
-        (GENDER.MALE, 'male'),
-        (GENDER.FEMALE, 'female')
+        (GENDER.MALE, '男'),
+        (GENDER.FEMALE, '女')
     )
     user = models.OneToOneField(User, unique=True, db_index=True, related_name='profile')
     gender = models.CharField(blank=True, max_length=6, choices=GENDER_CHOICES, default=GENDER.MALE)
-    bio = models.CharField(blank=True, max_length=120, default='')
+    bio = models.CharField(blank=True, max_length=64, default='')
     mobile = models.CharField(blank=True, max_length=16, default='')
     avatar = models.ImageField(upload_to='avatar', blank=True, default="/avatar/default_avatar.jpg")
 

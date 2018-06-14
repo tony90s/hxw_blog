@@ -8,48 +8,51 @@
         <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
         <h1 class="mui-title">登录</h1>
     </header>
-    <div class="mui-content">
-        <form id='login_form' class="mui-input-group">
-            <div class="mui-input-row">
-                <label>账号</label>
-                <input id='account' name="account" type="text" class="mui-input-clear mui-input" placeholder="请输入账号">
-            </div>
-            <div class="mui-input-row">
-                <label>密码</label>
-                <input id='password' name="password" type="password" class="mui-input-password"
-                       placeholder="请输入密码">
-            </div>
-
-            <ul class="mui-table-view">
-                <li class="mui-table-view-cell">
-                    <span>记住登录</span>
-                    <div id="remember_login" class="mui-switch mui-switch-blue mui-active">
-                        <div class="mui-switch-handle"></div>
-                    </div>
-                </li>
-            </ul>
-            <div class="mui-content-padded">
-                <button id='btn_login' type="button" class="mui-btn mui-btn-block mui-btn-primary"
-                        data-next="{{ next }}">登录
-                </button>
-                <div class="link-area">
-                    <a id='register' data-next="{{ next }}">注册账号</a>
-                    <span class="spliter">|</span>
-                    <a id='forgetPassword' href="javascript:void(0)">忘记密码</a>
+    <div class="mui-content mui-scroll-wrapper">
+        <div class="mui-scroll">
+            <form id='login_form' class="mui-input-group">
+                <div class="mui-input-row">
+                    <label>账号</label>
+                    <input id='account' name="account" type="text" class="mui-input-clear mui-input"
+                           placeholder="请输入账号">
                 </div>
-            </div>
-        </form>
-        <div class="mui-content-padded oauth-area">
-            <!--
+                <div class="mui-input-row">
+                    <label>密码</label>
+                    <input id='password' name="password" type="password" class="mui-input-password"
+                           placeholder="请输入密码">
+                </div>
+
+                <ul class="mui-table-view">
+                    <li class="mui-table-view-cell">
+                        <span>记住登录</span>
+                        <div id="remember_login" class="mui-switch mui-switch-blue mui-active">
+                            <div class="mui-switch-handle"></div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="mui-content-padded">
+                    <button id='btn_login' type="button" class="mui-btn mui-btn-block mui-btn-primary"
+                            data-next="{{ next }}">登录
+                    </button>
+                    <div class="link-area">
+                        <a id='register' data-next="{{ next }}">注册账号</a>
+                        <span class="spliter">|</span>
+                        <a id='forgetPassword' href="{% url 'account:reset_password' %}">忘记密码</a>
+                    </div>
+                </div>
+            </form>
+            <div class="mui-content-padded oauth-area">
+                <!--
             <a class="oauth-btn weibo" href="javascript:void(0)" data-next="{{ next }}"
                data-url="{% url 'account:social_weibo_login' %}">
                 <img class="weibo-logo" src="/static/images/socialization_logo/weibo.png">
             </a>
             -->
-            <a class="oauth-btn qq" href="javascript:void(0)" data-next="{{ next }}"
-               data-url="{% url 'account:social_qq_login' %}">
-                <img class="qq-logo" src="/static/images/socialization_logo/qq.png">
-            </a>
+                <a class="oauth-btn qq" href="javascript:void(0)" data-next="{{ next }}"
+                   data-url="{% url 'account:social_qq_login' %}">
+                    <img class="qq-logo" src="/static/images/socialization_logo/qq.png">
+                </a>
+            </div>
         </div>
     </div>
 
@@ -57,6 +60,10 @@
 {% block extra_js %}
     <script src="/static/mui/js/mui.enterfocus.js"></script>
     <script>
+        mui('.mui-scroll-wrapper').scroll();
+        mui('header').on('tap', '.mui-action-back', function () {
+            history.go(-1)
+        });
         var toast_option = {
             duration: 1000
         };
@@ -82,6 +89,10 @@
         mui('form').on('tap', '#register', function () {
             var redirect_url = this.dataset.next;
             window.location.href = register_url + '?next=' + redirect_url;
+        });
+
+        mui('form').on('tap', '#forgetPassword', function () {
+            window.location.href = this.href;
         });
 
         mui('form').on('tap', '#btn_login', function () {

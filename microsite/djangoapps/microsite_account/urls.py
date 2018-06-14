@@ -2,6 +2,7 @@ from django.conf.urls import url
 from account.views import (
     LoginView, RegisterView,
     logout_view,
+    ResetPasswordView,
     weibo_login,
     weibo_auth,
     qq_login,
@@ -19,6 +20,7 @@ urlpatterns = [
     url(r'^register$', RegisterView.as_view(), name='register'),
     url(r'^login$', LoginView.as_view(), name='login'),
     url(r'^logout$', logout_view, name='logout'),
+    url(r'^password/reset$', ResetPasswordView.as_view(), name='reset_password'),
     url(r'^center$', user_center, name='user_center'),
 ]
 

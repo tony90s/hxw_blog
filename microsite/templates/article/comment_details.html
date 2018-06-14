@@ -58,6 +58,9 @@
 
 {% block extra_js %}
     <script>
+        mui('header').on('tap', '.mui-action-back', function () {
+            window.location.href = "{% url 'article:details' comment.article_id %}";
+        });
         var praiseType = {
             'article': '1',
             'comment': '2',

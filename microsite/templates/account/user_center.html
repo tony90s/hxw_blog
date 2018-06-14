@@ -5,64 +5,785 @@
 {% endblock %}
 
 {% block content %}
-    <header class="mui-bar mui-bar-nav">
-        <a class="mui-icon mui-icon-home mui-pull-left" href="{% url 'index' %}"></a>
-        <h1 class="mui-title">用户设置</h1>
-    </header>
+    <div id="app" class="mui-views">
+        <div class="mui-view">
+            <div class="mui-navbar">
+            </div>
+            <div class="mui-pages">
+            </div>
+        </div>
+    </div>
+    <div id="setting" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <button type="button" class="go-to-index mui-left mui-btn mui-btn-link mui-btn-nav mui-pull-left">
+                <span class="mui-icon mui-icon-left-nav"></span>
+            </button>
+            <h1 class="mui-center mui-title">设置</h1>
+        </div>
+        <div class="mui-page-content">
+            <div class="mui-scroll-wrapper">
+                <div class="mui-scroll">
+                    <ul class="mui-table-view mui-table-view-chevron">
+                        <li class="mui-table-view-cell mui-media">
+                            <a class="mui-navigate-right" href="#account">
+                                <img class="mui-media-object mui-pull-left head-img"
+                                     src="{{ user.profile.avatar.url }}">
+                                <div class="mui-media-body">
+                                    <span class="username" data-username="{{ user.username }}"></span>
+                                    <p class='bio' data-bio="{{ user.profile.bio }}"></p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="mui-table-view mui-table-view-chevron">
+                        <li class="mui-table-view-cell">
+                            <a href="#account" class="mui-navigate-right">个人信息</a>
+                        </li>
+                        <li class="mui-table-view-cell">
+                            <a href="#account_secure" class="mui-navigate-right">账户安全</a>
+                        </li>
+                    </ul>
+                    <ul class="mui-table-view mui-table-view-chevron">
+                        <li class="mui-table-view-cell">
+                            <a href="#about" class="mui-navigate-right">关于{{ site_name }}</a>
+                        </li>
+                    </ul>
+                    <ul class="mui-table-view">
+                        <li class="mui-table-view-cell mui-text-center">
+                            <a class="logout">退出登录</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div class="mui-content mui-scroll-wrapper">
-        <div class="mui-scroll">
-            <ul class="mui-table-view mui-table-view-chevron settings-group">
-                <li class="mui-table-view-cell mui-media">
-                    <a class="mui-navigate-right" href="#">
-                        <img class="mui-media-object mui-pull-left head-img" src="{{ user.profile.avatar.url }}">
-                        <div class="mui-media-body">
-                            <span class="username" data-username="{{ user.username }}"></span>
-                            <p class='bio' data-bio="{{ user.profile.bio }}"></p>
+    <!--单页面结束-->
+    <div id="account" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <a class="mui-action-back mui-btn mui-btn-link mui-pull-left">取消</a>
+            <h1 class="mui-center mui-title">更新个人信息</h1>
+            <a id="update_user_data" class="mui-btn mui-btn-link mui-pull-right">完成</a>
+        </div>
+        <div class="mui-page-content">
+            <div class="mui-scroll-wrapper">
+                <div class="mui-scroll">
+                    <ul class="mui-table-view">
+                        <li class="mui-table-view-cell">
+                            <a id="head">头像
+								<span class="mui-pull-right head">
+									<img class="head-img mui-action-preview" id="head-img1"
+                                         src="{{ user.profile.avatar.url }}"/>
+								</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <form id='update_user_data_form' class="mui-input-group">
+                        <div class="mui-input-row">
+                            <label>昵称</label>
+                            <input name="username" style="text-align: right" type="text" class="mui-input"
+                                   placeholder="设置昵称" value="{{ user.username }}">
                         </div>
+                        <div class="mui-input-row">
+                            <label>性别</label>
+                            <input name="gender_display" style="text-align: right" type="text" class="mui-input"
+                                   placeholder="设置性别" readonly value="{{ user.profile.get_gender_display }}">
+                            <input name="gender" type="hidden" value="{{ user.profile.gender }}">
+                        </div>
+                        <div class="mui-input-row" style="height: 100px">
+                            <label>简介</label>
+                            <textarea name="bio" class="bio" rows="6" placeholder="暂无简介..."
+                                      onchange="this.value=this.value.substring(0, 48)"
+                                      onkeydown="this.value=this.value.substring(0, 48)"
+                                      onkeyup="this.value=this.value.substring(0, 48)"
+                                      data-bio="{{ user.profile.bio }}">{{ user.profile.bio }}</textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="gender" class="mui-popover mui-popover-action mui-popover-bottom">
+            <ul class="mui-table-view gender-select" style="margin: 0;border-radius: 0">
+                <li class="mui-table-view-cell">
+                    <span>回复</span>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a href="#" data-value="m">男</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a href="#" data-value="f">女</a>
+                </li>
+            </ul>
+            <ul class="mui-table-view" style="margin:10px 0 0;border-radius: 0;">
+                <li class="mui-table-view-cell">
+                    <a href="#gender" style="color: #000;">取消</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="account_secure" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+                <span class="mui-icon mui-icon-left-nav"></span>
+            </button>
+            <h1 class="mui-center mui-title">账户安全</h1>
+        </div>
+        <div class="mui-page-content">
+            <div class="mui-scroll-wrapper">
+                <div class="mui-scroll">
+                    <ul class="mui-table-view mui-table-view-chevron">
+                        <li class="mui-table-view-cell">
+                            <a href="#update_email" class="mui-navigate-right">邮箱
+                                <span class="mui-pull-right update">{% if user.email %}{{ user.email }} 　修改{% else %}
+                                    绑定邮箱{% endif %}</span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell">
+                            <a href="#update_password" class="mui-navigate-right">更新密码</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="update_password" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+                <span class="mui-icon mui-icon-left-nav"></span>
+            </button>
+            <h1 class="mui-center mui-title">更新密码</h1>
+        </div>
+        <div class="mui-content">
+            <form id='update_password_form' class="mui-input-group">
+                <div class="mui-input-row">
+                    <label>原密码</label>
+                    <input name="password" type="password" class="mui-input-password"
+                           placeholder="请输入原密码">
+                </div>
+                <div class="mui-input-row">
+                    <label>新密码</label>
+                    <input name="new_password" type="password" class="mui-input-password"
+                           placeholder="请输入新密码">
+                </div>
+
+                <div class="mui-input-row">
+                    <label>确认</label>
+                    <input name="confirm_password" type="password" class="mui-input-password"
+                           placeholder="请确认新密码">
+                </div>
+                <div class="mui-content-padded">
+                    <button id='btn_update_password' type="button" class="mui-btn mui-btn-block mui-btn-primary">确定
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="update_email" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+                <span class="mui-icon mui-icon-left-nav"></span>
+            </button>
+            <h1 class="mui-center mui-title">{% if user.email %}修改邮箱{% else %}绑定邮箱{% endif %}</h1>
+        </div>
+        <div class="mui-content">
+            <form id='check_email_form' class="mui-input-group">
+                <div class="mui-input-row">
+                    <label>邮箱</label>
+                    <input name="email" type="email" class="mui-input-clear mui-input"
+                           placeholder="请输入邮箱">
+                </div>
+                <div class="mui-content-padded">
+                    <button id='btn_check_email' type="button" class="mui-btn mui-btn-block mui-btn-primary"
+                            data-action_type="{% if user.email %}1{% else %}0{% endif %}">验证
+                    </button>
+                </div>
+            </form>
+
+            <form id="bind_email_form" class="mui-input-group mui-hidden">
+                <div class="mui-input-row">
+                    <label>验证码</label>
+                    <input name="verification_code" type="text" maxlength="6" class="mui-input mui-input-verification"
+                           placeholder="请输入验证码">
+                    <a class="resend-verification-link">重新发送</a>
+                </div>
+                <div class="mui-input-row">
+                    <label>密码</label>
+                    <input name="password" type="password" class="mui-input-password"
+                           placeholder="请设置密码">
+                </div>
+                <div class="mui-content-padded">
+                    <button id='btn_bind_email' type="button" class="mui-btn mui-btn-block mui-btn-primary">确定
+                    </button>
+                </div>
+                <p class="tips" style="margin: 20px 10px 10px">验证码已发送至邮箱，注意查收，若邮件未出现在收件箱，请留意垃圾箱。</p>
+                <input type="hidden" name="email">
+            </form>
+
+            <form id="change_email_form" class="mui-input-group mui-hidden">
+                <div class="mui-input-row">
+                    <label>验证码</label>
+                    <input name="verification_code" type="text" maxlength="6" class="mui-input mui-input-verification"
+                           placeholder="请输入验证码">
+                    <a class="resend-verification-link">重新发送</a>
+                </div>
+                <div class="mui-content-padded">
+                    <button id='btn_change_email' type="button" class="mui-btn mui-btn-block mui-btn-primary">确定
+                    </button>
+                </div>
+                <p class="tips" style="margin: 20px 10px 10px">验证码已发送至邮箱，注意查收，若邮件未出现在收件箱，请留意垃圾箱。</p>
+                <input type="hidden" name="email">
+            </form>
+        </div>
+    </div>
+
+    <div id="about" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+                <span class="mui-icon mui-icon-left-nav"></span>
+            </button>
+            <h1 class="mui-center mui-title">关于{{ site_name }}</h1>
+        </div>
+        <div class="mui-content">
+            <div id="slider" class="mui-slider">
+                <div id="sliderSegmentedControl"
+                     class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+                    <a class="mui-control-item mui-active" href="#introduce">
+                        关于我们
                     </a>
-                </li>
-            </ul>
-            <ul class="mui-table-view mui-table-view-chevron settings-group">
-                <li class="mui-table-view-cell">
-                    <a href="#" class="mui-navigate-right">个人资料</a>
-                </li>
-                <li class="mui-table-view-cell">
-                    <a href="#" class="mui-navigate-right">更新密码</a>
-                </li>
-            </ul>
-            <ul class="mui-table-view mui-table-view-chevron settings-group">
-                <li class="mui-table-view-cell">
-                    <a href="#" class="mui-navigate-right">关于{{ site_name }}</a>
-                </li>
-            </ul>
-            <ul class="mui-table-view settings-group">
-                <li class="mui-table-view-cell" style="text-align: center;">
-                    <a href="{% url 'account:logout' %}">退出登录</a>
-                </li>
-            </ul>
+                    <a class="mui-control-item" href="#exonerative">
+                        免责声明
+                    </a>
+                    <a class="mui-control-item" href="#contact">
+                        联系方式
+                    </a>
+                </div>
+                <div class="mui-slider-group">
+                    <div id="introduce" class="mui-slider-item mui-control-content mui-active">
+                        <div class="mui-scroll-wrapper">
+                            <div class="mui-scroll">
+                                <div class="information-container">
+                                    <div class="information-body">
+                                        <p>LOVEITERS为个人网站，主要提供编程技术、历史、数码资讯、读书笔记等内容的分享。</p>
+                                        <p>LOVEITERS的 Slogan 为：爱IT，爱生活。</p>
+                                        <p>本站域名为m.loveiters.com。</p>
+                                        <p>本站热衷于分享各种编程语言技术，所有资源是完全免费的，并且会根据互联网技术的发展实时更新本站内容。</p>
+                                        <p>由于站主个人精力有限，本站内容有不足的地方，欢迎广大编程爱好者反馈建议。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="exonerative" class="mui-slider-item mui-control-content">
+                        <div class="mui-scroll-wrapper">
+                            <div class="mui-scroll">
+                                <div class="information-container">
+                                    <div class="information-body">
+                                        <h4 class="subsection-title">版权信息</h4>
+                                        <p class="separate-line"></p>
+                                        <p>
+                                            本网站属于个人的非赢利性网站，转载的文章遵循原作者的版权声明，如果原文没有版权声明，按照目前互联网开放的原则，我们将在不通知作者的情况下，转载文章;</p>
+                                        <p>如果原文明确注明“禁止转载”，我们一定不会转载。如果我们转载的文章不符合作者的版权声明或者作者不想让我们转载您的文章的话，请来信告知：<a
+                                                href=mailto:loveiters@163.com>loveiters@163.com</a></p>
+                                        <p>
+                                            本网站转载文章仅为传播更多信息之目的，凡在本网站出现的信息，均仅供参考。本网站将尽力确保所提供信息的准确性及可靠性，但不保证信息的正确性和完整性，且不对因信息的不正确或遗漏导致的任何损失或损害承担责任。</p>
+                                        <p>任何透过本网站网页而链接及得到的资讯、产品及服务，本网站概不负责，亦不负任何法律责任。</p>
+                                        <p>
+                                            本网站所刊发、转载的文章，其版权均归原作者所有，如其他媒体、网站或个人从本网下载使用，请在转载有关文章时务必尊重该文章的著作权，保留本网注明的“稿件来源”，并自负版权等法律责任。</p>
+                                        <h4 class="subsection-title">链接到LOVEITERS</h4>
+                                        <p class="separate-line"></p>
+                                        <p>任何网站都可以链接到LOVEITERS的任何页面。</p>
+                                        <p>如果您需要在对少量内容进行引用，请务必在引用该内容的页面添加指向被引用页面的链接。</p>
+                                        <h4 class="subsection-title">保证</h4>
+                                        <p class="separate-line"></p>
+                                        <p>
+                                            LOVEITERS不提供任何形式的保证。所有与使用本站相关的直接风险均由用户承担。LOVEITERS提供的所有编程代码均为实例，并不对性能、适用性、适销性或/及其他方面提供任何保证。</p>
+                                        <p>
+                                            LOVEITERS的内容可能包含不准确性或错误。LOVEITERS不对本网站及其内容的准确性进行保证。如果您发现本站点及其内容包含错误，请联系我们以便这些错误得到及时的更正。</p>
+                                        <h4 class="subsection-title">您的行为</h4>
+                                        <p class="separate-line"></p>
+                                        <p>当您浏览本网站时，说明您已经同意并接受本页面的所有信息。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="contact" class="mui-slider-item mui-control-content">
+                        <div class="mui-scroll-wrapper">
+                            <div class="mui-scroll">
+                                <div class="information-container">
+                                    <div class="information-body">
+                                        <p>联系邮箱: <a href=mailto:loveiters@163.com>loveiters@163.com</a></p>
+                                        <p>QQ: 1585577468</p>
+                                        <div class="social">
+                                            <div class="social-item">
+                                                <p class="social-tile">github</p>
+                                                <a class="social-qrcode" href="https://github.com/tony90s"
+                                                   target="_blank">
+                                                    <img src="/static/images/contact_qrcode/github.png">
+                                                </a>
+                                            </div>
+                                            <div class="social-item">
+                                                <p class="social-tile">微博</p>
+                                                <a class="social-qrcode" href="https://weibo.com/p/1005052728305845"
+                                                   target="_blank">
+                                                    <img src="/static/images/contact_qrcode/weibo.png">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/mui/js/mui.view.js"></script>
     <script>
-        mui('body').on('tap','a',function(){
-            var reg_link = /[\/]+/;
-            if(reg_link.test(this.href)){
-                document.location.href=this.href;
-            }
+        mui.init({
+            swipeBack: false
+        });
+
+        //初始化单页view
+        var viewApi = mui('#app').view({
+            defaultPage: '#setting'
+        });
+        //初始化单页的区域滚动
+        mui('.mui-scroll-wrapper').scroll();
+        /*
+         mui('body').on('tap', 'a', function () {
+         var reg_link = /[\/]+/;
+         if (reg_link.test(this.href)) {
+         document.location.href = this.href;
+         }
+         });*/
+        mui('body').on('tap', '.go-to-index', function () {
+            window.location.href = "{% url 'index' %}";
         });
 
         mui.ready(function () {
-            var username_span = document.querySelector('span.username');
-            var bio_span = document.querySelector('p.bio');
-            var username = username_span.dataset.username;
-            var bio = bio_span.dataset.bio || '哈哈，写个响亮slogan吧';
+            var username_span = $('.username');
+            var bio_span = $('p.bio');
+            var username = '{{ user.username }}';
+            var bio = '{{ user.profile.bio }}' || '暂无简介...';
+
             username = username.length > 10 ? (username.slice(0, 10) + '...') : username;
             bio = bio.length > 16 ? (bio.slice(0, 16) + '...') : bio;
-            username_span.innerHTML = username;
-            bio_span.innerHTML = bio;
-        })
+            username_span.html(username);
+            bio_span.html(bio);
+        });
+
+        var view = viewApi.view;
+        (function ($) {
+            //处理view的后退与webview后退
+            var oldBack = $.back;
+            $.back = function () {
+                if (viewApi.canBack()) { //如果view可以后退，则执行view的后退
+                    viewApi.back();
+                } else { //执行webview后退
+                    oldBack();
+                }
+            };
+            //监听页面切换事件方案1,通过view元素监听所有页面切换事件，目前提供pageBeforeShow|pageShow|pageBeforeBack|pageBack四种事件(before事件为动画开始前触发)
+            //第一个参数为事件名称，第二个参数为事件回调，其中e.detail.page为当前页面的html对象
+            view.addEventListener('pageBeforeShow', function (e) {
+                console.log(e.detail.page.id + ' beforeShow');
+            });
+            view.addEventListener('pageShow', function (e) {
+                console.log(e.detail.page.id + ' show');
+            });
+            view.addEventListener('pageBeforeBack', function (e) {
+                console.log(e.detail.page.id + ' beforeBack');
+            });
+            view.addEventListener('pageBack', function (e) {
+                console.log(e.detail.page.id + ' back');
+            });
+        })(mui);
+
+        var toast_option = {
+            duration: 1000
+        };
+
+        mui('#update_user_data_form').on('tap', 'input[name="gender_display"]', function () {
+            mui('#gender').popover('show');
+        });
+
+        mui('body').on('tap', '.logout', function () {
+            window.location.href = '{% url "account:logout" %}'
+        });
+
+        var update_user_data_form = document.getElementById('update_user_data_form');
+        var update_user_data_btn = document.getElementById('update_user_data');
+        mui('body').on('tap', '#update_user_data', function () {
+            var username = update_user_data_form.querySelector('input[name="username"]').value;
+            var gender = update_user_data_form.querySelector('input[name="gender"]').value;
+            var bio = update_user_data_form.querySelector('[name="bio"]').value;
+
+            var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,32}$/;
+
+            if (!reg_username.test(username)) {
+                mui.toast("昵称格式有误，仅支持2-32位中英文、数字、字符'_.@'的组合。", toast_option);
+                return false
+            }
+            mui.showLoading("正在更新信息..", "div");
+            setTimeout(function () {
+                $.ajax({
+                    url: "{% url 'api:update_user_info' %}",
+                    type: "PUT",
+                    data: {
+                        "username": username,
+                        "gender": gender,
+                        "bio": bio
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        mui.hideLoading();
+                        if (data.code == 200) {
+                            window.location.reload()
+                        }
+                        else {
+                            mui.toast(data.msg, toast_option);
+                            return false
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        mui.hideLoading();
+                        var response_json = XMLHttpRequest.responseJSON;
+                        mui.toast(response_json.msg, toast_option);
+                        return false
+                    }
+                });
+            }, 500);
+        });
+
+        mui('body').on('tap', '.mui-popover-action .gender-select li>a', function () {
+            var a = this, parent;
+            //根据点击按钮，反推当前是哪个actionsheet
+            for (parent = a.parentNode; parent != document.body; parent = parent.parentNode) {
+                if (parent.classList.contains('mui-popover-action')) {
+                    break;
+                }
+            }
+            //关闭actionsheet
+            mui('#' + parent.id).popover('toggle');
+            update_user_data_form.querySelector('input[name="gender_display"]').value = a.innerHTML;
+            update_user_data_form.querySelector('input[name="gender"]').value = a.dataset.value;
+        });
+
+        var update_password_from = document.getElementById('update_password_form');
+        mui('#update_password_form').on('tap', '#btn_update_password', function () {
+            var password = update_password_from.querySelector('input[name="password"]').value;
+            var new_password = update_password_from.querySelector('input[name="new_password"]').value;
+            var confirm_password = update_password_from.querySelector('input[name="confirm_password"]').value;
+            var redirect_url = "{% url 'account:login' %}";
+
+            var reg_password = /^[\w!@#$%^&*?,.;_]{6,30}$/;
+
+            if ((password == '') || (new_password == '') || (confirm_password == '')) {
+                mui.toast('请先完善表单', toast_option);
+                return false
+            }
+            else if (!reg_password.test(new_password)) {
+                mui.toast('新密码格式有误，请重新输入', toast_option);
+                return false
+            }
+            else if (new_password != confirm_password) {
+                mui.toast('密码不一致，请重新输入', toast_option);
+                return false
+            }
+            mui.showLoading("正在更新密码..", "div");
+            $.ajax({
+                url: '{% url 'api:update_user_password' %}',
+                type: 'PUT',
+                data: {
+                    "password": password,
+                    "new_password": new_password,
+                    "confirm_password": confirm_password
+                },
+                dataType: "json",
+                success: function (data) {
+                    mui.hideLoading();
+                    if (data.code == 200) {
+                        mui.alert(data.msg, '系统消息', function () {
+                            location.href = redirect_url;
+                        });
+                    }
+                    else {
+                        mui.toast(data.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mui.hideLoading();
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        });
+
+        var check_email_form = document.getElementById('check_email_form');
+        var bind_email_form = document.getElementById('bind_email_form');
+        var change_email_form = document.getElementById('change_email_form');
+        var reg_email = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/;
+        var reg_verification_code = /^[\d]{6}$/;
+
+        function moveTo(step_index) {
+            var step_1 = $("#update_email #check_email_form");
+            var step_2 = $("#update_email #bind_email_form");
+            var step_3 = $("#update_email #change_email_form");
+            if (step_index == 1) {
+                step_1.removeClass('mui-hidden');
+                step_2.addClass('mui-hidden');
+                step_3.addClass('mui-hidden');
+            }
+            else if (step_index == 2) {
+                step_2.removeClass('mui-hidden');
+                step_1.addClass('mui-hidden');
+                step_3.addClass('mui-hidden');
+            }
+            else if (step_index == 3) {
+                step_3.removeClass('mui-hidden');
+                step_1.addClass('mui-hidden');
+                step_2.addClass('mui-hidden');
+            }
+            else {
+                console.log('step_index 取值只能为1,2,3');
+                return false
+            }
+        }
+
+        mui('#check_email_form').on('tap', '#btn_check_email', function () {
+            var email = check_email_form.querySelector('input[name="email"]').value;
+            var self = this;
+            var action_type = self.dataset.action_type;
+            if (email == '') {
+                mui.toast('请先输入邮箱', toast_option);
+                return false
+            }
+            else if (!reg_email.test(email)) {
+                mui.toast('邮箱格式有误，请重新输入', toast_option);
+                return false
+            }
+            mui.showLoading("正在验证邮箱..", "div");
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'api:check_email_is_bind' %}',
+                data: {"email": email},
+                dataType: 'json',
+                success: function (data) {
+                    if (data.code == 200) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '{% url 'api:send_verification_to_bind_or_change_email' %}',
+                            data: {"email": email},
+                            dataType: 'json',
+                            success: function (json) {
+                                mui.hideLoading();
+                                if (json.code == 200) {
+                                    if (action_type == 1) {
+                                        change_email_form.querySelector('input[name="email"]').value = email;
+                                        moveTo(3)
+                                    }
+                                    else {
+                                        bind_email_form.querySelector('input[name="email"]').value = email;
+                                        moveTo(2)
+                                    }
+                                }
+                                else {
+                                    mui.toast(json.msg, toast_option);
+                                    return false
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                mui.hideLoading();
+                                var response_json = XMLHttpRequest.responseJSON;
+                                mui.toast(response_json.msg, toast_option);
+                                return false
+                            }
+                        });
+                    }
+                    else {
+                        mui.toast(data.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mui.hideLoading();
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        });
+
+        mui('#bind_email_form').on('tap', '#btn_bind_email', function () {
+            var self = this;
+            var email = bind_email_form.querySelector('input[name="email"]').value;
+            var verification_code = bind_email_form.querySelector('input[name="verification_code"]').value;
+            var password = bind_email_form.querySelector('input[name="password"]').value;
+
+            var reg_password = /^[\w!@#$%^&*?,.;_]{6,32}$/;
+
+            if (email == '') {
+                mui.toast('参数缺失，请重试。', toast_option);
+                $("#update_email input").val('');
+                moveTo(1);
+                return false
+            }
+            else if (verification_code == '') {
+                mui.toast('请输入验证码', toast_option);
+                return false
+            }
+            else if (!reg_verification_code.test(verification_code)) {
+                mui.toast('验证码为6位数字，请重新输入', toast_option);
+                return false
+            }
+            else if (password == '') {
+                mui.toast('请输入密码', toast_option);
+                return false
+            }
+            else if (!reg_password.test(password)) {
+                mui.toast('密码格式有误，请重新输入', toast_option);
+                return false
+            }
+            mui.showLoading("正在绑定邮箱..", "div");
+            $.ajax({
+                url: '{% url 'api:bind_email' %}',
+                type: "PUT",
+                data: {
+                    "email": email,
+                    "verification_code": verification_code,
+                    "password": password
+                },
+                dataType: 'json',
+                success: function (data) {
+                    mui.hideLoading();
+                    if (data.code == 200) {
+                        mui.alert(data.msg, '系统消息', function () {
+                            window.location.reload()
+                        });
+                    }
+                    else {
+                        mui.toast(data.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mui.hideLoading();
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        });
+
+        mui('#change_email_form').on('tap', '#btn_change_email', function () {
+            var self = this;
+            var email = change_email_form.querySelector('input[name="email"]').value;
+            var verification_code = change_email_form.querySelector('input[name="verification_code"]').value;
+
+            if (email == '') {
+                mui.toast('参数缺失，请重试。', toast_option);
+                $("#update_email input").val('');
+                moveTo(1);
+                return false
+            }
+            else if (verification_code == '') {
+                mui.toast('请输入验证码', toast_option);
+                return false
+            }
+            else if (!reg_verification_code.test(verification_code)) {
+                mui.toast('验证码为6位数字，请重新输入', toast_option);
+                return false
+            }
+            mui.showLoading("正在修改邮箱..", "div");
+            $.ajax({
+                url: '{% url 'api:change_email' %}',
+                type: "PUT",
+                data: {
+                    "email": email,
+                    "verification_code": verification_code
+                },
+                dataType: 'json',
+                success: function (data) {
+                    mui.hideLoading();
+                    if (data.code == 200) {
+                        mui.alert(data.msg, '系统消息', function () {
+                            window.location.reload()
+                        });
+                    }
+                    else {
+                        mui.toast(data.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mui.hideLoading();
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    return false
+                }
+            });
+        });
+
+        var COUNTDOWN_SECOND = 60;
+        function count_down_clock(btn) {
+            if (COUNTDOWN_SECOND == 0) {
+                $(btn).css('pointer-events', 'auto');
+                $(btn).html("重新获取");
+                COUNTDOWN_SECOND = 60;
+            } else {
+                $(btn).css('pointer-events', 'none');
+                $(btn).html("重新获取(" + COUNTDOWN_SECOND + "s)");
+                COUNTDOWN_SECOND--;
+                setTimeout(function () {
+                    count_down_clock(btn)
+                }, 1000);
+            }
+        }
+
+        mui('#update_email').on('tap', '.resend-verification-link', function () {
+            var self = this;
+            $(self).css('pointer-events', 'none');
+            var parent_form = $(this).parents('form');
+            var email = parent_form.find('input[name="email"]').val();
+
+            if (email == '') {
+                mui.toast('参数缺失，请重试。', toast_option);
+                $("#update_email input").val('');
+                moveTo(1);
+                return false
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'api:send_verification_to_bind_or_change_email' %}',
+                data: {"email": email},
+                dataType: 'json',
+                success: function (data) {
+                    mui.toast(data.msg, toast_option);
+                    if (data.code == 200) {
+                        count_down_clock(self);
+                    }
+                    return false
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                    $(self).css('pointer-events', 'auto');
+                    return false
+                }
+            });
+        });
     </script>
 {% endblock %}

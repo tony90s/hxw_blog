@@ -25,6 +25,7 @@ from restful_api.account.forms import (
     ResetPasswordForm,
     GeneralEmailForm,
     EmailToResetPasswordForm,
+    CheckAccountIsExistsForm,
     CheckEmailIsBindForm,
     UnbindingSocialLoginForm
 )
@@ -197,6 +198,18 @@ class SendEmailToResetPassword(APIView):
         request.session['verification_code'] = verification_code
         request.session.set_expiry(5 * 60)
         return Response({'code': 200, 'msg': '验证码已发送至邮箱，注意查收，若邮件未出现在收件箱，请留意垃圾箱。'})
+
+
+class CheckAccountIsExists(APIView):
+    def post(self, request, *args, **kwargs):
+        form = CheckAccountIsExistsForm(request.data)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        return Response({
+            'code': 200,
+            'msg': '账户存在，可以重置密码。'
+        })
 
 
 class CheckEmailIsBind(APIView):

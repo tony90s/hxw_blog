@@ -15,16 +15,6 @@
     line-height: 1.5;
 }
 
-.separate-line {
-    width: 15%;
-    border: 2px solid #000;
-    margin: 8px 0;
-}
-
-.separate-line-15 {
-    margin-top: 15px;
-}
-
 .article .meta {
     margin-top: 10px;
     font-size: 14px;
@@ -43,7 +33,7 @@
 .article .article-content p {
     font-size: 16px;
     line-height: 26px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     color: #000;
 }
 
@@ -65,11 +55,6 @@
 
 .article .author .info span {
     display: block;
-}
-
-.separate-title {
-    margin-top: 5px;
-    color: #333;
 }
 
 .comments-container, .replies-container {

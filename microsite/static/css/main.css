@@ -28,6 +28,10 @@ form {
     font-size: 16px;
 }
 
+input, select, textarea {
+    font-size: 16px;
+}
+
 .mui-bottom-bar {
     bottom: 0;
     -webkit-box-shadow: 0 1px 6px #ccc;
@@ -160,7 +164,7 @@ form .mui-table-view:after {
 }
 
 .mui-toast-container {
-    bottom: 50% !important;
+    bottom: 40% !important;
 }
 
 .mui-toast-message {
@@ -199,6 +203,21 @@ header .avatar {
 
 .aside-menu .aside-menu-item a span {
     color: #000;
+}
+
+.separate-line {
+    width: 20%;
+    border: 2px solid #000;
+    margin: 10px 0;
+}
+
+.separate-line-15 {
+    margin-top: 15px;
+}
+
+.separate-title {
+    margin-top: 10px;
+    color: #333;
 }
 
 .article-container {
@@ -292,8 +311,12 @@ header .avatar {
 
 .comment-box #send-text {
     position: absolute;
-    bottom: 30px;
+    bottom: 22px;
     font-size: 46px;
+    line-height: 55px;
     width: 55px;
+    height: 55px;
+    text-align: center;
+    vertical-align: middle;
     right: 0;
 }

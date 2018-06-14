@@ -1,27 +1,184 @@
-.mui-table-view.settings-group:first-child {
+.mui-views,
+.mui-view,
+.mui-pages,
+.mui-page,
+.mui-page-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #efeff4;
+    font-size: 16px;
+    overflow: hidden;
+}
+
+form {
+    min-height: 550px;
+}
+
+.mui-pages {
+    top: 46px;
+    height: auto;
+}
+
+.mui-page.mui-transitioning {
+    -webkit-transition: -webkit-transform 300ms ease;
+    transition: transform 300ms ease;
+}
+
+.mui-page-left {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+}
+
+.mui-ios .mui-page-left {
+    -webkit-transform: translate3d(-20%, 0, 0);
+    transform: translate3d(-20%, 0, 0);
+}
+
+.mui-navbar {
+    position: fixed;
+    right: 0;
+    left: 0;
+    z-index: 10;
+    height: 44px;
+    background-color: #f7f7f8;
+}
+
+.mui-navbar .mui-bar {
+    position: absolute;
+    background: transparent;
+    text-align: center;
+}
+
+.mui-android .mui-navbar-inner.mui-navbar-left {
+    opacity: 0;
+}
+
+.mui-ios .mui-navbar-left .mui-left,
+.mui-ios .mui-navbar-left .mui-center,
+.mui-ios .mui-navbar-left .mui-right {
+    opacity: 0;
+}
+
+.mui-navbar .mui-btn-nav {
+    -webkit-transition: none;
+    transition: none;
+    -webkit-transition-duration: .0s;
+    transition-duration: .0s;
+}
+
+.mui-navbar .mui-bar .mui-title {
+    display: inline-block;
+    width: auto;
+}
+
+.mui-page-shadow {
+    position: absolute;
+    right: 100%;
+    top: 0;
+    width: 16px;
+    height: 100%;
+    z-index: -1;
+    content: '';
+}
+
+.mui-page-shadow {
+    background: -webkit-linear-gradient(left, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, .01) 50%, rgba(0, 0, 0, .2) 100%);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, .01) 50%, rgba(0, 0, 0, .2) 100%);
+}
+
+.mui-navbar-inner.mui-transitioning,
+.mui-navbar-inner .mui-transitioning {
+    -webkit-transition: opacity 300ms ease, -webkit-transform 300ms ease;
+    transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.mui-page {
+    display: none;
+}
+
+.mui-pages .mui-page {
+    display: block;
+}
+
+.mui-page .mui-table-view:first-child {
     margin-top: 15px;
 }
 
-.mui-table-view.settings-group:last-child {
+.mui-page .mui-table-view:last-child {
     margin-bottom: 30px;
 }
 
-.mui-table-view.settings-group {
+.mui-table-view {
     margin-top: 20px;
 }
 
-.mui-table-view.settings-group span.mui-pull-right {
+.mui-table-view span.mui-pull-right {
     color: #999;
 }
 
-.settings-group {
+.mui-table-view-divider {
+    background-color: #efeff4;
     font-size: 16px;
+}
+
+.mui-table-view-divider:before,
+.mui-table-view-divider:after {
+    height: 0;
+}
+
+.mui-control-content {
+    background-color: #fff;
+    min-height: 550px;
+}
+
+.mui-input-row .mui-input-verification {
+    padding-right: 90px;
+}
+
+.mui-input-row .mui-input-verification ~ .resend-verification-link {
+    font-size: 16px;
+    position: absolute;
+    display: inline-block;
+    z-index: 1;
+    top: 10px;
+    right: 15px;
+    pointer-events: auto;
+}
+
+.gender-select span {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+}
+
+.gender-select .mui-table-view-cell>a:not(.mui-btn) {
+    color: #000;
+}
+
+.head {
+    height: 42px;
+}
+
+#head {
+    line-height: 42px;
 }
 
 .head-img {
     width: 42px;
     height: 42px;
     border-radius: 21px;
+}
+
+#head-img1 {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    width: 42px;
+    height: 42px;
 }
 
 p.bio {
@@ -69,4 +226,59 @@ p.bio {
 
 .oauth-area .oauth-btn.disabled {
     background-color: #ddd;
+}
+
+.information-container {
+    padding: 15px;
+}
+
+.information-container h4 {
+    font-size: 16px;
+}
+
+.information-container .information-title {
+    text-align: center;
+}
+
+.information-container .information-body {
+    margin-top: 10px;
+}
+
+.information-container .information-body p {
+    font-size: 16px;
+    line-height: 26px;
+    margin-bottom: 10px;
+    color: #000;
+}
+
+.information-container .information-body .subsection-title {
+    margin-top: 15px;
+}
+
+.social {
+    width: 100%;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.social .social-item {
+    display: inline-block;
+    margin: 0 25px;
+}
+
+.social .social-item .social-tile {
+    font-size: 15px;
+    color: rgba(0, 0, 0, 0.6);
+    text-align: center;
+}
+
+.social .social-item .social-qrcode {
+    width: 100px;
+    height: 100px;
+    display: block;
+}
+
+.social .social-item .social-qrcode img {
+    width: 100%;
+    height: 100%;
 }
