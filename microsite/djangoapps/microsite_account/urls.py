@@ -14,6 +14,7 @@ from account.views import (
 )
 from microsite_account.views import (
     user_center,
+    user_avatar_preview
 )
 
 urlpatterns = [
@@ -22,6 +23,7 @@ urlpatterns = [
     url(r'^logout$', logout_view, name='logout'),
     url(r'^password/reset$', ResetPasswordView.as_view(), name='reset_password'),
     url(r'^center$', user_center, name='user_center'),
+    url(r'^avatar$', user_avatar_preview, name='user_avatar'),
 ]
 
 urlpatterns += [

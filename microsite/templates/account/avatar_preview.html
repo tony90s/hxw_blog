@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}<title>头像预览</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/account/meta.css">
+{% endblock %}
+
+{% block content %}
+    <div id="app" class="mui-views">
+        <div class="mui-view">
+            <div class="mui-navbar">
+            </div>
+            <div class="mui-pages">
+            </div>
+        </div>
+    </div>
+    <div id="avatar_preview" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <button type="button" class="action-back mui-left mui-btn mui-btn-link mui-btn-nav mui-pull-left">
+                <span class="mui-icon mui-icon-left-nav"></span>
+            </button>
+            <h1 class="mui-title">个人头像</h1>
+            <a href="#select_avatar" class="mui-icon mui-icon-more mui-pull-right"></a>
+        </div>
+
+        <div class="mui-page-content">
+            <div class="mui-zoom-scroller">
+                <img src="{{ user.profile.avatar.url }}" class="mui-zoom">
+            </div>
+        </div>
+    </div>
+
+
+    <div id="select_avatar" class="mui-popover mui-popover-action mui-popover-bottom">
+        <ul class="mui-table-view ul-select" style="margin: 0;border-radius: 0">
+            <li class="mui-table-view-cell">
+                <a href="#">拍照</a>
+            </li>
+            <li class="mui-table-view-cell">
+                <a href="#" id="select_avatar_btn">选择图片</a>
+            </li>
+        </ul>
+        <ul class="mui-table-view" style="margin:10px 0 0;border-radius: 0;">
+            <li class="mui-table-view-cell">
+                <a href="#select_avatar" style="color: #000;">取消</a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="upload_avatar" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <button type="button" class="mui-action-back mui-left mui-btn mui-btn-link mui-btn-nav mui-pull-left">
+                <span class="mui-icon mui-icon-left-nav"></span>
+            </button>
+            <h1 class="mui-title">个人头像</h1>
+        </div>
+        <div class="mui-page-content">
+
+        </div>
+        <nav class="mui-bar mui-bar-tab">
+            <a class="cancel-upload mui-tab-item" href="#">
+                <span class="mui-tab-label">取消</span>
+            </a>
+            <a class="mui-tab-item" href="#">
+                <span class="mui-icon mui-icon-refreshempty"></span>
+            </a>
+            <a class="mui-tab-item" href="#">
+                <span class="mui-icon mui-icon-refreshempty"></span>
+            </a>
+            <a class="mui-tab-item avatar-save" id="update_avatar_btn" href="#">
+                <span class="mui-tab-label">确定</span>
+            </a>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="/static/mui/js/mui.view.js"></script>
+    <script>
+        mui.init({
+            swipeBack: false
+        });
+
+        //初始化单页view
+        var viewApi = mui('#app').view({
+            defaultPage: '#avatar_preview'
+        });
+        //初始化单页的区域滚动
+        mui('.mui-scroll-wrapper').scroll();
+        var view = viewApi.view;
+        (function ($) {
+            //处理view的后退与webview后退
+            var oldBack = $.back;
+            $.back = function () {
+                if (viewApi.canBack()) { //如果view可以后退，则执行view的后退
+                    viewApi.back();
+                } else { //执行webview后退
+                    oldBack();
+                }
+            };
+            //监听页面切换事件方案1,通过view元素监听所有页面切换事件，目前提供pageBeforeShow|pageShow|pageBeforeBack|pageBack四种事件(before事件为动画开始前触发)
+            //第一个参数为事件名称，第二个参数为事件回调，其中e.detail.page为当前页面的html对象
+            view.addEventListener('pageBeforeShow', function (e) {
+                console.log(e.detail.page.id + ' beforeShow');
+            });
+            view.addEventListener('pageShow', function (e) {
+                console.log(e.detail.page.id + ' show');
+            });
+            view.addEventListener('pageBeforeBack', function (e) {
+                console.log(e.detail.page.id + ' beforeBack');
+            });
+            view.addEventListener('pageBack', function (e) {
+                console.log(e.detail.page.id + ' back');
+            });
+        })(mui);
+
+        mui('body').on('tap', '.action-back', function () {
+            history.go(-1)
+        });
+
+        mui('body').on('tap', '.cancel-upload', function () {
+            viewApi.go('#avatar_preview');
+        });
+
+        mui('#select_avatar').on('tap', '#select_avatar_btn', function () {
+            mui('#select_avatar').popover('hide');
+            viewApi.go('#upload_avatar');
+        });
+
+        var toast_option = {
+            duration: 1000
+        };
+
+        function AjaxUploadAvatar(formData) {
+            mui.showLoading("正在上传头像...", "div");
+            $.ajax({
+                type: "PUT",
+                url: "{% url 'api:update_user_avatar' %}",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (re) {
+                    mui.hideLoading();
+                    if (re.code == 200) {
+                        location.href = "{% url 'account:user_center' %}";
+                    }
+                    else {
+                        mui.toast(re.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mui.hideLoading();
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                }
+            });
+        }
+
+        $('#avatarInput').on('change', function (e) {
+            var filemaxsize = 1024 * 5;//5M
+            var target = $(e.target);
+            var Size = target[0].files[0].size / 1024;
+            if (!this.files[0].type.match(/image.*/)) {
+                mui.toast('请选择正确的图片!', toast_option);
+                return false
+            }
+            if (Size > filemaxsize) {
+                mui.toast('图片最大为5M!', toast_option);
+                return false;
+            }
+        });
+    </script>
+{% endblock %}
+

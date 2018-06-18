@@ -98,6 +98,10 @@ ul.comments-list, ul.comment-replies-list {
     position: absolute;
     right: 0;
     top: 0;
+    width: 36px;
+    height: 36px;
+    text-align: right;
+    vertical-align: middle;
     font-size: 14px;
     color: rgba(0, 0, 0, 0.6);
 }

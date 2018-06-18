@@ -105,9 +105,9 @@
         </div>
 
         <div id="gender" class="mui-popover mui-popover-action mui-popover-bottom">
-            <ul class="mui-table-view gender-select" style="margin: 0;border-radius: 0">
+            <ul class="mui-table-view ul-select" style="margin: 0;border-radius: 0">
                 <li class="mui-table-view-cell">
-                    <span>回复</span>
+                    <span>性别</span>
                 </li>
                 <li class="mui-table-view-cell">
                     <a href="#" data-value="m">男</a>
@@ -359,16 +359,6 @@
         });
         //初始化单页的区域滚动
         mui('.mui-scroll-wrapper').scroll();
-        /*
-         mui('body').on('tap', 'a', function () {
-         var reg_link = /[\/]+/;
-         if (reg_link.test(this.href)) {
-         document.location.href = this.href;
-         }
-         });*/
-        mui('body').on('tap', '.go-to-index', function () {
-            window.location.href = "{% url 'index' %}";
-        });
 
         mui.ready(function () {
             var username_span = $('.username');
@@ -419,6 +409,10 @@
 
         mui('body').on('tap', '.logout', function () {
             window.location.href = '{% url "account:logout" %}'
+        });
+
+        mui('#account').on('tap', '#head', function () {
+            window.location.href = '{% url "account:user_avatar" %}'
         });
 
         var update_user_data_form = document.getElementById('update_user_data_form');

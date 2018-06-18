@@ -216,6 +216,8 @@
     <script src="/static/mui/js/mui.pullToRefresh.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
     <script>
+        mui.init();
+
         var articlesApiUrl = "{% url 'api:articles' %}";
 
         mui('.article-list').on('tap', 'li.article', function () {
@@ -235,7 +237,6 @@
              document.location.href = "{% url 'account:user_center' %}";
         });
 
-        mui.init();
         (function ($) {
             $('.mui-scroll-wrapper').scroll({
                 bounce: false,

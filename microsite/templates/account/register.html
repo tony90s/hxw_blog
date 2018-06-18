@@ -39,7 +39,7 @@
                     <div class="link-area">
                         <a id="login" data-next="{{ next }}">登录</a>
                         <span class="spliter">|</span>
-                        <a id="go_back_home">返回主页</a>
+                        <a class="go-to-index">返回主页</a>
                     </div>
                 </div>
             </form>
@@ -51,9 +51,6 @@
     <script src="/static/mui/js/mui.enterfocus.js"></script>
     <script>
         mui('.mui-scroll-wrapper').scroll();
-        mui('header').on('tap', '.mui-action-back', function () {
-            history.go(-1)
-        });
         var toast_option = {
             duration: 1000
         };
@@ -64,10 +61,6 @@
         var register_api_url = '{% url 'api:register' %}';
 
         var register_form = document.getElementById('register_form');
-
-        mui('form').on('tap', '#go_back_home', function () {
-            window.location.href = '{% url 'index' %}';
-        });
 
         mui('form').on('tap', '#login', function () {
             var redirect_url = this.dataset.next;

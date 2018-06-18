@@ -150,12 +150,12 @@ form {
     pointer-events: auto;
 }
 
-.gender-select span {
+.ul-select span {
     color: rgba(0, 0, 0, 0.6);
     font-size: 14px;
 }
 
-.gender-select .mui-table-view-cell>a:not(.mui-btn) {
+.ul-select .mui-table-view-cell>a:not(.mui-btn) {
     color: #000;
 }
 

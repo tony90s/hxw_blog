@@ -5,7 +5,7 @@
 {% endblock %}
 {% block content %}
     <header class="mui-bar mui-bar-nav">
-        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+        <a class="go-to-index mui-icon mui-icon-left-nav mui-pull-left"></a>
         <h1 class="mui-title"></h1>
     </header>
     <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
@@ -62,10 +62,6 @@
 
 {% block extra_js %}
     <script>
-        mui('header').on('tap', '.mui-action-back', function () {
-            window.location.href = "{% url 'index' %}";
-        });
-
         var praiseType = {
             'article': '1',
             'comment': '2'
