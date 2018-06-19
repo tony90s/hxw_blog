@@ -6,7 +6,7 @@ from PIL import Image
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
-def get_thumbnail(orig, width=128, height=128):
+def get_thumbnail(orig, width=180, height=180):
     """get the thumbnail of orig
     @return: InMemoryUploadedFile which can be assigned to ImageField
     """

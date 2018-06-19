@@ -2,6 +2,7 @@
 {% block title %}<title>头像预览</title>{% endblock %}
 {% block extra_header %}
     <link rel="stylesheet" href="/static/css/account/meta.css">
+    <link rel="stylesheet" href="/static/cropper/cropper.min.css">
 {% endblock %}
 
 {% block content %}
@@ -27,23 +28,25 @@
                 <img src="{{ user.profile.avatar.url }}" class="mui-zoom">
             </div>
         </div>
-    </div>
 
-
-    <div id="select_avatar" class="mui-popover mui-popover-action mui-popover-bottom">
-        <ul class="mui-table-view ul-select" style="margin: 0;border-radius: 0">
-            <li class="mui-table-view-cell">
-                <a href="#">拍照</a>
-            </li>
-            <li class="mui-table-view-cell">
-                <a href="#" id="select_avatar_btn">选择图片</a>
-            </li>
-        </ul>
-        <ul class="mui-table-view" style="margin:10px 0 0;border-radius: 0;">
-            <li class="mui-table-view-cell">
-                <a href="#select_avatar" style="color: #000;">取消</a>
-            </li>
-        </ul>
+        <div id="select_avatar" class="mui-popover mui-popover-action mui-popover-bottom">
+            <ul class="mui-table-view ul-select" style="margin: 0;border-radius: 0">
+                <li class="mui-table-view-cell">
+                    <span>更换头像</span>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a href="#">拍照</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a href="#" id="select_avatar_btn">选择图片</a>
+                </li>
+            </ul>
+            <ul class="mui-table-view" style="margin:10px 0 0;border-radius: 0;">
+                <li class="mui-table-view-cell">
+                    <a href="#select_avatar" style="color: #000;">取消</a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <div id="upload_avatar" class="mui-page">
@@ -54,19 +57,23 @@
             <h1 class="mui-title">个人头像</h1>
         </div>
         <div class="mui-page-content">
-
+            <div class="img-container">
+                <img id="image" src="" class="cropper-hidden">
+            </div>
+            <input type="file" class="mui-hidden" id="inputImage" name="file">
         </div>
         <nav class="mui-bar mui-bar-tab">
             <a class="cancel-upload mui-tab-item" href="#">
                 <span class="mui-tab-label">取消</span>
             </a>
-            <a class="mui-tab-item" href="#">
-                <span class="mui-icon mui-icon-refreshempty"></span>
+            <a class="mui-tab-item cropper-action" href="#" data-method="rotate" data-option="-90">
+                <span class="mui-tab-label">旋转</span>
             </a>
-            <a class="mui-tab-item" href="#">
-                <span class="mui-icon mui-icon-refreshempty"></span>
+            <a class="mui-tab-item cropper-action" href="#" data-method="reset">
+                <span class="mui-tab-label">重设</span>
             </a>
-            <a class="mui-tab-item avatar-save" id="update_avatar_btn" href="#">
+            <a class="mui-tab-item cropper-action" href="#" data-method="getCroppedCanvas"
+               data-option="{ 'width': 180, 'height': 180 }">
                 <span class="mui-tab-label">确定</span>
             </a>
         </nav>
@@ -75,6 +82,8 @@
 
 {% block extra_js %}
     <script src="/static/mui/js/mui.view.js"></script>
+    <script src="/static/cropper/cropper.min.js"></script>
+
     <script>
         mui.init({
             swipeBack: false
@@ -121,15 +130,23 @@
             viewApi.go('#avatar_preview');
         });
 
-        /*
+
         mui('#select_avatar').on('tap', '#select_avatar_btn', function () {
-            mui('#select_avatar').popover('hide');
-            viewApi.go('#upload_avatar');
-        });*/
+            $('#inputImage').click()
+        });
 
         var toast_option = {
             duration: 1000
         };
+
+        function getBlobBydataURI(dataURI, type) {
+            var binary = atob(dataURI);
+            var array = [];
+            for (var i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i));
+            }
+            return new Blob([new Uint8Array(array)], {type: type});
+        }
 
         function AjaxUploadAvatar(formData) {
             mui.showLoading("正在上传头像...", "div");
@@ -157,19 +174,219 @@
             });
         }
 
-        $('#avatarInput').on('change', function (e) {
-            var filemaxsize = 1024 * 5;//5M
-            var target = $(e.target);
-            var Size = target[0].files[0].size / 1024;
-            if (!this.files[0].type.match(/image.*/)) {
-                mui.toast('请选择正确的图片!', toast_option);
-                return false
+        $(function () {
+            var console = window.console || {
+                        log: function () {
+                        }
+                    };
+            var URL = window.URL || window.webkitURL;
+            var $image = $('#image');
+            var $download = $('#download');
+            var options = {
+                aspectRatio: 1,
+                preview: '.img-preview',
+                viewMode: 1
+            };
+            var originalImageURL = $image.attr('src');
+            var uploadedImageName = 'cropped.jpg';
+            var uploadedImageType = 'image/jpeg';
+            var uploadedImageURL;
+
+            // Cropper
+            $image.on({
+                ready: function (e) {
+                    console.log(e.type);
+                },
+                cropstart: function (e) {
+                    console.log(e.type, e.detail.action);
+                },
+                cropmove: function (e) {
+                    console.log(e.type, e.detail.action);
+                },
+                cropend: function (e) {
+                    console.log(e.type, e.detail.action);
+                },
+                crop: function (e) {
+                    console.log(e.type);
+                },
+                zoom: function (e) {
+                    console.log(e.type, e.detail.ratio);
+                }
+            }).cropper(options);
+
+            // Methods
+
+            mui('body').on('tap', '.cropper-action', function () {
+                var $this = $(this);
+                var data = $this.data();
+                var cropper = $image.data('cropper');
+                var cropped;
+                var $target;
+                var result;
+
+                if ($this.prop('disabled') || $this.hasClass('disabled')) {
+                    return;
+                }
+
+                if (cropper && data.method) {
+                    data = $.extend({}, data); // Clone a new one
+
+                    if (typeof data.target !== 'undefined') {
+                        $target = $(data.target);
+
+                        if (typeof data.option === 'undefined') {
+                            try {
+                                data.option = JSON.parse($target.val());
+                            } catch (e) {
+                                console.log(e.message);
+                            }
+                        }
+                    }
+
+                    cropped = cropper.cropped;
+
+                    switch (data.method) {
+                        case 'rotate':
+                            if (cropped && options.viewMode > 0) {
+                                $image.cropper('clear');
+                            }
+
+                            break;
+
+                        case 'getCroppedCanvas':
+                            if (uploadedImageType === 'image/jpeg') {
+                                if (!data.option) {
+                                    data.option = {};
+                                }
+
+                                data.option.fillColor = '#fff';
+                            }
+
+                            break;
+                    }
+
+                    result = $image.cropper(data.method, data.option);
+
+                    switch (data.method) {
+                        case 'rotate':
+                            if (cropped && options.viewMode > 0) {
+                                $image.cropper('crop');
+                            }
+
+                            break;
+
+                        case 'scaleX':
+                        case 'scaleY':
+                            $(this).data('option', -data.option);
+                            break;
+
+                        case 'getCroppedCanvas':
+                            if (result) {
+                                var img_data = result.toDataURL(uploadedImageType).split(',')[1];
+                                var $Blob = getBlobBydataURI(img_data, 'image/jpeg');
+                                var formData = new FormData();
+                                formData.append("avatar", $Blob);
+                                AjaxUploadAvatar(formData)
+                            }
+
+                            break;
+
+                        case 'destroy':
+                            if (uploadedImageURL) {
+                                URL.revokeObjectURL(uploadedImageURL);
+                                uploadedImageURL = '';
+                                $image.attr('src', originalImageURL);
+                            }
+
+                            break;
+                    }
+
+                    if ($.isPlainObject(result) && $target) {
+                        try {
+                            $target.val(JSON.stringify(result));
+                        } catch (e) {
+                            console.log(e.message);
+                        }
+                    }
+
+                }
+            });
+
+            // Keyboard
+            $(document.body).on('keydown', function (e) {
+
+                if (!$image.data('cropper') || this.scrollTop > 300) {
+                    return;
+                }
+
+                switch (e.which) {
+                    case 37:
+                        e.preventDefault();
+                        $image.cropper('move', -1, 0);
+                        break;
+
+                    case 38:
+                        e.preventDefault();
+                        $image.cropper('move', 0, -1);
+                        break;
+
+                    case 39:
+                        e.preventDefault();
+                        $image.cropper('move', 1, 0);
+                        break;
+
+                    case 40:
+                        e.preventDefault();
+                        $image.cropper('move', 0, 1);
+                        break;
+                }
+
+            });
+            // Import image
+            var $inputImage = $('#inputImage');
+
+            if (URL) {
+                $inputImage.change(function () {
+                    mui('#select_avatar').popover('hide');
+                    viewApi.go('#upload_avatar');
+
+                    var files = this.files;
+                    var file;
+
+                    if (!$image.data('cropper')) {
+                        return;
+                    }
+
+                    if (files && files.length) {
+                        file = files[0];
+
+                        if (/^image\/\w+$/.test(file.type)) {
+                            var maxSize = 1024 * 5;  //5M
+                            var size = file.size / 1024;
+                            if (size > maxSize) {
+                                mui.toast('图片最大为5M!', toast_option);
+                                return false;
+                            }
+
+                            uploadedImageName = file.name;
+                            uploadedImageType = file.type;
+
+                            if (uploadedImageURL) {
+                                URL.revokeObjectURL(uploadedImageURL);
+                            }
+
+                            uploadedImageURL = URL.createObjectURL(file);
+                            $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
+                            $inputImage.val('');
+                        } else {
+                            mui.toast('请选择正确的图片!', toast_option);
+                        }
+                    }
+                });
+            } else {
+                $inputImage.prop('disabled', true).parent().addClass('disabled');
             }
-            if (Size > filemaxsize) {
-                mui.toast('图片最大为5M!', toast_option);
-                return false;
-            }
-        });
+        })
     </script>
 {% endblock %}
 

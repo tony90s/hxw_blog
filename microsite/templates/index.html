@@ -6,7 +6,7 @@
             {% if article_type.value != 0 %}{{ article_type.display_name }}{% else %}LOVEITERS{% endif %}
         </h1>
         <a class="avatar mui-pull-right" href="javascript:void (0)">
-            <img src="{% if user.is_authenticated %}{{ user.profile.avatar.url }}{% else %}/media/avatar/default_avatar_1.jpg{% endif %}" alt="头像">
+            <img src="{% if user.is_authenticated %}{{ user.profile.avatar.url }}{% else %}/media/avatar/default_avatar.jpg{% endif %}" alt="头像">
         </a>
     </header>
     <div class="mui-content">
