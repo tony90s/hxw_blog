@@ -58,6 +58,10 @@ input, select, textarea {
     width: 78%;
 }
 
+.mui-table-view {
+    margin-top: 20px;
+}
+
 form .mui-table-view:before {
     left: 15px;
 }
