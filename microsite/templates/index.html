@@ -199,7 +199,7 @@
         <a class="mui-tab-item mui-active" id="reload_index" href="javascript:void(0);">
             <span class="mui-icon mui-icon-home"></span>
         </a>
-        <a class="mui-tab-item" href="#">
+        <a class="mui-tab-item" id="user_messages" href="#">
             <span class="mui-icon-extra mui-icon-extra-notice">
                 <!--<span class="mui-badge">9</span>-->
             </span>
@@ -231,6 +231,10 @@
 
         mui('body').on('tap', '#reload_index', function () {
             location.reload()
+        });
+
+        mui('body').on('tap', '#user_messages', function () {
+            location.href =  "{% url 'account:user_messages' %}";
         });
 
         mui('body').on('tap', '#go_to_user_center', function () {

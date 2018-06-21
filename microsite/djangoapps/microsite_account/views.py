@@ -16,3 +16,9 @@ def user_center(request):
 def user_avatar_preview(request):
     template_name = 'account/avatar_preview.html'
     return render(request, template_name)
+
+
+@login_required
+def user_messages(request):
+    template_name = 'account/messages.html'
+    return render(request, template_name)

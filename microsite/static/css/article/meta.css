@@ -57,39 +57,39 @@
     display: block;
 }
 
-.comments-container, .replies-container {
+.comments-container, .replies-container, .praises-container {
     background-color: #fff;
     width: 100%;
     padding: 15px;
     margin-top: 10px;
 }
 
-ul.comments-list, ul.comment-replies-list {
+ul.comments-list, ul.comment-replies-list, ul.praises-list {
     padding: 0;
     margin: 24px 0;
 }
 
-.comment, .comment-reply {
+.comment, .comment-reply, li.praise {
     position: relative;
     margin-bottom: 12px;
 }
 
-.comment .avatar, .comment-reply .avatar {
+.comment .avatar, .comment-reply .avatar, li.praise .avatar {
     position: absolute;
     top: 0;
     left: 0;
 }
 
-.comment .info, .comment-reply .info {
+.comment .info, .comment-reply .info, li.praise .info {
     margin-left: 52px;
     border-bottom: 1px solid #f0f0f0;;
 }
 
-.comment .info .user, .comment-reply .info .user {
+.comment .info .user, .comment-reply .info .user, li.praise .info .user {
     position: relative;
 }
 
-.comment .info .user .user-info span, .comment-reply .info .user .user-info span {
+.comment .info .user .user-info span, .comment-reply .info .user .user-info span, li.praise .info .user .user-info span {
     font-size: 14px;
     display: block;
 }
@@ -110,7 +110,7 @@ ul.comments-list, ul.comment-replies-list {
     margin-left: 2px;
 }
 
-.comment .info .content, .comment-reply .info .content {
+.comment .info .content, .comment-reply .info .content, li.praise .info .content {
     margin-top: 10px;
 }
 
@@ -119,6 +119,22 @@ ul.comments-list, ul.comment-replies-list {
     padding: 10px;
     margin: 10px 0;
     font-size: 14px;
+}
+
+.comment .info .article, li.praise .info .article {
+    background-color: #efeff4;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.comment .info .article .title, li.praise .info .article .title {
+    font-size: 18px;
+    color: #000;
+}
+
+.comment .info .article .abstract, li.praise .info .article .abstract {
+    margin-top: 10px;
+    margin-bottom: 0;
 }
 
 .comment .info .replies-list p {
@@ -172,4 +188,26 @@ ul.comments-list, ul.comment-replies-list {
     width: 100%;
     height: 100%;
     border-radius: 50%;
+}
+
+.switch-buttons {
+    width: 100%;
+}
+
+.switch-buttons button {
+    width: 33.3%;
+    height: 32px;
+    border-radius: 16px;
+    padding:6px 12px;
+    line-height: 20px;
+    color: #ccc;
+    font-size: 15px;
+}
+
+.switch-buttons button.active {
+    color: #000;
+}
+
+.switch-buttons button:first-child {
+    margin-right: 20px;
 }

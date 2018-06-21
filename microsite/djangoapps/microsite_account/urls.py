@@ -3,6 +3,7 @@ from account.views import (
     LoginView, RegisterView,
     logout_view,
     ResetPasswordView,
+    user_unified_comment_info_pagination,
     weibo_login,
     weibo_auth,
     qq_login,
@@ -14,7 +15,8 @@ from account.views import (
 )
 from microsite_account.views import (
     user_center,
-    user_avatar_preview
+    user_avatar_preview,
+    user_messages
 )
 
 urlpatterns = [
@@ -24,6 +26,8 @@ urlpatterns = [
     url(r'^password/reset$', ResetPasswordView.as_view(), name='reset_password'),
     url(r'^center$', user_center, name='user_center'),
     url(r'^avatar$', user_avatar_preview, name='user_avatar'),
+    url(r'^messages$', user_messages, name='user_messages'),
+    url(r'^messages/comments/pagination$', user_unified_comment_info_pagination, name='user_message_comments_pagination'),
 ]
 
 urlpatterns += [

@@ -1,0 +1,468 @@
+{% extends "base.html" %}
+{% block title %}<title>消息</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/article/meta.css">
+{% endblock %}
+{% block content %}
+    <header class="mui-bar mui-bar-nav">
+        <h1 class="mui-title">
+            消息
+        </h1>
+    </header>
+    <div class="mui-content">
+        <div id="slider" class="mui-slider mui-fullscreen">
+            <div id="sliderSegmentedControl"
+                 class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted background-white">
+                <div class="mui-scroll" style="width: 100%">
+                    <a href="#tab0" class="mui-control-item mui-active" style="width: 33.3%">
+                        评论
+                    </a>
+                    <a href="#tab1" class="mui-control-item" style="width: 33.3%">
+                        赞
+                    </a>
+                    <!--
+                    <a href="#tab2" class="mui-control-item" style="width: 33.3%">
+                        通知
+                    </a>
+                    -->
+                </div>
+            </div>
+            <div class="mui-slider-group">
+                <div id="tab0" class="mui-slider-item mui-slider-item-no-border mui-control-content mui-active">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="comments-container">
+                                <div class="switch-buttons">
+                                    <button class="mui-inline active" id="switch_comments_type_0" data-comment_type="0">收到的评论</button>
+                                    <button class="mui-inline" id="switch_comments_type_1" data-comment_type="1">发出的评论</button>
+                                </div>
+                                <ul class="comments-list selected" id="comments_list_0" data-comment_type="0"
+                                    data-page_index="1">
+                                </ul>
+                                <ul class="comments-list" id="comments_list_1" data-comment_type="1"
+                                    data-page_index="1">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab1" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="praises-container">
+                                <ul class="praises-list" data-page_index="1">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--
+                <div id="tab2" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll">
+                            <div class="comments-container">
+                                <ul class="notice-list">
+
+                                </ul>
+                                <input type="hidden" value="1" name="page_index">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                -->
+            </div>
+        </div>
+    </div>
+
+    <nav class="mui-bar mui-bar-tab">
+        <a class="mui-tab-item go-to-index mui-active" href="javascript:void(0);">
+            <span class="mui-icon mui-icon-home"></span>
+        </a>
+        <a class="mui-tab-item" href="#">
+            <span class="mui-icon-extra mui-icon-extra-notice">
+                <!--<span class="mui-badge">9</span>-->
+            </span>
+        </a>
+        <a class="mui-tab-item" id="go_to_user_center" href="javascript:void(0)">
+            <span class="mui-icon-extra mui-icon-extra-people"></span>
+        </a>
+    </nav>
+    <!-- off-canvas backdrop -->
+    <div class="mui-off-canvas-backdrop"></div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="/static/mui/js/mui.pullToRefresh.js"></script>
+    <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
+    <script>
+        var praiseType = {
+            1: '文章',
+            2: '评论',
+            3: '回复'
+        };
+        mui.init();
+
+        mui('body').on('tap', '#go_to_user_center', function () {
+            document.location.href = "{% url 'account:user_center' %}";
+        });
+
+        function create_comments(json) {
+            var fragment = document.createDocumentFragment();
+            var li;
+            $.each(json.data, function (index, array) {
+                var article_id = array['article_info']['article_id'];
+                var title = array['article_info']['title'];
+                var cover_photo = array['article_info']['cover_photo'];
+                var abstract = array['article_info']['abstract'];
+                var comment_id = array['comment_id'];
+                var comment_reply_id = array['comment_reply_id'];
+                var replier_user_id = array['replier']['user_id'];
+                var replier_username = array['replier']['username'];
+                var replier_avatar = array['replier']['avatar'];
+                var receiver_user_id = array['receiver']['user_id'];
+                var receiver_username = array['receiver']['username'];
+                var reply_at = array['reply_at'];
+                var reply_at_desc = getDateDiff(reply_at);
+                var content = array['content'];
+                li = document.createElement('li');
+                li.className = 'comment';
+                li.dataset.comment_id = comment_id;
+                li.dataset.replier_id = replier_user_id;
+                li.dataset.replier_username = replier_username;
+                var comment_reply_html = '<a class="avatar" href="javascript:void(0)">' +
+                        '<img src="' + replier_avatar + '" alt="' + replier_username + '">' + '</a>' +
+                        '<div class="info">' +
+                        '<div class="user">' +
+                        '<div class="user-info">' +
+                        '<span class="nickname">' + replier_username + '</span>' +
+                        '<span class="text-time">' + reply_at_desc + '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<p class="content">';
+                if (receiver_user_id > 0) {
+                    comment_reply_html += '回复' +
+                            '<a href="javascript:void(0)">@' + receiver_username + '</a>:&nbsp;'
+                }
+                comment_reply_html += content + '</p>' +
+                        '<div class="article">' +
+                        '<p class="title">' + title + '</p>' +
+                        '<p class="abstract">' + abstract + '</p>' +
+                        '</div></div>';
+                li.innerHTML = comment_reply_html;
+                fragment.appendChild(li);
+            });
+            return fragment
+        }
+
+        function create_praises(json) {
+            var fragment = document.createDocumentFragment();
+            var li;
+            $.each(json.results, function (index, array) {
+                var praise_type = parseInt(array['type']);
+                var article_id = array['article_info']['article_id'];
+                var title = array['article_info']['title'];
+                var cover_photo = array['article_info']['cover_photo'];
+                var abstract = array['article_info']['abstract'];
+                var user_id = array['user']['user_id'];
+                var username = array['user']['username'];
+                var avatar = array['user']['avatar'];
+                var receiver_user_id = array['receiver_info']['user_id'];
+                var receiver_username = array['receiver_info']['username'];
+                var praise_at = array['praise_at'];
+                var praise_at_desc = getDateDiff(praise_at);
+                var content = array['content'];
+                li = document.createElement('li');
+                li.className = 'praise';
+                var praise_html = '<a class="avatar" href="javascript:void(0)">' +
+                        '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
+                        '<div class="info">' +
+                        '<div class="user">' +
+                        '<div class="user-info">' +
+                        '<span class="nickname">' + username + '</span>' +
+                        '<span class="text-time">' + praise_at_desc + '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<p class="content">';
+                praise_html += '赞了你的' + praiseType[praise_type];
+                if (praise_type == 2 || praise_type == 3) {
+                    praise_html += ':&nbsp;'
+                }
+                if (receiver_user_id > 0) {
+                    praise_html += '<a href="javascript:void(0)">@' + receiver_username + '</a>:&nbsp;'
+                }
+                praise_html += content + '</p>' +
+                        '<div class="article">' +
+                        '<p class="title">' + title + '</p>' +
+                        '<p class="abstract">' + abstract + '</p>' +
+                        '</div></div>';
+                li.innerHTML = praise_html;
+                fragment.appendChild(li);
+            });
+            return fragment
+        }
+
+        function pullUpRefreshComments() {
+            var self = this;
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.comments-list.selected');
+            var page_index = parseInt(ul.dataset.page_index);
+            var comment_type = ul.dataset.comment_type;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'account:user_message_comments_pagination' %}",
+                    data: {
+                        'user_id': "{{ user.id }}",
+                        'comment_type': comment_type,
+                        'page_index': page_index
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('data') && json.data.length > 0) {
+                            ul.appendChild(create_comments(json));
+                            self.endPullUpToRefresh(!json.has_next);
+                            if (json.has_next) {
+                                page_index++;
+                                ul.dataset.page_index = page_index
+                            }
+                        } else {
+                            self.endPullUpToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullUpToRefresh(true);
+                    }
+                });
+            }, 0);
+        }
+
+        function pullDownRefreshComments() {
+            var self = this;
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.comments-list.selected');
+            ul.innerHTML = '';
+            ul.dataset.page_index = 1;
+            var comment_type = ul.dataset.comment_type;
+            var page = 1;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'account:user_message_comments_pagination' %}",
+                    data: {
+                        'user_id': "{{ user.id }}",
+                        'comment_type': comment_type,
+                        'page_index': page
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('data') && json.data.length > 0) {
+                            ul.appendChild(create_comments(json));
+                            self.endPullDownToRefresh(!json.has_next);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(!json.has_next);
+                            if (json.has_next) {
+                                page++;
+                                ul.dataset.page_index = page;
+                            }
+                        } else {
+                            self.endPullDownToRefresh(true);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
+                        self.endPullUpToRefresh(true);
+                    }
+                });
+            }, 200);
+        }
+
+        function pullUpRefreshPraises() {
+            var self = this;
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.praises-list');
+            var page = parseInt(ul.dataset.page_index);
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'api:user_praises' %}",
+                    data: {
+                        'page': page,
+                        'user_id': "{{ user.id }}"
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_praises(json));
+                            self.endPullUpToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                ul.dataset.page_index = page
+                            }
+                        } else {
+                            self.endPullUpToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullUpToRefresh(true);
+                    }
+                });
+            }, 0);
+        }
+        function pullDownRefreshPraises() {
+            var self = this;
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.praises-list');
+            ul.innerHTML = '';
+            ul.dataset.page_index = 1;
+            var page = 1;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'api:user_praises' %}",
+                    data: {
+                        'page': page,
+                        'user_id': "{{ user.id }}"
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_praises(json));
+                            self.endPullDownToRefresh(!json.next);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                ul.dataset.page_index = page;
+                            }
+                        } else {
+                            self.endPullDownToRefresh(true);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
+                        self.endPullUpToRefresh(true);
+                    }
+                });
+            }, 200);
+        }
+
+        var pullFunctionMap = {
+            0: {
+                'up': pullUpRefreshComments,
+                'down': pullDownRefreshComments
+            },
+            1: {
+                'up': pullUpRefreshPraises,
+                'down': pullDownRefreshPraises
+            }
+        };
+
+        function ajax_init_comments_list(ul, page) {
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'account:user_message_comments_pagination' %}",
+                data: {
+                    'user_id': "{{ user.id }}",
+                    'comment_type': ul.dataset.comment_type,
+                    'page_index': page
+                },
+                dataType: 'json',
+                success: function (json) {
+                    if (json.hasOwnProperty('data') && json.data.length > 0) {
+                        ul.appendChild(create_comments(json));
+                    }
+                    page++;
+                    ul.dataset.page_index = page;
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    console.log(response_json.msg);
+                    return false
+                }
+            });
+        }
+
+        (function ($) {
+            $('.mui-scroll-wrapper').scroll({
+                bounce: false,
+                indicators: true
+            });
+
+            $.ready(function () {
+                document.querySelector('.mui-slider').addEventListener('slide', function (event) {
+                    var acticeSliderItem = document.querySelectorAll('.mui-slider .mui-slider-group .mui-slider-item')[event.detail.slideNumber];
+                    var activeScroll = acticeSliderItem.querySelector('.mui-scroll');
+                    var ul = acticeSliderItem.querySelector('ul.selected') || acticeSliderItem.querySelector('ul');
+                    if (ul.querySelectorAll('li').length == 0) {
+                        ul.dataset.page_index = 1;
+                        var page = 1;
+                        if (ul.className == 'comments-list') {
+                           ajax_init_comments_list(ul, page)
+                        }
+                        else if (ul.className == 'praises-list') {
+                            $.ajax({
+                                type: 'GET',
+                                url: "{% url 'api:user_praises' %}",
+                                data: {
+                                    'user_id': "{{ user.id }}",
+                                    'page': page
+                                },
+                                dataType: 'json',
+                                success: function (json) {
+                                    if (json.hasOwnProperty('results') && json.results.length > 0) {
+                                        ul.appendChild(create_praises(json));
+                                    }
+                                    page++;
+                                    ul.dataset.page_index = page;
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    var response_json = XMLHttpRequest.responseJSON;
+                                    console.log(response_json.msg);
+                                    return false
+                                }
+                            });
+                        }
+                    }
+                });
+
+                var dpr = lib.flexible.dpr || 1;
+                //循环初始化所有下拉刷新，上拉加载。
+                $.each(document.querySelectorAll('.mui-slider-group .mui-scroll'), function (index, pullRefreshEl) {
+                    $(pullRefreshEl).pullToRefresh({
+                        down: {
+                            height: 30 * dpr,
+                            callback: pullFunctionMap[index]['down']
+                        },
+                        up: {
+                            auto: index == 0,
+                            callback: pullFunctionMap[index]['up']
+                        }
+                    });
+                });
+            });
+        })(mui);
+
+        mui('.comments-container').on('tap', '.switch-buttons button', function () {
+            var switch_buttons = $('.comments-container .switch-buttons button');
+            var comments_list_ul = $('.comments-container ul.comments-list');
+            var self = this;
+            var comment_type = self.dataset.comment_type;
+            $(self).addClass('active');
+            switch_buttons.not("#switch_comments_type_" + comment_type).removeClass('active');
+            comments_list_ul.not('#comments_list_' + comment_type).removeClass('selected').hide();
+            var selected_comments_list = $('#comments_list_' + comment_type);
+            selected_comments_list.addClass('selected').show();
+            if (selected_comments_list.find('li').length == 0) {
+                selected_comments_list[0].dataset.page_index = 1;
+                ajax_init_comments_list(selected_comments_list[0], 1)
+            }
+        });
+
+    </script>
+{% endblock %}
