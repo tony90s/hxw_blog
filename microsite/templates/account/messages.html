@@ -33,8 +33,11 @@
                         <div class="mui-scroll">
                             <div class="comments-container">
                                 <div class="switch-buttons">
-                                    <button class="mui-inline active" id="switch_comments_type_0" data-comment_type="0">收到的评论</button>
-                                    <button class="mui-inline" id="switch_comments_type_1" data-comment_type="1">发出的评论</button>
+                                    <button class="mui-inline active" id="switch_comments_type_0" data-comment_type="0">
+                                        收到的评论
+                                    </button>
+                                    <button class="mui-inline" id="switch_comments_type_1" data-comment_type="1">发出的评论
+                                    </button>
                                 </div>
                                 <ul class="comments-list selected" id="comments_list_0" data-comment_type="0"
                                     data-page_index="1">
@@ -75,15 +78,15 @@
     </div>
 
     <nav class="mui-bar mui-bar-tab">
-        <a class="mui-tab-item go-to-index mui-active" href="javascript:void(0);">
+        <a class="mui-tab-item" href="{% url 'index' %}">
             <span class="mui-icon mui-icon-home"></span>
         </a>
-        <a class="mui-tab-item" href="#">
+        <a class="mui-tab-item mui-active" href="{% url 'account:user_messages' %}">
             <span class="mui-icon-extra mui-icon-extra-notice">
                 <!--<span class="mui-badge">9</span>-->
             </span>
         </a>
-        <a class="mui-tab-item" id="go_to_user_center" href="javascript:void(0)">
+        <a class="mui-tab-item" href="{% url 'account:user_center' %}">
             <span class="mui-icon-extra mui-icon-extra-people"></span>
         </a>
     </nav>
@@ -101,10 +104,6 @@
             3: '回复'
         };
         mui.init();
-
-        mui('body').on('tap', '#go_to_user_center', function () {
-            document.location.href = "{% url 'account:user_center' %}";
-        });
 
         function create_comments(json) {
             var fragment = document.createDocumentFragment();
@@ -403,7 +402,7 @@
                         ul.dataset.page_index = 1;
                         var page = 1;
                         if (ul.className == 'comments-list') {
-                           ajax_init_comments_list(ul, page)
+                            ajax_init_comments_list(ul, page)
                         }
                         else if (ul.className == 'praises-list') {
                             $.ajax({

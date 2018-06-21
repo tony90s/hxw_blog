@@ -15,9 +15,6 @@
     </div>
     <div id="setting" class="mui-page">
         <div class="mui-navbar-inner mui-bar mui-bar-nav">
-            <button type="button" class="go-to-index mui-left mui-btn mui-btn-link mui-btn-nav mui-pull-left">
-                <span class="mui-icon mui-icon-left-nav"></span>
-            </button>
             <h1 class="mui-center mui-title">设置</h1>
         </div>
         <div class="mui-page-content">
@@ -56,6 +53,19 @@
                 </div>
             </div>
         </div>
+        <nav class="mui-bar mui-bar-tab">
+            <a class="mui-tab-item" href="{% url 'index' %}">
+                <span class="mui-icon mui-icon-home"></span>
+            </a>
+            <a class="mui-tab-item" href="{% url 'account:user_messages' %}">
+            <span class="mui-icon-extra mui-icon-extra-notice">
+                <!--<span class="mui-badge">9</span>-->
+            </span>
+            </a>
+            <a class="mui-tab-item mui-active" href="{% url 'account:user_center' %}">
+                <span class="mui-icon-extra mui-icon-extra-people"></span>
+            </a>
+        </nav>
     </div>
 
     <!--单页面结束-->

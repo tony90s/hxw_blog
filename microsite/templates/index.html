@@ -6,7 +6,9 @@
             {% if article_type.value != 0 %}{{ article_type.display_name }}{% else %}LOVEITERS{% endif %}
         </h1>
         <a class="avatar mui-pull-right" href="javascript:void (0)">
-            <img src="{% if user.is_authenticated %}{{ user.profile.avatar.url }}{% else %}/media/avatar/default_avatar.jpg{% endif %}" alt="头像">
+            <img src="
+                    {% if user.is_authenticated %}{{ user.profile.avatar.url }}{% else %}/media/avatar/default_avatar.jpg{% endif %}"
+                 alt="头像">
         </a>
     </header>
     <div class="mui-content">
@@ -196,15 +198,15 @@
     </div>
 
     <nav class="mui-bar mui-bar-tab">
-        <a class="mui-tab-item mui-active" id="reload_index" href="javascript:void(0);">
+        <a class="mui-tab-item mui-active" href="{% url 'index' %}">
             <span class="mui-icon mui-icon-home"></span>
         </a>
-        <a class="mui-tab-item" id="user_messages" href="#">
+        <a class="mui-tab-item" href="{% url 'account:user_messages' %}">
             <span class="mui-icon-extra mui-icon-extra-notice">
                 <!--<span class="mui-badge">9</span>-->
             </span>
         </a>
-        <a class="mui-tab-item" id="go_to_user_center" href="javascript:void(0)">
+        <a class="mui-tab-item" href="{% url 'account:user_center' %}">
             <span class="mui-icon-extra mui-icon-extra-people"></span>
         </a>
     </nav>
@@ -226,19 +228,7 @@
         });
 
         mui('header').on('tap', '.avatar', function () {
-            location.href =  "{% url 'account:user_center' %}";
-        });
-
-        mui('body').on('tap', '#reload_index', function () {
-            location.reload()
-        });
-
-        mui('body').on('tap', '#user_messages', function () {
-            location.href =  "{% url 'account:user_messages' %}";
-        });
-
-        mui('body').on('tap', '#go_to_user_center', function () {
-             document.location.href = "{% url 'account:user_center' %}";
+            location.href = "{% url 'account:user_center' %}";
         });
 
         (function ($) {

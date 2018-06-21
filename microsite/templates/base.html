@@ -40,6 +40,11 @@
             history.go(-1)
         }
     });
+
+    mui('.mui-bar-tab').on('tap', 'a.mui-tab-item', function () {
+        window.location.href = this.href;
+    });
+
 </script>
 {% block extra_js %}
 {% endblock %}
