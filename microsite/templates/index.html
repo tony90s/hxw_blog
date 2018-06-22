@@ -215,6 +215,8 @@
 {% block extra_js %}
     <script src="/static/mui/js/mui.pullToRefresh.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
+    <script src="/static/mui/js/mui.lazyload.js"></script>
+	<script src="/static/mui/js/mui.lazyload.img.js"></script>
     <script>
         mui.init();
 
@@ -234,6 +236,7 @@
                 bounce: false,
                 indicators: true
             });
+
             $.ready(function () {
                 document.querySelector('.mui-slider').addEventListener('slide', function (event) {
                     var acticeSliderItem = document.querySelectorAll('.mui-slider .mui-slider-group .mui-slider-item')[event.detail.slideNumber];
@@ -256,6 +259,9 @@
                             success: function (json) {
                                 if (json.hasOwnProperty('results') && json.results.length > 0) {
                                     articles_ul.appendChild(create_article(json));
+                                    mui(document).imageLazyload({
+				                        placeholder: '/static/images/default_article_background.jpg'
+			                        });
                                 }
                                 page++;
                                 page_index.value = page;
@@ -301,17 +307,16 @@
                 li = document.createElement('li');
                 li.className = 'article';
                 li.dataset.article_id = article_id;
-                var str = '<div class="content">';
+                var str = '';
                 if (cover_photo) {
-                    str += '<img class="cover-photo" src="' + cover_photo +
-                            '" alt="' + title + '">';
+                    str += '<div class="img-container"><img data-lazyload="' + cover_photo +
+                            '" alt="' + title + '"></div>';
                 }
                 str += '<p class="title">' + title + '</p>' +
                         '<p class="abstract">' + abstract + '</p>' +
                         '<div class="meta">' +
                         '<span class="time">' + release_time_desc + '</span>' +
                         '<span class="nickname">by ' + author['username'] + '</span>' +
-                        '</div>' +
                         '</div>';
                 li.innerHTML = str;
                 fragment.appendChild(li);
@@ -338,6 +343,9 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_article(json));
+                            mui(document).imageLazyload({
+                                placeholder: '/static/images/default_article_background.jpg'
+                            });
                             self.endPullUpToRefresh(!json.next);
                             if (json.next) {
                                 page++;
@@ -375,6 +383,9 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_article(json));
+                            mui(document).imageLazyload({
+                                placeholder: '/static/images/default_article_background.jpg'
+                            });
                             self.endPullDownToRefresh(!json.next);
                             self.refresh(true);
                             self.endPullUpToRefresh(!json.next);

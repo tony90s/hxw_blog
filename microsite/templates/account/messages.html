@@ -92,6 +92,25 @@
     </nav>
     <!-- off-canvas backdrop -->
     <div class="mui-off-canvas-backdrop"></div>
+    
+    <div id="operation" class="mui-popover mui-popover-action mui-popover-bottom">
+        <ul class="mui-table-view ul-select gender-select" style="margin: 0;border-radius: 0">
+            <li class="mui-table-view-cell">
+                <a href="#">回复</a>
+            </li>
+            <li class="mui-table-view-cell">
+                <a href="#">查看详情</a>
+            </li>
+            <li class="mui-table-view-cell">
+                <a href="#">删除</a>
+            </li>
+        </ul>
+        <ul class="mui-table-view" style="margin:10px 0 0;border-radius: 0;">
+            <li class="mui-table-view-cell">
+                <a href="#operation" style="color: #000;">取消</a>
+            </li>
+        </ul>
+    </div>
 {% endblock %}
 
 {% block extra_js %}

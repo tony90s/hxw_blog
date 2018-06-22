@@ -101,6 +101,7 @@
                 var comment_replies = array['comment_replies'].slice(0, 2);
                 li = document.createElement('li');
                 li.className = 'comment';
+                li.id = 'comment_' + comment_id;
                 li.dataset.comment_id = comment_id;
                 li.dataset.receiver_id = user_id;
                 li.dataset.receiver_username = username;

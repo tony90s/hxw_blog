@@ -266,16 +266,23 @@ header .avatar {
 }
 
 .article-list li {
+    width: 100%;
     position: relative;
     padding: 15px;
     margin-bottom: 12px;
     background: #fff;
 }
 
-.article-list li img.cover-photo {
+.article-list li .img-container {
     width: 100%;
-    height: auto;
+    max-height: 30%;
     margin-bottom: 10px;
+}
+
+.article-list li .img-container img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
 }
 
 .article-list li .title {

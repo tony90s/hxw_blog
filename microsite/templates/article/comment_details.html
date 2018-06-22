@@ -100,6 +100,7 @@
                 var praise_times = array['praise_times'];
                 li = document.createElement('li');
                 li.className = 'comment-reply';
+                li.id = 'comment_reply_' + comment_reply_id;
                 li.dataset.comment_reply_id = comment_reply_id;
                 li.dataset.replier_id = replier['user_id'];
                 li.dataset.replier_username = replier['username'];
