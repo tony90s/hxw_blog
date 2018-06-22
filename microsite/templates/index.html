@@ -213,10 +213,9 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/js/jquery.lazyload.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
-    <script src="/static/mui/js/mui.lazyload.js"></script>
-	<script src="/static/mui/js/mui.lazyload.img.js"></script>
     <script>
         mui.init();
 
@@ -236,7 +235,6 @@
                 bounce: false,
                 indicators: true
             });
-
             $.ready(function () {
                 document.querySelector('.mui-slider').addEventListener('slide', function (event) {
                     var acticeSliderItem = document.querySelectorAll('.mui-slider .mui-slider-group .mui-slider-item')[event.detail.slideNumber];
@@ -259,9 +257,9 @@
                             success: function (json) {
                                 if (json.hasOwnProperty('results') && json.results.length > 0) {
                                     articles_ul.appendChild(create_article(json));
-                                    mui(document).imageLazyload({
-				                        placeholder: '/static/images/default_article_background.jpg'
-			                        });
+                                    jQuery("img.lazy").lazyload({
+                                        effect: "fadeIn"
+                                    });
                                 }
                                 page++;
                                 page_index.value = page;
@@ -309,7 +307,7 @@
                 li.dataset.article_id = article_id;
                 var str = '';
                 if (cover_photo) {
-                    str += '<div class="img-container"><img data-lazyload="' + cover_photo +
+                    str += '<div class="img-container"><img class="lazy" data-original="' + cover_photo +
                             '" alt="' + title + '"></div>';
                 }
                 str += '<p class="title">' + title + '</p>' +
@@ -343,8 +341,8 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_article(json));
-                            mui(document).imageLazyload({
-                                placeholder: '/static/images/default_article_background.jpg'
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
                             });
                             self.endPullUpToRefresh(!json.next);
                             if (json.next) {
@@ -383,8 +381,8 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_article(json));
-                            mui(document).imageLazyload({
-                                placeholder: '/static/images/default_article_background.jpg'
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
                             });
                             self.endPullDownToRefresh(!json.next);
                             self.refresh(true);

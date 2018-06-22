@@ -72,6 +72,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/js/jquery.lazyload.js"></script>
     <script src="/static/js/iscroll.js"></script>
     <script src="/static/js/navbarscroll.js"></script>
     <!--
@@ -149,7 +150,7 @@
                                     }
                                     if (cover_photo) {
                                         str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
-                                                '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                                '<img class="img-blur lazy" data-original="' + cover_photo + '" alt="' + title + '"/>' +
                                                 '</a>';
                                     }
                                     str += '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
@@ -169,6 +170,9 @@
                                         '</div>' +
                                         '</li>';
                                     $(".note-list").append(str);
+                                });
+                                $("img.lazy").lazyload({
+                                    effect: "fadeIn"
                                 });
                                 if (!json.next) {
                                     $("#btn_read_more").hide();
