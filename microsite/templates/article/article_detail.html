@@ -31,6 +31,7 @@
             </div>
             <div class="praise-container">
                 <div class="praise-link" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">
+                    <span>点个赞</span>
                     <i class="iconfont icon-communityiconpraise4"></i>
                     <span class="praise-times-text">{{ article_details.praise_times }}</span>
                 </div>
@@ -61,6 +62,8 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/mui/js/mui.zoom.js"></script>
+	<script src="/static/mui/js/mui.previewimage.js"></script>
     <script>
         var praiseType = {
             'article': '1',
@@ -248,6 +251,13 @@
             delete send_text_link.dataset.receiver_id;
         }
         mui.ready(function () {
+            $.each(document.querySelectorAll('.article-content img'), function (index, img) {
+                img.setAttribute('data-preview-src', '');
+                img.setAttribute('data-preview-group','1');
+            });
+
+            mui.previewImage();
+
             $.ajax({
                 type: 'GET',
                 url: "{% url 'api:praises' %}",
