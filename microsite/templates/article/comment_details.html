@@ -41,7 +41,7 @@
     </div>
     <nav class="mui-bar mui-bottom-bar">
         <div class="write-comment">
-            <span id="preview-text">回复 {{ comment.commentator.username }}</span>
+            <p class="tips" id="preview-text">回复 {{ comment.commentator.username }}</p>
         </div>
     </nav>
     <div id="comment-popover" class="mui-popover mui-popover-action mui-popover-bottom">
@@ -84,6 +84,7 @@
         var commentator_username = "{{ comment.commentator.username }}";
         var comment_id = "{{ comment.comment_id }}";
         var preview_text = document.getElementById('preview-text');
+        var textarea = document.getElementById('textarea');
         var send_text_link = document.getElementById('send-text');
         var comment_replies_count_span = document.getElementById('comment_replies_count');
 
@@ -290,7 +291,7 @@
                 textarea.focus()
             });
 
-            mui('body').on('tap', '.user-info, .content', function () {
+            mui('.replies-container').on('tap', '.user-info, .content', function () {
                 var parent_comment = $(this).parents('li.comment-reply')[0];
                 var receiver_id = parent_comment.dataset.replier_id;
                 var receiver_username = parent_comment.dataset.replier_username;
@@ -347,7 +348,7 @@
 
         $('#textarea').change(function () {
             var text = $('#textarea').val();
-            $("#preview-text").html(text.slice(0, 20) + '...')
+            $("#preview-text").html(text)
         });
 
         mui('body').on('tap', '.praise', function () {
@@ -378,7 +379,5 @@
                 ajaxPostPraise(post_data, praise_times, like_icon, praise_times_span)
             }
         });
-
-
     </script>
 {% endblock %}

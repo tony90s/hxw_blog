@@ -111,6 +111,16 @@
             </li>
         </ul>
     </div>
+
+    <div id="reply-popover" class="mui-popover mui-popover-action mui-popover-bottom">
+        <p class="reply-tips" id="tips"></p>
+        <div class="comment-box">
+            <textarea id="textarea" placeholder="写回复···" onchange="this.value=this.value.substring(0, 72)"
+                      onkeydown="this.value=this.value.substring(0, 72)"
+                      onkeyup="this.value=this.value.substring(0, 72)"></textarea>
+            <a id="send-text" class="mui-icon mui-icon-paperplane"></a>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
@@ -127,6 +137,10 @@
         var toast_option = {
             duration: 1000
         };
+
+        var tips = document.getElementById('tips');
+        var textarea = document.getElementById('textarea');
+        var send_text_link = document.getElementById('send-text');
 
         mui.init();
 
@@ -414,6 +428,15 @@
             });
         }
 
+        function initReplyInput() {
+            textarea.blur();
+            textarea.value = '';
+            textarea.setAttribute("placeholder", "写回复···");
+            tips.innerHTML = '';
+            delete send_text_link.dataset.comment_id;
+            delete send_text_link.dataset.receiver_id;
+        }
+
         (function ($) {
             $('.mui-scroll-wrapper').scroll({
                 bounce: false,
@@ -583,6 +606,56 @@
                     $(".comments-container li.delete-signed").removeClass('delete-signed')
                 }
             })
-        })
+        });
+
+        mui('body').on('hidden', '#reply-popover', function (e) {
+            initReplyInput()
+        });
+
+        mui('body').on('tap', '#reply_link', function () {
+            var receiver_username = reply_link.dataset.receiver_username;
+            var content = $(".comments-container li.taped").find('p.content').html();
+            send_text_link.dataset.comment_id = reply_link.dataset.comment_id;
+            send_text_link.dataset.receiver_id = reply_link.dataset.receiver_id;
+            var tips_content = '回复 ' + receiver_username + content.replace(/<[^>]+>/g,"");
+            tips.innerHTML = tips_content;
+
+            mui('#operation').popover('hide');
+            mui('#reply-popover').popover('show');
+            textarea.setAttribute("placeholder", "回复 " + receiver_username);
+            textarea.focus();
+        });
+
+        mui('body').on('tap', '#send-text', function () {
+            var self = this;
+            var content = textarea.value.replace(/(^\s*)|(\s*$)/g, "");
+            if (content == '') {
+                mui.toast('请先编写回复内容', toast_option);
+                return false
+            }
+            var comment_id = this.dataset.comment_id;
+            var receiver_id = this.dataset.receiver_id;
+            var url = "{% url 'api:save_comment_reply' %}";
+            var post_data = {
+                "comment_id": comment_id,
+                "receiver_id": receiver_id,
+                "content": content
+            };
+            mui('#reply-popover').popover('hide');
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: post_data,
+                dataType: 'json',
+                success: function (json) {
+                    mui.toast(json.msg, toast_option);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                }
+            });
+        });
+
     </script>
 {% endblock %}

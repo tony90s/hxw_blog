@@ -44,6 +44,12 @@ input, select, textarea {
     color: rgba(0, 0, 0, 0.6);
 }
 
+.mui-bottom-bar .write-comment .tips {
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+
 .mui-input-group:first-child {
     margin-top: 10px;
 }
@@ -484,6 +490,22 @@ header .avatar {
     display: none;
     font-size: 14px;
     text-align: center;
+}
+
+.mui-popover p.reply-tips {
+    background-color: #fff;
+    padding: 8px 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    margin:0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+
+.mui-popover p.reply-tips a {
+    color: rgba(0, 0, 0, 0.6)
 }
 
 .comment-box {

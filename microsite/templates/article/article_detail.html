@@ -31,7 +31,7 @@
             </div>
             <div class="praise-container">
                 <div class="praise-link" data-parent_id="{{ article_details.article_id }}" data-praise_type="1">
-                    <span>点个赞</span>
+                    <span>点赞</span>
                     <i class="iconfont icon-communityiconpraise4"></i>
                     <span class="praise-times-text">{{ article_details.praise_times }}</span>
                 </div>
@@ -48,7 +48,7 @@
     </div>
     <nav class="mui-bar mui-bottom-bar">
         <div class="write-comment">
-            <span id="preview-text">添加评论···</span>
+            <p class="tips" id="preview-text">添加评论···</p>
         </div>
     </nav>
     <div id="comment-popover" class="mui-popover mui-popover-action mui-popover-bottom">
@@ -385,7 +385,7 @@
                 });
             });
 
-            mui('body').on('tap', '.user-info, .content', function () {
+            mui('.comments-container').on('tap', '.user-info, .content', function () {
                 var parent_comment = $(this).parents('li.comment')[0];
                 var comment_id = parent_comment.dataset.comment_id;
                 var receiver_id = parent_comment.dataset.receiver_id;
@@ -405,7 +405,7 @@
 
         $('#textarea').change(function () {
             var text = $('#textarea').val();
-            $("#preview-text").html(text.slice(0, 20) + '...')
+            $("#preview-text").html(text)
         });
 
         function ajaxPostPraise(post_data, praise_times, like_icon, praise_times_span) {
