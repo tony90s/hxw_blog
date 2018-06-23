@@ -617,7 +617,7 @@
             var content = $(".comments-container li.taped").find('p.content').html();
             send_text_link.dataset.comment_id = reply_link.dataset.comment_id;
             send_text_link.dataset.receiver_id = reply_link.dataset.receiver_id;
-            var tips_content = '回复 ' + receiver_username + content.replace(/<[^>]+>/g,"");
+            var tips_content = '回复 ' + receiver_username + ': ' + content.replace(/<[^>]+>/g,"");
             tips.innerHTML = tips_content;
 
             mui('#operation').popover('hide');
