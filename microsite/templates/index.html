@@ -241,35 +241,7 @@
                     var activeScroll = acticeSliderItem.querySelector('.mui-scroll');
                     var articles_ul = acticeSliderItem.querySelector('.article-list');
                     if (articles_ul.querySelectorAll('li').length == 0) {
-                        var page_index = activeScroll.querySelector('input[name="page_index"]');
-                        var article_type = activeScroll.querySelector('input[name="article_type"]');
-                        page_index.value = 1;
-                        var page = 1;
-                        $.ajax({
-                            type: 'GET',
-                            url: articlesApiUrl,
-                            data: {
-                                'page': page,
-                                'article_type': article_type.value,
-                                'is_released': 1
-                            },
-                            dataType: 'json',
-                            success: function (json) {
-                                if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                    articles_ul.appendChild(create_article(json));
-                                    jQuery("img.lazy").lazyload({
-                                        effect: "fadeIn"
-                                    });
-                                }
-                                page++;
-                                page_index.value = page;
-                            },
-                            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                var response_json = XMLHttpRequest.responseJSON;
-                                console.log(response_json.msg);
-                                return false
-                            }
-                        });
+                        mui(activeScroll).pullToRefresh().pullDownLoading();
                     }
                 });
 

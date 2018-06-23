@@ -111,7 +111,7 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list {
 }
 
 .comment .info .content, .comment-reply .info .content, li.praise .info .content {
-    margin-top: 10px;
+    padding-top: 10px;
 }
 
 .comment .info .replies-list {

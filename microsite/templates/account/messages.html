@@ -14,10 +14,10 @@
             <div id="sliderSegmentedControl"
                  class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted background-white">
                 <div class="mui-scroll" style="width: 100%">
-                    <a href="#tab0" class="mui-control-item mui-active" style="width: 33.3%">
+                    <a href="#comments" class="mui-control-item mui-active" style="width: 33.3%">
                         评论
                     </a>
-                    <a href="#tab1" class="mui-control-item" style="width: 33.3%">
+                    <a href="#praises" class="mui-control-item" style="width: 33.3%">
                         赞
                     </a>
                     <!--
@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="mui-slider-group">
-                <div id="tab0" class="mui-slider-item mui-slider-item-no-border mui-control-content mui-active">
+                <div id="comments" class="mui-slider-item mui-slider-item-no-border mui-control-content mui-active">
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="comments-container">
@@ -49,7 +49,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="tab1" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                <div id="praises" class="mui-slider-item mui-slider-item-no-border mui-control-content">
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="praises-container">
@@ -92,17 +92,17 @@
     </nav>
     <!-- off-canvas backdrop -->
     <div class="mui-off-canvas-backdrop"></div>
-    
+
     <div id="operation" class="mui-popover mui-popover-action mui-popover-bottom">
-        <ul class="mui-table-view ul-select gender-select" style="margin: 0;border-radius: 0">
+        <ul class="mui-table-view ul-select" style="margin: 0;border-radius: 0">
             <li class="mui-table-view-cell">
-                <a href="#">回复</a>
+                <a id="reply_link" href="#">回复</a>
             </li>
             <li class="mui-table-view-cell">
-                <a href="#">查看详情</a>
+                <a id="check_details_link" href="#">查看详情</a>
             </li>
             <li class="mui-table-view-cell">
-                <a href="#">删除</a>
+                <a id="delete_link" href="#">删除</a>
             </li>
         </ul>
         <ul class="mui-table-view" style="margin:10px 0 0;border-radius: 0;">
@@ -122,6 +122,12 @@
             2: '评论',
             3: '回复'
         };
+
+        var login_user_id = "{{ user.id }}";
+        var toast_option = {
+            duration: 1000
+        };
+
         mui.init();
 
         function create_comments(json) {
@@ -144,7 +150,9 @@
                 var content = array['content'];
                 li = document.createElement('li');
                 li.className = 'comment';
+                li.dataset.article_id = article_id;
                 li.dataset.comment_id = comment_id;
+                li.dataset.comment_reply_id = comment_reply_id;
                 li.dataset.replier_id = replier_user_id;
                 li.dataset.replier_username = replier_username;
                 var comment_reply_html = '<a class="avatar" href="javascript:void(0)">' +
@@ -162,7 +170,7 @@
                             '<a href="javascript:void(0)">@' + receiver_username + '</a>:&nbsp;'
                 }
                 comment_reply_html += content + '</p>' +
-                        '<div class="article">' +
+                        '<div class="article" data-article_id="' + article_id + '">' +
                         '<p class="title">' + title + '</p>' +
                         '<p class="abstract">' + abstract + '</p>' +
                         '</div></div>';
@@ -209,7 +217,7 @@
                     praise_html += '<a href="javascript:void(0)">@' + receiver_username + '</a>:&nbsp;'
                 }
                 praise_html += content + '</p>' +
-                        '<div class="article">' +
+                        '<div class="article" data-article_id="' + article_id + '">' +
                         '<p class="title">' + title + '</p>' +
                         '<p class="abstract">' + abstract + '</p>' +
                         '</div></div>';
@@ -416,36 +424,10 @@
                 document.querySelector('.mui-slider').addEventListener('slide', function (event) {
                     var acticeSliderItem = document.querySelectorAll('.mui-slider .mui-slider-group .mui-slider-item')[event.detail.slideNumber];
                     var activeScroll = acticeSliderItem.querySelector('.mui-scroll');
+
                     var ul = acticeSliderItem.querySelector('ul.selected') || acticeSliderItem.querySelector('ul');
                     if (ul.querySelectorAll('li').length == 0) {
-                        ul.dataset.page_index = 1;
-                        var page = 1;
-                        if (ul.className == 'comments-list') {
-                            ajax_init_comments_list(ul, page)
-                        }
-                        else if (ul.className == 'praises-list') {
-                            $.ajax({
-                                type: 'GET',
-                                url: "{% url 'api:user_praises' %}",
-                                data: {
-                                    'user_id': "{{ user.id }}",
-                                    'page': page
-                                },
-                                dataType: 'json',
-                                success: function (json) {
-                                    if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                        ul.appendChild(create_praises(json));
-                                    }
-                                    page++;
-                                    ul.dataset.page_index = page;
-                                },
-                                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                    var response_json = XMLHttpRequest.responseJSON;
-                                    console.log(response_json.msg);
-                                    return false
-                                }
-                            });
-                        }
+                        mui(activeScroll).pullToRefresh().pullDownLoading();
                     }
                 });
 
@@ -482,5 +464,125 @@
             }
         });
 
+        var reply_link = document.getElementById('reply_link');
+        var check_details_link = document.getElementById('check_details_link');
+        var delete_link = document.getElementById('delete_link');
+
+        function cleanData() {
+            $(delete_link).parent('li').show();
+            delete reply_link.dataset.comment_id;
+            delete reply_link.dataset.receiver_id;
+            delete reply_link.dataset.receiver_username;
+            delete check_details_link.dataset.article_id;
+            delete check_details_link.dataset.comment_id;
+            delete check_details_link.dataset.comment_reply_id;
+            delete delete_link.dataset.comment_id;
+            delete delete_link.dataset.comment_reply_id;
+        }
+
+        mui('.comments-container').on('tap', '.user-info, .content', function () {
+            var parent_comment = $(this).parents('li.comment')[0];
+            var article_id = parent_comment.dataset.article_id;
+            var comment_id = parent_comment.dataset.comment_id;
+            var comment_reply_id = parent_comment.dataset.comment_reply_id;
+            var receiver_id = parent_comment.dataset.replier_id;
+            var receiver_username = parent_comment.dataset.replier_username;
+
+            reply_link.dataset.comment_id = comment_id;
+            reply_link.dataset.receiver_id = receiver_id;
+            reply_link.dataset.receiver_username = receiver_username;
+
+            check_details_link.dataset.article_id = article_id;
+            check_details_link.dataset.comment_id = comment_id;
+            check_details_link.dataset.comment_reply_id = comment_reply_id;
+
+            delete_link.dataset.comment_id = comment_id;
+            delete_link.dataset.comment_reply_id = comment_reply_id;
+
+            if (login_user_id != receiver_id) {
+                $(delete_link).parent('li').hide()
+            }
+            $(parent_comment).addClass('taped');
+            mui('#operation').popover('show');
+        });
+
+        mui('body').on('tap', '.article', function () {
+            location.href = "/article/details/" + this.dataset.article_id;
+        });
+
+        mui('body').on('hidden', '#operation', function (e) {
+            cleanData();
+            $(".comments-container li.taped").removeClass('taped')
+        });
+
+        check_details_link.addEventListener('tap', function () {
+            mui('#operation').popover('hide');
+            var article_id = this.dataset.article_id;
+            var comment_id = this.dataset.comment_id;
+            var comment_reply_id = this.dataset.comment_reply_id;
+            if (comment_reply_id != undefined && parseInt(comment_reply_id) > 0) {
+                location.href = "/article/comment/details/" + comment_id + "#comment_reply_" + comment_reply_id;
+            }
+            else if (comment_id != undefined && parseInt(comment_id) > 0) {
+                location.href = "/article/details/" + article_id + '#comment_' + comment_id;
+            }
+            else {
+                mui.toast('参数有误，请联系管理员', toast_option);
+            }
+        });
+
+        delete_link.addEventListener('tap', function () {
+            $(".comments-container li.taped").addClass('delete-signed');
+            var self = this;
+            mui('#operation').popover('hide');
+            var comment_id = this.dataset.comment_id;
+            var comment_reply_id = this.dataset.comment_reply_id;
+            var btnArray = ['是', '否'];
+            if (comment_reply_id != undefined && parseInt(comment_reply_id) > 0) {
+                var url = "{% url 'api:delete_comment_reply' %}";
+                var post_data = {
+                    "comment_reply_id": comment_reply_id
+                };
+            }
+            else if (comment_id != undefined && parseInt(comment_id) > 0) {
+                var url = "{% url 'api:delete_comment' %}";
+                var post_data = {
+                    "comment_id": comment_id
+                };
+            }
+            else {
+                mui.toast('参数有误，请联系管理员', toast_option);
+                return false
+            }
+            mui.confirm('确认删除？', '系统消息', btnArray, function (e) {
+                if (e.index == 0) {
+                    $.ajax({
+                        url: url,
+                        type: "DELETE",
+                        data: post_data,
+                        dataType: "json",
+                        success: function (json) {
+                            if (json.code == 200) {
+                                $(".comments-container li.delete-signed").remove();
+                                mui.toast(json.msg, toast_option);
+                                mui('#comments .mui-scroll').pullToRefresh().pullDownLoading()
+                            }
+                            else {
+                                mui.toast(json.msg, toast_option);
+                                return false
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            var response_json = XMLHttpRequest.responseJSON;
+                            mui.toast(response_json.msg, toast_option);
+                            return false
+                        }
+                    });
+                }
+                else {
+                    $(".comments-container li.delete-signed").removeClass('delete-signed')
+                }
+            })
+        })
     </script>
 {% endblock %}

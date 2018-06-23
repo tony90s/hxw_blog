@@ -60,6 +60,7 @@ input, select, textarea {
 
 .mui-table-view {
     margin-top: 20px;
+    font-size: 16px;
 }
 
 form .mui-table-view:before {
@@ -362,4 +363,13 @@ header .avatar {
     text-align: center;
     vertical-align: middle;
     right: 0;
+}
+
+.ul-select span {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+}
+
+.ul-select .mui-table-view-cell>a:not(.mui-btn) {
+    color: #000;
 }
