@@ -125,7 +125,6 @@
                 if (comment_replies.length > 0) {
                     comment_html_str += '<div class="replies-list">';
                     $.each(comment_replies, function (index, reply) {
-                        var comment_reply_id = reply['comment_reply_id'].toString();
                         var comment_id = reply['comment_id'].toString();
                         var replier_user_id = reply['replier']['user_id'].toString();
                         var replier_username = reply['replier']['username'];
@@ -318,7 +317,9 @@
                 if (comment_id != undefined) {
                     var url = "{% url 'api:save_comment_reply' %}";
                     var post_data = {
-                        "comment_id": comment_id,
+                        "article_id": article_id,
+                        "parent_id": comment_id,
+                        "be_replied_comment_id": comment_id,
                         "receiver_id": receiver_id,
                         "content": content
                     }
@@ -326,7 +327,8 @@
                     var url = "{% url 'api:save_comment' %}";
                     var post_data = {
                         "article_id": article_id,
-                        "content": content
+                        "content": content,
+                        "receiver_id": "{{ article_details.author.user_id }}"
                     }
                 }
                 cleanData();

@@ -270,7 +270,8 @@
                     url: "{% url 'api:save_comment' %}",
                     data: {
                         "article_id": article_id,
-                        "content": comment_content
+                        "content": comment_content,
+                        "receiver_id": "{{ article_details.author.user_id }}"
                     },
                     dataType: 'json',
                     success: function (json) {
@@ -305,7 +306,8 @@
                                         '">删除</a>';
                             }
 
-                            comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id +
+                            comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-parent_id="' + comment_id +
+                                    '" data-comment_id="' + comment_id +
                                     '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
                                     '">回复</a>' +
                                     '<span class="date-dz-line">|</span>' +
@@ -346,6 +348,7 @@
                 return false;
             }
             var receiver_id = this.dataset.receiver_id;
+            var parent_id = this.dataset.parent_id;
             var comment_id = this.dataset.comment_id;
             var receiver_name = this.dataset.receiver_name;
 
@@ -353,7 +356,8 @@
             //var oInput = $(this).parents('.date-dz-right').parents('.date-dz').siblings('.hf-con');
             var fhHtml = '<div class="hf-con pull-left"> <textarea class="content comment-input hf-input" placeholder="' + fhN +
                     '" onkeyup="keyUP(this)"></textarea> ' +
-                    '<a href="javascript:;" class="hf-pl" data-receiver_id="' + receiver_id +
+                    '<a href="javascript:;" class="hf-pl" data-parent_id="' + parent_id +
+                    '" data-receiver_id="' + receiver_id +
                     '" data-comment_id="' + comment_id + '" data-receiver_name="' + receiver_name +
                     '">回复</a><a href="javascript:;" class="hf-cancel">取消</a></div>';
             //显示回复
@@ -384,6 +388,7 @@
             var oHfVal = $(this).siblings('.flex-text-wrap').find('.hf-input').val();
             var receiver_id = this.dataset.receiver_id;
             var comment_id = this.dataset.comment_id;
+            var parent_id = this.dataset.parent_id;
             //var oHfName = $(this).parents('.hf-con').parents('.date-dz').siblings('.pl-text').find('.comment-size-name').html();
             var content = oHfVal.replace(/(^\s*)|(\s*$)/g, "");
             if (content == '') {
@@ -394,14 +399,16 @@
                 type: 'POST',
                 url: "{% url 'api:save_comment_reply' %}",
                 data: {
-                    "comment_id": comment_id,
+                    "article_id": "{{ article_details.article_id }}",
+                    "parent_id": parent_id,
+                    "be_replied_comment_id": comment_id,
                     "receiver_id": receiver_id,
                     "content": content
                 },
                 dataType: 'json',
                 success: function (json) {
                     if (json.code == 200) {
-                        var comment_reply_id = json.data.comment_reply_id.toString();
+                        var parent_id = json.data.parent_id.toString();
                         var comment_id = json.data.comment_id.toString();
                         var replier_username = json.data.replier.username;
                         var receiver_user_id = json.data.receiver.user_id.toString();
@@ -412,7 +419,7 @@
                         var reply_content = json.data.content;
                         var praise_times = json.data.praise_times.toString();
                         var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
-                        var oHtml = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
+                        var oHtml = '<div class="all-pl-con" id="comment-' + comment_id + '">' +
                                 '<div class="pl-text hfpl-text clearfix">' +
                                 '<a target="_blank" href="/article/author/' + replier_id +
                                 '" class="comment-size-name">' + replier_username + '</a>' +
@@ -422,12 +429,13 @@
                                 '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content + '</p>' +
                                 '<div class="date-dz-right pull-right comment-pl-block">';
                         if (login_user_id.toString() == replier_id) {
-                            oHtml += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
+                            oHtml += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id +
                                     '">删除</a>';
                         }
-                        oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
+                        oHtml += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-parent_id="' + parent_id +
+                                '" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
                                 '">回复</a>' +
-                                '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
+                                '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
                                 '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
                                 '</div> ' +
                                 '</div>' +
@@ -472,13 +480,6 @@
                 var url = "{% url 'api:delete_comment' %}";
                 var post_data = {
                     "comment_id": comment_id
-                };
-            }
-            else if (this.dataset.comment_reply_id != undefined) {
-                var comment_reply_id = this.dataset.comment_reply_id;
-                var url = "{% url 'api:delete_comment_reply' %}";
-                var post_data = {
-                    "comment_reply_id": comment_reply_id
                 };
             }
             else {
@@ -717,7 +718,7 @@
                                 }
 
                                 comment_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id +
-                                        '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
+                                        '" data-parent_id="' + comment_id + '" data-receiver_id="' + user_id + '" data-receiver_name="' + username +
                                         '">回复</a>' +
                                         '<span class="date-dz-line">|</span>' +
                                         '<a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
@@ -761,14 +762,14 @@
                         url: "{% url 'api:comment_replies' %}",
                         data: {
                             "page": self.dataset.page,
-                            "comment_id": self.dataset.comment_id
+                            "parent_id": self.dataset.comment_id
                         },
                         dataType: "JSON",
                         success: function (json) {
                             if (json.hasOwnProperty('results') && json.results.length > 0) {
                                 $.each(json.results, function (index, reply) {
-                                    var comment_reply_id = reply['comment_reply_id'].toString();
                                     var comment_id = reply['comment_id'].toString();
+                                    var parent_id = reply['parent_id'].toString();
                                     var replier_username = reply['replier']['username'];
                                     var receiver_user_id = reply['receiver']['user_id'].toString();
                                     var receiver_username = reply['receiver']['username'];
@@ -778,7 +779,7 @@
                                     var reply_content = reply['content'];
                                     var praise_times = reply['praise_times'].toString();
                                     var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
-                                    var reply_html = '<div class="all-pl-con" id="comment-reply-' + comment_reply_id + '">' +
+                                    var reply_html = '<div class="all-pl-con" id="comment-' + comment_id + '">' +
                                             '<div class="pl-text hfpl-text clearfix">' +
                                             '<a target="_blank" href="/article/author/' + replier_id + '" class="comment-size-name">' + replier_username + '</a>' +
                                             '<span class="comment-time">' + reply_at_desc + '</span>' +
@@ -787,12 +788,13 @@
                                             '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content + '</p>' +
                                             '<div class="date-dz-right pull-right comment-pl-block">';
                                     if (login_user_id.toString() == replier_id) {
-                                        reply_html += '<a href="javascript:;" class="removeBlock" data-comment_reply_id="' + comment_reply_id +
+                                        reply_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id +
                                                 '">删除</a>';
                                     }
-                                    reply_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
+                                    reply_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-parent_id="' + parent_id +
+                                            '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
                                             '">回复</a>' +
-                                            '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_reply_id + '" data-praise_type="3">' +
+                                            '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
                                             '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
                                             '</div> ' +
                                             '</div>' +

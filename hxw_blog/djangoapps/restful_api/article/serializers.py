@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from rest_framework import serializers, fields
-from article.models import Article, Comment, CommentReply, Praise
+from article.models import Article, Comment, Praise
 from restful_api.article.validators import ObjectExistsValidator
 
 
@@ -63,6 +63,10 @@ class SaveCommentSerializer(serializers.Serializer):
         required=True,
         validators=[ObjectExistsValidator(model_class=Article, message='所评论的博文不存在，请联系管理员。')]
     )
+    receiver_id = serializers.IntegerField(
+        required=True,
+        validators=[ObjectExistsValidator(model_class=User, message='所回复的童鞋不存在，请联系管理员。')]
+    )
     content = serializers.CharField(required=True, max_length=140)
 
     def create(self, validated_data):
@@ -73,7 +77,15 @@ class SaveCommentSerializer(serializers.Serializer):
 
 
 class SaveCommentReplySerializer(serializers.Serializer):
-    comment_id = serializers.IntegerField(
+    article_id = serializers.IntegerField(
+        required=True,
+        validators=[ObjectExistsValidator(model_class=Article, message='所评论的博文不存在，请联系管理员。')]
+    )
+    parent_id = serializers.IntegerField(
+        required=True,
+        validators=[ObjectExistsValidator(model_class=Comment, message='所回复父级评论不存在，请联系管理员。')]
+    )
+    be_replied_comment_id = serializers.IntegerField(
         required=True,
         validators=[ObjectExistsValidator(model_class=Comment, message='所回复评论不存在，请联系管理员。')]
     )
@@ -84,7 +96,7 @@ class SaveCommentReplySerializer(serializers.Serializer):
     content = serializers.CharField(required=True, max_length=140)
 
     def create(self, validated_data):
-        return CommentReply.objects.using('write').create(**validated_data)
+        return Comment.objects.using('write').create(**validated_data)
 
     def update(self, instance, validated_data):
         return None
@@ -100,10 +112,8 @@ class SavePraiseSerializer(serializers.Serializer):
 
         if praise_type == Praise.TYPE.ARTICLE:
             praise_parents = Article.objects.using('read').filter(id=parent_id)
-        elif praise_type == Praise.TYPE.COMMENT:
-            praise_parents = Comment.objects.using('read').filter(id=parent_id)
         else:
-            praise_parents = CommentReply.objects.using('read').filter(id=parent_id)
+            praise_parents = Comment.objects.using('read').filter(id=parent_id)
 
         if not praise_parents.exists():
             raise serializers.ValidationError('所点赞对象不存在')
@@ -219,29 +229,76 @@ class UserPraiseSerializer(serializers.ModelSerializer):
 
 
 class CommentReplySerializer(serializers.ModelSerializer):
-    comment_reply_id = serializers.SerializerMethodField()
+    comment_id = serializers.SerializerMethodField()
     replier = serializers.SerializerMethodField()
     receiver = serializers.SerializerMethodField()
+    reply_at = serializers.SerializerMethodField()
 
     serializer_field_mapping = serializers.ModelSerializer.serializer_field_mapping
     serializer_field_mapping.update({
         models.DateTimeField: CustomDateTimeField
     })
 
-    def get_comment_reply_id(self, comment_reply):
-        return comment_reply.id
+    def get_comment_id(self, comment):
+        return comment.id
 
-    def get_replier(self, comment_reply):
-        replier_info = comment_reply.get_replier_info()
+    def get_replier(self, comment):
+        replier_info = comment.get_commentator_info()
         return replier_info
 
-    def get_receiver(self, comment_reply):
-        receiver_info = comment_reply.get_receiver_info()
+    def get_receiver(self, comment):
+        receiver_info = comment.get_receiver_info()
         return receiver_info
 
+    def get_reply_at(self, comment):
+        return timezone.localtime(comment.comment_at).strftime("%Y-%m-%d %H:%M:%S")
+
     class Meta:
-        model = CommentReply
-        fields = ('comment_reply_id', 'comment_id', 'replier', 'receiver', 'reply_at', 'content', 'praise_times')
+        model = Comment
+        fields = ('comment_id', 'parent_id', 'replier', 'receiver', 'reply_at', 'content', 'praise_times')
+
+
+class UserCommentsSerializer(serializers.ModelSerializer):
+    parent_id = serializers.SerializerMethodField()
+    comment_id = serializers.SerializerMethodField()
+    replier = serializers.SerializerMethodField()
+    receiver = serializers.SerializerMethodField()
+    article_info = serializers.SerializerMethodField()
+    reply_at = serializers.SerializerMethodField()
+    is_viewed = serializers.SerializerMethodField()
+
+    serializer_field_mapping = serializers.ModelSerializer.serializer_field_mapping
+    serializer_field_mapping.update({
+        models.DateTimeField: CustomDateTimeField
+    })
+
+    def get_parent_id(self, comment):
+        return comment.parent_id if comment.parent_id > 0 else comment.id
+
+    def get_comment_id(self, comment):
+        return comment.id
+
+    def get_article_info(self, comment):
+        article_info = comment.get_article_info()
+        return article_info
+
+    def get_replier(self, comment):
+        replier_info = comment.get_commentator_info()
+        return replier_info
+
+    def get_receiver(self, comment):
+        receiver_info = comment.get_receiver_info()
+        return receiver_info
+
+    def get_reply_at(self, comment):
+        return timezone.localtime(comment.comment_at).strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_is_viewed(self, comment):
+        return int(comment.is_viewed)
+
+    class Meta:
+        model = Comment
+        fields = ('comment_id', 'parent_id', 'article_info', 'replier', 'receiver', 'reply_at', 'content', 'is_viewed')
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -262,10 +319,10 @@ class CommentSerializer(serializers.ModelSerializer):
         return commentator_info
 
     def get_comment_replies(self, comment):
-        comment_replies = CommentReply.objects.using('read').filter(comment_id=comment.id).order_by("-id")[:2]
+        comment_replies = Comment.objects.using('read').filter(parent_id=comment.id).order_by("-id")[:2]
         comment_replies_data = list()
         for comment_reply in comment_replies:
-            comment_replies_data.append(comment_reply.render_json())
+            comment_replies_data.append(comment_reply.render_comment_reply_json())
         return comment_replies_data
 
     class Meta:

@@ -47,10 +47,10 @@
     <div id="comment-popover" class="mui-popover mui-popover-action mui-popover-bottom">
         <div class="comment-box">
             <textarea id="textarea" placeholder="回复 {{ comment.commentator.username }}"
-                      onchange="this.value=this.value.substring(0, 140)"
-                      onkeydown="this.value=this.value.substring(0, 140)"
-                      onkeyup="this.value=this.value.substring(0, 140)"></textarea>
-            <a id="send-text" data-comment_id="{{ comment.comment_id }}"
+                      onchange="this.value=this.value.substring(0, 72)"
+                      onkeydown="this.value=this.value.substring(0, 72)"
+                      onkeyup="this.value=this.value.substring(0, 72)"></textarea>
+            <a id="send-text" data-parent_id="{{ comment.comment_id }}" data-comment_id="{{ comment.comment_id }}"
                data-receiver_id="{{ comment.commentator.user_id }}" class="mui-icon mui-icon-paperplane"></a>
         </div>
     </div>
@@ -63,8 +63,7 @@
         });
         var praiseType = {
             'article': '1',
-            'comment': '2',
-            'comment_reply': '3'
+            'comment': '2'
         };
         var toast_option = {
             duration: 1000
@@ -92,7 +91,7 @@
             var fragment = document.createDocumentFragment();
             var li;
             $.each(json.results, function (index, array) {
-                var comment_reply_id = array['comment_reply_id'];
+                var comment_id = array['comment_id'];
                 var replier = array['replier'];
                 var receiver = array['receiver'];
                 var reply_at = array['reply_at'];
@@ -101,8 +100,8 @@
                 var praise_times = array['praise_times'];
                 li = document.createElement('li');
                 li.className = 'comment-reply';
-                li.id = 'comment_reply_' + comment_reply_id;
-                li.dataset.comment_reply_id = comment_reply_id;
+                li.id = 'comment_' + comment_id;
+                li.dataset.comment_id = comment_id;
                 li.dataset.replier_id = replier['user_id'];
                 li.dataset.replier_username = replier['username'];
                 var comment_reply_html = '<a class="avatar" href="javascript:void(0)">' +
@@ -113,7 +112,7 @@
                         '<span class="nickname">' + replier['username'] + '</span>' +
                         '<span class="text-time">' + reply_at_desc + '</span>' +
                         '</div>' +
-                        '<div class="praise" data-praise_type="' + praiseType['comment_reply'] + '" data-parent_id="' + comment_reply_id +
+                        '<div class="praise" data-praise_type="' + praiseType['comment'] + '" data-parent_id="' + comment_id +
                         '">' +
                         '<i class="iconfont icon-communityiconpraise4"></i>' +
                         '<span class="comment-praise-times">' + praise_times + '</span>' +
@@ -140,7 +139,7 @@
                 url: CommentRepliesApiUrl,
                 data: {
                     'page': page,
-                    'comment_id': comment_id
+                    'parent_id': comment_id
                 },
                 dataType: 'json',
                 success: function (json) {
@@ -177,7 +176,7 @@
                 url: CommentRepliesApiUrl,
                 data: {
                     'page': page,
-                    'comment_id': comment_id
+                    'parent_id': comment_id
                 },
                 dataType: 'json',
                 success: function (json) {
@@ -226,6 +225,7 @@
             textarea.value = '';
             textarea.setAttribute("placeholder", "回复 {{ comment.commentator.username }}");
             preview_text.innerHTML = '回复 {{ comment.commentator.username }}';
+            send_text_link.dataset.comment_id = "{{ comment.comment_id }}";
             send_text_link.dataset.receiver_id = "{{ comment.commentator.user_id }}";
         }
 
@@ -293,8 +293,10 @@
 
             mui('.replies-container').on('tap', '.user-info, .content', function () {
                 var parent_comment = $(this).parents('li.comment-reply')[0];
+                var comment_id = parent_comment.dataset.comment_id;
                 var receiver_id = parent_comment.dataset.replier_id;
                 var receiver_username = parent_comment.dataset.replier_username;
+                send_text_link.dataset.comment_id = comment_id;
                 send_text_link.dataset.receiver_id = receiver_id;
                 mui('#comment-popover').popover('show');
                 textarea.setAttribute("placeholder", "回复 " + receiver_username);
@@ -312,11 +314,14 @@
                     mui.toast('请先编写回复内容', toast_option);
                     return false
                 }
+                var parent_id = this.dataset.parent_id;
                 var comment_id = this.dataset.comment_id;
                 var receiver_id = this.dataset.receiver_id;
                 var url = "{% url 'api:save_comment_reply' %}";
                 var post_data = {
-                    "comment_id": comment_id,
+                    "article_id": {{ comment.article_id }},
+                    "parent_id": parent_id,
+                    "be_replied_comment_id": comment_id,
                     "receiver_id": receiver_id,
                     "content": content
                 };

@@ -10,11 +10,19 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers, generics, permissions, mixins
 from rest_framework.response import Response
-from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
+from article.models import (
+    Article,
+    Comment,
+    Praise,
+    get_user_be_praised,
+    get_user_received_comments,
+    get_user_comments
+)
 from restful_api.article.serializers import (
     ArticleSerializer,
     CommentSerializer,
     CommentReplySerializer,
+    UserCommentsSerializer,
     PraiseSerializer,
     UserPraiseSerializer,
     SaveArticleSerializer,
@@ -29,7 +37,9 @@ from restful_api.article.forms import (
     UpdateIsViewedStatusForm,
     CheckArticleIdForm,
     CheckCommentReplyIdForm,
-    CheckCommentIdForm
+    CheckCommentIdForm,
+    CheckParentCommentIdForm,
+    UserCommentListForm
 )
 from restful_api.article.permissions import (
     IsAuthorOrReadOnly,
@@ -105,14 +115,11 @@ class UpdateDestroyArticleView(extra_generics.UpdateDestroyAPIView):
         article_id = instance.id
         comments = Comment.objects.using('write').filter(article_id=article_id)
         comments_id = list(comments.values_list('id', flat=True).order_by('id'))
-        comment_replies = CommentReply.objects.using('write').filter(comment_id__in=comments_id)
-        comment_replies_id = list(comment_replies.values_list('id', flat=True).order_by('id'))
+
         praises = Praise.objects.using('write').filter(
             (Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id=article_id)) | (
-                Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comments_id)) | (
-                Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_replies_id)))
+                Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comments_id)))
         praises.delete()
-        comment_replies.delete()
         comments.delete()
         instance.delete()
 
@@ -187,16 +194,12 @@ class CommentList(generics.ListAPIView):
         if not articles.exists():
             raise Http404
 
-        comments = Comment.objects.using('read').filter(Q(article_id=article_id)).order_by('-id')
+        comments = Comment.objects.using('read').filter(Q(article_id=article_id) & Q(parent_id=0)).order_by('-id')
         return comments
 
     def clean_cache(self):
         Comment._Comment__user_cache = dict()
         Comment._Comment__article_info_cache = dict()
-        CommentReply._CommentReply__user_cache = dict()
-        CommentReply._CommentReply__article_info_cache = dict()
-        Praise._Praise__user_cache = dict()
-        Praise._Praise__article_info_cache = dict()
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -221,25 +224,56 @@ class CommentReplyList(generics.ListAPIView):
     serializer_class = CommentReplySerializer
 
     def get_queryset(self):
-        form = CheckCommentIdForm(self.request.query_params)
+        form = CheckParentCommentIdForm(self.request.query_params)
         if not form.is_valid():
             raise serializers.ValidationError(form.errors)
 
-        comment_id = form.cleaned_data.get('comment_id')
-        comments = Comment.objects.using('read').filter(id=comment_id)
-        if not comments.exists():
-            raise Http404
-
-        comment_replies = CommentReply.objects.using('read').filter(Q(comment_id=comment_id)).order_by('-id')
+        parent_id = form.cleaned_data.get('parent_id')
+        comment_replies = Comment.objects.using('read').filter(parent_id=parent_id).order_by('-id')
         return comment_replies
 
     def clean_cache(self):
         Comment._Comment__user_cache = dict()
         Comment._Comment__article_info_cache = dict()
-        CommentReply._CommentReply__user_cache = dict()
-        CommentReply._CommentReply__article_info_cache = dict()
-        Praise._Praise__user_cache = dict()
-        Praise._Praise__article_info_cache = dict()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response = Response(serializer.data)
+        self.clean_cache()
+        return response
+
+
+class UserCommentList(generics.ListAPIView):
+    """
+    List all comment of user.
+    """
+
+    pagination_class = SmallResultsSetPagination
+    serializer_class = UserCommentsSerializer
+
+    def get_queryset(self):
+        form = UserCommentListForm(self.request.query_params)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        user_id = form.cleaned_data.get('user_id')
+        comment_type = form.cleaned_data.get('comment_type')
+        if comment_type == 0:
+            comments = get_user_received_comments(user_id)
+        else:
+            comments = get_user_comments(user_id)
+        return comments
+
+    def clean_cache(self):
+        Comment._Comment__user_cache = dict()
+        Comment._Comment__article_info_cache = dict()
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -309,8 +343,6 @@ class UserPraiseList(generics.ListAPIView):
     def clean_cache(self):
         Comment._Comment__user_cache = dict()
         Comment._Comment__article_info_cache = dict()
-        CommentReply._CommentReply__user_cache = dict()
-        CommentReply._CommentReply__article_info_cache = dict()
         Praise._Praise__user_cache = dict()
         Praise._Praise__article_info_cache = dict()
 
@@ -367,11 +399,10 @@ class DeleteCommentView(generics.DestroyAPIView):
 
     def perform_destroy(self, instance):
         comment_id = instance.id
-        comment_replies = CommentReply.objects.using('write').filter(comment_id=comment_id)
+        comment_replies = Comment.objects.using('write').filter(parent_id=comment_id)
         comment_replies_id = list(comment_replies.values_list('id', flat=True).order_by('id'))
         praises = Praise.objects.using('write').filter(
-            (Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id=comment_id)) | (
-                Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id__in=comment_replies_id)))
+            Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=[comment_id] + comment_replies_id))
         praises.delete()
         comment_replies.delete()
         instance.delete()
@@ -388,7 +419,7 @@ class SaveCommentReplyView(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def perform_create(self, serializer):
-        serializer.save(replier_id=self.request.user.id)
+        serializer.save(commentator_id=self.request.user.id)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -398,38 +429,9 @@ class SaveCommentReplyView(generics.CreateAPIView):
         return_context = {
             'code': 200,
             'msg': '回复成功',
-            'data': serializer.instance.render_json()
+            'data': serializer.instance.render_comment_reply_json()
         }
         return Response(return_context)
-
-
-class DeleteCommentReplyView(generics.DestroyAPIView):
-    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
-    permission_classes = (permissions.IsAuthenticated, IsReplierOrReadOnly,)
-
-    def get_object(self):
-        form = CheckCommentReplyIdForm(self.request.data)
-        if not form.is_valid():
-            raise serializers.ValidationError(form.errors)
-
-        comment_reply_id = form.cleaned_data.get('comment_reply_id')
-        comment_replies = CommentReply.objects.using('read').filter(id=comment_reply_id)
-        if not comment_replies.exists():
-            raise Http404
-        comment_reply = comment_replies[0]
-        self.check_object_permissions(self.request, comment_reply)
-        return comment_reply
-
-    def perform_destroy(self, instance):
-        praises = Praise.objects.using('write').filter(
-            Q(praise_type=Praise.TYPE.COMMENT_REPLY) & Q(parent_id=instance.id))
-        praises.delete()
-        instance.delete()
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response({'code': 200, 'msg': '删除回复成功'})
 
 
 class SavePraiseView(generics.CreateAPIView):
@@ -489,8 +491,6 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
 
         if object_type == 1:
             instances = Comment.objects.using('write').filter(id=parent_id)
-        elif object_type == 2:
-            instances = CommentReply.objects.using('write').filter(id=parent_id)
         else:
             instances = Praise.objects.using('write').filter(id=parent_id)
         if not instances.exists():

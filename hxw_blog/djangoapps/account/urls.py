@@ -5,7 +5,6 @@ from account.views import (
     user_info,
     ResetPasswordView,
     message_comments,
-    user_unified_comment_info_pagination,
     message_praises,
     weibo_login,
     weibo_auth,
@@ -24,7 +23,6 @@ urlpatterns = [
     url(r'^info$', user_info, name='user_info'),
     url(r'^password/reset$', ResetPasswordView.as_view(), name='reset_password'),
     url(r'^message/comments$', message_comments, name='user_message_comments'),
-    url(r'^message/comments/pagination$', user_unified_comment_info_pagination, name='user_message_comments_pagination'),
     url(r'^message/praises$', message_praises, name='user_message_praises')
 ]
 

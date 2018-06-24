@@ -56,7 +56,7 @@
                 var $this = this;
                 var praise_id = this.dataset.praise_id;
                 var is_viewed = this.dataset.is_viewed;
-                var object_type = 3;
+                var object_type = 2;
                 if (parseInt(is_viewed) == 0) {
                     $.ajax({
                         url: "{% url 'api:update_is_viewed_status' %}",

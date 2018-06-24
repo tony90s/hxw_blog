@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
-from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
+from article.models import Article, Comment, Praise, get_user_be_praised
 # from utils.sensitive_word_handler import sensitive_words_replace
 
 reg_number = re.compile('^\d+$')

@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import render
 from django.http import JsonResponse, Http404
 
-from article.models import Article, Comment, CommentReply, Praise, get_user_be_praised
+from article.models import Article, Comment, Praise, get_user_be_praised
 
 
 logger = logging.getLogger('microsite_article.views')

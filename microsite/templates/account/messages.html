@@ -40,10 +40,10 @@
                                     </button>
                                 </div>
                                 <ul class="comments-list selected" id="comments_list_0" data-comment_type="0"
-                                    data-page_index="1">
+                                    data-page_index="0">
                                 </ul>
                                 <ul class="comments-list" id="comments_list_1" data-comment_type="1"
-                                    data-page_index="1">
+                                    data-page_index="0">
                                 </ul>
                             </div>
                         </div>
@@ -129,8 +129,7 @@
     <script>
         var praiseType = {
             1: '文章',
-            2: '评论',
-            3: '回复'
+            2: '评论'
         };
 
         var login_user_id = "{{ user.id }}";
@@ -147,13 +146,13 @@
         function create_comments(json) {
             var fragment = document.createDocumentFragment();
             var li;
-            $.each(json.data, function (index, array) {
+            $.each(json.results, function (index, array) {
                 var article_id = array['article_info']['article_id'];
                 var title = array['article_info']['title'];
                 var cover_photo = array['article_info']['cover_photo'];
                 var abstract = array['article_info']['abstract'];
+                var parent_id = array['parent_id'];
                 var comment_id = array['comment_id'];
-                var comment_reply_id = array['comment_reply_id'];
                 var replier_user_id = array['replier']['user_id'];
                 var replier_username = array['replier']['username'];
                 var replier_avatar = array['replier']['avatar'];
@@ -165,8 +164,8 @@
                 li = document.createElement('li');
                 li.className = 'comment';
                 li.dataset.article_id = article_id;
+                li.dataset.parent_id = parent_id;
                 li.dataset.comment_id = comment_id;
-                li.dataset.comment_reply_id = comment_reply_id;
                 li.dataset.replier_id = replier_user_id;
                 li.dataset.replier_username = replier_username;
                 var comment_reply_html = '<a class="avatar" href="javascript:void(0)">' +
@@ -179,7 +178,7 @@
                         '</div>' +
                         '</div>' +
                         '<p class="content">';
-                if (receiver_user_id > 0) {
+                if (parent_id != comment_id) {
                     comment_reply_html += '回复' +
                             '<a href="javascript:void(0)">@' + receiver_username + '</a>:&nbsp;'
                 }
@@ -245,26 +244,22 @@
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.comments-list.selected');
-            var page_index = parseInt(ul.dataset.page_index);
+            ul.dataset.page_index = parseInt(ul.dataset.page_index) + 1;
             var comment_type = ul.dataset.comment_type;
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
-                    url: "{% url 'account:user_message_comments_pagination' %}",
+                    url: "{% url 'api:user_comments' %}",
                     data: {
                         'user_id': "{{ user.id }}",
                         'comment_type': comment_type,
-                        'page_index': page_index
+                        'page': parseInt(ul.dataset.page_index)
                     },
                     dataType: 'json',
                     success: function (json) {
-                        if (json.hasOwnProperty('data') && json.data.length > 0) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_comments(json));
-                            self.endPullUpToRefresh(!json.has_next);
-                            if (json.has_next) {
-                                page_index++;
-                                ul.dataset.page_index = page_index
-                            }
+                            self.endPullUpToRefresh(!json.next);
                         } else {
                             self.endPullUpToRefresh(true);
                         }
@@ -283,27 +278,22 @@
             ul.innerHTML = '';
             ul.dataset.page_index = 1;
             var comment_type = ul.dataset.comment_type;
-            var page = 1;
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
-                    url: "{% url 'account:user_message_comments_pagination' %}",
+                    url: "{% url 'api:user_comments' %}",
                     data: {
                         'user_id': "{{ user.id }}",
                         'comment_type': comment_type,
-                        'page_index': page
+                        'page': 1
                     },
                     dataType: 'json',
                     success: function (json) {
-                        if (json.hasOwnProperty('data') && json.data.length > 0) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_comments(json));
-                            self.endPullDownToRefresh(!json.has_next);
+                            self.endPullDownToRefresh(!json.next);
                             self.refresh(true);
-                            self.endPullUpToRefresh(!json.has_next);
-                            if (json.has_next) {
-                                page++;
-                                ul.dataset.page_index = page;
-                            }
+                            self.endPullUpToRefresh(!json.next);
                         } else {
                             self.endPullDownToRefresh(true);
                             self.refresh(true);
@@ -406,19 +396,17 @@
         function ajax_init_comments_list(ul, page) {
             $.ajax({
                 type: 'GET',
-                url: "{% url 'account:user_message_comments_pagination' %}",
+                url: "{% url 'api:user_comments' %}",
                 data: {
                     'user_id': "{{ user.id }}",
                     'comment_type': ul.dataset.comment_type,
-                    'page_index': page
+                    'page': page
                 },
                 dataType: 'json',
                 success: function (json) {
-                    if (json.hasOwnProperty('data') && json.data.length > 0) {
+                    if (json.hasOwnProperty('results') && json.results.length > 0) {
                         ul.appendChild(create_comments(json));
                     }
-                    page++;
-                    ul.dataset.page_index = page;
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     var response_json = XMLHttpRequest.responseJSON;
@@ -433,6 +421,8 @@
             textarea.value = '';
             textarea.setAttribute("placeholder", "写回复···");
             tips.innerHTML = '';
+            delete send_text_link.dataset.article_id;
+            delete send_text_link.dataset.parent_id;
             delete send_text_link.dataset.comment_id;
             delete send_text_link.dataset.receiver_id;
         }
@@ -481,6 +471,7 @@
             comments_list_ul.not('#comments_list_' + comment_type).removeClass('selected').hide();
             var selected_comments_list = $('#comments_list_' + comment_type);
             selected_comments_list.addClass('selected').show();
+            mui("#comments .mui-scroll").pullToRefresh().refresh(true);
             if (selected_comments_list.find('li').length == 0) {
                 selected_comments_list[0].dataset.page_index = 1;
                 ajax_init_comments_list(selected_comments_list[0], 1)
@@ -493,34 +484,36 @@
 
         function cleanData() {
             $(delete_link).parent('li').show();
+            delete reply_link.dataset.article_id;
+            delete reply_link.dataset.parent_id;
             delete reply_link.dataset.comment_id;
             delete reply_link.dataset.receiver_id;
             delete reply_link.dataset.receiver_username;
             delete check_details_link.dataset.article_id;
             delete check_details_link.dataset.comment_id;
-            delete check_details_link.dataset.comment_reply_id;
+            delete check_details_link.dataset.parent_id;
             delete delete_link.dataset.comment_id;
-            delete delete_link.dataset.comment_reply_id;
         }
 
         mui('.comments-container').on('tap', '.user-info, .content', function () {
             var parent_comment = $(this).parents('li.comment')[0];
             var article_id = parent_comment.dataset.article_id;
+            var parent_id = parent_comment.dataset.parent_id;
             var comment_id = parent_comment.dataset.comment_id;
-            var comment_reply_id = parent_comment.dataset.comment_reply_id;
             var receiver_id = parent_comment.dataset.replier_id;
             var receiver_username = parent_comment.dataset.replier_username;
 
+            reply_link.dataset.article_id = article_id;
+            reply_link.dataset.parent_id = parent_id;
             reply_link.dataset.comment_id = comment_id;
             reply_link.dataset.receiver_id = receiver_id;
             reply_link.dataset.receiver_username = receiver_username;
 
             check_details_link.dataset.article_id = article_id;
             check_details_link.dataset.comment_id = comment_id;
-            check_details_link.dataset.comment_reply_id = comment_reply_id;
+            check_details_link.dataset.parent_id = parent_id;
 
             delete_link.dataset.comment_id = comment_id;
-            delete_link.dataset.comment_reply_id = comment_reply_id;
 
             if (login_user_id != receiver_id) {
                 $(delete_link).parent('li').hide()
@@ -541,10 +534,10 @@
         check_details_link.addEventListener('tap', function () {
             mui('#operation').popover('hide');
             var article_id = this.dataset.article_id;
+            var parent_id = this.dataset.parent_id;
             var comment_id = this.dataset.comment_id;
-            var comment_reply_id = this.dataset.comment_reply_id;
-            if (comment_reply_id != undefined && parseInt(comment_reply_id) > 0) {
-                location.href = "/article/comment/details/" + comment_id + "#comment_reply_" + comment_reply_id;
+            if (parent_id != undefined && comment_id != undefined && parent_id != comment_id) {
+                location.href = "/article/comment/details/" + parent_id + "#comment_" + comment_id;
             }
             else if (comment_id != undefined && parseInt(comment_id) > 0) {
                 location.href = "/article/details/" + article_id + '#comment_' + comment_id;
@@ -559,15 +552,8 @@
             var self = this;
             mui('#operation').popover('hide');
             var comment_id = this.dataset.comment_id;
-            var comment_reply_id = this.dataset.comment_reply_id;
             var btnArray = ['是', '否'];
-            if (comment_reply_id != undefined && parseInt(comment_reply_id) > 0) {
-                var url = "{% url 'api:delete_comment_reply' %}";
-                var post_data = {
-                    "comment_reply_id": comment_reply_id
-                };
-            }
-            else if (comment_id != undefined && parseInt(comment_id) > 0) {
+            if (comment_id != undefined && parseInt(comment_id) > 0) {
                 var url = "{% url 'api:delete_comment' %}";
                 var post_data = {
                     "comment_id": comment_id
@@ -615,6 +601,8 @@
         mui('body').on('tap', '#reply_link', function () {
             var receiver_username = reply_link.dataset.receiver_username;
             var content = $(".comments-container li.taped").find('p.content').html();
+            send_text_link.dataset.article_id = reply_link.dataset.article_id;
+            send_text_link.dataset.parent_id = reply_link.dataset.parent_id;
             send_text_link.dataset.comment_id = reply_link.dataset.comment_id;
             send_text_link.dataset.receiver_id = reply_link.dataset.receiver_id;
             var tips_content = '回复 ' + receiver_username + ': ' + content.replace(/<[^>]+>/g,"");
@@ -633,11 +621,15 @@
                 mui.toast('请先编写回复内容', toast_option);
                 return false
             }
+            var article_id = this.dataset.article_id;
+            var parent_id = this.dataset.parent_id;
             var comment_id = this.dataset.comment_id;
             var receiver_id = this.dataset.receiver_id;
             var url = "{% url 'api:save_comment_reply' %}";
             var post_data = {
-                "comment_id": comment_id,
+                "article_id": article_id,
+                "parent_id": parent_id,
+                "be_replied_comment_id": comment_id,
                 "receiver_id": receiver_id,
                 "content": content
             };
