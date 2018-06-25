@@ -137,44 +137,13 @@ class ResetPasswordView(View):
 @login_required
 def message_comments(request):
     template_name = 'account/message_comments.html'
-    user = request.user
-
-    comment_type = request.GET.get('type', '0')     # 0 received comments  1 sent comments
-    if not reg_number.match(comment_type):
-        return HttpResponseBadRequest('参数有误。')
-    comment_type = int(comment_type)
-    if comment_type not in [0, 1]:
-        raise Http404
-
-    comments = get_user_received_comments(user.id)
-    not_viewed_comment_count = comments.filter(is_viewed=0).count()
-    praises = get_user_be_praised(user.id)
-    not_viewed_praises_count = praises.filter(is_viewed=0).count()
-
-    context = {
-        'comment_type': comment_type,
-        'not_viewed_comment_count': not_viewed_comment_count,
-        'not_viewed_praises_count': not_viewed_praises_count
-    }
-    return render(request, template_name, context)
+    return render(request, template_name)
 
 
 @login_required
 def message_praises(request):
     template_name = 'account/message_praises.html'
-    user = request.user
-
-    all_praises = get_user_be_praised(user.id)
-    not_viewed_praises_count = all_praises.filter(is_viewed=0).count()
-
-    comments = get_user_received_comments(user.id)
-    not_viewed_comment_count = comments.filter(is_viewed=0).count()
-
-    context = {
-        'not_viewed_praises_count': not_viewed_praises_count,
-        'not_viewed_comment_count': not_viewed_comment_count
-    }
-    return render(request, template_name, context)
+    return render(request, template_name)
 
 
 def weibo_login(request):

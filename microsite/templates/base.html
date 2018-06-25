@@ -45,6 +45,35 @@
         window.location.href = this.href;
     });
 
+    mui.ready(function () {
+        var isLogin = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        var not_viewed_count_badge = mui('#not_viewed_count');
+        if (not_viewed_count_badge.length > 0 && isLogin) {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'api:user_not_viewed_messages' %}",
+                data: {
+                    'user_id': {{ user.id }}
+                },
+                dataType: 'json',
+                success: function (json) {
+                    var not_viewed_count_badge = document.getElementById('not_viewed_count');
+                    var not_viewed_comment_count = json.data.not_viewed_comment_count;
+                    var not_viewed_praises_count = json.data.not_viewed_praises_count;
+                    var not_viewed_count = parseInt(not_viewed_comment_count) + parseInt(not_viewed_praises_count);
+                    not_viewed_count_badge.innerHTML = not_viewed_count.toString();
+                    if (not_viewed_count > 0) {
+                        jQuery(not_viewed_count_badge).removeClass('mui-hidden')
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    console.log(esponse_json.msg);
+                    return false
+                }
+            })
+        }
+    });
 </script>
 {% block extra_js %}
 {% endblock %}

@@ -14,7 +14,8 @@ from restful_api.article.views import (
     SavePraiseView,
     CancelPraiseView,
     UpdateIsViewedStatusView,
-    UpdateArticleReleaseStatusView
+    UpdateArticleReleaseStatusView,
+    MessagesNotViewedCountView
 )
 
 urlpatterns = [
@@ -33,4 +34,5 @@ urlpatterns = [
     url(r'^praise/cancel$', CancelPraiseView.as_view(), name='cancel_praise'),
     url(r'^is_viewed_status/update$', UpdateIsViewedStatusView.as_view(), name='update_is_viewed_status'),
     url(r'^release$', UpdateArticleReleaseStatusView.as_view(), name='update_article_release_status'),
+    url(r'^user/messages/not_viewed$', MessagesNotViewedCountView.as_view(), name='user_not_viewed_messages')
 ]

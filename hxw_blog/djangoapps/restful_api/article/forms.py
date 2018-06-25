@@ -15,6 +15,10 @@ class ArticleListForm(forms.Form):
         return self.cleaned_data['is_released']
 
 
+class GeneralUserIdForm(forms.Form):
+    user_id = forms.IntegerField(required=True)
+
+
 class PraiseListForm(forms.Form):
     user_id = forms.IntegerField(required=True)
 

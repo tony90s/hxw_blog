@@ -13,16 +13,12 @@
                 <div class="sidebar-box">
                     <div class="list-group">
                         <a class="list-group-item comments active" href="{% url 'account:user_message_comments' %}">
-                            {% if not_viewed_comment_count %}
-                                <span class="badge">{{ not_viewed_comment_count }}</span>
-                            {% endif %}
+                            <span class="badge" id="not_viewed_comment_count"></span>
                             <i class="iconfont icon-comments"></i>
                             评论
                         </a>
                         <a class="list-group-item praises" href="{% url 'account:user_message_praises' %}">
-                            {% if not_viewed_praises_count %}
-                                <span class="badge">{{ not_viewed_praises_count }}</span>
-                            {% endif %}
+                            <span class="badge" id="not_viewed_praises_count"></span>
                             <i class="iconfont icon-like"></i>
                             赞
                         </a>
@@ -111,6 +107,31 @@
             })
         }
         $(function () {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'api:user_not_viewed_messages' %}",
+                data: {
+                    'user_id': user_id
+                },
+                dataType: 'json',
+                success: function (json) {
+                    var not_viewed_comment_count_badge = document.getElementById('not_viewed_comment_count');
+                    var not_viewed_praises_count_badge = document.getElementById('not_viewed_praises_count');
+                    var not_viewed_comment_count = json.data.not_viewed_comment_count;
+                    var not_viewed_praises_count = json.data.not_viewed_praises_count;
+                    if (not_viewed_comment_count > 0) {
+                        not_viewed_comment_count_badge.innerHTML = not_viewed_comment_count.toString();
+                    }
+                    if (not_viewed_praises_count) {
+                        not_viewed_praises_count_badge.innerHTML = not_viewed_praises_count.toString();
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    console.log(esponse_json.msg);
+                    return false
+                }
+            });
             AjaxUpdateViewStatus()
         });
     </script>
@@ -298,6 +319,7 @@
             var comment_type = selected_comment_box.dataset.comment_type;
             selected_comment_box.dataset.page = parseInt(selected_comment_box.dataset.page) + 1;
             $.ajax({
+                type: "GET",
                 url: "{% url 'api:user_comments' %}",
                 data: {
                     'user_id': user_id,
@@ -350,7 +372,7 @@
                             }
                             str += content + '</p>';
                             if (be_replied_comment_desc != '') {
-                                be_replied_comment_desc = be_replied_comment_desc.length > 60?(be_replied_comment_desc.slice(0, 60) + '...'):be_replied_comment_desc;
+                                be_replied_comment_desc = be_replied_comment_desc.length > 60 ? (be_replied_comment_desc.slice(0, 60) + '...') : be_replied_comment_desc;
                                 str += '<p class="be_replied_comment_desc small-size">' + be_replied_comment_desc + '</p>'
                             }
                             str += '<div class="article';

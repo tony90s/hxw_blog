@@ -82,8 +82,8 @@
             <span class="mui-icon mui-icon-home"></span>
         </a>
         <a class="mui-tab-item mui-active" href="{% url 'account:user_messages' %}">
-            <span class="mui-icon-extra mui-icon-extra-notice">
-                <!--<span class="mui-badge">9</span>-->
+            <span class="mui-icon mui-icon-email">
+                <span class="mui-badge mui-hidden" id="not_viewed_count"></span>
             </span>
         </a>
         <a class="mui-tab-item" href="{% url 'account:user_center' %}">
@@ -143,6 +143,53 @@
 
         mui.init();
 
+        function AjaxUpdateViewStatus() {
+            $("#comments_list_0 li.not-viewed, .praises-list li.not-viewed").each(function () {
+                var self = this;
+                if ($(self).hasClass('comment')) {
+                    var object_type = 1;
+                    var parent_id = self.dataset.comment_id;
+                }
+                else if ($(self).hasClass('praise')) {
+                    var object_type = 2;
+                    var parent_id = self.dataset.praise_id;
+                }
+                else {
+                    console.log('参数有误');
+                    return false
+                }
+                $.ajax({
+                    url: "{% url 'api:update_is_viewed_status' %}",
+                    type: "PUT",
+                    data: {
+                        "object_type": object_type,
+                        "parent_id": parent_id
+                    },
+                    dataType: "json",
+                    success: function (json) {
+                        console.log(json.msg);
+                        if (json.code == 200) {
+                            var badge = $("#not_viewed_count");
+                            var not_is_viewed_count = parseInt(badge.text());
+                            $(self).removeClass('not-viewed');
+                            not_is_viewed_count--;
+                            if (not_is_viewed_count > 0) {
+                                badge.text(not_is_viewed_count);
+                            }
+                            else {
+                                badge.addClass('mui-hidden');
+                            }
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        var response_json = XMLHttpRequest.responseJSON;
+                        console.log(response_json.msg);
+                        return false
+                    }
+                });
+            })
+        }
+
         function create_comments(json) {
             var fragment = document.createDocumentFragment();
             var li;
@@ -161,10 +208,14 @@
                 var reply_at = array['reply_at'];
                 var reply_at_desc = getDateDiff(reply_at);
                 var content = array['content'];
+                var is_viewed = array['is_viewed'];
                 var be_replied_comment_desc = array['be_replied_comment_desc'];
 
                 li = document.createElement('li');
-                li.className = 'comment';
+                li.classList = ['comment'];
+                if (parseInt(is_viewed) == 0) {
+                    li.classList.add("not-viewed");
+                }
                 li.dataset.article_id = article_id;
                 li.dataset.parent_id = parent_id;
                 li.dataset.comment_id = comment_id;
@@ -186,7 +237,7 @@
                 }
                 comment_reply_html += content + '</p>';
                 if (be_replied_comment_desc != '') {
-                    be_replied_comment_desc = be_replied_comment_desc.length > 25?(be_replied_comment_desc.slice(0, 25) + '...'):be_replied_comment_desc;
+                    be_replied_comment_desc = be_replied_comment_desc.length > 25 ? (be_replied_comment_desc.slice(0, 25) + '...') : be_replied_comment_desc;
                     comment_reply_html += '<p class="be_replied_comment_desc">' + be_replied_comment_desc + '</p>'
                 }
                 comment_reply_html += '<div class="article" data-article_id="' + article_id + '">' +
@@ -203,6 +254,7 @@
             var fragment = document.createDocumentFragment();
             var li;
             $.each(json.results, function (index, array) {
+                var praise_id = array['praise_id'];
                 var praise_type = parseInt(array['type']);
                 var article_id = array['article_info']['article_id'];
                 var title = array['article_info']['title'];
@@ -216,8 +268,14 @@
                 var praise_at = array['praise_at'];
                 var praise_at_desc = getDateDiff(praise_at);
                 var content = array['content'];
+                var is_viewed = array['is_viewed'];
+
                 li = document.createElement('li');
-                li.className = 'praise';
+                li.classList = ['praise'];
+                li.dataset.praise_id = praise_id;
+                if (parseInt(is_viewed) == 0) {
+                    li.classList.add("not-viewed");
+                }
                 var praise_html = '<a class="avatar" href="javascript:void(0)">' +
                         '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
                         '<div class="info">' +
@@ -265,6 +323,7 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_comments(json));
+                            AjaxUpdateViewStatus();
                             self.endPullUpToRefresh(!json.next);
                         } else {
                             self.endPullUpToRefresh(true);
@@ -297,6 +356,7 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_comments(json));
+                            AjaxUpdateViewStatus();
                             self.endPullDownToRefresh(!json.next);
                             self.refresh(true);
                             self.endPullUpToRefresh(!json.next);
@@ -332,6 +392,7 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_praises(json));
+                            AjaxUpdateViewStatus();
                             self.endPullUpToRefresh(!json.next);
                             if (json.next) {
                                 page++;
@@ -366,6 +427,7 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_praises(json));
+                            AjaxUpdateViewStatus();
                             self.endPullDownToRefresh(!json.next);
                             self.refresh(true);
                             self.endPullUpToRefresh(!json.next);
@@ -611,7 +673,7 @@
             send_text_link.dataset.parent_id = reply_link.dataset.parent_id;
             send_text_link.dataset.comment_id = reply_link.dataset.comment_id;
             send_text_link.dataset.receiver_id = reply_link.dataset.receiver_id;
-            var tips_content = '回复 ' + receiver_username + ': ' + content.replace(/<[^>]+>/g,"");
+            var tips_content = '回复 ' + receiver_username + ': ' + content.replace(/<[^>]+>/g, "");
             tips.innerHTML = tips_content;
 
             mui('#operation').popover('hide');

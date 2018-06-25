@@ -86,22 +86,10 @@ class Article(models.Model):
         self.__user_cache.update({self.author_id: author_data})
         return author_data
 
-    def get_comments_json(self):
-        page_size = settings.DEFAULT_PAGE_SIZE
-        comments = Comment.objects.using('read').filter(Q(article_id=self.id)).order_by("-id")[:page_size]
-        comments_data = list()
-        for comment in comments:
-            comments_data.append(comment.render_json())
-        return comments_data
-
     @property
     def comment_times(self):
         comments = Comment.objects.using('read').filter(Q(article_id=self.id))
-        comments_count = comments.count()
-        # comments_id = [comment.id for comment in comments]
-        # comment_replies = CommentReply.objects.using('read').filter(Q(comment_id__in=comments_id))
-        # comments_count += comment_replies.count()
-        return comments_count
+        return comments.count()
 
     @property
     def praise_times(self):
@@ -130,7 +118,6 @@ class Article(models.Model):
         context['author'] = self.get_author_data()
         context['comment_times'] = self.comment_times
         context['praise_times'] = self.praise_times
-        # context['comments'] = self.get_comments_json()
         context['word_count'] = self.word_count
         context['release_time'] = self.release_time
         context['update_time'] = self.update_time
@@ -164,7 +151,6 @@ class Article(models.Model):
             'display_name': self.get_type_display()
         }
         context['cover_photo'] = self.article_cover
-        # context['author'] = self.get_author_data()
         context['abstract'] = self.content_txt[0:76] + '...'
         return context
 

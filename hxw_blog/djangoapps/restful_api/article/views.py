@@ -39,7 +39,8 @@ from restful_api.article.forms import (
     CheckCommentReplyIdForm,
     CheckCommentIdForm,
     CheckParentCommentIdForm,
-    UserCommentListForm
+    UserCommentListForm,
+    GeneralUserIdForm
 )
 from restful_api.article.permissions import (
     IsAuthorOrReadOnly,
@@ -533,3 +534,28 @@ class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
         instance = self.get_object()
         self.perform_update(instance)
         return Response({'code': 200, 'msg': '博文发布成功'})
+
+
+class MessagesNotViewedCountView(generics.GenericAPIView):
+    def get_cleaned_data(self):
+        form = GeneralUserIdForm(self.request.query_params)
+        if not form.is_valid():
+            raise serializers.ValidationError(form.errors)
+
+        return self.request.query_params
+
+    def get(self, request, *args, **kwargs):
+        cleaned_data = self.get_cleaned_data()
+        user_id = cleaned_data['user_id']
+        comments = get_user_received_comments(user_id)
+        not_viewed_comment_count = comments.filter(is_viewed=0).count()
+        praises = get_user_be_praised(user_id)
+        not_viewed_praises_count = praises.filter(is_viewed=0).count()
+        return Response({
+            'code': 200,
+            'msg': '查询成功',
+            'data': {
+                'not_viewed_comment_count': not_viewed_comment_count,
+                'not_viewed_praises_count': not_viewed_praises_count
+            }
+        })

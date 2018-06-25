@@ -13,16 +13,12 @@
                 <div class="sidebar-box">
                     <div class="list-group">
                         <a class="list-group-item comments" href="{% url 'account:user_message_comments' %}">
-                            {% if not_viewed_comment_count > 0 %}
-                                <span class="badge">{{ not_viewed_comment_count }}</span>
-                            {% endif %}
+                            <span class="badge" id="not_viewed_comment_count"></span>
                             <i class="iconfont icon-comments"></i>
                             评论
                         </a>
                         <a class="list-group-item praises active" href="{% url 'account:user_message_praises' %}">
-                            {% if not_viewed_praises_count > 0 %}
-                                <span class="badge">{{ not_viewed_praises_count }}</span>
-                            {% endif %}
+                            <span class="badge" id="not_viewed_praises_count"></span>
                             <i class="iconfont icon-like"></i>
                             赞
                         </a>
@@ -97,104 +93,129 @@
     </script>
 
     <script type="text/javascript">
-            var page_index = 1;
-            function ajax_get_praise() {
-                $.getJSON("{% url 'api:user_praises' %}",
-                            {
-                                'user_id': user_id,
-                                'page': page_index
-                            }, function(json) {
-                            $(".loading-animation").hide();
-                            if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                var str = "";
-                                $.each(json.results, function(index, array) {
-                                    var type = parseInt(array['type']);
-                                    var article_id = array['article_info']['article_id'];
-                                    var title = array['article_info']['title'];
-                                    var cover_photo = array['article_info']['cover_photo'];
-                                    var abstract = array['article_info']['abstract'];
+        var page_index = 1;
+        function ajax_get_praise() {
+            $.getJSON("{% url 'api:user_praises' %}",
+                    {
+                        'user_id': user_id,
+                        'page': page_index
+                    }, function (json) {
+                        $(".loading-animation").hide();
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            var str = "";
+                            $.each(json.results, function (index, array) {
+                                var type = parseInt(array['type']);
+                                var article_id = array['article_info']['article_id'];
+                                var title = array['article_info']['title'];
+                                var cover_photo = array['article_info']['cover_photo'];
+                                var abstract = array['article_info']['abstract'];
 
-                                    var replier_user_id = array['user']['user_id'];
-                                    var replier_username = array['user']['username'];
-                                    var replier_avatar = array['user']['avatar'];
-                                    var receiver_user_id = array['receiver_info']['user_id'];
-                                    var receiver_username = array['receiver_info']['username'];
-                                    var reply_at = array['praise_at'];
-                                    var reply_at_desc = getDateDiff(reply_at);
-                                    var content = array['content'];
-                                    var praise_id = array['praise_id'];
-                                    var is_viewed = array['is_viewed'];
+                                var replier_user_id = array['user']['user_id'];
+                                var replier_username = array['user']['username'];
+                                var replier_avatar = array['user']['avatar'];
+                                var receiver_user_id = array['receiver_info']['user_id'];
+                                var receiver_username = array['receiver_info']['username'];
+                                var reply_at = array['praise_at'];
+                                var reply_at_desc = getDateDiff(reply_at);
+                                var content = array['content'];
+                                var praise_id = array['praise_id'];
+                                var is_viewed = array['is_viewed'];
 
-                                    var str = '<div class="comment-show-con clearfix" data-praise_id="' + praise_id +
-                                            '" data-is_viewed="' + is_viewed +
-                                            '">';
-                                    str += '<div class="comment-show-con-img">' +
-                                            '<a target="_blank" href="/article/author/' + replier_user_id + '">' +
-                                                '<img src="' + replier_avatar + '" alt="' + replier_username + '">' +
-                                            '</a>' +
-                                            '</div>' +
-                                            '<div class="pl-text clearfix">' +
-                                            '<a target="_blank" href="/article/author/' + replier_user_id + '" class="comment-size-name"' +
-                                             'data-replier_id="' + replier_user_id +
-                                            '">' + replier_username + '</a>' +
-                                            '<span class="comment-time">'  + reply_at_desc + '</span>' +
-                                            '</div>';
-                                    str += '<div class="comment-show-con-list clearfix">' +
-                                           '<div class="date-dz">' +
-                                            '<p class="praise-type">';
-                                    if (type == 1) {
-                                        str += '赞了你的文章'
-                                    }
-                                    else if (type == 2) {
-                                        str += '赞了你的评论'
-                                    }
-                                    else {
-                                        str += '赞了你的回复'
-                                    }
-                                    str += '</p>';
-                                    str += '<p class="date-dz-left my-pl-con small-size">';
-                                    if (receiver_user_id >0) {
-                                        str += '回复@<a href="/article/author/' + receiver_user_id + '" class="comment-size-name small-size" target="_blank">' + receiver_username + '</a>:';
-                                    }
-                                    str += content + '</p>';
-                                    str += '<div class="article';
-                                    if (cover_photo) {
-                                        str += ' with-img';
-                                    }
-                                    str += '">';
-                                    if (cover_photo) {
-                                        str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
-                                                '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
-                                                '</a>';
-                                    }
-
-                                    str += '<div class="info">' +
-                                            '<a class="title" target="_blank" href="/article/details/' + article_id + '">' + title + '</a>' +
-                                            '<p class="abstract">' + abstract + '</p>' +
-                                            '</div>' +
-                                            '</div>';
-                                    $(".comment-show").append(str);
-                                });
-                                AjaxUpdateViewStatus();
-                                if (!json.next) {
-                                    $("#btn_read_more").hide();
-                                    $(".read-more .not-more-content").show();
-                                    return false;
+                                var str = '<div class="comment-show-con clearfix" data-praise_id="' + praise_id +
+                                        '" data-is_viewed="' + is_viewed +
+                                        '">';
+                                str += '<div class="comment-show-con-img">' +
+                                        '<a target="_blank" href="/article/author/' + replier_user_id + '">' +
+                                        '<img src="' + replier_avatar + '" alt="' + replier_username + '">' +
+                                        '</a>' +
+                                        '</div>' +
+                                        '<div class="pl-text clearfix">' +
+                                        '<a target="_blank" href="/article/author/' + replier_user_id + '" class="comment-size-name"' +
+                                        'data-replier_id="' + replier_user_id +
+                                        '">' + replier_username + '</a>' +
+                                        '<span class="comment-time">' + reply_at_desc + '</span>' +
+                                        '</div>';
+                                str += '<div class="comment-show-con-list clearfix">' +
+                                        '<div class="date-dz">' +
+                                        '<p class="praise-type">';
+                                if (type == 1) {
+                                    str += '赞了你的文章'
                                 }
-                                page_index++;
-                            } else {
+                                else if (type == 2) {
+                                    str += '赞了你的评论'
+                                }
+                                else {
+                                    str += '赞了你的回复'
+                                }
+                                str += '</p>';
+                                str += '<p class="date-dz-left my-pl-con small-size">';
+                                if (receiver_user_id > 0) {
+                                    str += '回复@<a href="/article/author/' + receiver_user_id + '" class="comment-size-name small-size" target="_blank">' + receiver_username + '</a>:';
+                                }
+                                str += content + '</p>';
+                                str += '<div class="article';
+                                if (cover_photo) {
+                                    str += ' with-img';
+                                }
+                                str += '">';
+                                if (cover_photo) {
+                                    str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                            '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                            '</a>';
+                                }
+
+                                str += '<div class="info">' +
+                                        '<a class="title" target="_blank" href="/article/details/' + article_id + '">' + title + '</a>' +
+                                        '<p class="abstract">' + abstract + '</p>' +
+                                        '</div>' +
+                                        '</div>';
+                                $(".comment-show").append(str);
+                            });
+                            AjaxUpdateViewStatus();
+                            if (!json.next) {
                                 $("#btn_read_more").hide();
                                 $(".read-more .not-more-content").show();
                                 return false;
                             }
-                        });
-            }
-            $(function() {
-                ajax_get_praise();
-                $("#btn_read_more").click(function() {
-                    $(".loading-animation").show();
-                    ajax_get_praise()
-                });
+                            page_index++;
+                        } else {
+                            $("#btn_read_more").hide();
+                            $(".read-more .not-more-content").show();
+                            return false;
+                        }
+                    });
+        }
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'api:user_not_viewed_messages' %}",
+                data: {
+                    'user_id': user_id
+                },
+                dataType: 'json',
+                success: function (json) {
+                    var not_viewed_comment_count_badge = document.getElementById('not_viewed_comment_count');
+                    var not_viewed_praises_count_badge = document.getElementById('not_viewed_praises_count');
+                    var not_viewed_comment_count = json.data.not_viewed_comment_count;
+                    var not_viewed_praises_count = json.data.not_viewed_praises_count;
+                    if (not_viewed_comment_count > 0) {
+                        not_viewed_comment_count_badge.innerHTML = not_viewed_comment_count.toString();
+                    }
+                    if (not_viewed_praises_count) {
+                        not_viewed_praises_count_badge.innerHTML = not_viewed_praises_count.toString();
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    console.log(esponse_json.msg);
+                    return false
+                }
             });
+            ajax_get_praise();
+            $("#btn_read_more").click(function () {
+                $(".loading-animation").show();
+                ajax_get_praise()
+            });
+        });
     </script>
 {% endblock %}
