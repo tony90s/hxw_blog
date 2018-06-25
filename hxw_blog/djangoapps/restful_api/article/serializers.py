@@ -266,6 +266,7 @@ class UserCommentsSerializer(serializers.ModelSerializer):
     article_info = serializers.SerializerMethodField()
     reply_at = serializers.SerializerMethodField()
     is_viewed = serializers.SerializerMethodField()
+    be_replied_comment_desc = serializers.SerializerMethodField()
 
     serializer_field_mapping = serializers.ModelSerializer.serializer_field_mapping
     serializer_field_mapping.update({
@@ -296,9 +297,13 @@ class UserCommentsSerializer(serializers.ModelSerializer):
     def get_is_viewed(self, comment):
         return int(comment.is_viewed)
 
+    def get_be_replied_comment_desc(self, comment):
+        return comment.be_replied_comment_desc()
+
     class Meta:
         model = Comment
-        fields = ('comment_id', 'parent_id', 'article_info', 'replier', 'receiver', 'reply_at', 'content', 'is_viewed')
+        fields = ('comment_id', 'parent_id', 'article_info', 'replier', 'receiver', 'reply_at', 'content', 'is_viewed',
+                  'be_replied_comment_desc')
 
 
 class CommentSerializer(serializers.ModelSerializer):

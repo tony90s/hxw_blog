@@ -88,9 +88,15 @@
 
 .date-dz-left {
     font-size: 14px;
-    color: #8b8b8b;
+    color: #333;
     display: block;
     margin: 12px 0 12px;
+}
+
+.be_replied_comment_desc {
+    color: rgba(0, 0, 0, 0.3);
+    display: block;
+    margin: 12px 0;
 }
 
 .praise-type {

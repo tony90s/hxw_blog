@@ -161,6 +161,8 @@
                 var reply_at = array['reply_at'];
                 var reply_at_desc = getDateDiff(reply_at);
                 var content = array['content'];
+                var be_replied_comment_desc = array['be_replied_comment_desc'];
+
                 li = document.createElement('li');
                 li.className = 'comment';
                 li.dataset.article_id = article_id;
@@ -182,8 +184,12 @@
                     comment_reply_html += '回复' +
                             '<a href="javascript:void(0)">@' + receiver_username + '</a>:&nbsp;'
                 }
-                comment_reply_html += content + '</p>' +
-                        '<div class="article" data-article_id="' + article_id + '">' +
+                comment_reply_html += content + '</p>';
+                if (be_replied_comment_desc != '') {
+                    be_replied_comment_desc = be_replied_comment_desc.length > 25?(be_replied_comment_desc.slice(0, 25) + '...'):be_replied_comment_desc;
+                    comment_reply_html += '<p class="be_replied_comment_desc">' + be_replied_comment_desc + '</p>'
+                }
+                comment_reply_html += '<div class="article" data-article_id="' + article_id + '">' +
                         '<p class="title">' + title + '</p>' +
                         '<p class="abstract">' + abstract + '</p>' +
                         '</div></div>';

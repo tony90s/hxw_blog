@@ -34,7 +34,7 @@
                 <li class="mui-table-view-cell">
                     <span>更换头像</span>
                 </li>
-                <li class="mui-table-view-cell">
+                <li class="mui-table-view-cell mui-hidden">
                     <a href="#">拍照</a>
                 </li>
                 <li class="mui-table-view-cell">
@@ -361,10 +361,10 @@
                         file = files[0];
 
                         if (/^image\/\w+$/.test(file.type)) {
-                            var maxSize = 1024 * 5;  //5M
+                            var maxSize = 1024 * 10;  //10M
                             var size = file.size / 1024;
                             if (size > maxSize) {
-                                mui.toast('图片最大为5M!', toast_option);
+                                mui.toast('图片最大为10M!', toast_option);
                                 return false;
                             }
 

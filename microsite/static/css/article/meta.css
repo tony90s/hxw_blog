@@ -98,7 +98,7 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list {
     position: absolute;
     right: 0;
     top: 0;
-    width: 36px;
+    min-width: 36px;
     height: 36px;
     text-align: right;
     vertical-align: middle;
@@ -107,11 +107,16 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list {
 }
 
 .comment .info .user .praise .comment-praise-times, .comment-reply .info .user .praise .comment-praise-times {
-    margin-left: 2px;
+    margin-right: 2px;
 }
 
 .comment .info .content, .comment-reply .info .content, li.praise .info .content {
     padding-top: 10px;
+}
+
+.comment .info .be_replied_comment_desc {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.3);
 }
 
 .comment .info .replies-list {

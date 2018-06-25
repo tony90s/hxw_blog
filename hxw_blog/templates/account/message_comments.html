@@ -325,6 +325,7 @@
                             var reply_at_desc = getDateDiff(reply_at);
                             var content = array['content'];
                             var is_viewed = array['is_viewed'];
+                            var be_replied_comment_desc = array['be_replied_comment_desc'];
 
                             var str = '<div class="comment-show-con clearfix" data-parent_id="' + parent_id +
                                     '" data-comment_id="' + comment_id +
@@ -348,6 +349,10 @@
                                 str += '回复@<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                             }
                             str += content + '</p>';
+                            if (be_replied_comment_desc != '') {
+                                be_replied_comment_desc = be_replied_comment_desc.length > 60?(be_replied_comment_desc.slice(0, 60) + '...'):be_replied_comment_desc;
+                                str += '<p class="be_replied_comment_desc small-size">' + be_replied_comment_desc + '</p>'
+                            }
                             str += '<div class="article';
                             if (cover_photo) {
                                 str += ' with-img';

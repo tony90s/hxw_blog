@@ -266,6 +266,22 @@ class Comment(models.Model):
         self.__article_info_cache.update({self.article_id: article_info})
         return article_info
 
+    def be_replied_comment_desc(self):
+        if self.be_replied_comment_id > 0:
+            be_replied_comment = Comment.objects.using('read').get(id=self.be_replied_comment_id)
+            commentator_info = be_replied_comment.get_commentator_info()
+            content = be_replied_comment.content
+            if be_replied_comment.parent_id > 0:
+                receiver_info = be_replied_comment.get_receiver_info()
+                receiver_desc = '回复＠%s:' % receiver_info['username']
+            else:
+                receiver_desc = ''
+            be_replied_comment_desc = '%s:%s%s' % (commentator_info['username'], receiver_desc, content)
+        else:
+            be_replied_comment_desc = ''
+
+        return be_replied_comment_desc
+
     def get_unified_comment_info(self):
         context = dict()
         context['comment_id'] = self.id
