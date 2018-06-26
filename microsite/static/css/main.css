@@ -353,6 +353,10 @@ form .mui-table-view:after {
     }
 }
 
+.mui-bar-tab .mui-tab-item.mui-active {
+    color: #333;
+}
+
 p img {
     max-width: 100%;
     height: auto;

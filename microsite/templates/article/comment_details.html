@@ -23,7 +23,7 @@
                             </div>
                             <div class="praise" data-praise_type="2" data-parent_id="{{ comment.comment_id }}">
                                 <span class="comment-praise-times">{{ comment.praise_times }}</span>
-                                <i class="iconfont icon-communityiconpraise4"></i>
+                                <i class="iconfont icon-praise"></i>
                             </div>
                         </div>
                         <p class="content">{{ comment.content }}</p>
@@ -115,7 +115,7 @@
                         '<div class="praise" data-praise_type="' + praiseType['comment'] + '" data-parent_id="' + comment_id +
                         '">' +
                         '<span class="comment-praise-times">' + praise_times + '</span>' +
-                        '<i class="iconfont icon-communityiconpraise4"></i>' +
+                        '<i class="iconfont icon-praise"></i>' +
                         '</div>' +
                         '</div>' +
                         '<p class="content">';
@@ -238,8 +238,8 @@
                 success: function (json) {
                     if (json.code == 200) {
                         praise_times++;
-                        like_icon.removeClass('icon-communityiconpraise4');
-                        like_icon.addClass('icon-communityiconpraisesel');
+                        like_icon.removeClass('icon-praise');
+                        like_icon.addClass('icon-praise_fill');
                         praise_times_span.innerHTML = praise_times;
                     }
                     else {
@@ -264,8 +264,8 @@
                 success: function (json) {
                     if (json.code == 200) {
                         praise_times--;
-                        like_icon.removeClass('icon-communityiconpraisesel');
-                        like_icon.addClass('icon-communityiconpraise4');
+                        like_icon.removeClass('icon-praise_fill');
+                        like_icon.addClass('icon-praise');
                         praise_times_span.innerHTML = praise_times;
                     }
                     else {
@@ -370,7 +370,7 @@
             }
             var praise_times_span = this.querySelector('.comment-praise-times');
             var praise_times = praise_times_span.innerHTML;
-            if (like_icon.hasClass('icon-communityiconpraisesel')) {
+            if (like_icon.hasClass('icon-praise_fill')) {
                 var post_data = {
                     "parent_id": parent_id,
                     "praise_type": praise_type
