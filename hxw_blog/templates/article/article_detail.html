@@ -165,6 +165,8 @@
     <script language="JavaScript">
         var article_title = document.title;
         var article_link = location.href;
+        var abstract = "{{ article_details.abstract }}";
+        var pics = "{{ article_details.cover_photo }}";
 
         function get_first_img_src() {
             var first_img_src = $(".show-content img:first").attr('src') || '';
@@ -181,10 +183,9 @@
                 case "weibo":
                     var context = {
                         'appkey': '4164482519',
-                        'ralateUid': '2728305845',
                         'url': article_link,
-                        'title': article_title,
-                        'pic': get_first_img_src()
+                        'title': '【' + article_title + '】' + abstract,
+                        'pic': pics
                     };
                     var query_params = [];
                     for (var i in context) {
@@ -195,7 +196,8 @@
                     var context = {
                         'url': article_link,
                         'title': article_title,
-                        'pics': get_first_img_src()
+                        'summary': abstract, /*分享摘要(可选)*/
+                        'pics': pics
                     };
                     var query_params = [];
                     for (var i in context) {

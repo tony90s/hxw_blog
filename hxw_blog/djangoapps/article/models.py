@@ -115,6 +115,7 @@ class Article(models.Model):
         }
         context['cover_photo'] = self.article_cover
         context['content_html'] = self.content_html
+        context['abstract'] = self.content_txt[0:91] + '...'
         context['author'] = self.get_author_data()
         context['comment_times'] = self.comment_times
         context['praise_times'] = self.praise_times

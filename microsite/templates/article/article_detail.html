@@ -7,6 +7,7 @@
     <header class="mui-bar mui-bar-nav">
         <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
         <h1 class="mui-title"></h1>
+        <a href="#social_share" class="mui-icon iconfont icon-share1 mui-pull-right"></a>
     </header>
     <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
         <div class="mui-scroll">
@@ -54,16 +55,33 @@
     <div id="comment-popover" class="mui-popover mui-popover-action mui-popover-bottom">
         <div class="comment-box">
             <textarea id="textarea" placeholder="添加评论···" onchange="this.value=this.value.substring(0, 72)"
-                onkeydown="this.value=this.value.substring(0, 72)"
-                onkeyup="this.value=this.value.substring(0, 72)"></textarea>
-            <a id="send-text" data-article_id="{{ article_details.article_id }}" class="mui-icon mui-icon-paperplane"></a>
+                      onkeydown="this.value=this.value.substring(0, 72)"
+                      onkeyup="this.value=this.value.substring(0, 72)"></textarea>
+            <a id="send-text" data-article_id="{{ article_details.article_id }}"
+               class="mui-icon mui-icon-paperplane"></a>
+        </div>
+    </div>
+
+    <div id="social_share" class="mui-popover mui-popover-action mui-popover-bottom" style="background-color: #000">
+        <div class="share-buttons">
+            <a class="share-btn" href="javascript:void(0)" data-share_type="qzone">
+                <img class="social-logo" src="/static/images/socialization_logo/qzone.png">
+            </a>
+
+            <a class="share-btn" href="javascript:void(0)" data-share_type="qq">
+                <img class="social-logo" src="/static/images/socialization_logo/qq.png">
+            </a>
+
+            <a class="share-btn" href="javascript:void(0)" data-share_type="weibo">
+                <img class="social-logo" src="/static/images/socialization_logo/weibo.png">
+            </a>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
     <script src="/static/mui/js/mui.zoom.js"></script>
-	<script src="/static/mui/js/mui.previewimage.js"></script>
+    <script src="/static/mui/js/mui.previewimage.js"></script>
     <script>
         var praiseType = {
             'article': '1',
@@ -87,6 +105,58 @@
         var preview_text = document.getElementById('preview-text');
         var send_text_link = document.getElementById('send-text');
         var praise_users_box = $(".praise-users-box");
+
+        var article_title = document.title;
+        var article_link = location.href;
+        var abstract = "{{ article_details.abstract }}";
+        var pics = "{{ article_details.cover_photo }}";
+
+        function getSocialLink(s) {
+            switch (s) {
+                case "qzone":
+                    var context = {
+                        'url': article_link,
+                        'title': article_title,
+                        'summary': abstract, /*分享摘要(可选)*/
+                        'pics': pics
+                    };
+                    var query_params = [];
+                    for (var i in context) {
+                        query_params.push(i + '=' + encodeURIComponent(context[i] || ''));
+                    }
+                    return ["http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?", query_params.join('&')].join('');
+                case "qq":
+                    var context = {
+                        url: article_link,
+                        desc: '', /*分享理由(风格应模拟用户对话),支持多分享语随机展现（使用|分隔）*/
+                        title: article_title, /*分享标题(可选)*/
+                        summary: abstract, /*分享摘要(可选)*/
+                        pics: pics, /*分享图片(可选)*/
+                        flash: '', /*视频地址(可选)*/
+                        site: 'QQ分享', /*分享来源(可选) 如：QQ分享*/
+                        style: '201',
+                        width: 32,
+                        height: 32
+                    };
+                    var query_params = [];
+                    for (var i in context) {
+                        query_params.push(i + '=' + encodeURIComponent(context[i] || ''));
+                    }
+                    return ["http://connect.qq.com/widget/shareqq/index.html?", query_params.join('&')].join('');
+                case "weibo":
+                    var context = {
+                        'appkey': '4164482519',
+                        'url': article_link,
+                        'title': '【' + article_title + '】' + abstract,
+                        'pic': pics
+                    };
+                    var query_params = [];
+                    for (var i in context) {
+                        query_params.push(i + '=' + encodeURIComponent(context[i] || ''));
+                    }
+                    return ["http://service.weibo.com/share/share.php?", query_params.join('&')].join('');
+            }
+        }
 
         function create_article_comments(json) {
             var fragment = document.createDocumentFragment();
@@ -252,7 +322,7 @@
         mui.ready(function () {
             $.each(document.querySelectorAll('.article-content img'), function (index, img) {
                 img.setAttribute('data-preview-src', '');
-                img.setAttribute('data-preview-group','1');
+                img.setAttribute('data-preview-group', '1');
             });
 
             mui.previewImage();
@@ -272,7 +342,7 @@
                             var avatar = array['user']['avatar'];
                             var username = array['user']['username'];
                             var praise_user_html = '<a class="praise-user" href="javascript:void(0)">' +
-                                '<img class="avatar" src="' + avatar + '" alt="' + username + '">' + '</a>';
+                                    '<img class="avatar" src="' + avatar + '" alt="' + username + '">' + '</a>';
                             praise_users_box.append(praise_user_html);
                         });
                         if (json.count > 4) {
@@ -403,6 +473,12 @@
                 cleanData()
             });
 
+            mui('body').on('tap', '.share-btn', function (e) {
+                var share_type = this.dataset.share_type;
+                var share_link_url = getSocialLink(share_type);
+                window.location.href = share_link_url
+            });
+
         });
 
         $('#textarea').change(function () {
@@ -424,9 +500,9 @@
                         praise_times_span.innerHTML = praise_times;
                         if (post_data['praise_type'] == praiseType['article']) {
                             var avatar = '{{ user.profile.avatar.url }}';
-                            var username= '{{ user.username }}';
+                            var username = '{{ user.username }}';
                             var praise_user_html = '<a class="praise-user" href="javascript:void(0)">' +
-                                '<img class="avatar" src="' + avatar + '" alt="' + username + '">' + '</a>';
+                                    '<img class="avatar" src="' + avatar + '" alt="' + username + '">' + '</a>';
                             praise_users_box.prepend(praise_user_html)
                         }
                     }

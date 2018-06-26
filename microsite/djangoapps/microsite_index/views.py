@@ -3,6 +3,7 @@ import logging
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.cache import cache_page
 
 from article.models import Article
 
@@ -10,6 +11,7 @@ logger = logging.getLogger('microsite_index.views')
 
 
 @ensure_csrf_cookie
+@cache_page(60 * 5)
 def index_view(request):
     template = 'index.html'
     article_type = int(request.GET.get('article_type', '0'))
