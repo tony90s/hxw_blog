@@ -217,27 +217,34 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list {
     margin-right: 20px;
 }
 
-.share-buttons {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background-color: #fff;
+.share-items {
     text-align: center;
     width: 100%;
-    padding: 20px;
+    padding: 20px 0;
     margin: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.share-buttons .share-btn {
+.share-item {
     display: inline-block;
+    margin: 0 15px 15px 15px;
+}
+
+.share-items .share-item .share-btn {
     width: 50px;
     height: 50px;
-    margin: 0 20px;
+    display: inline-block;
 }
 
-.share-buttons .share-btn img {
+.share-items .share-item .share-btn img {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    border: 1px solid #007aff;
 }
+
+.share-items .share-item .share-tips {
+    font-size: 14px;
+    display: block;
+    color: rgba(0, 0, 0, 0.6);
+}
+

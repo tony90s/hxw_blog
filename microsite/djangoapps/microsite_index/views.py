@@ -11,7 +11,6 @@ logger = logging.getLogger('microsite_index.views')
 
 
 @ensure_csrf_cookie
-@cache_page(60 * 5)
 def index_view(request):
     template = 'index.html'
     article_type = int(request.GET.get('article_type', '0'))

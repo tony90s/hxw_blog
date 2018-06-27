@@ -73,8 +73,33 @@ form .mui-table-view:before {
     left: 15px;
 }
 
-form .mui-table-view:after {
-    left: 15px;
+.mui-input-group .mui-input-row.last:after {
+    left: 0;
+}
+
+.mui-popover.mui-popover-action .mui-table-view {
+    margin: 0;
+    text-align: center;
+    color: #007aff;
+    border-radius: 0;
+}
+
+.mui-popover.mui-popover-action .mui-table-view .mui-table-view-cell span {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+}
+
+.mui-popover.mui-popover-action .mui-table-view:last-child {
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.mui-popover.mui-popover-action .mui-table-view .mui-table-view-cell:last-child:after {
+    height: 0;
+}
+
+.mui-popover.mui-popover-action .mui-table-view .mui-table-view-cell > a:not(.mui-btn){
+    color: #000;
 }
 
 .mui-content-padded {
@@ -539,11 +564,17 @@ header .avatar {
     right: 0;
 }
 
-.ul-select span {
-    color: rgba(0, 0, 0, 0.6);
-    font-size: 14px;
+.popover-title {
+    font-size: 16px;
+    text-align: center;
+    padding: 15px;
+    margin: 0;
 }
 
-.ul-select .mui-table-view-cell > a:not(.mui-btn) {
+.close-popover {
+    display: block;
+    padding: 11px 15px;
     color: #000;
+    font-size: 16px;
+    text-align: center;
 }

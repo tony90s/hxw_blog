@@ -7,7 +7,7 @@
     <header class="mui-bar mui-bar-nav">
         <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
         <h1 class="mui-title"></h1>
-        <a href="#social_share" class="mui-icon iconfont icon-share1 mui-pull-right"></a>
+        <a href="#social_share" class="mui-icon iconfont icon-share01 mui-pull-right"></a>
     </header>
     <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
         <div class="mui-scroll">
@@ -62,20 +62,35 @@
         </div>
     </div>
 
-    <div id="social_share" class="mui-popover mui-popover-action mui-popover-bottom" style="background-color: #000">
-        <div class="share-buttons">
-            <a class="share-btn" href="javascript:void(0)" data-share_type="qzone">
-                <img class="social-logo" src="/static/images/socialization_logo/qzone.png">
-            </a>
-
-            <a class="share-btn" href="javascript:void(0)" data-share_type="qq">
-                <img class="social-logo" src="/static/images/socialization_logo/qq.png">
-            </a>
-
-            <a class="share-btn" href="javascript:void(0)" data-share_type="weibo">
-                <img class="social-logo" src="/static/images/socialization_logo/weibo.png">
-            </a>
+    <div id="social_share" class="mui-popover mui-popover-action mui-popover-bottom" style="background-color: #f7f7f7;">
+        <h3 class="popover-title">分享</h3>
+        <div class="share-items">
+            <div class="share-item">
+                <a class="share-btn" href="javascript:void(0)" data-share_type="wechat">
+                    <img class="social-logo" src="/static/images/socialization_logo/wechat.png">
+                </a>
+                <span class="share-tips">微信</span>
+            </div>
+            <div class="share-item">
+                <a class="share-btn" href="javascript:void(0)" data-share_type="qzone">
+                    <img class="social-logo" src="/static/images/socialization_logo/qzone.png">
+                </a>
+                <span class="share-tips">QQ空间</span>
+            </div>
+            <div class="share-item">
+                <a class="share-btn" href="javascript:void(0)" data-share_type="qq">
+                    <img class="social-logo" src="/static/images/socialization_logo/qq.png">
+                </a>
+                <span class="share-tips">QQ好友</span>
+            </div>
+            <div class="share-item">
+                <a class="share-btn" href="javascript:void(0)" data-share_type="weibo">
+                    <img class="social-logo" src="/static/images/socialization_logo/weibo.png">
+                </a>
+                <span class="share-tips">微博</span>
+            </div>
         </div>
+        <a class="close-popover" href="#social_share">取消</a>
     </div>
 {% endblock %}
 
@@ -474,9 +489,16 @@
             });
 
             mui('body').on('tap', '.share-btn', function (e) {
+                mui('#social_share').popover('hide');
                 var share_type = this.dataset.share_type;
-                var share_link_url = getSocialLink(share_type);
-                window.location.href = share_link_url
+                if (share_type == 'wechat') {
+                    mui.toast('请使用浏览器自带的微信分享');
+                    return false
+                }
+                else {
+                    var share_link_url = getSocialLink(share_type);
+                    window.location.href = share_link_url
+                }
             });
 
         });

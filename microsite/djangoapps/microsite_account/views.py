@@ -8,7 +8,6 @@ logger = logging.getLogger('microsite_account.views')
 
 
 @login_required
-@cache_page(60 * 5)
 def user_center(request):
     template_name = 'account/user_center.html'
     return render(request, template_name)
@@ -21,7 +20,6 @@ def user_avatar_preview(request):
 
 
 @login_required
-@cache_page(60 * 5)
 def user_messages(request):
     template_name = 'account/messages.html'
     return render(request, template_name)
