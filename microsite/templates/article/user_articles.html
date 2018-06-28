@@ -95,9 +95,7 @@
         var viewApi = mui('#app').view({
             defaultPage: '#user_articles'
         });
-        //初始化单页的区域滚动
-        mui('.mui-scroll-wrapper').scroll();
-
+        
         mui('body').on('tap', '.action-back', function () {
             history.go(-1)
         });
