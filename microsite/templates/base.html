@@ -35,6 +35,13 @@
         window.location.href = "{% url 'index' %}";
     });
 
+    mui('body').on('tap', 'a.avatar', function () {
+        var reg_link = /[\/]+/;
+        if(reg_link.test(this.href)){
+            document.location.href = this.href;
+        }
+    });
+
     mui('header').on('tap', '.mui-action-back', function () {
         if (mui.os.ios) {
             history.go(-1)

@@ -69,6 +69,11 @@
             document.location.href = '/article/details/' + article_id;
         });
 
+        mui('.users-list').on('tap', 'li.user-item', function () {
+            var author_id = this.dataset.author_id;
+            document.location.href = '/article/author/' + author_id;
+        });
+
         var searchInput = document.getElementById('search');
         var article_list = document.getElementById('article_list');
         var user_list = document.getElementById('user_list');
@@ -114,7 +119,7 @@
                 li.dataset.article_id = article_id;
                 var str = '';
                 if (cover_photo) {
-                    str += '<div class="img-container"><img class="lazy" data-original="' + cover_photo +
+                    str += '<div class="cover-container"><img class="lazy" data-original="' + cover_photo +
                             '" alt="' + title + '"></div>';
                 }
                 str += '<p class="title">' + title + '</p>' +
@@ -141,7 +146,8 @@
 
                 li = document.createElement('li');
                 li.className = 'user-item';
-                var str = '<a class="avatar" href="javascript:void(0)">' +
+                li.dataset.author_id = user_id;
+                var str = '<a class="avatar" href="/article/author/' + user_id + '">' +
                         '<img src="' + avatar + '" alt="' + username + '">' +
                         '</a>' +
                         '<div class="user-info">' +

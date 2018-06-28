@@ -221,7 +221,7 @@
                 li.dataset.comment_id = comment_id;
                 li.dataset.replier_id = replier_user_id;
                 li.dataset.replier_username = replier_username;
-                var comment_reply_html = '<a class="avatar" href="javascript:void(0)">' +
+                var comment_reply_html = '<a class="avatar" href="/article/author/' + replier_user_id + '">' +
                         '<img src="' + replier_avatar + '" alt="' + replier_username + '">' + '</a>' +
                         '<div class="info">' +
                         '<div class="user">' +
@@ -276,7 +276,7 @@
                 if (parseInt(is_viewed) == 0) {
                     li.classList.add("not-viewed");
                 }
-                var praise_html = '<a class="avatar" href="javascript:void(0)">' +
+                var praise_html = '<a class="avatar" href="/article/author/' + user_id + '">' +
                         '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
                         '<div class="info">' +
                         '<div class="user">' +

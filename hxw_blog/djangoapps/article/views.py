@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
-from article.models import Article, Comment, Praise, get_user_be_praised
+from article.models import Article, Comment, Praise, get_user_be_praised, get_user_article_count, get_user_praises_count
 # from utils.sensitive_word_handler import sensitive_words_replace
 
 reg_number = re.compile('^\d+$')
@@ -117,15 +117,15 @@ def user_articles(request, author_id):
         'user_id': author.id,
         'username': author.username if len(author.username) <= 10 else (author.username[:10] + '...'),
         'avatar': author.profile.avatar.url,
-        'bio': author.profile.bio
+        'bio': author.profile.bio,
+        'gender': author.profile.get_gender_display()
     }
 
-    articles = Article.objects.using('read').filter(Q(author_id=author.id) & Q(is_released=1)).order_by('-release_at')
-    article_count = articles.count()
-    author_praises = get_user_be_praised(author.id)
+    article_count = get_user_article_count(author.id)
+    praises_count = get_user_praises_count(author.id)
     context = {
         'author_data': author_data,
         'article_count': article_count,
-        'praises_count': author_praises.count(),
+        'praises_count': praises_count,
     }
     return render(request, 'article/user_articles.html', context)

@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ author_data.username }}</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/account/meta.css">
+{% endblock %}
+
+{% block content %}
+    <div id="app" class="mui-views">
+        <div class="mui-view">
+            <div class="mui-navbar">
+            </div>
+            <div class="mui-pages">
+            </div>
+        </div>
+    </div>
+    <div id="user_articles" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <a class="action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+        </div>
+        <div class="mui-page-content">
+            <div class="mui-scroll-wrapper" id="pull_refresh">
+                <div class="mui-scroll">
+                    <div class="user-summation">
+                        <div class="background"></div>
+                        <div class="content">
+                            <a class="avatar" href="javascript:void(0)">
+                                <img src="{{ author_data.avatar }}" alt="{{ author_data.username }}">
+                            </a>
+                            <h4 class="nickname">{{ author_data.username }}</h4>
+                            <p class="bio">{{ author_data.bio }}</p>
+                            <div class="meta">
+                                <a class="info-link" href="javascript:void(0)"><span class="number">{{ article_count }}</span>文章</a>
+                                <a class="info-link" href="javascript:void(0)"><span class="number">{{ praises_count }}</span>赞</a>
+                                <a class="mui-pull-right" id="see_more_link" href="javascript:void(0)">展开</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="article-container">
+                        <ul class="article-list" id="articles_list" data-page="1">
+                        </ul>
+                        <input type="hidden" value="{{ author_data.user_id }}" id="author_id">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="more_detail" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+            <h1 class="mui-center mui-title">简介</h1>
+        </div>
+        <div class="mui-page-content">
+            <div class="mui-scroll-wrapper">
+                <div class="mui-scroll">
+                    <ul class="mui-table-view">
+                        <li class="mui-table-view-cell">
+                            <a id="head">
+                                头像
+								<span class="mui-pull-right head">
+									<img class="head-img mui-action-preview" id="head-img1" src="{{ author_data.avatar }}"/>
+								</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <form id='update_user_data_form' class="mui-input-group">
+                        <div class="mui-input-row">
+                            <label>昵称</label>
+                            <input name="username" type="text" readonly class="mui-input mui-text-right" value="{{ author_data.username }}">
+                        </div>
+                        <div class="mui-input-row">
+                            <label>性别</label>
+                            <input name="gender_display" type="text" class="mui-input mui-text-right" readonly value="{{ author_data.gender }}">
+                        </div>
+                        <div class="mui-input-row" style="height: 100px">
+                            <label>简介</label>
+                            <textarea name="bio" class="bio" rows="6" readonly>{{ author_data.bio }}</textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="/static/mui/js/mui.view.js"></script>
+    <script src="/static/js/jquery.lazyload.js"></script>
+    <script>
+        var toast_option = {
+            duration: 1000
+        };
+        //初始化单页view
+        var viewApi = mui('#app').view({
+            defaultPage: '#user_articles'
+        });
+        //初始化单页的区域滚动
+        mui('.mui-scroll-wrapper').scroll();
+
+        mui('body').on('tap', '.action-back', function () {
+            history.go(-1)
+        });
+
+        mui('body').on('tap', '#see_more_link', function () {
+            viewApi.go('#more_detail');
+        });
+
+        var view = viewApi.view;
+        (function ($) {
+            //处理view的后退与webview后退
+            var oldBack = $.back;
+            $.back = function () {
+                if (viewApi.canBack()) { //如果view可以后退，则执行view的后退
+                    viewApi.back();
+                } else { //执行webview后退
+                    oldBack();
+                }
+            };
+            //监听页面切换事件方案1,通过view元素监听所有页面切换事件，目前提供pageBeforeShow|pageShow|pageBeforeBack|pageBack四种事件(before事件为动画开始前触发)
+            //第一个参数为事件名称，第二个参数为事件回调，其中e.detail.page为当前页面的html对象
+            view.addEventListener('pageBeforeShow', function (e) {
+                console.log(e.detail.page.id + ' beforeShow');
+            });
+            view.addEventListener('pageShow', function (e) {
+                console.log(e.detail.page.id + ' show');
+            });
+            view.addEventListener('pageBeforeBack', function (e) {
+                console.log(e.detail.page.id + ' beforeBack');
+            });
+            view.addEventListener('pageBack', function (e) {
+                console.log(e.detail.page.id + ' back');
+            });
+        })(mui);
+
+        var articlesApiUrl = "{% url 'api:articles' %}";
+        var articleList = document.getElementById('articles_list');
+        var author_id = document.getElementById('author_id').value;
+
+        mui('.article-list').on('tap', 'li.article', function () {
+            var article_id = this.dataset.article_id;
+            document.location.href = '/article/details/' + article_id;
+        });
+
+        function create_article(json) {
+            var fragment = document.createDocumentFragment();
+            var li;
+            mui.each(json.results, function (index, array) {
+                var article_id = array['article_id'];
+                var title = array['title'];
+                var type = array['type'];
+                var cover_photo = array['cover_photo'];
+                var abstract = array['abstract'];
+                var release_time = array['release_time'];
+                var release_time_desc = getDateDiff(release_time);
+                var author = array['author'];
+                li = document.createElement('li');
+                li.className = 'article';
+                li.dataset.article_id = article_id;
+                var str = '';
+                if (cover_photo) {
+                    str += '<div class="cover-container"><img class="lazy" data-original="' + cover_photo +
+                            '" alt="' + title + '"></div>';
+                }
+                str += '<p class="title">' + title + '</p>' +
+                        '<p class="abstract">' + abstract + '</p>' +
+                        '<div class="meta">' +
+                        '<span class="time">' + release_time_desc + '</span>' +
+                        '<span class="nickname">by ' + author['username'] + '</span>' +
+                        '</div>';
+                li.innerHTML = str;
+                fragment.appendChild(li);
+            });
+            return fragment;
+        }
+        function pullUpRefresh() {
+            var self = this;
+            var ul = articleList;
+            var page = parseInt(ul.dataset.page);
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: articlesApiUrl,
+                    data: {
+                        'page': page,
+                        'is_released': 1,
+                        'author_id': author_id
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_article(json));
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
+                            self.endPullupToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                ul.dataset.page = page;
+                            }
+                        } else {
+                            self.endPullupToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullupToRefresh(true);
+                    }
+                });
+            }, 0);
+        }
+
+        function pullDownRefresh() {
+            var self = this;
+            var ul = articleList;
+            ul.innerHTML = '';
+            ul.dataset.page = 1;
+            var page = 1;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: articlesApiUrl,
+                    data: {
+                        'page': page,
+                        'is_released': 1,
+                        'author_id': author_id
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_article(json));
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
+                            self.endPulldownToRefresh(!json.next);
+                            self.refresh(true);
+                            self.endPullupToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                ul.dataset.page = page;
+                            }
+                        } else {
+                            self.endPulldownToRefresh(true);
+                            self.refresh(true);
+                            self.endPullupToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPulldownToRefresh(true);
+                        self.refresh(true);
+                        self.endPullupToRefresh(true);
+                    }
+                });
+            }, 200);
+        }
+
+        var dpr = lib.flexible.dpr || 1;
+        mui.init({
+            pullRefresh: {
+                container: '#pull_refresh',
+                down: {
+                    height: 30 * dpr,
+                    auto: true,    //可选,默认false.自动下拉刷新一次
+                    callback: pullDownRefresh
+                },
+                up: {
+                    callback: pullUpRefresh
+                }
+            }
+        });
+    </script>
+{% endblock %}

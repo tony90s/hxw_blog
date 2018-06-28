@@ -15,7 +15,7 @@
                 <h1 class="title">{{ article_details.title }}</h1>
 
                 <div class="author">
-                    <a class="avatar" target="_blank" href="javascript:void(0)">
+                    <a class="avatar" href="{% url 'article:user_articles' article_details.author.user_id %}">
                         <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
                     </a>
                     <div class="info">
@@ -193,7 +193,7 @@
                 li.dataset.comment_id = comment_id;
                 li.dataset.receiver_id = user_id;
                 li.dataset.receiver_username = username;
-                var comment_html_str = '<a class="avatar" href="javascript:void(0)">' +
+                var comment_html_str = '<a class="avatar" href="/article/author/' + user_id + '">' +
                         '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
                         '<div class="info">' +
                         '<div class="user">' +

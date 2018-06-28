@@ -92,12 +92,12 @@
                     <form id='update_user_data_form' class="mui-input-group">
                         <div class="mui-input-row">
                             <label>昵称</label>
-                            <input name="username" style="text-align: right" type="text" class="mui-input"
+                            <input name="username" type="text" class="mui-input mui-text-right"
                                    placeholder="设置昵称" value="{{ user.username }}">
                         </div>
                         <div class="mui-input-row">
                             <label>性别</label>
-                            <input name="gender_display" style="text-align: right" type="text" class="mui-input"
+                            <input name="gender_display" type="text" class="mui-input mui-text-right"
                                    placeholder="设置性别" readonly value="{{ user.profile.get_gender_display }}">
                             <input name="gender" type="hidden" value="{{ user.profile.gender }}">
                         </div>

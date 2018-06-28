@@ -8,7 +8,7 @@ from rest_framework.validators import UniqueValidator
 
 from utils.file_handling import get_thumbnail
 from account.models import UserProfile, OauthLogin
-from article.models import Article
+from article.models import Article, get_user_article_count, get_user_praises_count
 from restful_api.account.validators import RegMatchValidator
 
 reg_verification_code = re.compile('^\d{6}$')
@@ -62,17 +62,21 @@ class UserListSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(source='profile.avatar')
     bio = serializers.CharField(source='profile.bio')
     article_count = serializers.SerializerMethodField()
+    gender = serializers.CharField(source='profile.gender')
+    praises_count = serializers.SerializerMethodField()
 
     def get_user_id(self, user):
         return user.id
 
     def get_article_count(self, user):
-        articles = Article.objects.using('read').filter(author_id=user.id)
-        return articles.count()
+        return get_user_article_count(user.id)
+
+    def get_praises_count(self, user):
+        return  get_user_praises_count(user.id)
 
     class Meta:
         model = User
-        fields = ('user_id', 'username', 'avatar', 'bio', 'article_count')
+        fields = ('user_id', 'username', 'avatar', 'gender', 'bio', 'article_count', 'praises_count')
 
 
 class UserInfoSerializer(serializers.ModelSerializer):

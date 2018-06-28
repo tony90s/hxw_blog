@@ -156,6 +156,11 @@ class Article(models.Model):
         return context
 
 
+def get_user_article_count(user_id):
+    articles = Article.objects.using('read').filter(Q(author_id=user_id) & Q(is_released=1))
+    return articles.count()
+
+
 class Comment(models.Model):
     article_id = models.IntegerField(db_index=True, verbose_name='博文', default=0)
     commentator_id = models.IntegerField(db_index=True, verbose_name='评论人', default=0)
@@ -419,3 +424,8 @@ def get_user_be_praised(user_id):
 
     praises = Praise.objects.using('read').filter(query_condition).order_by('-id')
     return praises
+
+
+def get_user_praises_count(user_id):
+    praises = get_user_be_praised(user_id)
+    return praises.count()
