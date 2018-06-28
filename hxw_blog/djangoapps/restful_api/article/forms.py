@@ -7,6 +7,7 @@ class ArticleListForm(forms.Form):
     article_type = forms.IntegerField(required=False)
     is_released = forms.IntegerField(required=True)
     author_id = forms.IntegerField(required=False)
+    key_word = forms.CharField(required=False)
 
     def clean_is_released(self):
         is_released = self.cleaned_data.get('is_released')

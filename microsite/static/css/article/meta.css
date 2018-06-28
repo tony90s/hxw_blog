@@ -57,21 +57,49 @@
     display: block;
 }
 
-.comments-container, .replies-container, .praises-container {
+.comments-container, .replies-container, .praises-container, .users-container {
     background-color: #fff;
     width: 100%;
     padding: 15px;
     margin-top: 10px;
 }
 
+.users-container {
+    padding: 0;
+}
+
+
 ul.comments-list, ul.comment-replies-list, ul.praises-list {
     padding: 0;
     margin: 24px 0;
 }
 
+ul.users-list {
+    padding: 0;
+    margin: 0;
+}
+
+
 .comment, .comment-reply, li.praise {
     position: relative;
     margin-bottom: 12px;
+}
+
+.user-item {
+    position: relative;
+    padding: 15px;
+}
+
+.user-item:after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 88px;
+    height: 1px;
+    content: '';
+    -webkit-transform: scaleY(.5);
+    transform: scaleY(.5);
+    background-color: #c8c7cc;
 }
 
 .comment .avatar, .comment-reply .avatar, li.praise .avatar {
@@ -80,9 +108,25 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list {
     left: 0;
 }
 
+.user-item .avatar {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+}
+
+.user-item .avatar {
+    width: 60px;
+    height: 60px;
+}
+
 .comment .info, .comment-reply .info, li.praise .info {
     margin-left: 52px;
     border-bottom: 1px solid #f0f0f0;;
+}
+
+.user-item .user-info {
+    position: relative;
+    margin-left: 74px;
 }
 
 .comment .info .user, .comment-reply .info .user, li.praise .info .user {
@@ -92,6 +136,22 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list {
 .comment .info .user .user-info span, .comment-reply .info .user .user-info span, li.praise .info .user .user-info span {
     font-size: 14px;
     display: block;
+}
+
+.user-item .user-info p {
+    margin: 2px 0;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.user-item .user-info p:last-child {
+    margin-bottom: 0;
+}
+
+
+.user-item .user-info .nickname {
+    font-size: 16px;
+    color: #333;
 }
 
 .comment .info .user .praise, .comment-reply .info .user .praise {

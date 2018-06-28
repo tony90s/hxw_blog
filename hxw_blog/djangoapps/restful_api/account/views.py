@@ -13,6 +13,7 @@ from rest_framework.response import Response
 
 from restful_api.account.serializers import (
     RegisterSerializer,
+    UserListSerializer,
     UserInfoSerializer,
     UpdateUserAvatarSerializer,
     UpdatePasswordSerializer,
@@ -37,6 +38,7 @@ from utils.rest_framework.authentication import (
     OAuth2AuthenticationAllowInactiveUser,
     SessionAuthenticationAllowInactiveUser
 )
+from utils.rest_framework.pagination import SmallResultsSetPagination
 
 logger = logging.getLogger('api.account')
 
@@ -105,6 +107,16 @@ class UpdateUserInfoView(generics.UpdateAPIView):
 
         self.perform_update(serializer)
         return Response({'code': 200, 'msg': '更新成功。'})
+
+
+class UserListView(generics.ListAPIView):
+    pagination_class = SmallResultsSetPagination
+    serializer_class = UserListSerializer
+
+    def get_queryset(self):
+        key_word = self.request.query_params.get('key_word', '')
+        users = User.objects.using('read').filter(username__icontains=key_word)
+        return users
 
 
 class ResetUserPasswordView(generics.UpdateAPIView):

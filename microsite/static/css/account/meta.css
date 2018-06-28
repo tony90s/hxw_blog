@@ -168,11 +168,6 @@ form {
     height: 42px;
 }
 
-p.bio {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.6);
-}
-
 .link-area {
     display: block;
     padding: 20px 0;

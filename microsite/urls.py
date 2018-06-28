@@ -19,10 +19,11 @@ from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from microsite_index.views import index_view
+from microsite_index.views import index_view, search_view
 
 urlpatterns = [
     url(r'^$', index_view, name='index'),
+    url(r'^search$', search_view, name='search'),
     url(r'^account/', include('microsite_account.urls', namespace='account')),
     url(r'^article/', include('microsite_article.urls', namespace='article')),
     url(r'^api/v1/', include('api.urls', namespace='api')),

@@ -26,8 +26,8 @@
                                 <img class="mui-media-object mui-pull-left head-img"
                                      src="{{ user.profile.avatar.url }}">
                                 <div class="mui-media-body">
-                                    <span class="username" data-username="{{ user.username }}"></span>
-                                    <p class='bio' data-bio="{{ user.profile.bio }}"></p>
+                                    <p class="username">{{ user.username }}</p>
+                                    <p class='bio'>{{ user.profile.bio }}</p>
                                 </div>
                             </a>
                         </li>
@@ -126,7 +126,7 @@
                     <a href="#" data-value="f">女</a>
                 </li>
             </ul>
-            <ul class="mui-table-view cancel-table-view">
+            <ul class="mui-table-view">
                 <li class="mui-table-view-cell">
                     <a href="#gender">取消</a>
                 </li>
@@ -369,18 +369,6 @@
         });
         //初始化单页的区域滚动
         mui('.mui-scroll-wrapper').scroll();
-
-        mui.ready(function () {
-            var username_span = $('.username');
-            var bio_span = $('p.bio');
-            var username = '{{ user.username }}';
-            var bio = '{{ user.profile.bio }}' || '暂无简介...';
-
-            username = username.length > 10 ? (username.slice(0, 10) + '...') : username;
-            bio = bio.length > 16 ? (bio.slice(0, 16) + '...') : bio;
-            username_span.html(username);
-            bio_span.html(bio);
-        });
 
         var view = viewApi.view;
         (function ($) {

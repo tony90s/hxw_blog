@@ -1,5 +1,6 @@
 import re
 
+from django.conf import settings
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
@@ -7,6 +8,7 @@ from rest_framework.validators import UniqueValidator
 
 from utils.file_handling import get_thumbnail
 from account.models import UserProfile, OauthLogin
+from article.models import Article
 from restful_api.account.validators import RegMatchValidator
 
 reg_verification_code = re.compile('^\d{6}$')
@@ -53,6 +55,24 @@ class RegisterSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         return None
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    user_id = serializers.SerializerMethodField()
+    avatar = serializers.ImageField(source='profile.avatar')
+    bio = serializers.CharField(source='profile.bio')
+    article_count = serializers.SerializerMethodField()
+
+    def get_user_id(self, user):
+        return user.id
+
+    def get_article_count(self, user):
+        articles = Article.objects.using('read').filter(author_id=user.id)
+        return articles.count()
+
+    class Meta:
+        model = User
+        fields = ('user_id', 'username', 'avatar', 'bio', 'article_count')
 
 
 class UserInfoSerializer(serializers.ModelSerializer):

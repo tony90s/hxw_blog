@@ -1,15 +1,13 @@
 {% extends "base.html" %}
-{% block title %}<title>{{ article_type.display_name }} LOVEITERS</title>{% endblock %}
+{% block title %}<title>{{ site_name }}</title>{% endblock %}
 {% block content %}
     <header class="mui-bar mui-bar-nav">
-        <h1 class="mui-title">
-            {% if article_type.value != 0 %}{{ article_type.display_name }}{% else %}LOVEITERS{% endif %}
-        </h1>
-        <a class="avatar mui-pull-right" href="javascript:void (0)">
-            <img src="
-                    {% if user.is_authenticated %}{{ user.profile.avatar.url }}{% else %}/media/avatar/default_avatar.jpg{% endif %}"
+        <a class="avatar mui-pull-left" href="javascript:void (0)">
+            <img src="{% if user.is_authenticated %}{{ user.profile.avatar.url }}{% else %}/media/avatar/default_avatar.jpg{% endif %}"
                  alt="头像">
         </a>
+        <h1 class="mui-center mui-title">{{ site_name }}</h1>
+        <a class="mui-icon mui-icon-search mui-pull-right"></a>
     </header>
     <div class="mui-content">
         <div id="slider" class="mui-slider mui-fullscreen">
@@ -219,6 +217,9 @@
     <script src="/static/mui/js/mui.pullToRefresh.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
     <script>
+        var toast_option = {
+            duration: 1000
+        };
         mui.init();
 
         var articlesApiUrl = "{% url 'api:articles' %}";
@@ -231,6 +232,10 @@
 
         mui('header').on('tap', '.avatar', function () {
             location.href = "{% url 'account:user_center' %}";
+        });
+
+        mui('header').on('tap', '.mui-icon-search', function () {
+            location.href = "{% url 'search' %}";
         });
 
         (function ($) {

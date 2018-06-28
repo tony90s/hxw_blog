@@ -146,12 +146,15 @@ class ArticleList(generics.ListAPIView):
         article_type = form.cleaned_data.get('article_type') or 0
         is_released = form.cleaned_data.get('is_released')
         author_id = form.cleaned_data.get('author_id') or 0
+        key_word = form.cleaned_data.get('key_word') or ''
 
         query_condition = Q(is_released=is_released)
         if author_id > 0:
             query_condition &= Q(author_id=author_id)
         if article_type > 0:
             query_condition &= Q(type=article_type)
+        if key_word:
+            query_condition &= (Q(title__icontains=key_word) | Q(content_txt__icontains=key_word))
 
         articles = Article.objects.using('read').filter(query_condition)
         if is_released:

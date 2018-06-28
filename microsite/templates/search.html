@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block title %}<title>搜索</title>{% endblock %}
+{% block extra_header %}
+    <link rel="stylesheet" href="/static/css/article/meta.css">
+{% endblock %}
+{% block content %}
+    <header class="mui-bar mui-bar-nav">
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+        <div class="mui-input-row mui-search">
+            <input type="search" class="mui-input-clear" id="search" placeholder="文章或者用户">
+        </div>
+    </header>
+    <div class="mui-content mui-hidden">
+        <div id="slider" class="mui-slider mui-fullscreen">
+            <div id="sliderSegmentedControl"
+                 class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted background-white">
+                <div class="mui-scroll" style="width: 100%">
+                    <a href="#articles" class="mui-control-item mui-active" style="width: 33.3%">
+                        文章
+                    </a>
+                    <a href="#users" class="mui-control-item" style="width: 33.3%">
+                        用户
+                    </a>
+                </div>
+            </div>
+            <div class="mui-slider-group">
+                <div id="articles" class="mui-slider-item mui-slider-item-no-border mui-control-content mui-active">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll" id="article_scroll">
+                            <div class="article-container">
+                                <ul class="article-list" id="article_list" data-page="1">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="users" class="mui-slider-item mui-slider-item-no-border mui-control-content">
+                    <div class="mui-scroll-wrapper">
+                        <div class="mui-scroll" id="user_scroll">
+                            <div class="users-container">
+                                <ul class="users-list" id="user_list" data-page="1">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- off-canvas backdrop -->
+    <div class="mui-off-canvas-backdrop"></div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="/static/js/jquery.lazyload.js"></script>
+    <script src="/static/mui/js/mui.pullToRefresh.js"></script>
+    <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
+    <script>
+        var toast_option = {
+            duration: 1000
+        };
+        mui.init();
+
+        var articlesApiUrl = "{% url 'api:articles' %}";
+        var userListApiUrl = "{% url 'api:users' %}";
+
+        mui('.article-list').on('tap', 'li.article', function () {
+            var article_id = this.dataset.article_id;
+            document.location.href = '/article/details/' + article_id;
+        });
+
+        var searchInput = document.getElementById('search');
+        var article_list = document.getElementById('article_list');
+        var user_list = document.getElementById('user_list');
+
+        function doSearch(key_word) {
+            article_list.innerHTML = '';
+            user_list.innerHTML = '';
+            article_list.dataset.key_word = key_word;
+            user_list.dataset.key_word = key_word;
+            article_list.dataset.page = 1;
+            user_list.dataset.page = 1;
+            var activeScroll = document.querySelector('.mui-slider-group .mui-slider-item.mui-active .mui-scroll');
+            jQuery('.mui-content').removeClass('mui-hidden');
+            mui(activeScroll).pullToRefresh().pullDownLoading();
+        }
+
+        document.getElementById("search").addEventListener("keypress", function (event) {
+            if (event.keyCode == "13") {
+                var key_word = searchInput.value.replace(/(^\s*)|(\s*$)/g, "");
+                if (key_word == '') {
+                    return false
+                }
+                document.activeElement.blur();//收起虚拟键盘
+                doSearch(key_word);
+                event.preventDefault(); // 阻止默认事件---阻止页面刷新
+            }
+        });
+
+        function create_article(json) {
+            var fragment = document.createDocumentFragment();
+            var li;
+            mui.each(json.results, function (index, array) {
+                var article_id = array['article_id'];
+                var title = array['title'];
+                var type = array['type'];
+                var cover_photo = array['cover_photo'];
+                var abstract = array['abstract'];
+                var release_time = array['release_time'];
+                var release_time_desc = getDateDiff(release_time);
+                var author = array['author'];
+                li = document.createElement('li');
+                li.className = 'article';
+                li.dataset.article_id = article_id;
+                var str = '';
+                if (cover_photo) {
+                    str += '<div class="img-container"><img class="lazy" data-original="' + cover_photo +
+                            '" alt="' + title + '"></div>';
+                }
+                str += '<p class="title">' + title + '</p>' +
+                        '<p class="abstract">' + abstract + '</p>' +
+                        '<div class="meta">' +
+                        '<span class="time">' + release_time_desc + '</span>' +
+                        '<span class="nickname">by ' + author['username'] + '</span>' +
+                        '</div>';
+                li.innerHTML = str;
+                fragment.appendChild(li);
+            });
+            return fragment;
+        }
+
+        function create_user(json) {
+            var fragment = document.createDocumentFragment();
+            var li;
+            mui.each(json.results, function (index, array) {
+                var user_id = array['user_id'];
+                var username = array['username'];
+                var avatar = array['avatar'];
+                var bio = array['bio'] || '这个同学很懒，什么都没留下...';
+                var article_count = array['article_count'];
+
+                li = document.createElement('li');
+                li.className = 'user-item';
+                var str = '<a class="avatar" href="javascript:void(0)">' +
+                        '<img src="' + avatar + '" alt="' + username + '">' +
+                        '</a>' +
+                        '<div class="user-info">' +
+                        '<p class="nickname">' + username + '</p>' +
+                        '<p class="bio">' + bio + '</p>' +
+                        '<p class="article-count">文章：' + article_count + '</p>' +
+                        '</div>';
+                li.innerHTML = str;
+                fragment.appendChild(li);
+            });
+            return fragment;
+        }
+
+        function pullUpRefreshArticles() {
+            var self = this;
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.article-list');
+            var page = parseInt(ul.dataset.page);
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: articlesApiUrl,
+                    data: {
+                        'page': page,
+                        'is_released': 1,
+                        'key_word': ul.dataset.key_word
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_article(json));
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
+                            self.endPullUpToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                ul.dataset.page = page
+                            }
+                        } else {
+                            self.endPullUpToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullUpToRefresh(true);
+                    }
+                });
+            }, 0);
+        }
+        function pullDownRefreshArticles() {
+            var self = this;
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.article-list');
+            ul.innerHTML = '';
+            ul.dataset.page = 1;
+            var page = 1;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: articlesApiUrl,
+                    data: {
+                        'page': page,
+                        'is_released': 1,
+                        'key_word': ul.dataset.key_word
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_article(json));
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
+                            self.endPullDownToRefresh(!json.next);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                ul.dataset.page = page
+                            }
+                        } else {
+                            self.endPullDownToRefresh(true);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
+                        self.endPullUpToRefresh(true);
+                    }
+                });
+            }, 200);
+        }
+
+        function pullUpRefreshUsers() {
+            var self = this;
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.users-list');
+            var page = parseInt(ul.dataset.page);
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: userListApiUrl,
+                    data: {
+                        'page': page,
+                        'key_word': ul.dataset.key_word
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_user(json));
+                            self.endPullUpToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                ul.dataset.page = page
+                            }
+                        } else {
+                            self.endPullUpToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullUpToRefresh(true);
+                    }
+                });
+            }, 0);
+        }
+        function pullDownRefreshUsers() {
+            var self = this;
+            var scroll_div = this.element;
+            var ul = scroll_div.querySelector('.users-list');
+            ul.innerHTML = '';
+            ul.dataset.page = 1;
+            var page = 1;
+            setTimeout(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: userListApiUrl,
+                    data: {
+                        'page': page,
+                        'key_word': ul.dataset.key_word
+                    },
+                    dataType: 'json',
+                    success: function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            ul.appendChild(create_user(json));
+                            self.endPullDownToRefresh(!json.next);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(!json.next);
+                            if (json.next) {
+                                page++;
+                                ul.dataset.page = page
+                            }
+                        } else {
+                            self.endPullDownToRefresh(true);
+                            self.refresh(true);
+                            self.endPullUpToRefresh(true);
+                        }
+                    },
+                    error: function () {
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
+                        self.endPullUpToRefresh(true);
+                    }
+                });
+            }, 200);
+        }
+
+        var pullFunctionMap = {
+            0: {
+                'up': pullUpRefreshArticles,
+                'down': pullDownRefreshArticles
+            },
+            1: {
+                'up': pullUpRefreshUsers,
+                'down': pullDownRefreshUsers
+            }
+        };
+
+        (function ($) {
+            $('.mui-scroll-wrapper').scroll({
+                bounce: false,
+                indicators: true
+            });
+            $.ready(function () {
+                document.querySelector('.mui-slider').addEventListener('slide', function (event) {
+                    var acticeSliderItem = document.querySelectorAll('.mui-slider .mui-slider-group .mui-slider-item')[event.detail.slideNumber];
+                    var activeScroll = acticeSliderItem.querySelector('.mui-scroll');
+                    var ul = acticeSliderItem.querySelector('ul');
+                    if (ul.querySelectorAll('li').length == 0) {
+                        mui(activeScroll).pullToRefresh().pullDownLoading();
+                    }
+                });
+
+                var dpr = lib.flexible.dpr || 1;
+                //循环初始化所有下拉刷新，上拉加载。
+                $.each(document.querySelectorAll('.mui-slider-group .mui-scroll'), function (index, pullRefreshEl) {
+                    $(pullRefreshEl).pullToRefresh({
+                        down: {
+                            height: 30 * dpr,
+                            contentnomore: '没有更多搜索结果',
+                            callback: pullFunctionMap[index]['down']
+                        },
+                        up: {
+                            auto: false,
+                            contentnomore: '没有更多搜索结果',
+                            callback: pullFunctionMap[index]['up']
+                        }
+                    });
+                });
+            });
+        })(mui);
+    </script>
+{% endblock %}

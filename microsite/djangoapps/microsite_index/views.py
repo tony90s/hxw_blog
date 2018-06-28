@@ -13,8 +13,10 @@ logger = logging.getLogger('microsite_index.views')
 @ensure_csrf_cookie
 def index_view(request):
     template = 'index.html'
-    article_type = int(request.GET.get('article_type', '0'))
-    context = {
-        'article_type': {'value': article_type, 'display_name': Article.get_type_name(article_type)}
-    }
-    return render(request, template, context)
+    return render(request, template)
+
+
+@ensure_csrf_cookie
+def search_view(request):
+    template = 'search.html'
+    return render(request, template)
