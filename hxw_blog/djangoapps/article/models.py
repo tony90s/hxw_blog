@@ -84,7 +84,7 @@ class Article(models.Model):
         author = User.objects.using('read').get(id=self.author_id)
         author_data = {
             'user_id': author.id,
-            'username': author.username if len(author.username) <= 15 else (author.username[:12] + '...'),
+            'username': author.username,
             'avatar': settings.HOST + author.profile.avatar.url
         }
         self.__user_cache.update({self.author_id: author_data})
@@ -204,8 +204,7 @@ class Comment(models.Model):
         commentator = User.objects.using('read').get(id=self.commentator_id)
         commentator_info = {
             'user_id': commentator.id,
-            'username': commentator.username if len(commentator.username) <= 15 else (
-            commentator.username[:12] + '...'),
+            'username': commentator.username,
             'avatar': settings.HOST + commentator.profile.avatar.url
         }
         self.__user_cache.update({self.commentator_id: commentator_info})
@@ -223,7 +222,7 @@ class Comment(models.Model):
         receiver = User.objects.using('read').get(id=self.receiver_id)
         receiver_data = {
             'user_id': receiver.id,
-            'username': receiver.username if len(receiver.username) <= 15 else (receiver.username[:12] + '...'),
+            'username': receiver.username,
             'avatar': settings.HOST + receiver.profile.avatar.url
         }
         self.__user_cache.update({self.receiver_id: receiver_data})
@@ -358,7 +357,7 @@ class Praise(models.Model):
         user = User.objects.using('read').get(id=self.user_id)
         user_data = {
             'user_id': user.id,
-            'username': user.username if len(user.username) <= 15 else (user.username[:12] + '...'),
+            'username': user.username,
             'avatar': settings.HOST + user.profile.avatar.url
         }
         self.__user_cache.update({self.user_id: user_data})

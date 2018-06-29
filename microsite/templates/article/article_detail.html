@@ -19,7 +19,7 @@
                         <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
                     </a>
                     <div class="info">
-                        <span class="nickname">{{ article_details.author.username }}</span>
+                        <p class="nickname">{{ article_details.author.username }}</p>
                         <span class="text-time">{{ article_details.release_time }} </span>
                     </div>
                 </div>
@@ -198,7 +198,7 @@
                         '<div class="info">' +
                         '<div class="user">' +
                         '<div class="user-info">' +
-                        '<span class="nickname">' + username + '</span>' +
+                        '<p class="nickname">' + username + '</p>' +
                         '<span class="text-time">' + comment_at_desc + '</span>' +
                         '</div>' +
                         '<div class="praise" data-parent_id="' + comment_id + '" data-praise_type="' + praiseType['comment'] + '">' +
@@ -227,8 +227,8 @@
                         comment_html_str += reply_html;
                     });
                     if (replies_count >= 3) {
-                        comment_html_str += '<a class="replies-count" href="javascript:void(0)">共' + replies_count +
-                                '条回复</a>';
+                        comment_html_str += '<p><a class="replies-count" href="javascript:void(0)">共' + replies_count +
+                                '条回复</a></p>';
                     }
                     comment_html_str += '</div>';
                 }

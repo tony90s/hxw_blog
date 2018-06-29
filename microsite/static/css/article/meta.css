@@ -9,9 +9,7 @@
 }
 
 .article-info .title {
-    color: #000;
-    font-size: 28px;
-    font-weight: bold;
+    font-size: 24px;
     line-height: 1.5;
 }
 
@@ -27,19 +25,20 @@
 }
 
 .article-info .author {
+    position: relative;
     margin-top: 10px;
     font-size: 14px;
     color: #333;
 }
 
 .article-info .author .avatar {
-    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .article-info .author .info {
-    display: inline-block;
-    margin-left: 8px;
-    vertical-align: middle;
+    padding-left: 52px;
 }
 
 .article-info .author .info span {
@@ -115,6 +114,10 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
     position: relative;
 }
 
+.comment .info .user .user-info, .comment-reply .info .user .user-info, li.praise .info .user .user-info {
+    padding-right: 100px;
+}
+
 .comment .info .user .user-info span, .comment-reply .info .user .user-info span, li.praise .info .user .user-info span {
     font-size: 14px;
     display: block;
@@ -172,16 +175,22 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
     font-size: 14px;
 }
 
+.comment .info .replies-list p {
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp: 3;
+}
+
+.comment .info .replies-list p:last-child {
+    margin-bottom: 0;
+}
+
 .comment .info .article, li.praise .info .article {
     background-color: #efeff4;
     padding: 10px;
     margin-top: 10px;
-}
-
-.comment .info .article .title, li.praise .info .article .title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #000;
 }
 
 .comment .info .article .abstract, li.praise .info .article .abstract {

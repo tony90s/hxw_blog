@@ -2,6 +2,15 @@
 {% block title %}<title>消息</title>{% endblock %}
 {% block extra_header %}
     <link rel="stylesheet" href="/static/css/article/meta.css">
+    <style>
+        .comment .info .content, li.praise .info .content {
+            overflow:hidden;
+            text-overflow:ellipsis;
+            display:-webkit-box;
+            -webkit-box-orient:vertical;
+            -webkit-line-clamp: 3;
+        }
+    </style>
 {% endblock %}
 {% block content %}
     <header class="mui-bar mui-bar-nav">
@@ -226,7 +235,7 @@
                         '<div class="info">' +
                         '<div class="user">' +
                         '<div class="user-info">' +
-                        '<span class="nickname">' + replier_username + '</span>' +
+                        '<p class="nickname">' + replier_username + '</p>' +
                         '<span class="text-time">' + reply_at_desc + '</span>' +
                         '</div>' +
                         '</div>' +
@@ -280,7 +289,7 @@
                         '<div class="info">' +
                         '<div class="user">' +
                         '<div class="user-info">' +
-                        '<span class="nickname">' + username + '</span>' +
+                        '<p class="nickname">' + username + '</p>' +
                         '<span class="text-time">' + praise_at_desc + '</span>' +
                         '</div>' +
                         '</div>' +

@@ -18,7 +18,7 @@
                     <div class="info" style="border: 0">
                         <div class="user">
                             <div class="user-info">
-                                <span class="nickname">{{ comment.commentator.username }}</span>
+                                <p class="nickname">{{ comment.commentator.username }}</p>
                                 <span class="text-time" data-time="{{ comment.comment_at }}"></span>
                             </div>
                             <div class="praise" data-praise_type="2" data-parent_id="{{ comment.comment_id }}">
@@ -109,7 +109,7 @@
                         '<div class="info">' +
                         '<div class="user">' +
                         '<div class="user-info">' +
-                        '<span class="nickname">' + replier['username'] + '</span>' +
+                        '<p class="nickname">' + replier['username'] + '</p>' +
                         '<span class="text-time">' + reply_at_desc + '</span>' +
                         '</div>' +
                         '<div class="praise" data-praise_type="' + praiseType['comment'] + '" data-parent_id="' + comment_id +

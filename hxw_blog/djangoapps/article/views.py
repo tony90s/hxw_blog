@@ -92,7 +92,7 @@ def drafts(request):
     user = request.user
     user_data = {
         'user_id': user.id,
-        'username': user.username if len(user.username) <= 10 else (user.username[:10] + '...'),
+        'username': user.username,
         'avatar': user.profile.avatar.url,
         'bio': user.profile.bio
     }
@@ -115,7 +115,7 @@ def user_articles(request, author_id):
     author = authors[0]
     author_data = {
         'user_id': author.id,
-        'username': author.username if len(author.username) <= 10 else (author.username[:10] + '...'),
+        'username': author.username,
         'avatar': author.profile.avatar.url,
         'bio': author.profile.bio,
         'gender': author.profile.get_gender_display()
