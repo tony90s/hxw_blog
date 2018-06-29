@@ -235,8 +235,11 @@
                     comment_reply_html += '回复' +
                             '<a href="javascript:void(0)">@' + receiver_username + '</a>:&nbsp;'
                 }
-                comment_reply_html += content + '</p><p class="be_replied_comment_desc">' + be_replied_comment_desc + '</p>' +
-                        '<div class="article" data-article_id="' + article_id + '">' +
+                comment_reply_html += content + '</p>';
+                if (be_replied_comment_desc) {
+                    comment_reply_html += '<p class="be_replied_comment_desc">' + be_replied_comment_desc + '</p>';
+                }
+                comment_reply_html += '<div class="article" data-article_id="' + article_id + '">' +
                         '<p class="title">' + title + '</p>' +
                         '<p class="abstract">' + abstract + '</p>' +
                         '</div></div>';
