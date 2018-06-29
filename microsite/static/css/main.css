@@ -456,14 +456,14 @@ header .avatar {
 }
 
 .title {
-    font-weight: 400;
-    font-size: 16px;
+    font-weight: bold;
+    font-size: 18px;
     color: #000;
 }
 
 .abstract {
     -webkit-line-clamp: 3;
-    font-size: 13px;
+    font-size: 16px;
     color: rgba(0, 0, 0, 0.6);
 }
 
@@ -515,7 +515,7 @@ header .avatar {
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-    font-size: 12px;
+    font-size: 14px;
     color: rgba(0, 0, 0, 0.6);
 }
 
@@ -620,6 +620,7 @@ p.username, p.nickname, p.bio {
 }
 
 p.username, p.nickname {
+    font-size: 14px;
     margin-bottom: 2px;
 }
 
@@ -672,6 +673,7 @@ p.bio {
 
 .user-summation .nickname {
     font-weight: bold;
+    font-size: 16px;
     margin: 10px 0;
 }
 

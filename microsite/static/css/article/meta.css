@@ -112,6 +112,7 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
 
 .comment .info .user, .comment-reply .info .user, li.praise .info .user {
     position: relative;
+    font-size: 14px;
 }
 
 .comment .info .user .user-info, .comment-reply .info .user .user-info, li.praise .info .user .user-info {
@@ -119,7 +120,6 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
 }
 
 .comment .info .user .user-info span, .comment-reply .info .user .user-info span, li.praise .info .user .user-info span {
-    font-size: 14px;
     display: block;
 }
 
@@ -146,7 +146,6 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
     height: 36px;
     text-align: right;
     vertical-align: middle;
-    font-size: 14px;
     color: rgba(0, 0, 0, 0.6);
 }
 
