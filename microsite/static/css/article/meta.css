@@ -49,41 +49,29 @@
 .comments-container, .replies-container, .praises-container, .users-container {
     background-color: #fff;
     width: 100%;
-    padding: 15px;
+    padding: 0;
     margin-top: 10px;
 }
 
-.users-container {
+.comments-container .separate-title, .replies-container .separate-title, .praises-container .separate-title {
+    padding: 10px 15px;
+}
+
+ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
     padding: 0;
+    margin: 15px 0;
 }
 
-
-ul.comments-list, ul.comment-replies-list, ul.praises-list {
-    padding: 0;
-    margin: 24px 0;
-}
-
-ul.users-list {
-    padding: 0;
-    margin: 0;
-}
-
-
-.comment, .comment-reply, li.praise {
-    position: relative;
-    margin-bottom: 12px;
-}
-
-.user-item {
+.comment, .comment-reply, li.praise, .user-item {
     position: relative;
     padding: 15px;
 }
 
-.user-item:after {
+.comment:after, .comment-reply:after, li.praise:after, .user-item:after {
     position: absolute;
     right: 0;
     bottom: 0;
-    left: 88px;
+    left: 67px;
     height: 1px;
     content: '';
     -webkit-transform: scaleY(.5);
@@ -91,13 +79,15 @@ ul.users-list {
     background-color: #c8c7cc;
 }
 
-.comment .avatar, .comment-reply .avatar, li.praise .avatar {
-    position: absolute;
-    top: 0;
-    left: 0;
+.comment.no-border-after:after {
+    height: 0;
 }
 
-.user-item .avatar {
+.user-item:after {
+    left: 88px;
+}
+
+.comment .avatar, .comment-reply .avatar, li.praise .avatar, .user-item .avatar {
     position: absolute;
     top: 15px;
     left: 15px;
@@ -110,7 +100,10 @@ ul.users-list {
 
 .comment .info, .comment-reply .info, li.praise .info {
     margin-left: 52px;
-    border-bottom: 1px solid #f0f0f0;;
+}
+
+.comment .info p:last-child, .comment-reply .info p:last-child, li.praise .info p:last-child {
+    margin-bottom: 0;
 }
 
 .user-item .user-info {
@@ -136,7 +129,6 @@ ul.users-list {
 .user-item .user-info p:last-child {
     margin-bottom: 0;
 }
-
 
 .user-item .user-info .nickname {
     font-size: 16px;
@@ -164,6 +156,11 @@ ul.users-list {
 }
 
 .comment .info .be_replied_comment_desc {
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp: 2;
     font-size: 14px;
     color: rgba(0, 0, 0, 0.3);
 }
@@ -171,14 +168,14 @@ ul.users-list {
 .comment .info .replies-list {
     background-color: #efeff4;
     padding: 10px;
-    margin: 10px 0;
+    margin-top: 10px;
     font-size: 14px;
 }
 
 .comment .info .article, li.praise .info .article {
     background-color: #efeff4;
     padding: 10px;
-    margin: 10px 0;
+    margin-top: 10px;
 }
 
 .comment .info .article .title, li.praise .info .article .title {
@@ -195,7 +192,6 @@ ul.users-list {
 .comment .info .replies-list p {
     font-size: 14px;
 }
-
 
 .praise-container {
     width: 100%;
@@ -247,13 +243,14 @@ ul.users-list {
 
 .switch-buttons {
     width: 100%;
+    padding: 10px 15px;
 }
 
 .switch-buttons button {
     width: 33.3%;
     height: 32px;
     border-radius: 16px;
-    padding:6px 12px;
+    padding: 6px 12px;
     line-height: 20px;
     color: #ccc;
     font-size: 15px;
