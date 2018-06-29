@@ -164,13 +164,11 @@
                                                 '</ul>' +
                                             '</div>';
                                     }
-                                    str += '</div>' + '<div';
+                                    str += '</div>' + '<div class="article-info';
                                     if (cover_photo) {
-                                        str += ' class="with-img">'
+                                        str += ' with-img'
                                     }
-                                    else {
-                                        str += '>'
-                                    }
+                                    str += '">'
                                     if (cover_photo) {
                                         str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
                                          '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +

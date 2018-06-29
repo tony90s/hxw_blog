@@ -375,17 +375,20 @@ textarea,
     display: inline
 }
 
+.article .info p:last-child {
+    margin-bottom: 0;
+}
+
 .with-img {
-    min-height: 140px
+    min-height: 112px
 }
 
 .with-img .wrap-img {
     position: absolute;
-    top: 50%;
-    margin-top: -68px;
+    top: 0;
     left: 0;
     width: 150px;
-    height: 120px
+    height: 112px;
 }
 
 .with-img .wrap-img img {
@@ -402,14 +405,12 @@ textarea,
 
 @media (max-width: 1080px) {
     .with-img {
-        min-height: 112px
+        min-height: 94px
     }
 
     .with-img .wrap-img {
-        margin-top: -58px;
-        bottom: 40px;
         width: 125px;
-        height: 100px
+        height: 94px
     }
 
     .with-img > div {

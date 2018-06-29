@@ -285,6 +285,9 @@
                 li = document.createElement('li');
                 li.className = 'article';
                 li.dataset.article_id = article_id;
+                if (cover_photo) {
+                    li.classList.add('with-img')
+                }
                 var str = '';
                 if (cover_photo) {
                     str += '<div class="cover-container"><img class="lazy" data-original="' + cover_photo +
@@ -294,7 +297,7 @@
                         '<p class="abstract">' + abstract + '</p>' +
                         '<div class="meta">' +
                         '<span class="time">' + release_time_desc + '</span>' +
-                        '<span class="nickname">by ' + author['username'] + '</span>' +
+                        '<span class="nickname">' + author['username'] + '</span>' +
                         '</div>';
                 li.innerHTML = str;
                 fragment.appendChild(li);

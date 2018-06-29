@@ -11,7 +11,7 @@
     </header>
     <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
         <div class="mui-scroll">
-            <div class="article" data-article_id="{{ article_details.article_id }}">
+            <div class="article-info" data-article_id="{{ article_details.article_id }}">
                 <h1 class="title">{{ article_details.title }}</h1>
 
                 <div class="author">
@@ -19,7 +19,7 @@
                         <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
                     </a>
                     <div class="info">
-                        <span class="name">{{ article_details.author.username }}</span>
+                        <span class="nickname">{{ article_details.author.username }}</span>
                         <span class="text-time">{{ article_details.release_time }} </span>
                     </div>
                 </div>

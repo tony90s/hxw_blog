@@ -103,37 +103,34 @@ a, body {
 .note-list li .with-img {
     position: relative;
     padding-left: 160px;
-    min-height: 140px
+    min-height: 112px
 }
 
 .note-list li .with-img .wrap-img {
     position: absolute;
-    top: 50%;
+    top: 0;
     left: 0;
-    margin-top: -68px;
     width: 150px;
-    height: 120px;
+    height: 112px;
 }
 
 .note-list li .with-img .wrap-img img {
     width: 100%;
     height: 100%;
     border-radius: 4px;
+    padding: 10px 10px 10px 0;
     border: 1px solid transparent;
-    padding: 5px 10px 5px 0;
 }
 
 @media (max-width: 1080px) {
     .note-list li .with-img {
-        min-height: 112px;
+        min-height: 94px;
         padding-left: 135px;
     }
 
     .note-list li .with-img .wrap-img {
-        bottom: 40px;
-        margin-top: -58px;
         width: 125px;
-        height: 100px;
+        height: 94px;
     }
 }
 
@@ -267,7 +264,7 @@ a, body {
 
 .note-list .abstract {
     margin: 0 0 8px;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 24px
 }
 
@@ -353,7 +350,7 @@ a, body {
 }
 
 .note-list .meta {
-    padding-right: 0 !important;
+    margin-top: 5px;
     font-size: 12px;
     font-weight: 400;
     line-height: 20px

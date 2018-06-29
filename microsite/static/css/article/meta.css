@@ -3,57 +3,46 @@
     width: auto;
 }
 
-.article {
+.article-info {
     background-color: #fff;
     padding: 15px;
 }
 
-.article .title {
+.article-info .title {
     color: #000;
     font-size: 28px;
     font-weight: bold;
     line-height: 1.5;
 }
 
-.article .meta {
-    margin-top: 10px;
-    font-size: 14px;
-    color: rgba(0, 0, 0, 0.6);
-}
-
-.article .meta span + span:before {
-    padding: 0 8px;
-    content: "/\00a0";
-}
-
-.article .article-content {
+.article-info .article-content {
     margin-top: 20px;
 }
 
-.article .article-content p {
+.article-info .article-content p {
     font-size: 16px;
     line-height: 26px;
     margin-bottom: 10px;
     color: #000;
 }
 
-.article .author {
+.article-info .author {
     margin-top: 10px;
     font-size: 14px;
     color: #333;
 }
 
-.article .author .avatar {
+.article-info .author .avatar {
     display: inline-block;
 }
 
-.article .author .info {
+.article-info .author .info {
     display: inline-block;
     margin-left: 8px;
     vertical-align: middle;
 }
 
-.article .author .info span {
+.article-info .author .info span {
     display: block;
 }
 
@@ -194,6 +183,7 @@ ul.users-list {
 
 .comment .info .article .title, li.praise .info .article .title {
     font-size: 18px;
+    font-weight: bold;
     color: #000;
 }
 

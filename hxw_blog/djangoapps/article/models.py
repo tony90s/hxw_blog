@@ -59,6 +59,10 @@ class Article(models.Model):
         return timezone.localtime(self.release_at).strftime("%Y-%m-%d %H:%M:%S")
 
     @property
+    def abstract(self):
+        return self.content_txt[0:90] + '...'
+
+    @property
     def update_time(self):
         if self.update_at:
             return timezone.localtime(self.update_at).strftime("%Y-%m-%d %H:%M:%S")
@@ -115,7 +119,7 @@ class Article(models.Model):
         }
         context['cover_photo'] = self.article_cover
         context['content_html'] = self.content_html
-        context['abstract'] = self.content_txt[0:91] + '...'
+        context['abstract'] = self.abstract
         context['author'] = self.get_author_data()
         context['comment_times'] = self.comment_times
         context['praise_times'] = self.praise_times
@@ -135,7 +139,7 @@ class Article(models.Model):
         }
         context['cover_photo'] = self.article_cover
         context['author'] = self.get_author_data()
-        context['abstract'] = self.content_txt[0:91] + '...'
+        context['abstract'] = self.abstract
         context['comment_times'] = self.comment_times
         context['praise_times'] = self.praise_times
         context['release_time'] = self.release_time
@@ -152,7 +156,7 @@ class Article(models.Model):
             'display_name': self.get_type_display()
         }
         context['cover_photo'] = self.article_cover
-        context['abstract'] = self.content_txt[0:76] + '...'
+        context['abstract'] = self.abstract
         return context
 
 

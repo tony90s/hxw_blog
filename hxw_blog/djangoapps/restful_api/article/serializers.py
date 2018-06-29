@@ -157,7 +157,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         return article_info
 
     def get_abstract(self, article):
-        return article.content_txt[0:91] + '...'
+        return article.abstract
 
     class Meta:
         model = Article
