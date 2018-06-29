@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -19,6 +20,16 @@ class UserProfile(models.Model):
 
     class Meta:
         db_table = "auth_userprofile"
+
+
+def render_user_info(user):
+    return {
+        'user_id': user.id,
+        'username': user.username,
+        'avatar': settings.HOST + user.profile.avatar.url,
+        'gender': user.profile.get_gender_display(),
+        'bio': user.profile.bio
+    }
 
 
 class OauthLogin(models.Model):

@@ -7,6 +7,8 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from account.models import render_user_info
+
 
 class Article(models.Model):
     class TYPE:
@@ -82,11 +84,7 @@ class Article(models.Model):
         if self.author_id in self.__user_cache:
             return self.__user_cache[self.author_id]
         author = User.objects.using('read').get(id=self.author_id)
-        author_data = {
-            'user_id': author.id,
-            'username': author.username,
-            'avatar': settings.HOST + author.profile.avatar.url
-        }
+        author_data = render_user_info(author)
         self.__user_cache.update({self.author_id: author_data})
         return author_data
 
@@ -202,11 +200,7 @@ class Comment(models.Model):
         if self.commentator_id in self.__user_cache:
             return self.__user_cache[self.commentator_id]
         commentator = User.objects.using('read').get(id=self.commentator_id)
-        commentator_info = {
-            'user_id': commentator.id,
-            'username': commentator.username,
-            'avatar': settings.HOST + commentator.profile.avatar.url
-        }
+        commentator_info = render_user_info(commentator)
         self.__user_cache.update({self.commentator_id: commentator_info})
         return commentator_info
 
@@ -220,11 +214,7 @@ class Comment(models.Model):
         if self.receiver_id in self.__user_cache:
             return self.__user_cache[self.receiver_id]
         receiver = User.objects.using('read').get(id=self.receiver_id)
-        receiver_data = {
-            'user_id': receiver.id,
-            'username': receiver.username,
-            'avatar': settings.HOST + receiver.profile.avatar.url
-        }
+        receiver_data = render_user_info(receiver)
         self.__user_cache.update({self.receiver_id: receiver_data})
         return receiver_data
 
@@ -355,11 +345,7 @@ class Praise(models.Model):
         if self.user_id in self.__user_cache:
             return self.__user_cache[self.user_id]
         user = User.objects.using('read').get(id=self.user_id)
-        user_data = {
-            'user_id': user.id,
-            'username': user.username,
-            'avatar': settings.HOST + user.profile.avatar.url
-        }
+        user_data = render_user_info(user)
         self.__user_cache.update({self.user_id: user_data})
         return user_data
 

@@ -386,7 +386,7 @@ textarea,
 .with-img .wrap-img {
     position: absolute;
     top: 0;
-    left: 0;
+    right: 0;
     width: 150px;
     height: 112px;
 }
@@ -400,7 +400,7 @@ textarea,
 }
 
 .with-img > div {
-    padding-left: 160px
+    padding-right: 150px
 }
 
 @media (max-width: 1080px) {
@@ -414,7 +414,7 @@ textarea,
     }
 
     .with-img > div {
-        padding-left: 135px
+        padding-right: 125px
     }
 }
 

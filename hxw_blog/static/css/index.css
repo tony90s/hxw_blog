@@ -102,14 +102,14 @@ a, body {
 
 .note-list li .with-img {
     position: relative;
-    padding-left: 160px;
+    padding-right: 160px;
     min-height: 112px
 }
 
 .note-list li .with-img .wrap-img {
     position: absolute;
     top: 0;
-    left: 0;
+    right: 0;
     width: 150px;
     height: 112px;
 }
@@ -118,14 +118,14 @@ a, body {
     width: 100%;
     height: 100%;
     border-radius: 4px;
-    padding: 10px 10px 10px 0;
+    padding: 10px 0 10px 10px;
     border: 1px solid transparent;
 }
 
 @media (max-width: 1080px) {
     .note-list li .with-img {
         min-height: 94px;
-        padding-left: 135px;
+        padding-right: 135px;
     }
 
     .note-list li .with-img .wrap-img {

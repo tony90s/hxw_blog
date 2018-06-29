@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
+from account.models import render_user_info
 from article.models import Article, Comment, Praise, get_user_be_praised, get_user_article_count, get_user_praises_count
 # from utils.sensitive_word_handler import sensitive_words_replace
 
@@ -90,12 +91,7 @@ def article_details(request, article_id):
 @login_required()
 def drafts(request):
     user = request.user
-    user_data = {
-        'user_id': user.id,
-        'username': user.username,
-        'avatar': user.profile.avatar.url,
-        'bio': user.profile.bio
-    }
+    user_data = render_user_info(user)
 
     drafts = Article.objects.using('read').filter(Q(author_id=user.id) & Q(is_released=0)).order_by('-update_at',
                                                                                                     '-created_at')
@@ -113,13 +109,7 @@ def user_articles(request, author_id):
         raise Http404
 
     author = authors[0]
-    author_data = {
-        'user_id': author.id,
-        'username': author.username,
-        'avatar': author.profile.avatar.url,
-        'bio': author.profile.bio,
-        'gender': author.profile.get_gender_display()
-    }
+    author_data = render_user_info(author)
 
     article_count = get_user_article_count(author.id)
     praises_count = get_user_praises_count(author.id)
