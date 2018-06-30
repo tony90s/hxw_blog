@@ -14,7 +14,7 @@
                 <div class="mui-input-row">
                     <label>昵称</label>
                     <input id="username" name="username" type="text" class="mui-input-clear mui-input"
-                           placeholder="请输入昵称(2-32位)">
+                           maxlength="16" placeholder="请输入昵称(2-16位)">
                     <span class="mui-icon mui-icon-clear mui-hidden"></span>
                 </div>
                 <div class="mui-input-row">
@@ -73,7 +73,7 @@
             var password = register_form.querySelector('input[name="password"]').value;
             var confirm_password = register_form.querySelector('input[name="confirm_password"]').value;
             var redirect_url = this.dataset.next;
-            var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,32}$/;
+            var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,16}$/;
             var reg_email = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/;
             var reg_password = /^[\w!@#$%^&*?,.;_]{6,32}$/;
             var warning_div = $("#warning_msg");

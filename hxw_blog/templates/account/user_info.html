@@ -26,7 +26,7 @@
                                 <label for="username" class="col-sm-2 control-label">昵称</label>
                                 <div class="col-sm-10">
                                     <input type="text" class="form-control" id="username" name="username"
-                                           value="{{ user.username }}" placeholder="昵称">
+                                           value="{{ user.username }}" maxlength="16" placeholder="昵称">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -436,11 +436,11 @@
                 var gender = form.find('[name="gender"]:checked').val();
                 var bio = form.find('[name="bio"]').val();
 
-                var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,32}$/;
+                var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,16}$/;
 
                 var msg = '';
                 if (!reg_username.test(username)) {
-                    msg = "昵称格式有误，仅支持2-32位中英文、数字、字符'_.@'的组合。";
+                    msg = "昵称格式有误，仅支持2-16位中英文、数字、字符'_.@'的组合。";
                     layer.alert(msg);
                     return false
                 }

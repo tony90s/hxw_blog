@@ -18,10 +18,10 @@ class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField(
         required=True,
         min_length=2,
-        max_length=32,
+        max_length=16,
         validators=[
             UniqueValidator(queryset=User.objects.using('read').all(), message='昵称已被使用，请重新输入。'),
-            RegMatchValidator(pattern=r'^[\w.@_\u4e00-\u9fa5]{2,32}$', message='昵称格式有误，请重新输入。')
+            RegMatchValidator(pattern=r'^[\w.@_\u4e00-\u9fa5]{2,16}$', message='昵称格式有误，请重新输入。')
         ]
     )
     email = serializers.EmailField(
@@ -72,7 +72,7 @@ class UserListSerializer(serializers.ModelSerializer):
         return get_user_article_count(user.id)
 
     def get_praises_count(self, user):
-        return  get_user_praises_count(user.id)
+        return get_user_praises_count(user.id)
 
     class Meta:
         model = User
@@ -80,6 +80,15 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True,
+        min_length=2,
+        max_length=16,
+        validators=[
+            UniqueValidator(queryset=User.objects.using('read').all(), message='昵称已被使用，请重新输入。'),
+            RegMatchValidator(pattern=r'^[\w.@_\u4e00-\u9fa5]{2,16}$', message='昵称格式有误，请重新输入。')
+        ]
+    )
     gender = serializers.CharField(source='profile.gender')
     bio = serializers.CharField(required=False, max_length=48, default='')
 

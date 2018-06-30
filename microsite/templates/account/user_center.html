@@ -93,7 +93,7 @@
                         <div class="mui-input-row">
                             <label>昵称</label>
                             <input name="username" type="text" class="mui-input mui-text-right"
-                                   placeholder="设置昵称" value="{{ user.username }}">
+                                   placeholder="设置昵称" maxlength="16" value="{{ user.username }}">
                         </div>
                         <div class="mui-input-row">
                             <label>性别</label>
@@ -420,10 +420,10 @@
             var gender = update_user_data_form.querySelector('input[name="gender"]').value;
             var bio = update_user_data_form.querySelector('[name="bio"]').value;
 
-            var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,32}$/;
+            var reg_username = /^[\w.@_\u4e00-\u9fa5]{2,16}$/;
 
             if (!reg_username.test(username)) {
-                mui.toast("昵称格式有误，仅支持2-32位中英文、数字、字符'_.@'的组合。", toast_option);
+                mui.toast("昵称格式有误，仅支持2-16位中英文、数字、字符'_.@'的组合。", toast_option);
                 return false
             }
             mui.showLoading("正在更新信息..", "div");

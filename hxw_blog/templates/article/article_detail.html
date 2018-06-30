@@ -416,13 +416,16 @@
                         var receiver_user_id = json.data.receiver.user_id.toString();
                         var receiver_username = json.data.receiver.username;
                         var replier_id = json.data.replier.user_id.toString();
+                        var replier_avatar = json.data.replier.avatar;
                         var reply_at = json.data.reply_at;
                         var reply_at_desc = getDateDiff(reply_at);
                         var reply_content = json.data.content;
                         var praise_times = json.data.praise_times.toString();
                         var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                         var oHtml = '<div class="all-pl-con" id="comment-' + comment_id + '">' +
-                                '<div class="pl-text hfpl-text clearfix">' +
+                                '<div class="comment-show-con-img"><a target="_blank" href="/article/author/' + replier_id +
+                                '"><img src="' + replier_avatar + '" alt="' + replier_username + '"></a></div>' +
+                                '<div class="pl-text clearfix">' +
                                 '<a target="_blank" href="/article/author/' + replier_id +
                                 '" class="comment-size-name">' + replier_username + '</a>' +
                                 '<span class="comment-time">' + reply_at_desc + '</span>' +
@@ -776,13 +779,16 @@
                                     var receiver_user_id = reply['receiver']['user_id'].toString();
                                     var receiver_username = reply['receiver']['username'];
                                     var replier_id = reply['replier']['user_id'].toString();
+                                    var replier_avatar = reply['replier']['avatar'];
                                     var reply_at = reply['reply_at'];
                                     var reply_at_desc = getDateDiff(reply_at);
                                     var reply_content = reply['content'];
                                     var praise_times = reply['praise_times'].toString();
                                     var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                                     var reply_html = '<div class="all-pl-con" id="comment-' + comment_id + '">' +
-                                            '<div class="pl-text hfpl-text clearfix">' +
+                                            '<div class="comment-show-con-img"><a target="_blank" href="/article/author/' + replier_id +
+                                            '"><img src="' + replier_avatar + '" alt="' + replier_username + '"></a></div>' +
+                                            '<div class="pl-text clearfix">' +
                                             '<a target="_blank" href="/article/author/' + replier_id + '" class="comment-size-name">' + replier_username + '</a>' +
                                             '<span class="comment-time">' + reply_at_desc + '</span>' +
                                             '</div>' +
