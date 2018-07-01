@@ -92,6 +92,28 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
     left: 15px;
 }
 
+.comment.with-article-link, li.praise.with-article-link {
+    padding-right: 105px;
+}
+
+.article-link {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 65px;
+    height: 49px;
+}
+
+.article-link .abstract {
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.article-link img {
+    width: 100%;
+    height: 100%;
+}
+
 .user-item .avatar {
     width: 60px;
     height: 60px;
@@ -188,13 +210,26 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
 
 .comment .info .article, li.praise .info .article {
     background-color: #efeff4;
-    padding: 10px;
     margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.comment .info .article.with-img, li.praise .info .article.with-img {
+    padding-right: 130px;
+    min-height: 105px;
+}
+
+.comment .info .article.with-img .cover-container, li.praise .info .article.with-img .cover-container {
+    width: 100px;
+    height: 75px;
+}
+
+.comment .info .article .title, li.praise .info .article .title {
+    font-size: 16px;
 }
 
 .comment .info .article .abstract, li.praise .info .article .abstract {
-    margin-top: 10px;
-    margin-bottom: 0;
+    font-size: 14px;
 }
 
 .comment .info .replies-list p {

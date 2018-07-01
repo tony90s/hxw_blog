@@ -57,6 +57,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/js/jquery.lazyload.js"></script>
     <script>
         var user_id = {{ user.id }};
     </script>
@@ -382,7 +383,7 @@
                             str += '">';
                             if (cover_photo) {
                                 str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
-                                        '<img class="img-blur" src="' + cover_photo + '" alt="' + title + '"/>' +
+                                        '<img class="img-blur lazy" data-original="' + cover_photo + '" alt="' + title + '"/>' +
                                         '</a>';
                             }
 
@@ -407,6 +408,9 @@
                                     '</div>' +
                                     '</div>';
                             $(selected_comment_box).append(str);
+                        });
+                        $("img.lazy").lazyload({
+                            effect: "fadeIn"
                         });
                         if (parseInt(comment_type) == 0) {
                             AjaxUpdateViewStatus()

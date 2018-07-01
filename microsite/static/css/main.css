@@ -480,7 +480,7 @@ header .avatar {
     padding: 0;
 }
 
-.article-list li {
+.article {
     width: 100%;
     position: relative;
     padding: 15px;
@@ -488,12 +488,12 @@ header .avatar {
     background: #fff;
 }
 
-.article-list li.with-img {
+.article.with-img {
     padding-right: 150px;
     min-height: 120px;
 }
 
-.article-list li .cover-container {
+.cover-container {
     position: absolute;
     right: 15px;
     top: 15px;
@@ -501,16 +501,16 @@ header .avatar {
     height: 90px;
 }
 
-.article-list li .cover-container img {
+.cover-container img {
     width: 100%;
     height: 100%;
 }
 
-.article-list li .title, .article-list li .abstract {
+.article .title, .article .abstract {
     margin-bottom: 8px;
 }
 
-.article-list li .meta {
+.article .meta {
     position: relative;
     overflow:hidden;
     text-overflow:ellipsis;
@@ -519,7 +519,7 @@ header .avatar {
     color: rgba(0, 0, 0, 0.6);
 }
 
-.article-list li .meta span + span:before {
+.article .meta span + span:before {
     padding: 5px;
     content: "";
 }

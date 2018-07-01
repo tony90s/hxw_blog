@@ -133,6 +133,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="/static/js/jquery.lazyload.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.js"></script>
     <script src="/static/mui/js/mui.pullToRefresh.material.js"></script>
     <script>
@@ -221,7 +222,7 @@
                 var be_replied_comment_desc = array['be_replied_comment_desc'];
 
                 li = document.createElement('li');
-                li.classList = ['comment'];
+                li.className = 'comment with-article-link';
                 if (parseInt(is_viewed) == 0) {
                     li.classList.add("not-viewed");
                 }
@@ -248,10 +249,15 @@
                 if (be_replied_comment_desc) {
                     comment_reply_html += '<p class="be_replied_comment_desc">' + be_replied_comment_desc + '</p>';
                 }
-                comment_reply_html += '<div class="article" data-article_id="' + article_id + '">' +
-                        '<p class="title">' + title + '</p>' +
-                        '<p class="abstract">' + abstract + '</p>' +
-                        '</div></div>';
+                comment_reply_html += '<div class="article-link" data-article_id="' + article_id + '">';
+                if (cover_photo) {
+                    comment_reply_html += '<img class="lazy" data-original="' + cover_photo +
+                            '" alt="' + title + '">'
+                }
+                else {
+                    comment_reply_html += '<p class="abstract">' + abstract + '</p>';
+                }
+                comment_reply_html += '</div></div>';
                 li.innerHTML = comment_reply_html;
                 fragment.appendChild(li);
             });
@@ -279,7 +285,7 @@
                 var is_viewed = array['is_viewed'];
 
                 li = document.createElement('li');
-                li.classList = ['praise'];
+                li.className = 'praise with-article-link';
                 li.dataset.praise_id = praise_id;
                 if (parseInt(is_viewed) == 0) {
                     li.classList.add("not-viewed");
@@ -301,11 +307,16 @@
                 if (receiver_user_id > 0) {
                     praise_html += '<a href="javascript:void(0)">@' + receiver_username + '</a>:&nbsp;'
                 }
-                praise_html += content + '</p>' +
-                        '<div class="article" data-article_id="' + article_id + '">' +
-                        '<p class="title">' + title + '</p>' +
-                        '<p class="abstract">' + abstract + '</p>' +
-                        '</div></div>';
+                praise_html += content + '</p>';
+                praise_html += '<div class="article-link" data-article_id="' + article_id + '">';
+                if (cover_photo) {
+                    praise_html += '<img class="lazy" data-original="' + cover_photo +
+                            '" alt="' + title + '">'
+                }
+                else {
+                    praise_html += '<p class="abstract">' + abstract + '</p>';
+                }
+                praise_html += '</div></div>';
                 li.innerHTML = praise_html;
                 fragment.appendChild(li);
             });
@@ -331,6 +342,9 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_comments(json));
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
                             AjaxUpdateViewStatus();
                             self.endPullUpToRefresh(!json.next);
                         } else {
@@ -364,6 +378,9 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_comments(json));
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
                             AjaxUpdateViewStatus();
                             self.endPullDownToRefresh(!json.next);
                             self.refresh(true);
@@ -400,6 +417,9 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_praises(json));
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
                             AjaxUpdateViewStatus();
                             self.endPullUpToRefresh(!json.next);
                             if (json.next) {
@@ -435,6 +455,9 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.appendChild(create_praises(json));
+                            jQuery("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
                             AjaxUpdateViewStatus();
                             self.endPullDownToRefresh(!json.next);
                             self.refresh(true);
@@ -482,6 +505,9 @@
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
                         ul.appendChild(create_comments(json));
+                        jQuery("img.lazy").lazyload({
+                            effect: "fadeIn"
+                        });
                     }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -598,7 +624,7 @@
             mui('#operation').popover('show');
         });
 
-        mui('body').on('tap', '.article', function () {
+        mui('body').on('tap', '.article-link', function () {
             location.href = "/article/details/" + this.dataset.article_id;
         });
 
