@@ -13,6 +13,7 @@ from django.views.decorators.http import require_http_methods
 from account.models import render_user_info
 from article.models import Article, Comment, Praise, get_user_be_praised, get_user_article_count, get_user_praises_count
 # from utils.sensitive_word_handler import sensitive_words_replace
+from utils.decorator import redirect_to_microsite
 
 reg_number = re.compile('^\d+$')
 logger = logging.getLogger('article.views')
@@ -68,6 +69,7 @@ def article_category_index_views(request, article_type):
     return render(request, template, context)
 
 
+@redirect_to_microsite
 def article_details(request, article_id):
     template_name = 'article/article_detail.html'
 
@@ -103,6 +105,7 @@ def drafts(request):
     return render(request, 'article/user_drafts.html', context)
 
 
+@redirect_to_microsite
 def user_articles(request, author_id):
     authors = User.objects.using('read').filter(id=author_id)
     if not authors.exists():

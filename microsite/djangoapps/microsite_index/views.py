@@ -16,7 +16,6 @@ def index_view(request):
     return render(request, template)
 
 
-@ensure_csrf_cookie
 def search_view(request):
     template = 'search.html'
     return render(request, template)

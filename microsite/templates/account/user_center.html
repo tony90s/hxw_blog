@@ -413,6 +413,10 @@
             window.location.href = '{% url "account:user_avatar" %}'
         });
 
+        mui('#about .mui-slider-group').on('tap', 'a', function () {
+            window.location.href = this.href;
+        });
+
         var update_user_data_form = document.getElementById('update_user_data_form');
         var update_user_data_btn = document.getElementById('update_user_data');
         mui('body').on('tap', '#update_user_data', function () {
