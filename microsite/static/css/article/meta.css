@@ -49,16 +49,16 @@
     background-color: #fff;
     width: 100%;
     padding: 0;
-    margin-top: 10px;
+    margin: 10px 0;
 }
 
 .comments-container .separate-title, .replies-container .separate-title, .praises-container .separate-title {
     padding: 10px 15px;
 }
 
-ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
+.comments-list, .comment-replies-list, .praises-list, .users-list {
     padding: 0;
-    margin: 15px 0;
+    margin: 0;
 }
 
 .comment, .comment-reply, li.praise, .user-item {
@@ -286,7 +286,7 @@ ul.comments-list, ul.comment-replies-list, ul.praises-list, ul.users-list {
 
 .switch-buttons {
     width: 100%;
-    padding: 10px 15px;
+    padding: 15px;
 }
 
 .switch-buttons button {

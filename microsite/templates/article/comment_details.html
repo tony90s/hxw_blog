@@ -10,7 +10,7 @@
     </header>
     <div id="pull_refresh" class="mui-content mui-scroll-wrapper">
         <div class="mui-scroll">
-            <div class="comments-container">
+            <div class="comments-container" style="margin-top: 0">
                 <div class="comment no-border-after" data-comment_id="{{ comment.comment_id }}">
                     <a class="avatar" href="{% url 'article:user_articles' comment.commentator.user_id %}">
                         <img src="{{ comment.commentator.avatar }}" alt="{{ comment.commentator.username }}">
