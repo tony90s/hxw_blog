@@ -222,10 +222,6 @@ form {
     text-align: center;
 }
 
-.information-container .information-body {
-    margin-top: 10px;
-}
-
 .information-container .information-body p {
     font-size: 16px;
     line-height: 26px;
@@ -235,6 +231,10 @@ form {
 
 .information-container .information-body .subsection-title {
     margin-top: 15px;
+}
+
+.information-container .information-body .subsection-title:first-child {
+    margin-top: 0;
 }
 
 .social {
