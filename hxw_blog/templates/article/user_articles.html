@@ -209,6 +209,7 @@
                         });
             }
             $(function() {
+                $('.background').css("backgroundImage", "url({{ author_data.background }})");
                 ajax_get_article();
                 $("#btn_read_more").click(function() {
                     ajax_get_article()

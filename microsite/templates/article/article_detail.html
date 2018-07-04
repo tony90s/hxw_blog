@@ -41,7 +41,7 @@
             </div>
             <div class="comments-container">
                 <p class="separate-title">最新评论</p>
-                <ul class="comments-list">
+                <ul class="comments-list" id="comment_list">
 
                 </ul>
             </div>
@@ -391,7 +391,7 @@
                     redirect_to_login();
                     return false;
                 }
-                var content = textarea.value.replace(/(^\s*)|(\s*$)/g, "");
+                var content = textarea.value.trim();
                 if (content == '') {
                     mui.toast('请先编写评论', toast_option);
                     return false
@@ -438,8 +438,11 @@
                                  var praise_times = json.data.praise_times.toString();
                                  var li = document.createElement('li');
                                  li.className = 'comment';
+                                 li.id = 'comment_' + comment_id;
                                  li.dataset.comment_id = comment_id;
-                                 var comment_html_str = '<a class="avatar" href="javascript:void(0)">' +
+                                 li.dataset.receiver_id = user_id;
+                                 li.dataset.receiver_username = username;
+                                 var comment_html_str = '<a class="avatar" href="/article/author/' + user_id + '">' +
                                  '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
                                  '<div class="info">' +
                                  '<div class="user">' +
@@ -447,7 +450,7 @@
                                  '<span class="nickname">' + username + '</span>' +
                                  '<span class="text-time">' + comment_at_desc + '</span>' +
                                  '</div>' +
-                                 '<div class="praise">' +
+                                 '<div class="praise" data-parent_id="' + comment_id + '" data-praise_type="' + praiseType['comment'] + '">' +
                                  '<i class="iconfont icon-praise"></i>' +
                                  '<span class="comment-praise-times">' + praise_times + '</span>' +
                                  '</div>' +

@@ -16,6 +16,7 @@ from restful_api.account.serializers import (
     UserListSerializer,
     UserInfoSerializer,
     UpdateUserAvatarSerializer,
+    UpdateUserBackgroundSerializer,
     UpdatePasswordSerializer,
     ResetPasswordSerializer,
     ChangeEmailSerializer,
@@ -184,6 +185,31 @@ class UpdateUserAvatarView(generics.UpdateAPIView):
             os.remove(original_avatar_path)
 
         return Response({'code': 200, 'msg': '更新头像成功。', 'src': serializer.instance.avatar.url})
+
+
+class UpdateUserBackgroundView(generics.UpdateAPIView):
+    serializer_class = UpdateUserBackgroundSerializer
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, SessionAuthenticationAllowInactiveUser)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user.profile
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        original_background_url = instance.background.url
+        original_background_path = os.path.join(settings.ENV_ROOT, original_background_url.lstrip('/'))
+        self.perform_update(serializer)
+
+        # delete original background
+        if original_background_path.split('/')[-1] != 'default_background.jpg':
+            os.remove(original_background_path)
+
+        return Response({'code': 200, 'msg': '更新用户背景成功。', 'src': serializer.instance.background.url})
 
 
 class SendEmailToResetPassword(APIView):

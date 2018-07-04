@@ -132,6 +132,29 @@ class UpdateUserAvatarSerializer(serializers.Serializer):
         return instance
 
 
+class UpdateUserBackgroundSerializer(serializers.Serializer):
+
+    def validate(self, attrs):
+        background = self.context['request'].FILES.get('background')
+        if not background:
+            raise serializers.ValidationError('请先选择图片。')
+        if re.match(r'image', background.content_type) is None:
+            raise serializers.ValidationError('请选择正确的图片!')
+        img_max_size = 1024 * 5
+        if background.size / 1024 > img_max_size:
+            raise serializers.ValidationError('图片过大，请重新选择!')
+        attrs.update({'background': background})
+        return attrs
+
+    def create(self, validated_data):
+        return None
+
+    def update(self, instance, validated_data):
+        instance.background = validated_data.get('background', instance.background)
+        instance.save(using='write')
+        return instance
+
+
 class UpdatePasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True, min_length=6, max_length=32)
     new_password = serializers.CharField(

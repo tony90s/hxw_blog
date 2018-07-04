@@ -28,7 +28,6 @@ h5 {
     margin-bottom: 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
     background-size: cover;
-    background-image: url(/static/images/blog_background.jpg);
 }
 
 .user-summation .background:first-child {

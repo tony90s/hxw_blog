@@ -6,9 +6,11 @@
 {% block content %}
     <header class="mui-bar mui-bar-nav">
         <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-        <div class="mui-input-row mui-search">
-            <input type="search" class="mui-input-clear" id="search" placeholder="文章或者用户">
-        </div>
+        <form onsubmit="return false;">
+            <div class="mui-input-row mui-search">
+                <input type="search" class="mui-input-clear" id="search" placeholder="文章或者用户">
+            </div>
+        </form>
     </header>
     <div class="mui-content mui-hidden">
         <div id="slider" class="mui-slider mui-fullscreen">
@@ -60,7 +62,6 @@
             duration: 1000
         };
         mui.init();
-
         var articlesApiUrl = "{% url 'api:articles' %}";
         var userListApiUrl = "{% url 'api:users' %}";
 
@@ -92,7 +93,7 @@
 
         document.getElementById("search").addEventListener("keypress", function (event) {
             if (event.keyCode == "13") {
-                var key_word = searchInput.value.replace(/(^\s*)|(\s*$)/g, "");
+                var key_word = searchInput.value.trim();
                 if (key_word == '') {
                     return false
                 }
@@ -350,12 +351,12 @@
                     $(pullRefreshEl).pullToRefresh({
                         down: {
                             height: 30 * dpr,
-                            contentnomore: '没有更多搜索结果',
+                            contentnomore: '没有更多相关内容了',
                             callback: pullFunctionMap[index]['down']
                         },
                         up: {
                             auto: false,
-                            contentnomore: '没有更多搜索结果',
+                            contentnomore: '没有更多相关内容了',
                             callback: pullFunctionMap[index]['up']
                         }
                     });

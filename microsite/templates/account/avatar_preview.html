@@ -83,7 +83,7 @@
 {% block extra_js %}
     <script src="/static/mui/js/mui.view.js"></script>
     <script src="/static/cropper/cropper.min.js"></script>
-
+    <script src="/static/js/blob.js"></script>
     <script>
         mui.init({
             swipeBack: false
@@ -132,21 +132,13 @@
 
 
         mui('#select_avatar').on('tap', '#select_avatar_btn', function () {
+            mui('#select_avatar').popover('hide');
             $('#inputImage').click()
         });
 
         var toast_option = {
             duration: 1000
         };
-
-        function getBlobBydataURI(dataURI, type) {
-            var binary = atob(dataURI);
-            var array = [];
-            for (var i = 0; i < binary.length; i++) {
-                array.push(binary.charCodeAt(i));
-            }
-            return new Blob([new Uint8Array(array)], {type: type});
-        }
 
         function AjaxUploadAvatar(formData) {
             mui.showLoading("正在上传头像...", "div");
@@ -196,21 +188,6 @@
             $image.on({
                 ready: function (e) {
                     console.log(e.type);
-                },
-                cropstart: function (e) {
-                    console.log(e.type, e.detail.action);
-                },
-                cropmove: function (e) {
-                    console.log(e.type, e.detail.action);
-                },
-                cropend: function (e) {
-                    console.log(e.type, e.detail.action);
-                },
-                crop: function (e) {
-                    console.log(e.type);
-                },
-                zoom: function (e) {
-                    console.log(e.type, e.detail.ratio);
                 }
             }).cropper(options);
 
@@ -347,7 +324,6 @@
 
             if (URL) {
                 $inputImage.change(function () {
-                    mui('#select_avatar').popover('hide');
                     viewApi.go('#upload_avatar');
 
                     var files = this.files;

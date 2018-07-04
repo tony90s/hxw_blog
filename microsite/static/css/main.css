@@ -651,7 +651,11 @@ p.bio {
     margin-bottom: 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
     background-size: cover;
-    background-image: url(/static/images/author_background.jpg);
+}
+
+.background img {
+    width: 100%;
+    height: 100%;
 }
 
 .user-summation .avatar {
@@ -691,4 +695,26 @@ p.bio {
 
 .user-summation .meta .number {
     margin-right: 2px;
+}
+
+.img-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 100%;
+    height: 100%;
+}
+
+.img-container, .img-preview {
+    background-color: #000;
+    text-align: center;
+    width: 100%;
+}
+
+.img-container > img {
+    max-width: 100%;
+    height: auto;
 }

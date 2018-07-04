@@ -24471,11 +24471,10 @@ UE.plugin.register('simpleupload', function (){
                             loader.setAttribute('_src', link);
                             loader.setAttribute('title', json.title || '');
                             loader.setAttribute('alt', json.original || '');
-                            loader.setAttribute('style', 'max-width:700px');
+                            loader.setAttribute('style', 'max-width:100%');
                             loader.removeAttribute('id');
                             domUtils.removeClasses(loader, 'loadingclass');
                             me.execCommand( 'justify', 'center' );
-                            me.execCommand( 'insertparagraph' );
                             me.execCommand( 'insertparagraph' );
                         } else {
                             showErrorLoader && showErrorLoader(json.state);

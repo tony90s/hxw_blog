@@ -17,6 +17,7 @@ class UserProfile(models.Model):
     bio = models.CharField(blank=True, max_length=64, default='')
     mobile = models.CharField(blank=True, max_length=16, default='')
     avatar = models.ImageField(upload_to='avatar', blank=True, default="/avatar/default_avatar.jpg")
+    background = models.ImageField(upload_to='background', blank=True, default="/background/default_background.jpg")
 
     class Meta:
         db_table = "auth_userprofile"
@@ -28,7 +29,8 @@ def render_user_info(user):
         'username': user.username,
         'avatar': settings.HOST + user.profile.avatar.url,
         'gender': user.profile.get_gender_display(),
-        'bio': user.profile.bio
+        'bio': user.profile.bio,
+        'background': settings.HOST + user.profile.background.url
     }
 
 

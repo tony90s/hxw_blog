@@ -122,7 +122,7 @@ class SavePraiseSerializer(serializers.Serializer):
             Q(parent_id=parent_id) &
             Q(user_id=self.context['request'].user.id))
         if praises.exists():
-            raise serializers.ValidationError('你已点赞，无需重复点赞')
+            raise serializers.ValidationError('你已经点过赞了')
         return attrs
 
     def create(self, validated_data):

@@ -2,6 +2,7 @@
 {% block title %}<title>{{ author_data.username }}</title>{% endblock %}
 {% block extra_header %}
     <link rel="stylesheet" href="/static/css/account/meta.css">
+    <link rel="stylesheet" href="/static/cropper/cropper.min.css">
 {% endblock %}
 
 {% block content %}
@@ -21,7 +22,8 @@
             <div class="mui-scroll-wrapper" id="pull_refresh">
                 <div class="mui-scroll">
                     <div class="user-summation">
-                        <div class="background"></div>
+                        <div class="background">
+                        </div>
                         <div class="content">
                             <a class="avatar" href="javascript:void(0)">
                                 <img src="{{ author_data.avatar }}" alt="{{ author_data.username }}">
@@ -42,6 +44,21 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div id="select_background" class="mui-popover mui-popover-action mui-popover-bottom">
+            <ul class="mui-table-view">
+                <li class="mui-table-view-cell">
+                    <span>更换背景图</span>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a href="#" id="select_background_btn">选择图片</a>
+                </li>
+            </ul>
+            <ul class="mui-table-view">
+                <li class="mui-table-view-cell">
+                    <a href="#select_background">取消</a>
+                </li>
+            </ul>
         </div>
     </div>
 
@@ -82,26 +99,51 @@
             </div>
         </div>
     </div>
+
+    <div id="upload_background" class="mui-page">
+        <div class="mui-navbar-inner mui-bar mui-bar-nav">
+            <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+        </div>
+        <div class="mui-page-content">
+            <div class="img-container">
+                <img id="image" src="" class="cropper-hidden">
+            </div>
+            <input type="file" class="mui-hidden" id="inputImage" name="file">
+        </div>
+        <nav class="mui-bar mui-bar-tab">
+            <a class="cancel-upload mui-tab-item" href="#">
+                <span class="mui-tab-label">取消</span>
+            </a>
+            <a class="mui-tab-item cropper-action" href="#" data-method="reset">
+                <span class="mui-tab-label">重设</span>
+            </a>
+            <a class="mui-tab-item cropper-action" href="#" data-method="getCroppedCanvas" data-option="{ 'maxWidth': 4096, 'maxHeight': 4096 }">
+                <span class="mui-tab-label">确定</span>
+            </a>
+        </nav>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
     <script src="/static/mui/js/mui.view.js"></script>
     <script src="/static/js/jquery.lazyload.js"></script>
+    <script src="/static/cropper/cropper.min.js"></script>
+    <script src="/static/js/blob.js"></script>
     <script>
         var toast_option = {
             duration: 1000
         };
+        var articlesApiUrl = "{% url 'api:articles' %}";
+        var articleList = document.getElementById('articles_list');
+        var author_id = document.getElementById('author_id').value;
+        var login_user_id = {% if user.is_authenticated %}{{ user.id }}{% else %}0{% endif %};
+
+        $(function () {
+           $('.background').css("backgroundImage", "url({{ author_data.background }})");
+        });
         //初始化单页view
         var viewApi = mui('#app').view({
             defaultPage: '#user_articles'
-        });
-        
-        mui('body').on('tap', '.action-back', function () {
-            history.go(-1)
-        });
-
-        mui('body').on('tap', '#see_more_link', function () {
-            viewApi.go('#more_detail');
         });
 
         var view = viewApi.view;
@@ -131,9 +173,28 @@
             });
         })(mui);
 
-        var articlesApiUrl = "{% url 'api:articles' %}";
-        var articleList = document.getElementById('articles_list');
-        var author_id = document.getElementById('author_id').value;
+        mui('body').on('tap', '.action-back', function () {
+            history.go(-1)
+        });
+
+        mui('body').on('tap', '#see_more_link', function () {
+            viewApi.go('#more_detail');
+        });
+
+        mui('body').on('tap', '.background', function () {
+            if (author_id == login_user_id) {
+                mui('#select_background').popover('show');
+            }
+        });
+
+        mui('body').on('tap', '#select_background_btn', function () {
+            mui('#select_background').popover('hide');
+            $('#inputImage').click()
+        });
+
+        mui('body').on('tap', '.cancel-upload', function () {
+            viewApi.go('#user_articles');
+        });
 
         mui('.article-list').on('tap', 'li.article', function () {
             var article_id = this.dataset.article_id;
@@ -268,5 +329,230 @@
                 }
             }
         });
+
+        function AjaxUploadBackground(formData) {
+            mui.showLoading("正在上传背景...", "div");
+            $.ajax({
+                type: "PUT",
+                url: "{% url 'api:update_user_background' %}",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (re) {
+                    mui.hideLoading();
+                    if (re.code == 200) {
+                        $('.background').css("backgroundImage", "url(" + re.src + ")");
+                        viewApi.go('#user_articles');
+                    }
+                    else {
+                        mui.toast(re.msg, toast_option);
+                        return false
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mui.hideLoading();
+                    var response_json = XMLHttpRequest.responseJSON;
+                    mui.toast(response_json.msg, toast_option);
+                }
+            });
+        }
+
+        $(function () {
+            var console = window.console || {
+                        log: function () {
+                        }
+                    };
+            var URL = window.URL || window.webkitURL;
+            var $image = $('#image');
+            var $download = $('#download');
+            var options = {
+                aspectRatio: 21/9,
+                preview: '.img-preview',
+                viewMode: 1
+            };
+            var originalImageURL = $image.attr('src');
+            var uploadedImageName = 'cropped.jpg';
+            var uploadedImageType = 'image/jpeg';
+            var uploadedImageURL;
+
+            // Cropper
+            $image.on({
+                ready: function (e) {
+                    console.log(e.type);
+                }
+            }).cropper(options);
+
+            // Methods
+
+            mui('body').on('tap', '.cropper-action', function () {
+                var $this = $(this);
+                var data = $this.data();
+                var cropper = $image.data('cropper');
+                var cropped;
+                var $target;
+                var result;
+
+                if ($this.prop('disabled') || $this.hasClass('disabled')) {
+                    return;
+                }
+
+                if (cropper && data.method) {
+                    data = $.extend({}, data); // Clone a new one
+
+                    if (typeof data.target !== 'undefined') {
+                        $target = $(data.target);
+
+                        if (typeof data.option === 'undefined') {
+                            try {
+                                data.option = JSON.parse($target.val());
+                            } catch (e) {
+                                console.log(e.message);
+                            }
+                        }
+                    }
+
+                    cropped = cropper.cropped;
+
+                    switch (data.method) {
+                        case 'rotate':
+                            if (cropped && options.viewMode > 0) {
+                                $image.cropper('clear');
+                            }
+
+                            break;
+
+                        case 'getCroppedCanvas':
+                            if (uploadedImageType === 'image/jpeg') {
+                                if (!data.option) {
+                                    data.option = {};
+                                }
+
+                                data.option.fillColor = '#fff';
+                            }
+
+                            break;
+                    }
+
+                    result = $image.cropper(data.method, data.option);
+
+                    switch (data.method) {
+                        case 'rotate':
+                            if (cropped && options.viewMode > 0) {
+                                $image.cropper('crop');
+                            }
+
+                            break;
+
+                        case 'scaleX':
+                        case 'scaleY':
+                            $(this).data('option', -data.option);
+                            break;
+
+                        case 'getCroppedCanvas':
+                            if (result) {
+                                var img_data = result.toDataURL(uploadedImageType).split(',')[1];
+                                var $Blob = getBlobBydataURI(img_data, 'image/jpeg');
+                                var formData = new FormData();
+                                formData.append("background", $Blob);
+                                AjaxUploadBackground(formData)
+                            }
+
+                            break;
+
+                        case 'destroy':
+                            if (uploadedImageURL) {
+                                URL.revokeObjectURL(uploadedImageURL);
+                                uploadedImageURL = '';
+                                $image.attr('src', originalImageURL);
+                            }
+
+                            break;
+                    }
+
+                    if ($.isPlainObject(result) && $target) {
+                        try {
+                            $target.val(JSON.stringify(result));
+                        } catch (e) {
+                            console.log(e.message);
+                        }
+                    }
+
+                }
+            });
+
+            // Keyboard
+            $(document.body).on('keydown', function (e) {
+
+                if (!$image.data('cropper') || this.scrollTop > 300) {
+                    return;
+                }
+
+                switch (e.which) {
+                    case 37:
+                        e.preventDefault();
+                        $image.cropper('move', -1, 0);
+                        break;
+
+                    case 38:
+                        e.preventDefault();
+                        $image.cropper('move', 0, -1);
+                        break;
+
+                    case 39:
+                        e.preventDefault();
+                        $image.cropper('move', 1, 0);
+                        break;
+
+                    case 40:
+                        e.preventDefault();
+                        $image.cropper('move', 0, 1);
+                        break;
+                }
+
+            });
+            // Import image
+            var $inputImage = $('#inputImage');
+
+            if (URL) {
+                $inputImage.change(function () {
+                    viewApi.go('#upload_background');
+
+                    var files = this.files;
+                    var file;
+
+                    if (!$image.data('cropper')) {
+                        return;
+                    }
+
+                    if (files && files.length) {
+                        file = files[0];
+
+                        if (/^image\/\w+$/.test(file.type)) {
+                            var maxSize = 1024 * 10;  //10M
+                            var size = file.size / 1024;
+                            if (size > maxSize) {
+                                mui.toast('图片最大为10M!', toast_option);
+                                return false;
+                            }
+
+                            uploadedImageName = file.name;
+                            uploadedImageType = file.type;
+
+                            if (uploadedImageURL) {
+                                URL.revokeObjectURL(uploadedImageURL);
+                            }
+
+                            uploadedImageURL = URL.createObjectURL(file);
+                            $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
+                            $inputImage.val('');
+                        } else {
+                            mui.toast('请选择正确的图片!', toast_option);
+                        }
+                    }
+                });
+            } else {
+                $inputImage.prop('disabled', true).parent().addClass('disabled');
+            }
+        })
     </script>
 {% endblock %}

@@ -718,7 +718,7 @@
 
         mui('body').on('tap', '#send-text', function () {
             var self = this;
-            var content = textarea.value.replace(/(^\s*)|(\s*$)/g, "");
+            var content = textarea.value.trim();
             if (content == '') {
                 mui.toast('请先编写回复内容', toast_option);
                 return false
