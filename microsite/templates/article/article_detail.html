@@ -42,7 +42,6 @@
             <div class="comments-container">
                 <p class="separate-title">最新评论</p>
                 <ul class="comments-list" id="comment_list">
-
                 </ul>
             </div>
         </div>
@@ -113,8 +112,8 @@
         var toast_option = {
             duration: 1000
         };
+        var comments_list_ul = document.getElementById('comment_list');
         var articleCommentsApiUrl = "{% url 'api:comments' %}";
-        var page = 1;
         var article_id = {{ article_details.article_id }};
         var textarea = document.getElementById('textarea');
         var preview_text = document.getElementById('preview-text');
@@ -173,10 +172,12 @@
             }
         }
 
-        function create_article_comments(json) {
+        function create_article_comments(json, ul) {
             var fragment = document.createDocumentFragment();
             var li;
             $.each(json.results, function (index, array) {
+                var min_primary_id = ul.dataset.min_primary_id;
+                var max_primary_id = ul.dataset.max_primary_id;
                 var comment_id = array['comment_id'];
                 var avatar = array['commentator']['avatar'];
                 var username = array['commentator']['username'];
@@ -193,6 +194,12 @@
                 li.dataset.comment_id = comment_id;
                 li.dataset.receiver_id = user_id;
                 li.dataset.receiver_username = username;
+                if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                    ul.dataset.min_primary_id = comment_id
+                }
+                if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                    ul.dataset.max_primary_id = comment_id
+                }
                 var comment_html_str = '<a class="avatar" href="/article/author/' + user_id + '">' +
                         '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
                         '<div class="info">' +
@@ -236,44 +243,35 @@
                 li.innerHTML = comment_html_str;
                 fragment.appendChild(li);
             });
-            return fragment
+            return fragment;
         }
 
         function pulldownRefresh() {
             var self = this;
-            $('.comments-list li').remove();
-            page = 1;
+            var max_primary_id = comments_list_ul.dataset.max_primary_id;
+            var data = {
+                'article_id': {{ article_details.article_id }}
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: articleCommentsApiUrl,
-                    data: {
-                        'page': page,
-                        'article_id': {{ article_details.article_id }}
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             var ul = document.querySelector('.comments-list');
-                            ul.appendChild(create_article_comments(json));
-                            self.endPulldownToRefresh(!json.next);
-                            self.refresh(true);
-                            self.endPullupToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                            }
+                            ul.insertBefore(create_article_comments(json, ul), ul.childNodes[0]);
                         }
-                        else {
-                            self.endPulldownToRefresh(true);
-                            self.refresh(true);
-                            self.endPullupToRefresh(true);
-                        }
+                        self.endPulldownToRefresh(true);
+                        self.refresh(true);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         self.endPulldownToRefresh(true);
                         self.refresh(true);
-                        self.endPullupToRefresh(true);
-                        return false
                     }
                 });
             }, 200);
@@ -281,23 +279,28 @@
 
         function pullupRefresh() {
             var self = this;
+            var max_primary_id = comments_list_ul.dataset.max_primary_id;
+            var min_primary_id = comments_list_ul.dataset.min_primary_id;
+            var data = {
+                'article_id': {{ article_details.article_id }}
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: articleCommentsApiUrl,
-                    data: {
-                        'page': page,
-                        'article_id': {{ article_details.article_id }}
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             var ul = document.querySelector('.comments-list');
-                            ul.appendChild(create_article_comments(json));
-                            self.endPullupToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                            }
+                            ul.appendChild(create_article_comments(json, ul));
+                            self.endPullupToRefresh(!json.has_more);
                         }
                         else {
                             self.endPullupToRefresh(true);
@@ -317,10 +320,10 @@
                 container: '#pull_refresh',
                 down: {
                     height: 30 * dpr,
-                    auto: true,    //可选,默认false.自动下拉刷新一次
                     callback: pulldownRefresh
                 },
                 up: {
+                    auto: true,
                     contentnomore: '没有更多评论了',
                     callback: pullupRefresh
                 }
@@ -426,44 +429,50 @@
                     success: function (json) {
                         mui.toast(json.msg, toast_option);
                         if (json.code == 200) {
-                            if (comment_id == undefined) {
-                                /*
-                                 var comment_id = json.data.comment_id.toString();
-                                 var avatar = json.data.commentator.avatar;
-                                 var username = json.data.commentator.username;
-                                 var user_id = json.data.commentator.user_id.toString();
-                                 var comment_at = json.data.comment_at;
-                                 var comment_at_desc = getDateDiff(comment_at);
-                                 var content = json.data.content;
-                                 var praise_times = json.data.praise_times.toString();
-                                 var li = document.createElement('li');
-                                 li.className = 'comment';
-                                 li.id = 'comment_' + comment_id;
-                                 li.dataset.comment_id = comment_id;
-                                 li.dataset.receiver_id = user_id;
-                                 li.dataset.receiver_username = username;
-                                 var comment_html_str = '<a class="avatar" href="/article/author/' + user_id + '">' +
-                                 '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
-                                 '<div class="info">' +
-                                 '<div class="user">' +
-                                 '<div class="user-info">' +
-                                 '<span class="nickname">' + username + '</span>' +
-                                 '<span class="text-time">' + comment_at_desc + '</span>' +
-                                 '</div>' +
-                                 '<div class="praise" data-parent_id="' + comment_id + '" data-praise_type="' + praiseType['comment'] + '">' +
-                                 '<i class="iconfont icon-praise"></i>' +
-                                 '<span class="comment-praise-times">' + praise_times + '</span>' +
-                                 '</div>' +
-                                 '</div>' +
-                                 '<p class="content">' + content + '</p></div>';
-                                 li.innerHTML = comment_html_str;
-                                 var ul = document.querySelector('.comments-list');
-                                 ul.insertBefore(li, ul.childNodes[0]);
-                                 */
-                                mui('#pull_refresh').pullRefresh().pulldownLoading();
+                            if (post_data.parent_id == undefined) {
+                                var ul = document.querySelector('.comments-list');
+                                var min_primary_id = ul.dataset.min_primary_id;
+                                var max_primary_id = ul.dataset.max_primary_id;
+                                var comment_id = json.data.comment_id.toString();
+                                var avatar = json.data.commentator.avatar;
+                                var username = json.data.commentator.username;
+                                var user_id = json.data.commentator.user_id.toString();
+                                var comment_at = json.data.comment_at;
+                                var comment_at_desc = getDateDiff(comment_at);
+                                var content = json.data.content;
+                                var praise_times = json.data.praise_times.toString();
+                                var li = document.createElement('li');
+                                li.className = 'comment';
+                                li.id = 'comment_' + comment_id;
+                                li.dataset.comment_id = comment_id;
+                                li.dataset.receiver_id = user_id;
+                                li.dataset.receiver_username = username;
+                                if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                                    ul.dataset.min_primary_id = comment_id
+                                }
+                                if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                                    ul.dataset.max_primary_id = comment_id
+                                }
+                                var comment_html_str = '<a class="avatar" href="/article/author/' + user_id + '">' +
+                                        '<img src="' + avatar + '" alt="' + username + '">' + '</a>' +
+                                        '<div class="info">' +
+                                        '<div class="user">' +
+                                        '<div class="user-info">' +
+                                        '<span class="nickname">' + username + '</span>' +
+                                        '<span class="text-time">' + comment_at_desc + '</span>' +
+                                        '</div>' +
+                                        '<div class="praise" data-parent_id="' + comment_id + '" data-praise_type="' + praiseType['comment'] + '">' +
+                                        '<i class="iconfont icon-praise"></i>' +
+                                        '<span class="comment-praise-times">' + praise_times + '</span>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '<p class="content">' + content + '</p></div>';
+                                li.innerHTML = comment_html_str;
+                                ul.insertBefore(li, ul.childNodes[0]);
+                                //mui('#pull_refresh').pullRefresh().pulldownLoading();
                             }
                             else {
-                                window.location.href = '/article/comment/details/' + comment_id;
+                                window.location.href = '/article/comment/details/' + post_data.parent_id;
                             }
                         }
 

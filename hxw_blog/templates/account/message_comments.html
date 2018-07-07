@@ -37,11 +37,11 @@
                 <div class="tab-animation">
                     <i class="fa fa-2x fa-circle-o-notch fa-spin"></i>
                 </div>
-                <div class="comment-show selected" id="comments_list_0" data-comment_type="0" data-page="0">
+                <div class="comment-show selected" id="comments_list_0" data-comment_type="0">
 
                 </div>
 
-                <div class="comment-show" id="comments_list_1" data-comment_type="1" data-page="0">
+                <div class="comment-show" id="comments_list_1" data-comment_type="1">
 
                 </div>
                 <div class="loading-animation">
@@ -277,7 +277,6 @@
                         }
                         $this.parents('.date-dz-right').parents('.date-dz').parents('.comment-show-con-list').parents('.comment-show-con').remove();
                         layer.msg(json.msg, {time: 1000});
-                        window.location.reload()
                     }
                     else {
                         layer.msg(json.msg, {time: 1000});
@@ -308,7 +307,6 @@
             $("#btn_read_more").show();
             $(".read-more .not-more-content").hide();
             if (selected_comments_list.find('.comment-show-con').length == 0) {
-                selected_comments_list[0].dataset.page = 0;
                 ajax_get_comment_messages()
             }
         });
@@ -318,21 +316,30 @@
         function ajax_get_comment_messages() {
             var selected_comment_box = $('.comment-show.selected')[0];
             var comment_type = selected_comment_box.dataset.comment_type;
-            selected_comment_box.dataset.page = parseInt(selected_comment_box.dataset.page) + 1;
+            var max_primary_id = selected_comment_box.dataset.max_primary_id;
+            var min_primary_id = selected_comment_box.dataset.min_primary_id;
+            var data = {
+                'user_id': user_id,
+                'comment_type': comment_type
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
             $.ajax({
                 type: "GET",
                 url: "{% url 'api:user_comments' %}",
-                data: {
-                    'user_id': user_id,
-                    'comment_type': comment_type,
-                    'page': parseInt(selected_comment_box.dataset.page)
-                },
+                data: data,
                 dataType: "JSON",
                 success: function (json) {
                     $(".loading-animation").hide();
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
                         var str = "";
                         $.each(json.results, function (index, array) {
+                            var min_primary_id = selected_comment_box.dataset.min_primary_id;
+                            var max_primary_id = selected_comment_box.dataset.max_primary_id;
                             var article_id = array['article_info']['article_id'];
                             var title = array['article_info']['title'];
                             var cover_photo = array['article_info']['cover_photo'];
@@ -349,6 +356,12 @@
                             var content = array['content'];
                             var is_viewed = array['is_viewed'];
                             var be_replied_comment_desc = array['be_replied_comment_desc'];
+                            if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                                selected_comment_box.dataset.min_primary_id = comment_id
+                            }
+                            if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                                selected_comment_box.dataset.max_primary_id = comment_id
+                            }
 
                             var str = '<div class="comment-show-con clearfix" data-parent_id="' + parent_id +
                                     '" data-comment_id="' + comment_id +
@@ -415,7 +428,7 @@
                         if (parseInt(comment_type) == 0) {
                             AjaxUpdateViewStatus()
                         }
-                        if (!json.next) {
+                        if (!json.has_more) {
                             $("#btn_read_more").hide();
                             $(".read-more .not-more-content").show();
                             return false;

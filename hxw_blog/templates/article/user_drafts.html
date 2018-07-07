@@ -22,8 +22,8 @@
                         <ul class="meta">
                             <li class="list-item">
                                 <a href="javascript:void(0)" class="link">
-                                草稿
-                                <p class="number">{{ drafts_count }}</p>
+                                    草稿
+                                    <p class="number">{{ drafts_count }}</p>
                                 </a>
                             </li>
                         </ul>
@@ -32,8 +32,7 @@
             </div>
             <div class="col-sm-6 main">
                 <div id="list-container">
-                    <ul class="note-list">
-
+                    <ul class="note-list" id="note_list">
                     </ul>
                     <div class="read-more text-center">
                         <button class="btn btn-info" id="btn_read_more">查看更多</button>
@@ -45,9 +44,12 @@
             <div class="col-sm-3">
                 <div class="sidebar-box">
                     <div class="list-group">
-                        <a class="list-group-item" href="{% url "article:user_articles" user.id %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
-                        <a class="list-group-item active" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
-                        <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
+                        <a class="list-group-item" href="{% url "article:user_articles" user.id %}" title="我的文章"><i
+                                class="iconfont icon-article"></i>我的文章</a>
+                        <a class="list-group-item active" href="{% url "article:user_drafts" %}" title="草稿箱"><i
+                                class="iconfont icon-drafts"></i>草稿箱</a>
+                        <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章"
+                           target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
                     </div>
                 </div>
             </div>
@@ -62,8 +64,8 @@
         function remove(obj) {
             var article_id = obj.dataset.article_id;
             layer.confirm('确定删除这篇文章吗？', {
-                btn: ['确定','取消'] //按钮
-            }, function(){
+                btn: ['确定', '取消'] //按钮
+            }, function () {
                 $.ajax({
                     url: "/api/v1/article/" + article_id,
                     type: "DELETE",
@@ -89,7 +91,7 @@
                         return false
                     }
                 });
-            }, function(index){
+            }, function (index) {
                 layer.close(index);
             });
         }
@@ -127,88 +129,103 @@
     </script>
 
     <script type="text/javascript">
-            var page_index = 1;
-            var user_info_span = $(".user-info")[0];
-            var user_id = user_info_span.dataset.user_id;
-            function ajax_get_article() {
-                $.getJSON("{% url 'api:articles' %}",
-                            {
-                                'page': page_index,
-                                'author_id': user_id,
-                                'is_released': 0
-                            }, function(json) {
-                            if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                var str = "";
-                                $.each(json.results, function(index, array) {
-                                    var article_id = array['article_id'];
-                                    var title = array['title'];
-                                    var type = array['type'];
-                                    var cover_photo = array['cover_photo'];
-                                    var abstract = array['abstract'];
-                                    var author = array['author'];
-                                    var update_time = array['update_time'];
-                                    var update_time_desc = getDateDiff(update_time);
-                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
-                                    str += '<div class="content">' +
+        var user_info_span = $(".user-info")[0];
+        var user_id = user_info_span.dataset.user_id;
+        var note_list = document.getElementById('note_list');
+        function ajax_get_article() {
+            var earliest_time = note_list.dataset.earliest_time;
+            var last_time = note_list.dataset.last_time;
+            var data = {
+                'author_id': user_id,
+                'is_released': 0
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
+            if (typeof last_time != 'undefined') {
+                data['last_time'] = last_time
+            }
+            $.getJSON("{% url 'api:articles' %}",
+                    data, function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            var str = "";
+                            $.each(json.results, function (index, array) {
+                                var earliest_time = note_list.dataset.earliest_time;
+                                var last_time = note_list.dataset.last_time;
+                                var article_id = array['article_id'];
+                                var title = array['title'];
+                                var type = array['type'];
+                                var cover_photo = array['cover_photo'];
+                                var abstract = array['abstract'];
+                                var author = array['author'];
+                                var update_time = array['update_time'];
+                                var update_time_desc = getDateDiff(update_time);
+                                if ((typeof earliest_time == 'undefined') || (new Date(update_time.replace(/-/g, "/")) > new Date(earliest_time.replace(/-/g, "/")))) {
+                                    note_list.dataset.earliest_time = update_time
+                                }
+                                if ((typeof last_time == 'undefined') || (new Date(update_time.replace(/-/g, "/")) < new Date(last_time.replace(/-/g, "/")))) {
+                                    note_list.dataset.last_time = update_time
+                                }
+                                var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
+                                str += '<div class="content">' +
                                         '<div class="author">' +
-                                            '<a class="avatar" target="_blank" href="/article/author/' + author['user_id'] + '">' +
-                                                '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
-                                            '</a>' +
-                                            '<div class="info">' +
-                                                '<a class="nickname" target="_blank" href="/article/author/' + author['user_id'] + '">' + author['username'] + '</a>' +
-                                                '<span class="time">' + update_time_desc + '</span>' +
-                                            '</div>' +
+                                        '<a class="avatar" target="_blank" href="/article/author/' + author['user_id'] + '">' +
+                                        '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
+                                        '</a>' +
+                                        '<div class="info">' +
+                                        '<a class="nickname" target="_blank" href="/article/author/' + author['user_id'] + '">' + author['username'] + '</a>' +
+                                        '<span class="time">' + update_time_desc + '</span>' +
+                                        '</div>' +
                                         '</div>' +
                                         '<div class="article-info';
-                                    if (cover_photo) {
-                                        str += ' with-img';
-                                    }
-                                    str += '">';
-                                    if (cover_photo) {
-                                        str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
-                                         '<img class="img-blur lazy" data-original="' + cover_photo + '" alt="' + title + '"/>' +
-                                         '</a>';
-                                    }
-                                    str +=  '<a class="title" target="_blank" href="/article/edit/' + article_id  + '">' + title + '</a>' +
+                                if (cover_photo) {
+                                    str += ' with-img';
+                                }
+                                str += '">';
+                                if (cover_photo) {
+                                    str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                            '<img class="img-blur lazy" data-original="' + cover_photo + '" alt="' + title + '"/>' +
+                                            '</a>';
+                                }
+                                str += '<a class="title" target="_blank" href="/article/edit/' + article_id + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
                                         '</div>' +
                                         '<div class="meta">' +
-                                            '<a href="javascript:void(0);" onclick="release(this)" data-article_id="' + article_id + '">' +
-                                                '<i class="iconfont icon-send"></i> 发布' +
-                                            '</a>' +
-                                            '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id + '">' +
-                                                '<i class="iconfont icon-shanchu"></i> 删除' +
-                                            '</a>' +
-                                            '<a href="/article/edit/' + article_id + '" target="_blank">' +
-                                                '<i class="iconfont icon-edit"></i> 编辑' +
-                                            '</a>' +
+                                        '<a href="javascript:void(0);" onclick="release(this)" data-article_id="' + article_id + '">' +
+                                        '<i class="iconfont icon-send"></i> 发布' +
+                                        '</a>' +
+                                        '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id + '">' +
+                                        '<i class="iconfont icon-shanchu"></i> 删除' +
+                                        '</a>' +
+                                        '<a href="/article/edit/' + article_id + '" target="_blank">' +
+                                        '<i class="iconfont icon-edit"></i> 编辑' +
+                                        '</a>' +
                                         '</div>' +
                                         '</div>' +
                                         '</li>';
-                                    $(".note-list").append(str);
-                                });
-                                $("img.lazy").lazyload({
-                                    effect: "fadeIn"
-                                });
-                                if (!json.next) {
-                                    $("#btn_read_more").hide();
-                                    $(".read-more .not-more-content").show();
-                                    return false;
-                                }
-                                page_index++;
-                            } else {
+                                $(".note-list").append(str);
+                            });
+                            $("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
+                            if (!json.has_more) {
                                 $("#btn_read_more").hide();
                                 $(".read-more .not-more-content").show();
                                 return false;
                             }
-                        });
-            }
-            $(function() {
-                $('.background').css("backgroundImage", "url({{ author_data.background }})");
-                ajax_get_article();
-                $("#btn_read_more").click(function() {
-                    ajax_get_article()
-                });
+                        } else {
+                            $("#btn_read_more").hide();
+                            $(".read-more .not-more-content").show();
+                            return false;
+                        }
+                    });
+        }
+        $(function () {
+            $('.background').css("backgroundImage", "url({{ user_data.background }})");
+            ajax_get_article();
+            $("#btn_read_more").click(function () {
+                ajax_get_article()
             });
+        });
     </script>
 {% endblock %}

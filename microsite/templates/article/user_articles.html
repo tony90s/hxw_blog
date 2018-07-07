@@ -38,7 +38,7 @@
                         </div>
                     </div>
                     <div class="article-container">
-                        <ul class="article-list" id="articles_list" data-page="1">
+                        <ul class="article-list" id="articles_list">
                         </ul>
                         <input type="hidden" value="{{ author_data.user_id }}" id="author_id">
                     </div>
@@ -201,10 +201,12 @@
             document.location.href = '/article/details/' + article_id;
         });
 
-        function create_article(json) {
+        function create_article(json, ul) {
             var fragment = document.createDocumentFragment();
             var li;
-            mui.each(json.results, function (index, array) {
+            jQuery.each(json.results, function (index, array) {
+                var earliest_time = ul.dataset.earliest_time;
+                var last_time = ul.dataset.last_time;
                 var article_id = array['article_id'];
                 var title = array['title'];
                 var type = array['type'];
@@ -216,6 +218,12 @@
                 li = document.createElement('li');
                 li.className = 'article';
                 li.dataset.article_id = article_id;
+                if ((typeof earliest_time == 'undefined') || (new Date(release_time.replace(/-/g,"/")) > new Date(earliest_time.replace(/-/g,"/")))) {
+                    ul.dataset.earliest_time = release_time
+                }
+                if ((typeof last_time == 'undefined') || (new Date(release_time.replace(/-/g,"/")) < new Date(last_time.replace(/-/g,"/")))) {
+                    ul.dataset.last_time = release_time
+                }
                 if (cover_photo) {
                     li.classList.add('with-img')
                 }
@@ -238,28 +246,31 @@
         function pullUpRefresh() {
             var self = this;
             var ul = articleList;
-            var page = parseInt(ul.dataset.page);
+            var earliest_time = ul.dataset.earliest_time;
+            var last_time = ul.dataset.last_time;
+            var data = {
+                'is_released': 1,
+                'author_id': author_id
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
+            if (typeof last_time != 'undefined') {
+                data['last_time'] = last_time
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: articlesApiUrl,
-                    data: {
-                        'page': page,
-                        'is_released': 1,
-                        'author_id': author_id
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_article(json));
+                            ul.appendChild(create_article(json, ul));
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
-                            self.endPullupToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                                ul.dataset.page = page;
-                            }
+                            self.endPullupToRefresh(!json.has_more);
                         } else {
                             self.endPullupToRefresh(true);
                         }
@@ -274,42 +285,33 @@
         function pullDownRefresh() {
             var self = this;
             var ul = articleList;
-            ul.innerHTML = '';
-            ul.dataset.page = 1;
-            var page = 1;
+            var earliest_time = ul.dataset.earliest_time;
+            var data = {
+                'is_released': 1,
+                'author_id': author_id
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: articlesApiUrl,
-                    data: {
-                        'page': page,
-                        'is_released': 1,
-                        'author_id': author_id
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_article(json));
+                            ul.insertBefore(create_article(json, ul), ul.childNodes[0]);
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
-                            self.endPulldownToRefresh(!json.next);
-                            self.refresh(true);
-                            self.endPullupToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                                ul.dataset.page = page;
-                            }
-                        } else {
-                            self.endPulldownToRefresh(true);
-                            self.refresh(true);
-                            self.endPullupToRefresh(true);
                         }
+                        self.endPulldownToRefresh(true);
+                        self.refresh(true);
                     },
                     error: function () {
                         self.endPulldownToRefresh(true);
                         self.refresh(true);
-                        self.endPullupToRefresh(true);
                     }
                 });
             }, 200);
@@ -321,11 +323,12 @@
                 container: '#pull_refresh',
                 down: {
                     height: 30 * dpr,
-                    auto: true,    //可选,默认false.自动下拉刷新一次
                     callback: pullDownRefresh
                 },
                 up: {
-                    callback: pullUpRefresh
+                    auto: true,
+                    callback: pullUpRefresh,
+                    contentnomore: '没有更多文章了'
                 }
             }
         });

@@ -54,10 +54,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
+                                <ul class="article-list" data-article_type="0">
                                 </ul>
-                                <input type="hidden" value="0" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -66,11 +64,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="1">
                                 </ul>
-                                <input type="hidden" value="1" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -79,11 +74,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="2">
                                 </ul>
-                                <input type="hidden" value="2" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -92,11 +84,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="3">
                                 </ul>
-                                <input type="hidden" value="3" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -105,11 +94,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="4">
                                 </ul>
-                                <input type="hidden" value="4" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -118,11 +104,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="5">
                                 </ul>
-                                <input type="hidden" value="5" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -131,10 +114,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
+                                <ul class="article-list" data-article_type="6">
                                 </ul>
-                                <input type="hidden" value="6" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -143,11 +124,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="7">
                                 </ul>
-                                <input type="hidden" value="7" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -156,8 +134,7 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="8">
                                 </ul>
                                 <input type="hidden" value="8" name="article_type">
                                 <input type="hidden" value="1" name="page_index">
@@ -169,11 +146,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="9">
                                 </ul>
-                                <input type="hidden" value="9" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -182,11 +156,8 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="article-container">
-                                <ul class="article-list">
-
+                                <ul class="article-list" data-article_type="10">
                                 </ul>
-                                <input type="hidden" value="10" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -249,7 +220,7 @@
                     var activeScroll = acticeSliderItem.querySelector('.mui-scroll');
                     var articles_ul = acticeSliderItem.querySelector('.article-list');
                     if (articles_ul.querySelectorAll('li').length == 0) {
-                        mui(activeScroll).pullToRefresh().pullDownLoading();
+                        mui(activeScroll).pullToRefresh().pullUpLoading();
                     }
                 });
 
@@ -270,10 +241,12 @@
             });
         })(mui);
 
-        function create_article(json) {
+        function create_article(json, ul) {
             var fragment = document.createDocumentFragment();
             var li;
-            mui.each(json.results, function (index, array) {
+            jQuery.each(json.results, function (index, array) {
+                var earliest_time = ul.dataset.earliest_time;
+                var last_time = ul.dataset.last_time;
                 var article_id = array['article_id'];
                 var title = array['title'];
                 var type = array['type'];
@@ -285,6 +258,12 @@
                 li = document.createElement('li');
                 li.className = 'article';
                 li.dataset.article_id = article_id;
+                if ((typeof earliest_time == 'undefined') || (new Date(release_time.replace(/-/g,"/")) > new Date(earliest_time.replace(/-/g,"/")))) {
+                    ul.dataset.earliest_time = release_time
+                }
+                if ((typeof last_time == 'undefined') || (new Date(release_time.replace(/-/g,"/")) < new Date(last_time.replace(/-/g,"/")))) {
+                    ul.dataset.last_time = release_time
+                }
                 if (cover_photo) {
                     li.classList.add('with-img')
                 }
@@ -302,36 +281,40 @@
                 li.innerHTML = str;
                 fragment.appendChild(li);
             });
-            return fragment;
+            //ul.appendChild(fragment);
+            return fragment
         }
+
         function pullUpRefresh() {
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.article-list');
-            var page_index = scroll_div.querySelector('input[name="page_index"]');
-            var article_type = scroll_div.querySelector('input[name="article_type"]');
-            var page = page_index.value;
+            var article_type = ul.dataset.article_type;
+            var earliest_time = ul.dataset.earliest_time;
+            var last_time = ul.dataset.last_time;
+            var data = {
+                'article_type': article_type,
+                'is_released': 1
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
+            if (typeof last_time != 'undefined') {
+                data['last_time'] = last_time
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: articlesApiUrl,
-                    data: {
-                        'page': page,
-                        'article_type': article_type.value,
-                        'is_released': 1
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_article(json));
+                            ul.appendChild(create_article(json, ul));
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
-                            self.endPullUpToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                                page_index.value = page
-                            }
+                            self.endPullUpToRefresh(!json.has_more);
                         } else {
                             self.endPullUpToRefresh(true);
                         }
@@ -346,44 +329,35 @@
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.article-list');
-            ul.innerHTML = '';
-            var page_index = scroll_div.querySelector('input[name="page_index"]');
-            var article_type = scroll_div.querySelector('input[name="article_type"]');
-            page_index.value = 1;
-            var page = 1;
+            var article_type = ul.dataset.article_type;
+            var earliest_time = ul.dataset.earliest_time;
+            var data = {
+                'article_type': article_type,
+                'is_released': 1
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: articlesApiUrl,
-                    data: {
-                        'page': page,
-                        'article_type': article_type.value,
-                        'is_released': 1
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_article(json));
+                            ul.insertBefore(create_article(json, ul), ul.childNodes[0]);
+                            mui.toast('更新了'+ json.results.length + '篇文章', toast_option);
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
-                            self.endPullDownToRefresh(!json.next);
-                            self.refresh(true);
-                            self.endPullUpToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                                page_index.value = page;
-                            }
-                        } else {
-                            self.endPullDownToRefresh(true);
-                            self.refresh(true);
-                            self.endPullUpToRefresh(true);
                         }
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
                     },
                     error: function () {
                         self.endPullDownToRefresh(true);
                         self.refresh(true);
-                        self.endPullUpToRefresh(true);
                     }
                 });
             }, 200);

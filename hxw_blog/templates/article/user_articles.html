@@ -22,15 +22,15 @@
                         <ul class="meta">
                             <li class="list-item">
                                 <a href="javascript:void(0)" class="link">
-                                文章
-                                <p class="number">{{ article_count }}</p>
+                                    文章
+                                    <p class="number">{{ article_count }}</p>
                                 </a>
                             </li>
 
                             <li class="list-item">
                                 <a href="javascript:void(0)" class="link">
-                                赞
-                                <p class="number">{{ praises_count }}</p>
+                                    赞
+                                    <p class="number">{{ praises_count }}</p>
                                 </a>
                             </li>
                         </ul>
@@ -39,8 +39,7 @@
             </div>
             <div class="col-sm-6 main">
                 <div id="list-container">
-                    <ul class="note-list">
-
+                    <ul class="note-list" id="note_list">
                     </ul>
                     <div class="read-more text-center">
                         <input type="hidden" value="{{ author_data.user_id }}" id="author_id">
@@ -51,15 +50,18 @@
             </div>
 
             {% if user.is_authenticated and user.id == author_data.user_id %}
-            <div class="col-sm-3">
-                <div class="sidebar-box">
-                    <div class="list-group">
-                        <a class="list-group-item active" href="{% url "article:user_articles" user.id %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
-                        <a class="list-group-item" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
-                        <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
+                <div class="col-sm-3">
+                    <div class="sidebar-box">
+                        <div class="list-group">
+                            <a class="list-group-item active" href="{% url "article:user_articles" user.id %}"
+                               title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
+                            <a class="list-group-item" href="{% url "article:user_drafts" %}" title="草稿箱"><i
+                                    class="iconfont icon-drafts"></i>草稿箱</a>
+                            <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章"
+                               target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
+                        </div>
                     </div>
                 </div>
-            </div>
             {% endif %}
         </div><!--/row-->
     </div><!--/.container-->
@@ -77,8 +79,8 @@
         function remove(obj) {
             var article_id = obj.dataset.article_id;
             layer.confirm('确定删除这篇文章吗？', {
-                btn: ['确定','取消'] //按钮
-            }, function(){
+                btn: ['确定', '取消'] //按钮
+            }, function () {
                 $.ajax({
                     url: "/api/v1/article/" + article_id,
                     type: "DELETE",
@@ -104,116 +106,131 @@
                         return false
                     }
                 });
-            }, function(index){
+            }, function (index) {
                 layer.close(index);
             });
         }
     </script>
 
     <script type="text/javascript">
-            var page_index = 1;
-            var author_id = $("#author_id").val();
-            function ajax_get_article() {
-                    $.getJSON("{% url 'api:articles' %}",
-                            {
-                                'page': page_index,
-                                'author_id': author_id,
-                                'is_released': 1
-                            }, function(json) {
-                            if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                var str = "";
-                                $.each(json.results, function(index, array) {
-                                    var article_id = array['article_id'];
-                                    var title = array['title'];
-                                    var type = array['type'];
-                                    var cover_photo = array['cover_photo'];
-                                    var abstract = array['abstract'];
-                                    var comment_times = array['comment_times'];
-                                    var praise_times = array['praise_times'];
-                                    var release_time = array['release_time'];
-                                    var release_time_desc = getDateDiff(release_time);
-                                    var page_views = array['page_views'];
-                                    var author = array['author'];
-                                    var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '" class="note">';
-                                    str += '<div class="content">' +
+        var author_id = $("#author_id").val();
+        var note_list = document.getElementById('note_list');
+        function ajax_get_article() {
+            var earliest_time = note_list.dataset.earliest_time;
+            var last_time = note_list.dataset.last_time;
+            var data = {
+                'author_id': author_id,
+                'is_released': 1
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
+            if (typeof last_time != 'undefined') {
+                data['last_time'] = last_time
+            }
+            $.getJSON("{% url 'api:articles' %}",
+                    data, function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            var str = "";
+                            $.each(json.results, function (index, array) {
+                                var earliest_time = note_list.dataset.earliest_time;
+                                var last_time = note_list.dataset.last_time;
+                                var article_id = array['article_id'];
+                                var title = array['title'];
+                                var type = array['type'];
+                                var cover_photo = array['cover_photo'];
+                                var abstract = array['abstract'];
+                                var comment_times = array['comment_times'];
+                                var praise_times = array['praise_times'];
+                                var release_time = array['release_time'];
+                                var release_time_desc = getDateDiff(release_time);
+                                var page_views = array['page_views'];
+                                var author = array['author'];
+                                if ((typeof earliest_time == 'undefined') || (new Date(release_time.replace(/-/g, "/")) > new Date(earliest_time.replace(/-/g, "/")))) {
+                                    note_list.dataset.earliest_time = release_time
+                                }
+                                if ((typeof last_time == 'undefined') || (new Date(release_time.replace(/-/g, "/")) < new Date(last_time.replace(/-/g, "/")))) {
+                                    note_list.dataset.last_time = release_time
+                                }
+                                var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '" class="note">';
+                                str += '<div class="content">' +
                                         '<div class="author">' +
-                                            '<a class="avatar" target="_blank" href="/article/author/' + author['user_id'] + '">' +
-                                                '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
-                                            '</a>' +
-                                            '<div class="info">' +
-                                                '<a class="nickname" target="_blank" href="/article/author/' + author['user_id'] + '">' + author['username'] + '</a>' +
-                                                '<span class="time">' + release_time_desc + '</span>' +
-                                            '</div>';
+                                        '<a class="avatar" target="_blank" href="/article/author/' + author['user_id'] + '">' +
+                                        '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
+                                        '</a>' +
+                                        '<div class="info">' +
+                                        '<a class="nickname" target="_blank" href="/article/author/' + author['user_id'] + '">' + author['username'] + '</a>' +
+                                        '<span class="time">' + release_time_desc + '</span>' +
+                                        '</div>';
 
-                                    if (is_authenticated && login_user_id == author_id) {
-                                        str += '<div class="dropdown">' +
-                                                '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
-                                                    '<span class="caret"></span>' +
-                                                '</a>' +
-                                                '<ul class="dropdown-menu dropdown-menu-right">' +
-                                                    '<li>' +
-                                                        '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id  + '">' +
-                                                            '<i class="iconfont icon-shanchu"></i> 删除' +
-                                                        '</a>' +
-                                                    '</li>' +
-                                                    '<li>' +
-                                                        '<a target="_blank" href="/article/details/' + article_id  + '">' +
-                                                            '<i class="iconfont icon-chakan"></i> 查看' +
-                                                        '</a>' +
-                                                    '</li>' +
-                                                '</ul>' +
+                                if (is_authenticated && login_user_id == author_id) {
+                                    str += '<div class="dropdown">' +
+                                            '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+                                            '<span class="caret"></span>' +
+                                            '</a>' +
+                                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                                            '<li>' +
+                                            '<a href="javascript:void(0);" onclick="remove(this)" data-article_id="' + article_id + '">' +
+                                            '<i class="iconfont icon-shanchu"></i> 删除' +
+                                            '</a>' +
+                                            '</li>' +
+                                            '<li>' +
+                                            '<a target="_blank" href="/article/details/' + article_id + '">' +
+                                            '<i class="iconfont icon-chakan"></i> 查看' +
+                                            '</a>' +
+                                            '</li>' +
+                                            '</ul>' +
                                             '</div>';
-                                    }
-                                    str += '</div>' + '<div class="article-info';
-                                    if (cover_photo) {
-                                        str += ' with-img'
-                                    }
-                                    str += '">';
-                                    if (cover_photo) {
-                                        str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
-                                         '<img class="img-blur lazy" data-original="' + cover_photo + '" alt="' + title + '"/>' +
-                                         '</a>'
-                                    }
-                                    str +=  '<a class="title" target="_blank" href="/article/details/' + article_id  + '">' + title + '</a>' +
+                                }
+                                str += '</div>' + '<div class="article-info';
+                                if (cover_photo) {
+                                    str += ' with-img'
+                                }
+                                str += '">';
+                                if (cover_photo) {
+                                    str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                            '<img class="img-blur lazy" data-original="' + cover_photo + '" alt="' + title + '"/>' +
+                                            '</a>'
+                                }
+                                str += '<a class="title" target="_blank" href="/article/details/' + article_id + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
                                         '</div>' +
                                         '<div class="meta">' +
-                                            '<a class="collection-tag" target="_blank" href="/article/category/' + type['value'] +
-                                            '">' + type['display_name'] + '</a>' +
-                                            '<a target="_blank" href="/article/details/' + article_id + '">' +
-                                                '<i class="iconfont icon-view"></i>' + page_views +
-                                            '</a>' +
-                                            '<a target="_blank" href="/article/details/' + article_id  + '#comments">' +
-                                                '<i class="iconfont icon-message"></i>' + comment_times +
-                                            '</a>' +
-                                            '<span><i class="iconfont icon-like"></i>' + praise_times + '</span>' +
+                                        '<a class="collection-tag" target="_blank" href="/article/category/' + type['value'] +
+                                        '">' + type['display_name'] + '</a>' +
+                                        '<a target="_blank" href="/article/details/' + article_id + '">' +
+                                        '<i class="iconfont icon-view"></i>' + page_views +
+                                        '</a>' +
+                                        '<a target="_blank" href="/article/details/' + article_id + '#comments">' +
+                                        '<i class="iconfont icon-message"></i>' + comment_times +
+                                        '</a>' +
+                                        '<span><i class="iconfont icon-like"></i>' + praise_times + '</span>' +
                                         '</div>' +
                                         '</div>' +
                                         '</li>';
-                                    $(".note-list").append(str);
-                                });
-                                $("img.lazy").lazyload({
-                                    effect: "fadeIn"
-                                });
-                                if (!json.next) {
-                                    $("#btn_read_more").hide();
-                                    $(".read-more .not-more-content").show();
-                                    return false;
-                                }
-                                page_index++;
-                            } else {
+                                $(".note-list").append(str);
+                            });
+                            $("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
+                            if (!json.has_more) {
                                 $("#btn_read_more").hide();
                                 $(".read-more .not-more-content").show();
                                 return false;
                             }
-                        });
-            }
-            $(function() {
-                $('.background').css("backgroundImage", "url({{ author_data.background }})");
-                ajax_get_article();
-                $("#btn_read_more").click(function() {
-                    ajax_get_article()
-                });
+                        } else {
+                            $("#btn_read_more").hide();
+                            $(".read-more .not-more-content").show();
+                            return false;
+                        }
+                    });
+        }
+        $(function () {
+            $('.background').css("backgroundImage", "url({{ author_data.background }})");
+            ajax_get_article();
+            $("#btn_read_more").click(function () {
+                ajax_get_article()
             });
+        });
     </script>
 {% endblock %}

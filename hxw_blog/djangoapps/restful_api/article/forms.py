@@ -8,6 +8,8 @@ class ArticleListForm(forms.Form):
     is_released = forms.IntegerField(required=True)
     author_id = forms.IntegerField(required=False)
     key_word = forms.CharField(required=False)
+    earliest_time = forms.DateTimeField(required=False)
+    last_time = forms.DateTimeField(required=False)
 
     def clean_is_released(self):
         is_released = self.cleaned_data.get('is_released')
@@ -20,8 +22,10 @@ class GeneralUserIdForm(forms.Form):
     user_id = forms.IntegerField(required=True)
 
 
-class PraiseListForm(forms.Form):
+class UserPraiseListForm(forms.Form):
     user_id = forms.IntegerField(required=True)
+    min_primary_id = forms.IntegerField(required=False)
+    max_primary_id = forms.IntegerField(required=False)
 
 
 class CommonPraiseForm(forms.Form):
@@ -54,6 +58,11 @@ class CheckArticleIdForm(forms.Form):
     article_id = forms.IntegerField(required=True)
 
 
+class ArticleCommentsForm(CheckArticleIdForm):
+    min_primary_id = forms.IntegerField(required=False)
+    max_primary_id = forms.IntegerField(required=False)
+
+
 class CheckCommentReplyIdForm(forms.Form):
     comment_reply_id = forms.IntegerField(required=True)
 
@@ -66,9 +75,16 @@ class CheckParentCommentIdForm(forms.Form):
     parent_id = forms.IntegerField(required=True)
 
 
+class CommentRepliesForm(CheckParentCommentIdForm):
+    min_primary_id = forms.IntegerField(required=False)
+    max_primary_id = forms.IntegerField(required=False)
+
+
 class UserCommentListForm(forms.Form):
     user_id = forms.IntegerField(required=True, min_value=1)
     comment_type = forms.IntegerField(required=True)
+    min_primary_id = forms.IntegerField(required=False)
+    max_primary_id = forms.IntegerField(required=False)
 
     def clean_comment_type(self):
         comment_type = self.cleaned_data.get('comment_type')

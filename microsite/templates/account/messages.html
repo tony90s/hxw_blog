@@ -48,11 +48,9 @@
                                     <button class="mui-inline" id="switch_comments_type_1" data-comment_type="1">发出的评论
                                     </button>
                                 </div>
-                                <ul class="comments-list selected" id="comments_list_0" data-comment_type="0"
-                                    data-page_index="0">
+                                <ul class="comments-list selected" id="comments_list_0" data-comment_type="0">
                                 </ul>
-                                <ul class="comments-list" id="comments_list_1" data-comment_type="1"
-                                    data-page_index="0">
+                                <ul class="comments-list" id="comments_list_1" data-comment_type="1">
                                 </ul>
                             </div>
                         </div>
@@ -200,10 +198,12 @@
             })
         }
 
-        function create_comments(json) {
+        function create_comments(json, ul) {
             var fragment = document.createDocumentFragment();
             var li;
             $.each(json.results, function (index, array) {
+                var min_primary_id = ul.dataset.min_primary_id;
+                var max_primary_id = ul.dataset.max_primary_id;
                 var article_id = array['article_info']['article_id'];
                 var title = array['article_info']['title'];
                 var cover_photo = array['article_info']['cover_photo'];
@@ -231,6 +231,12 @@
                 li.dataset.comment_id = comment_id;
                 li.dataset.replier_id = replier_user_id;
                 li.dataset.replier_username = replier_username;
+                if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                    ul.dataset.min_primary_id = comment_id
+                }
+                if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                    ul.dataset.max_primary_id = comment_id
+                }
                 var comment_reply_html = '<a class="avatar" href="/article/author/' + replier_user_id + '">' +
                         '<img src="' + replier_avatar + '" alt="' + replier_username + '">' + '</a>' +
                         '<div class="info">' +
@@ -264,10 +270,12 @@
             return fragment
         }
 
-        function create_praises(json) {
+        function create_praises(json, ul) {
             var fragment = document.createDocumentFragment();
             var li;
             $.each(json.results, function (index, array) {
+                var min_primary_id = ul.dataset.min_primary_id;
+                var max_primary_id = ul.dataset.max_primary_id;
                 var praise_id = array['praise_id'];
                 var praise_type = parseInt(array['type']);
                 var article_id = array['article_info']['article_id'];
@@ -287,6 +295,12 @@
                 li = document.createElement('li');
                 li.className = 'praise with-article-link';
                 li.dataset.praise_id = praise_id;
+                if ((typeof min_primary_id == 'undefined') || (parseInt(praise_id) < parseInt(min_primary_id))) {
+                    ul.dataset.min_primary_id = praise_id
+                }
+                if ((typeof max_primary_id == 'undefined') || (parseInt(praise_id) > parseInt(max_primary_id))) {
+                    ul.dataset.max_primary_id = praise_id
+                }
                 if (parseInt(is_viewed) == 0) {
                     li.classList.add("not-viewed");
                 }
@@ -327,26 +341,33 @@
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.comments-list.selected');
-            ul.dataset.page_index = parseInt(ul.dataset.page_index) + 1;
             var comment_type = ul.dataset.comment_type;
+            var max_primary_id = ul.dataset.max_primary_id;
+            var min_primary_id = ul.dataset.min_primary_id;
+            var data = {
+                'user_id': "{{ user.id }}",
+                'comment_type': comment_type
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: "{% url 'api:user_comments' %}",
-                    data: {
-                        'user_id': "{{ user.id }}",
-                        'comment_type': comment_type,
-                        'page': parseInt(ul.dataset.page_index)
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_comments(json));
+                            ul.appendChild(create_comments(json, ul));
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
                             AjaxUpdateViewStatus();
-                            self.endPullUpToRefresh(!json.next);
+                            self.endPullUpToRefresh(!json.has_more);
                         } else {
                             self.endPullUpToRefresh(true);
                         }
@@ -362,39 +383,35 @@
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.comments-list.selected');
-            ul.innerHTML = '';
-            ul.dataset.page_index = 1;
             var comment_type = ul.dataset.comment_type;
+            var max_primary_id = ul.dataset.max_primary_id;
+            var data = {
+                'user_id': "{{ user.id }}",
+                'comment_type': comment_type
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: "{% url 'api:user_comments' %}",
-                    data: {
-                        'user_id': "{{ user.id }}",
-                        'comment_type': comment_type,
-                        'page': 1
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_comments(json));
+                            ul.insertBefore(create_comments(json, ul), ul.childNodes[0]);
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
                             AjaxUpdateViewStatus();
-                            self.endPullDownToRefresh(!json.next);
-                            self.refresh(true);
-                            self.endPullUpToRefresh(!json.next);
-                        } else {
-                            self.endPullDownToRefresh(true);
-                            self.refresh(true);
-                            self.endPullUpToRefresh(true);
                         }
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
                     },
                     error: function () {
                         self.endPullDownToRefresh(true);
                         self.refresh(true);
-                        self.endPullUpToRefresh(true);
                     }
                 });
             }, 200);
@@ -404,28 +421,31 @@
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.praises-list');
-            var page = parseInt(ul.dataset.page_index);
+            var max_primary_id = ul.dataset.max_primary_id;
+            var min_primary_id = ul.dataset.min_primary_id;
+            var data = {
+                'user_id': "{{ user.id }}"
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: "{% url 'api:user_praises' %}",
-                    data: {
-                        'page': page,
-                        'user_id': "{{ user.id }}"
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_praises(json));
+                            ul.appendChild(create_praises(json, ul));
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
                             AjaxUpdateViewStatus();
-                            self.endPullUpToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                                ul.dataset.page_index = page
-                            }
+                            self.endPullUpToRefresh(!json.has_more);
                         } else {
                             self.endPullUpToRefresh(true);
                         }
@@ -440,42 +460,33 @@
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.praises-list');
-            ul.innerHTML = '';
-            ul.dataset.page_index = 1;
-            var page = 1;
+            var max_primary_id = ul.dataset.max_primary_id;
+            var data = {
+                'user_id': "{{ user.id }}"
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: "{% url 'api:user_praises' %}",
-                    data: {
-                        'page': page,
-                        'user_id': "{{ user.id }}"
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_praises(json));
+                            ul.insertBefore(create_praises(json, ul), ul.childNodes[0]);
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
                             AjaxUpdateViewStatus();
-                            self.endPullDownToRefresh(!json.next);
-                            self.refresh(true);
-                            self.endPullUpToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                                ul.dataset.page_index = page;
-                            }
-                        } else {
-                            self.endPullDownToRefresh(true);
-                            self.refresh(true);
-                            self.endPullUpToRefresh(true);
                         }
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
                     },
                     error: function () {
                         self.endPullDownToRefresh(true);
                         self.refresh(true);
-                        self.endPullUpToRefresh(true);
                     }
                 });
             }, 200);
@@ -492,22 +503,31 @@
             }
         };
 
-        function ajax_init_comments_list(ul, page) {
+        function ajax_init_comments_list(ul) {
+            var max_primary_id = ul.dataset.max_primary_id;
+            var min_primary_id = ul.dataset.min_primary_id;
+            var data = {
+                'user_id': "{{ user.id }}",
+                'comment_type': ul.dataset.comment_type
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
             $.ajax({
                 type: 'GET',
                 url: "{% url 'api:user_comments' %}",
-                data: {
-                    'user_id': "{{ user.id }}",
-                    'comment_type': ul.dataset.comment_type,
-                    'page': page
-                },
+                data: data,
                 dataType: 'json',
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
-                        ul.appendChild(create_comments(json));
+                        ul.appendChild(create_comments(json, ul));
                         jQuery("img.lazy").lazyload({
                             effect: "fadeIn"
                         });
+                        AjaxUpdateViewStatus()
                     }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -676,7 +696,6 @@
                             if (json.code == 200) {
                                 $(".comments-container li.delete-signed").remove();
                                 mui.toast(json.msg, toast_option);
-                                mui('#comments .mui-scroll').pullToRefresh().pullDownLoading()
                             }
                             else {
                                 mui.toast(json.msg, toast_option);

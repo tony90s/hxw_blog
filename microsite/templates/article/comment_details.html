@@ -34,7 +34,7 @@
             </div>
             <div class="replies-container">
                 <p class="separate-title">最新回复</p>
-                <ul class="comment-replies-list">
+                <ul class="comment-replies-list" id="comment_replies_list">
                 </ul>
             </div>
         </div>
@@ -78,7 +78,7 @@
         var login_user_id = {% if user.is_authenticated %}{{ user.id }}{% else %}0{% endif %};
 
         var CommentRepliesApiUrl = "{% url 'api:comment_replies' %}";
-        var page = 1;
+        var comment_replies_list = document.getElementById('comment_replies_list');
         var commentator_id = "{{ comment.commentator.user_id }}";
         var commentator_username = "{{ comment.commentator.username }}";
         var comment_id = "{{ comment.comment_id }}";
@@ -87,10 +87,12 @@
         var send_text_link = document.getElementById('send-text');
         var comment_replies_count_span = document.getElementById('comment_replies_count');
 
-        function create_comment_replies(json) {
+        function create_comment_replies(json, ul) {
             var fragment = document.createDocumentFragment();
             var li;
             $.each(json.results, function (index, array) {
+                var min_primary_id = ul.dataset.min_primary_id;
+                var max_primary_id = ul.dataset.max_primary_id;
                 var comment_id = array['comment_id'];
                 var replier = array['replier'];
                 var receiver = array['receiver'];
@@ -104,6 +106,12 @@
                 li.dataset.comment_id = comment_id;
                 li.dataset.replier_id = replier['user_id'];
                 li.dataset.replier_username = replier['username'];
+                if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                    ul.dataset.min_primary_id = comment_id
+                }
+                if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                    ul.dataset.max_primary_id = comment_id
+                }
                 var comment_reply_html = '<a class="avatar" href="/article/author/' + replier['user_id'] + '">' +
                         '<img src="' + replier['avatar'] + '" alt="' + replier['username'] + '">' + '</a>' +
                         '<div class="info">' +
@@ -127,66 +135,62 @@
                 li.innerHTML = comment_reply_html;
                 fragment.appendChild(li);
             });
-            return fragment
+           return fragment;
         }
 
         function pulldownRefresh() {
             var self = this;
-            $('.comment-replies-list li').remove();
-            page = 1;
+            var max_primary_id = comment_replies_list.dataset.max_primary_id;
+            var data = {
+                'parent_id': comment_id
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
             $.ajax({
                 type: 'GET',
                 url: CommentRepliesApiUrl,
-                data: {
-                    'page': page,
-                    'parent_id': comment_id
-                },
+                data: data,
                 dataType: 'json',
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
                         comment_replies_count_span.innerHTML = json.count;
                         var ul = document.querySelector('.comment-replies-list');
-                        ul.appendChild(create_comment_replies(json));
-                        self.endPulldownToRefresh(!json.next);
-                        self.refresh(true);
-                        self.endPullupToRefresh(!json.next);
-                        if (json.next) {
-                            page++;
-                        }
+                        ul.insertBefore(create_comment_replies(json, ul), ul.childNodes[0]);
                     }
-                    else {
-                        self.endPulldownToRefresh(true);
-                        self.refresh(true);
-                        self.endPullupToRefresh(true);
-                    }
+                    self.endPulldownToRefresh(true);
+                    self.refresh(true);
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     self.endPulldownToRefresh(true);
                     self.refresh(true);
-                    self.endPullupToRefresh(true);
-                    return false
                 }
             })
         }
 
         function pullupRefresh() {
             var self = this;
+            var max_primary_id = comment_replies_list.dataset.max_primary_id;
+            var min_primary_id = comment_replies_list.dataset.min_primary_id;
+            var data = {
+                'parent_id': comment_id
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
             $.ajax({
                 type: 'GET',
                 url: CommentRepliesApiUrl,
-                data: {
-                    'page': page,
-                    'parent_id': comment_id
-                },
+                data: data,
                 dataType: 'json',
                 success: function (json) {
                     if (json.hasOwnProperty('results') && json.results.length > 0) {
                         var ul = document.querySelector('.comment-replies-list');
-                        ul.appendChild(create_comment_replies(json));
-                        self.endPullupToRefresh(!json.next);
-                        if (json.next) {
-                            page++;
-                        }
+                        ul.appendChild(create_comment_replies(json, ul));
+                        self.endPullupToRefresh(!json.has_more);
                     }
                     else {
                         self.endPullupToRefresh(true);
@@ -204,7 +208,6 @@
                 container: '#pull_refresh',
                 down: {
                     height: 30 * dpr,
-                    auto: true,    //可选,默认false.自动下拉刷新一次
                     contentdown: "下拉刷新",    //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
                     contentover: "释放立即刷新",    //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
                     contentrefresh: "正在刷新...",   //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
@@ -212,7 +215,7 @@
                 },
                 up: {
                     //height : 50,//可选.默认50.触发上拉加载拖动距离
-                    //auto : true,//可选,默认false.自动上拉加载一次
+                    auto: true,//可选,默认false.自动上拉加载一次
                     contentrefresh: "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
                     contentnomore: '没有更多回复了',
                     callback: pullupRefresh
@@ -335,7 +338,50 @@
                     success: function (json) {
                         mui.toast(json.msg, toast_option);
                         if (json.code == 200) {
-                            mui('#pull_refresh').pullRefresh().pulldownLoading();
+                            var ul = comment_replies_list;
+                            var min_primary_id = ul.dataset.min_primary_id;
+                            var max_primary_id = ul.dataset.max_primary_id;
+                            var comment_id = json.data.comment_id.toString();
+                            var replier = json.data.replier;
+                            var receiver = json.data.receiver;
+                            var reply_at = json.data.reply_at;
+                            var reply_at_desc = getDateDiff(reply_at);
+                            var content = json.data.content;
+                            var praise_times = json.data.praise_times.toString();
+                            var li = document.createElement('li');
+                            li.className = 'comment-reply';
+                            li.id = 'comment_' + comment_id;
+                            li.dataset.comment_id = comment_id;
+                            li.dataset.replier_id = replier.user_id;
+                            li.dataset.replier_username = replier.username;
+                            if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                                ul.dataset.min_primary_id = comment_id
+                            }
+                            if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                                ul.dataset.max_primary_id = comment_id
+                            }
+                            var comment_reply_html = '<a class="avatar" href="/article/author/' + replier.user_id + '">' +
+                                    '<img src="' + replier.avatar + '" alt="' + replier.username + '">' + '</a>' +
+                                    '<div class="info">' +
+                                    '<div class="user">' +
+                                    '<div class="user-info">' +
+                                    '<p class="nickname">' + replier.username + '</p>' +
+                                    '<span class="text-time">' + reply_at_desc + '</span>' +
+                                    '</div>' +
+                                    '<div class="praise" data-praise_type="' + praiseType['comment'] + '" data-parent_id="' + comment_id +
+                                    '">' +
+                                    '<span class="comment-praise-times">' + praise_times + '</span>' +
+                                    '<i class="iconfont icon-praise"></i>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<p class="content">';
+                            if (receiver.user_id != commentator_id) {
+                                comment_reply_html += '回复' +
+                                        '<a href="javascript:void(0)">@' + receiver.username + '</a>:&nbsp;'
+                            }
+                            comment_reply_html += content + '</p></div>';
+                            li.innerHTML = comment_reply_html;
+                            ul.insertBefore(li, ul.childNodes[0]);
                         }
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {

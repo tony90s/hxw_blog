@@ -88,16 +88,14 @@
                         <hr>
                         <!--评论区域 end-->
                         <!--回复区域 begin-->
-                        <div class="comment-show">
+                        <div class="comment-show" id="comment_list">
 
                         </div>
                         <!--回复区域 end-->
-                        <div class="more-comment text-center">
+                        <div class="read-more text-center">
                             <input type="hidden" value="{{ article_details.article_id }}" id="article_id">
-                            <ul class="pager">
-                                <li><a class="btn btn-info prev-page disabled" href="javascript:void(0)">上一页</a></li>
-                                <li><a class="btn btn-success next-page" href="javascript:void(0)">下一页</a></li>
-                            </ul>
+                            <button class="btn btn-info" id="btn_read_more">查看更多</button>
+                            <p class="text-center not-more-content">没有更多评论...</p>
                         </div>
                     </div>
 
@@ -278,6 +276,8 @@
                     dataType: 'json',
                     success: function (json) {
                         if (json.code == 200) {
+                            var max_primary_id = comment_list.dataset.max_primary_id;
+                            var min_primary_id = comment_list.dataset.min_primary_id;
                             var avatar = json.data.commentator.avatar;
                             var username = json.data.commentator.username;
                             var user_id = json.data.commentator.user_id.toString();
@@ -286,6 +286,12 @@
                             var comment_at = json.data.comment_at;
                             var comment_at_desc = getDateDiff(comment_at);
                             var praise_times = json.data.praise_times.toString();
+                            if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                                comment_list.dataset.min_primary_id = comment_id
+                            }
+                            if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                                comment_list.dataset.max_primary_id = comment_id
+                            }
                             var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
                                     '<div class="comment-show-con-img">' +
                                     '<a target="_blank" href="/article/author/' + user_id + '">' +
@@ -386,6 +392,7 @@
                 return false;
             }
             var oThis = $(this);
+            var comment_replies_div = oThis.parents('.hf-con').parents('.comment-show-con-list').find('.hf-list-con')[0]
             //获取输入内容
             var oHfVal = $(this).siblings('.flex-text-wrap').find('.hf-input').val();
             var receiver_id = this.dataset.receiver_id;
@@ -410,6 +417,8 @@
                 dataType: 'json',
                 success: function (json) {
                     if (json.code == 200) {
+                        var max_primary_id = comment_replies_div.dataset.max_primary_id;
+                        var min_primary_id = comment_replies_div.dataset.min_primary_id;
                         var parent_id = json.data.parent_id.toString();
                         var comment_id = json.data.comment_id.toString();
                         var replier_username = json.data.replier.username;
@@ -421,6 +430,12 @@
                         var reply_at_desc = getDateDiff(reply_at);
                         var reply_content = json.data.content;
                         var praise_times = json.data.praise_times.toString();
+                        if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                            comment_replies_div.dataset.min_primary_id = comment_id
+                        }
+                        if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                            comment_replies_div.dataset.max_primary_id = comment_id
+                        }
                         var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
                         var oHtml = '<div class="all-pl-con" id="comment-' + comment_id + '">' +
                                 '<div class="comment-show-con-img"><a target="_blank" href="/article/author/' + replier_id +
@@ -679,17 +694,26 @@
     </script>
 
     <script type="text/javascript">
-        var page_index = 1;
         var article_id = $("#article_id").val();
-        function ajaxGetComment(article_id, page_index) {
+        var comment_list = document.getElementById('comment_list');
+        function ajaxGetComment(article_id) {
+            var max_primary_id = comment_list.dataset.max_primary_id;
+            var min_primary_id = comment_list.dataset.min_primary_id;
+            var data = {
+                'article_id': article_id
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
             $.getJSON("{% url 'api:comments' %}",
-                    {
-                        'page': page_index,
-                        'article_id': article_id
-                    }, function (json) {
+                    data, function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            $(".comment-show").html('');
                             $.each(json.results, function (index, array) {
+                                var max_primary_id = comment_list.dataset.max_primary_id;
+                                var min_primary_id = comment_list.dataset.min_primary_id;
                                 var article_id = array['article_id'];
                                 var comment_id = array['comment_id'];
                                 //var commentator = array['commentator'];
@@ -702,6 +726,12 @@
                                 var praise_times = array['praise_times'];
                                 var comment_replies = array['comment_replies'];
                                 var replies_count = array['replies_count'];
+                                if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                                    comment_list.dataset.min_primary_id = comment_id
+                                }
+                                if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                                    comment_list.dataset.max_primary_id = comment_id
+                                }
                                 var comment_html = '<div class="comment-show-con clearfix" id="comment-' + comment_id + '">' +
                                         '<div class="comment-show-con-img">' +
                                         '<a target="_blank" href="/article/author/' + user_id + '">' +
@@ -732,114 +762,114 @@
                                         '</div>' +
                                         '<div class="hf-list-con"></div>';
                                 if (replies_count > 0) {
-                                    comment_html += '<a class="get-more-comment-replies" style="font-size:12px" data-page="0" data-comment_id="' + comment_id + '">获取全部回复</a>';
+                                    comment_html += '<a class="get-more-comment-replies" style="font-size:12px" data-comment_id="' + comment_id + '">获取全部回复</a>';
                                 }
                                 comment_html += '</div>' + '</div>';
                                 $(".comment-show").append(comment_html);
                             });
                             $(".get-more-comment-replies").bind('click', ajaxGetCommentReplies);
-                            if (!json.next) {
-                                $(".next-page").addClass("disabled");
-                            }
-                            else {
-                                $(".next-page").removeClass("disabled");
-                            }
-                            if (page_index == 1) {
-                                $(".prev-page").addClass("disabled");
-                            }
-                            else {
-                                $(".prev-page").removeClass("disabled");
+                            if (!json.has_more) {
+                                $("#btn_read_more").hide();
+                                $(".read-more .not-more-content").show();
+                                return false;
                             }
                         }
                         else {
-                            $(".next-page").addClass("disabled");
-                            return false
+                            $("#btn_read_more").hide();
+                            $(".read-more .not-more-content").show();
+                            return false;
                         }
                     });
         }
 
         function ajaxGetCommentReplies() {
-                    var self = this;
-                    var comment_replies_container = $(this).siblings('.hf-list-con');
-                    self.dataset.page = parseInt(self.dataset.page) + 1;
-                    $.ajax({
-                        type: "GET",
-                        url: "{% url 'api:comment_replies' %}",
-                        data: {
-                            "page": self.dataset.page,
-                            "parent_id": self.dataset.comment_id
-                        },
-                        dataType: "JSON",
-                        success: function (json) {
-                            if (json.hasOwnProperty('results') && json.results.length > 0) {
-                                $.each(json.results, function (index, reply) {
-                                    var comment_id = reply['comment_id'].toString();
-                                    var parent_id = reply['parent_id'].toString();
-                                    var replier_username = reply['replier']['username'];
-                                    var receiver_user_id = reply['receiver']['user_id'].toString();
-                                    var receiver_username = reply['receiver']['username'];
-                                    var replier_id = reply['replier']['user_id'].toString();
-                                    var replier_avatar = reply['replier']['avatar'];
-                                    var reply_at = reply['reply_at'];
-                                    var reply_at_desc = getDateDiff(reply_at);
-                                    var reply_content = reply['content'];
-                                    var praise_times = reply['praise_times'].toString();
-                                    var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
-                                    var reply_html = '<div class="all-pl-con" id="comment-' + comment_id + '">' +
-                                            '<div class="comment-show-con-img"><a target="_blank" href="/article/author/' + replier_id +
-                                            '"><img src="' + replier_avatar + '" alt="' + replier_username + '"></a></div>' +
-                                            '<div class="pl-text clearfix">' +
-                                            '<a target="_blank" href="/article/author/' + replier_id + '" class="comment-size-name">' + replier_username + '</a>' +
-                                            '<span class="comment-time">' + reply_at_desc + '</span>' +
-                                            '</div>' +
-                                            '<div class="date-dz">' +
-                                            '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content + '</p>' +
-                                            '<div class="date-dz-right pull-right comment-pl-block">';
-                                    if (login_user_id.toString() == replier_id) {
-                                        reply_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id +
-                                                '">删除</a>';
-                                    }
-                                    reply_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-parent_id="' + parent_id +
-                                            '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
-                                            '">回复</a>' +
-                                            '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
-                                            '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
-                                            '</div> ' +
-                                            '</div>' +
-                                            '</div>';
-                                    comment_replies_container.append(reply_html)
-                                });
-                                if (!json.next) {
-                                    layer.msg('已获取完所有回复列表', {time: 1500});
-                                    $(self).remove();
-                                    return false
-                                }
-                            } else {
-                                layer.msg('发生了一些错误，请稍后重试', {time: 1000});
+            var self = this;
+            var comment_replies_container = $(this).siblings('.hf-list-con');
+            var comment_replies_div = comment_replies_container[0];
+            var max_primary_id = comment_replies_div.dataset.max_primary_id;
+            var min_primary_id = comment_replies_div.dataset.min_primary_id;
+            var data = {
+                "parent_id": self.dataset.comment_id
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
+            $.ajax({
+                type: "GET",
+                url: "{% url 'api:comment_replies' %}",
+                data: data,
+                dataType: "JSON",
+                success: function (json) {
+                    if (json.hasOwnProperty('results') && json.results.length > 0) {
+                        $.each(json.results, function (index, reply) {
+                            var max_primary_id = comment_replies_div.dataset.max_primary_id;
+                            var min_primary_id = comment_replies_div.dataset.min_primary_id;
+                            var comment_id = reply['comment_id'].toString();
+                            var parent_id = reply['parent_id'].toString();
+                            var replier_username = reply['replier']['username'];
+                            var receiver_user_id = reply['receiver']['user_id'].toString();
+                            var receiver_username = reply['receiver']['username'];
+                            var replier_id = reply['replier']['user_id'].toString();
+                            var replier_avatar = reply['replier']['avatar'];
+                            var reply_at = reply['reply_at'];
+                            var reply_at_desc = getDateDiff(reply_at);
+                            var reply_content = reply['content'];
+                            var praise_times = reply['praise_times'].toString();
+                            if ((typeof min_primary_id == 'undefined') || (parseInt(comment_id) < parseInt(min_primary_id))) {
+                                comment_replies_div.dataset.min_primary_id = comment_id
                             }
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            var response_json = XMLHttpRequest.responseJSON;
-                            layer.msg(response_json.msg, {time: 1000});
+                            if ((typeof max_primary_id == 'undefined') || (parseInt(comment_id) > parseInt(max_primary_id))) {
+                                comment_replies_div.dataset.max_primary_id = comment_id
+                            }
+                            var oAllVal = '回复@' + '<a href="/article/author/' + receiver_user_id + '" class="comment-size-name" target="_blank">' + receiver_username + '</a>:';
+                            var reply_html = '<div class="all-pl-con" id="comment-' + comment_id + '">' +
+                                    '<div class="comment-show-con-img"><a target="_blank" href="/article/author/' + replier_id +
+                                    '"><img src="' + replier_avatar + '" alt="' + replier_username + '"></a></div>' +
+                                    '<div class="pl-text clearfix">' +
+                                    '<a target="_blank" href="/article/author/' + replier_id + '" class="comment-size-name">' + replier_username + '</a>' +
+                                    '<span class="comment-time">' + reply_at_desc + '</span>' +
+                                    '</div>' +
+                                    '<div class="date-dz">' +
+                                    '<p class="date-dz-left my-pl-con">' + oAllVal + reply_content + '</p>' +
+                                    '<div class="date-dz-right pull-right comment-pl-block">';
+                            if (login_user_id.toString() == replier_id) {
+                                reply_html += '<a href="javascript:;" class="removeBlock" data-comment_id="' + comment_id +
+                                        '">删除</a>';
+                            }
+                            reply_html += '<a href="javascript:;" class="date-dz-pl pl-hf hf-con-block" data-comment_id="' + comment_id + '" data-parent_id="' + parent_id +
+                                    '" data-receiver_id="' + replier_id + '" data-receiver_name="' + replier_username +
+                                    '">回复</a>' +
+                                    '<span class="date-dz-line">|</span> <a href="javascript:;" class="date-dz-z" data-parent_id="' + comment_id + '" data-praise_type="2">' +
+                                    '<i class="iconfont icon-communityiconpraise4"></i><span class="z-num">' + praise_times + '</span></a> ' +
+                                    '</div> ' +
+                                    '</div>' +
+                                    '</div>';
+                            comment_replies_container.append(reply_html)
+                        });
+                        if (!json.has_more) {
+                            layer.msg('已获取完所有回复列表', {time: 1500});
+                            $(self).remove();
                             return false
                         }
-                    })
+                    } else {
+                        layer.msg('发生了一些错误，请稍后重试', {time: 1000});
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    var response_json = XMLHttpRequest.responseJSON;
+                    layer.msg(response_json.msg, {time: 1000});
+                    return false
                 }
+            })
+        }
 
         $(function () {
-            ajaxGetComment(article_id, page_index);
-            $(".next-page").click(function () {
-                page_index++;
-                ajaxGetComment(article_id, page_index);
-                location.href = "#comments";
-                //$("html,body").animate({scrollTop: $(".comment-show").offset().top}, 500);
-            });
-
-            $(".prev-page").click(function () {
-                page_index--;
-                ajaxGetComment(article_id, page_index);
-                location.href = "#comments";
-                //$("html,body").animate({scrollTop: $(".comment-show").offset().top}, 500);
+            ajaxGetComment(article_id);
+            $("#btn_read_more").click(function () {
+                ajaxGetComment(article_id);
             });
         });
     </script>

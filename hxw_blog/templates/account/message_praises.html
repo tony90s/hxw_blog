@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="col-sm-6 col-sm-offset-1 comments-list">
-                <div class="comment-show">
+                <div class="comment-show" id="praises_list">
 
                 </div>
                 <div class="loading-animation">
@@ -45,6 +45,7 @@
     <script src="/static/js/jquery.lazyload.js"></script>
     <script>
         var user_id = {{ user.id }};
+        var praises_list = document.getElementById('praises_list');
     </script>
 
     <script>
@@ -94,17 +95,26 @@
     </script>
 
     <script type="text/javascript">
-        var page_index = 1;
         function ajax_get_praise() {
+            var max_primary_id = praises_list.dataset.max_primary_id;
+            var min_primary_id = praises_list.dataset.min_primary_id;
+            var data = {
+                'user_id': user_id
+            };
+            if (typeof max_primary_id != 'undefined') {
+                data['max_primary_id'] = max_primary_id
+            }
+            if (typeof min_primary_id != 'undefined') {
+                data['min_primary_id'] = min_primary_id
+            }
             $.getJSON("{% url 'api:user_praises' %}",
-                    {
-                        'user_id': user_id,
-                        'page': page_index
-                    }, function (json) {
+                    data, function (json) {
                         $(".loading-animation").hide();
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             var str = "";
                             $.each(json.results, function (index, array) {
+                                var min_primary_id = praises_list.dataset.min_primary_id;
+                                var max_primary_id = praises_list.dataset.max_primary_id;
                                 var type = parseInt(array['type']);
                                 var article_id = array['article_info']['article_id'];
                                 var title = array['article_info']['title'];
@@ -121,6 +131,12 @@
                                 var content = array['content'];
                                 var praise_id = array['praise_id'];
                                 var is_viewed = array['is_viewed'];
+                                if ((typeof min_primary_id == 'undefined') || (parseInt(praise_id) < parseInt(min_primary_id))) {
+                                    praises_list.dataset.min_primary_id = praise_id
+                                }
+                                if ((typeof max_primary_id == 'undefined') || (parseInt(praise_id) > parseInt(max_primary_id))) {
+                                    praises_list.dataset.max_primary_id = praise_id
+                                }
 
                                 var str = '<div class="comment-show-con clearfix" data-praise_id="' + praise_id +
                                         '" data-is_viewed="' + is_viewed +
@@ -176,12 +192,11 @@
                                 effect: "fadeIn"
                             });
                             AjaxUpdateViewStatus();
-                            if (!json.next) {
+                            if (!json.has_more) {
                                 $("#btn_read_more").hide();
                                 $(".read-more .not-more-content").show();
                                 return false;
                             }
-                            page_index++;
                         } else {
                             $("#btn_read_more").hide();
                             $(".read-more .not-more-content").show();

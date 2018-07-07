@@ -252,8 +252,9 @@ class Comment(models.Model):
         return article_info
 
     def be_replied_comment_desc(self):
-        if self.be_replied_comment_id > 0:
-            be_replied_comment = Comment.objects.using('read').get(id=self.be_replied_comment_id)
+        be_replied_comments = Comment.objects.using('read').filter(id=self.be_replied_comment_id)
+        if be_replied_comments.exists():
+            be_replied_comment = be_replied_comments[0]
             commentator_info = be_replied_comment.get_commentator_info()
             content = be_replied_comment.content
             if be_replied_comment.parent_id > 0:
@@ -411,7 +412,7 @@ def get_user_be_praised(user_id):
     comment_ids = list(comments.values_list('id', flat=True))
     query_condition |= (Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comment_ids))
 
-    praises = Praise.objects.using('read').filter(query_condition).order_by('-id')
+    praises = Praise.objects.using('read').filter(query_condition)
     return praises
 
 

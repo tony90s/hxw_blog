@@ -30,7 +30,7 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll" id="article_scroll">
                             <div class="article-container">
-                                <ul class="article-list" id="article_list" data-page="1">
+                                <ul class="article-list" id="article_list">
                                 </ul>
                             </div>
                         </div>
@@ -88,7 +88,7 @@
             user_list.dataset.page = 1;
             var activeScroll = document.querySelector('.mui-slider-group .mui-slider-item.mui-active .mui-scroll');
             jQuery('.mui-content').removeClass('mui-hidden');
-            mui(activeScroll).pullToRefresh().pullDownLoading();
+            mui(activeScroll).pullToRefresh().pullUpLoading();
         }
 
         document.getElementById("search").addEventListener("keypress", function (event) {
@@ -103,10 +103,12 @@
             }
         });
 
-        function create_article(json) {
+        function create_article(json, ul) {
             var fragment = document.createDocumentFragment();
             var li;
-            mui.each(json.results, function (index, array) {
+            jQuery.each(json.results, function (index, array) {
+                var earliest_time = ul.dataset.earliest_time;
+                var last_time = ul.dataset.last_time;
                 var article_id = array['article_id'];
                 var title = array['title'];
                 var type = array['type'];
@@ -118,6 +120,12 @@
                 li = document.createElement('li');
                 li.className = 'article';
                 li.dataset.article_id = article_id;
+                if ((typeof earliest_time == 'undefined') || (new Date(release_time.replace(/-/g,"/")) > new Date(earliest_time.replace(/-/g,"/")))) {
+                    ul.dataset.earliest_time = release_time
+                }
+                if ((typeof last_time == 'undefined') || (new Date(release_time.replace(/-/g,"/")) < new Date(last_time.replace(/-/g,"/")))) {
+                    ul.dataset.last_time = release_time
+                }
                 if (cover_photo) {
                     li.classList.add('with-img')
                 }
@@ -135,6 +143,7 @@
                 li.innerHTML = str;
                 fragment.appendChild(li);
             });
+            //ul.appendChild(fragment);
             return fragment;
         }
 
@@ -169,28 +178,31 @@
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.article-list');
-            var page = parseInt(ul.dataset.page);
+            var earliest_time = ul.dataset.earliest_time;
+            var last_time = ul.dataset.last_time;
+            var data = {
+                'is_released': 1,
+                'key_word': ul.dataset.key_word
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
+            if (typeof last_time != 'undefined') {
+                data['last_time'] = last_time
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: articlesApiUrl,
-                    data: {
-                        'page': page,
-                        'is_released': 1,
-                        'key_word': ul.dataset.key_word
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_article(json));
+                            ul.appendChild(create_article(json, ul));
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
-                            self.endPullUpToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                                ul.dataset.page = page
-                            }
+                            self.endPullUpToRefresh(!json.has_more);
                         } else {
                             self.endPullUpToRefresh(true);
                         }
@@ -205,42 +217,33 @@
             var self = this;
             var scroll_div = this.element;
             var ul = scroll_div.querySelector('.article-list');
-            ul.innerHTML = '';
-            ul.dataset.page = 1;
-            var page = 1;
+            var earliest_time = ul.dataset.earliest_time;
+            var data = {
+                'is_released': 1,
+                'key_word': ul.dataset.key_word
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
             setTimeout(function () {
                 $.ajax({
                     type: 'GET',
                     url: articlesApiUrl,
-                    data: {
-                        'page': page,
-                        'is_released': 1,
-                        'key_word': ul.dataset.key_word
-                    },
+                    data: data,
                     dataType: 'json',
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
-                            ul.appendChild(create_article(json));
+                            ul.insertBefore(create_article(json, ul), ul.childNodes[0]);
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });
-                            self.endPullDownToRefresh(!json.next);
-                            self.refresh(true);
-                            self.endPullUpToRefresh(!json.next);
-                            if (json.next) {
-                                page++;
-                                ul.dataset.page = page
-                            }
-                        } else {
-                            self.endPullDownToRefresh(true);
-                            self.refresh(true);
-                            self.endPullUpToRefresh(true);
                         }
+                        self.endPullDownToRefresh(true);
+                        self.refresh(true);
                     },
                     error: function () {
                         self.endPullDownToRefresh(true);
                         self.refresh(true);
-                        self.endPullUpToRefresh(true);
                     }
                 });
             }, 200);
