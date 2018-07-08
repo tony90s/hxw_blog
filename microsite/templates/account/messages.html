@@ -405,13 +405,20 @@
                                 effect: "fadeIn"
                             });
                             AjaxUpdateViewStatus();
+                            self.endPullDownToRefresh((!json.has_more) && (typeof data.max_primary_id == 'undefined'));
+                            self.refresh(true);
+                            self.endPullUpToRefresh((!json.has_more) && (typeof data.max_primary_id == 'undefined'));
                         }
-                        self.endPullDownToRefresh(true);
-                        self.refresh(true);
+                        else {
+                            self.endPullDownToRefresh(typeof data.max_primary_id == 'undefined');
+                            self.refresh(true);
+                            self.endPullUpToRefresh(typeof data.max_primary_id == 'undefined')
+                        }
                     },
                     error: function () {
-                        self.endPullDownToRefresh(true);
+                        self.endPullDownToRefresh(typeof data.max_primary_id == 'undefined');
                         self.refresh(true);
+                        self.endPullUpToRefresh(typeof data.max_primary_id == 'undefined');
                     }
                 });
             }, 200);
@@ -480,13 +487,20 @@
                                 effect: "fadeIn"
                             });
                             AjaxUpdateViewStatus();
+                            self.endPullDownToRefresh((!json.has_more) && (typeof data.max_primary_id == 'undefined'));
+                            self.refresh(true);
+                            self.endPullUpToRefresh((!json.has_more) && (typeof data.max_primary_id == 'undefined'));
                         }
-                        self.endPullDownToRefresh(true);
-                        self.refresh(true);
+                        else {
+                            self.endPullDownToRefresh(typeof data.max_primary_id == 'undefined');
+                            self.refresh(true);
+                            self.endPullUpToRefresh(typeof data.max_primary_id == 'undefined')
+                        }
                     },
                     error: function () {
-                        self.endPullDownToRefresh(true);
+                        self.endPullDownToRefresh(typeof data.max_primary_id == 'undefined');
                         self.refresh(true);
+                        self.endPullUpToRefresh(typeof data.max_primary_id == 'undefined');
                     }
                 });
             }, 200);
@@ -562,7 +576,7 @@
 
                     var ul = acticeSliderItem.querySelector('ul.selected') || acticeSliderItem.querySelector('ul');
                     if (ul.querySelectorAll('li').length == 0) {
-                        mui(activeScroll).pullToRefresh().pullUpLoading();
+                        mui(activeScroll).pullToRefresh().pullDownLoading();
                     }
                 });
 
