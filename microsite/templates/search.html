@@ -83,12 +83,13 @@
             article_list.innerHTML = '';
             user_list.innerHTML = '';
             article_list.dataset.key_word = key_word;
+            delete article_list.dataset.earliest_time;
+            delete article_list.dataset.last_time;
             user_list.dataset.key_word = key_word;
-            article_list.dataset.page = 1;
             user_list.dataset.page = 1;
             var activeScroll = document.querySelector('.mui-slider-group .mui-slider-item.mui-active .mui-scroll');
             jQuery('.mui-content').removeClass('mui-hidden');
-            mui(activeScroll).pullToRefresh().pullUpLoading();
+            mui(activeScroll).pullToRefresh().pullDownLoading();
         }
 
         document.getElementById("search").addEventListener("keypress", function (event) {

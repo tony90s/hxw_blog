@@ -136,8 +136,6 @@
                             <div class="article-container">
                                 <ul class="article-list" data-article_type="8">
                                 </ul>
-                                <input type="hidden" value="8" name="article_type">
-                                <input type="hidden" value="1" name="page_index">
                             </div>
                         </div>
                     </div>
@@ -347,7 +345,7 @@
                     success: function (json) {
                         if (json.hasOwnProperty('results') && json.results.length > 0) {
                             ul.insertBefore(create_article(json, ul), ul.childNodes[0]);
-                            mui.toast('更新了'+ json.results.length + '篇文章', toast_option);
+                            //mui.toast('更新了'+ json.results.length + '篇文章', toast_option);
                             jQuery("img.lazy").lazyload({
                                 effect: "fadeIn"
                             });

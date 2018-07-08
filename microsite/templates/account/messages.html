@@ -60,7 +60,7 @@
                     <div class="mui-scroll-wrapper">
                         <div class="mui-scroll">
                             <div class="praises-container">
-                                <ul class="praises-list" data-page_index="1">
+                                <ul class="praises-list">
                                 </ul>
                             </div>
                         </div>
@@ -562,7 +562,7 @@
 
                     var ul = acticeSliderItem.querySelector('ul.selected') || acticeSliderItem.querySelector('ul');
                     if (ul.querySelectorAll('li').length == 0) {
-                        mui(activeScroll).pullToRefresh().pullDownLoading();
+                        mui(activeScroll).pullToRefresh().pullUpLoading();
                     }
                 });
 
@@ -595,8 +595,7 @@
             selected_comments_list.addClass('selected').show();
             mui("#comments .mui-scroll").pullToRefresh().refresh(true);
             if (selected_comments_list.find('li').length == 0) {
-                selected_comments_list[0].dataset.page_index = 1;
-                ajax_init_comments_list(selected_comments_list[0], 1)
+                ajax_init_comments_list(selected_comments_list[0]);
             }
         });
 
