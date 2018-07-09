@@ -52,7 +52,7 @@
                             <div class="form-group">
                                 <label for="email" class="col-sm-2 control-label">邮箱</label>
                                 <div class="col-sm-10">
-                                    <p class="form-control-static">{{ email_display }}</p>
+                                    <p class="form-control-static" id="user_email" data-email="{% if user.email %}{{ user.email }}{% endif %}"></p>
                                     {% if user.email %}
                                         <button type="button" id="change_email" class="btn btn-info btn-change-email"
                                                 data-toggle="modal" data-target="#bind_or_change_email">修改邮箱
@@ -283,6 +283,15 @@
                     password_input.prop('type', 'password');
                 }
             });
+
+            var user_email_p = document.getElementById('user_email');
+            if (user_email_p.dataset.email != '') {
+                var email_display = user_email_p.dataset.email;
+                if (email_display.indexOf('@') > 2) {
+                    email_display = email_display.replace(email_display.substring(2, email_display.indexOf('@')), new Array(email_display.indexOf('@')-1).join("*"));
+                }
+                user_email_p.innerHTML = email_display
+            }
         })
     </script>
 
@@ -478,7 +487,6 @@
     <script>
         $(function () {
             var COUNTDOWN_SECOND = 60;
-
             function moveTo(step_index) {
                 var step_1 = $("#bind_or_change_email .step-1");
                 var step_2 = $("#bind_or_change_email .step-2");

@@ -1,13 +1,10 @@
-from itertools import chain
 import logging
 import os
 import re
-import time
 
 from django.conf import settings
-from django.db.models import Q
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import logout, login
@@ -15,18 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.views import View
 
-from rest_framework import serializers
-
 from account.cookies import set_logged_in_cookies, delete_logged_in_cookies
-from article.models import (
-    Article,
-    Comment,
-    Praise,
-    get_user_received_comments,
-    get_user_comments,
-    get_user_be_praised
-)
-from account.forms import UnifiedCommentListForm
 from account.oauth2.oauth_weibo import OauthWeibo
 from account.oauth2.oauth_qq import OauthQQ
 from account.oauth2.oauth_wechat import OauthWechat
@@ -108,17 +94,8 @@ def logout_view(request):
 
 @login_required
 def user_info(request):
-    email = request.user.email
-    email_display = email
-    if email and len(email.split('@')[0]) >= 3:
-        email_display = email[0] + '***' + email[(email.index('@') - 1):]
-
-    context = {
-        'email_display': email_display
-    }
-
     template_name = 'account/user_info.html'
-    return render(request, template_name, context=context)
+    return render(request, template_name)
 
 
 class ResetPasswordView(View):
