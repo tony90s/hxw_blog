@@ -7,25 +7,24 @@ from django.http import JsonResponse, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.http import require_http_methods
+from django.shortcuts import get_object_or_404
 
 from account.models import render_user_info
 from article.models import Article, Comment, Praise, get_user_be_praised, get_user_article_count, get_user_praises_count
 # from utils.sensitive_word_handler import sensitive_words_replace
 from utils.decorator import redirect_to_microsite
+from utils import check_object_permission
 
 reg_number = re.compile('^\d+$')
 logger = logging.getLogger('article.views')
 
 
 @login_required
+@permission_required('is_staff', raise_exception=True)
 def create_article(request):
     template_name = 'article/article_new.html'
-    user = request.user
-    if not user.is_staff:
-        raise PermissionDenied
-
     type_choices = Article.TYPE_CHOICES
     context = {
         'article_id': 0,
@@ -36,16 +35,14 @@ def create_article(request):
 
 
 @login_required
+@permission_required('is_staff', raise_exception=True)
 def edit_article(request, article_id):
     template_name = 'article/article_new.html'
-    user = request.user
-    if not user.is_staff:
-        raise PermissionDenied
 
-    articles = Article.objects.using('read').filter(id=article_id)
-    if not articles.exists():
-        raise Http404
-    article = articles[0]
+    article = get_object_or_404(Article, id=article_id)
+    if article.author_id != request.user.id:
+        raise PermissionDenied
+    check_object_permission(request, article, 'author_id', raise_exception=True)
     type_choices = Article.TYPE_CHOICES
     context = {
         'article_id': article_id,
@@ -73,13 +70,7 @@ def article_category_index_views(request, article_type):
 def article_details(request, article_id):
     template_name = 'article/article_detail.html'
 
-    articles = Article.objects.using('read').filter(id=article_id)
-    if not articles.exists():
-        raise Http404
-    article = articles[0]
-    if not article.is_released:
-        raise Http404
-
+    article = get_object_or_404(Article, id=article_id, is_released=1)
     article.page_views += 1
     article.save(using='write')
 
@@ -107,11 +98,7 @@ def drafts(request):
 
 @redirect_to_microsite
 def user_articles(request, author_id):
-    authors = User.objects.using('read').filter(id=author_id)
-    if not authors.exists():
-        raise Http404
-
-    author = authors[0]
+    author = get_object_or_404(User, id=author_id)
     author_data = render_user_info(author)
 
     article_count = get_user_article_count(author.id)

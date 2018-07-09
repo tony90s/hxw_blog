@@ -6,6 +6,7 @@ from django.http import Http404, QueryDict
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.auth import login
+from django.shortcuts import get_object_or_404
 
 from rest_framework.views import APIView
 from rest_framework import serializers, generics, permissions
@@ -343,11 +344,8 @@ class UnbindingSocialLoginView(generics.DestroyAPIView):
 
         auth_type = form.cleaned_data.get('auth_type')
         user_id = form.cleaned_data.get('user_id')
-
-        oauth_logins = OauthLogin.objects.using('read').filter(auth_type=auth_type, user_id=user_id)
-        if not oauth_logins.exists():
-            raise Http404
-        return oauth_logins[0]
+        oauth_login = get_object_or_404(OauthLogin, auth_type=auth_type, user_id=user_id)
+        return oauth_login
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

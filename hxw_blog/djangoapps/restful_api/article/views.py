@@ -12,7 +12,7 @@ from article.models import (
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import Http404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.utils import timezone
 from rest_framework import serializers, generics, permissions
 from rest_framework.response import Response
@@ -111,10 +111,7 @@ class UpdateDestroyArticleView(extra_generics.UpdateDestroyAPIView):
 
     def get_object(self):
         article_id = self.kwargs.get('article_id')
-        try:
-            article = Article.objects.using('read').get(id=int(article_id))
-        except Article.DoesNotExist:
-            raise Http404
+        article = get_object_or_404(Article, id=int(article_id))
         self.check_object_permissions(self.request, article)
         return article
 
@@ -224,9 +221,7 @@ class CommentList(CustomListAPIView):
         min_primary_id = form.cleaned_data.get('min_primary_id') or 0
         max_primary_id = form.cleaned_data.get('max_primary_id') or 0
 
-        articles = Article.objects.using('read').filter(id=article_id)
-        if not articles.exists():
-            raise Http404
+        article = get_object_or_404(Article, id=article_id)
 
         query_condition = Q(article_id=article_id) & Q(parent_id=0)
         if min_primary_id and max_primary_id:
@@ -428,10 +423,7 @@ class DeleteCommentView(generics.DestroyAPIView):
             raise serializers.ValidationError(form.errors)
 
         comment_id = form.cleaned_data.get('comment_id')
-        comments = Comment.objects.using('read').filter(id=comment_id)
-        if not comments.exists():
-            raise Http404
-        comment = comments[0]
+        comment = get_object_or_404(Comment, id=comment_id)
         self.check_object_permissions(self.request, comment)
         return comment
 
@@ -505,11 +497,7 @@ class CancelPraiseView(generics.DestroyAPIView):
         praise_type = form.cleaned_data.get('praise_type')
         parent_id = form.cleaned_data.get('parent_id')
         user_id = self.request.user.id
-        praises = Praise.objects.using('read').filter(Q(praise_type=praise_type) &
-                                                      Q(parent_id=parent_id) & Q(user_id=user_id))
-        if not praises.exists():
-            raise Http404
-        praise = praises[0]
+        praise = get_object_or_404(Praise, praise_type=praise_type, parent_id=parent_id, user_id=user_id)
         self.check_object_permissions(self.request, praise)
         return praise
 
@@ -528,11 +516,10 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
         parent_id = form.cleaned_data.get('parent_id')
 
         if object_type == 1:
-            instances = Comment.objects.using('write').filter(id=parent_id)
+            model_class = Comment
         else:
-            instances = Praise.objects.using('write').filter(id=parent_id)
-        if not instances.exists():
-            raise Http404
+            model_class = Praise
+        instances = get_list_or_404(model_class, id=parent_id)
         return instances
 
     def perform_update(self, instances):
@@ -554,10 +541,7 @@ class UpdateArticleReleaseStatusView(generics.UpdateAPIView):
             raise serializers.ValidationError(form.errors)
 
         article_id = form.cleaned_data.get('article_id')
-        articles = Article.objects.using('read').filter(id=article_id)
-        if not articles.exists():
-            raise Http404
-        article = articles[0]
+        article = get_object_or_404(Article, id=article_id)
         self.check_object_permissions(self.request, article)
         return article
 
