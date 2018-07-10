@@ -32,6 +32,10 @@ input, select, textarea {
     font-size: 16px;
 }
 
+.mui-scroll {
+    padding-bottom: 60px;
+}
+
 .mui-bottom-bar {
     bottom: 0;
     -webkit-box-shadow: 0 1px 6px #ccc;

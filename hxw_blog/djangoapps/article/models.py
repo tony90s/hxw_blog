@@ -95,7 +95,7 @@ class Article(models.Model):
 
     @property
     def praise_times(self):
-        praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id=self.id))
+        praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.ARTICLE, parent_id=self.id))
         return praises.count()
 
     @property
@@ -159,7 +159,7 @@ class Article(models.Model):
 
 
 def get_user_article_count(user_id):
-    articles = Article.objects.using('read').filter(Q(author_id=user_id) & Q(is_released=1))
+    articles = Article.objects.using('read').filter(Q(author_id=user_id, is_released=1))
     return articles.count()
 
 
@@ -184,7 +184,7 @@ class Comment(models.Model):
 
     @property
     def praise_times(self):
-        praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id=self.id))
+        praises = Praise.objects.using('read').filter(Q(praise_type=Praise.TYPE.COMMENT, parent_id=self.id))
         return praises.count()
 
     @property
@@ -406,12 +406,11 @@ class Praise(models.Model):
 def get_user_be_praised(user_id):
     articles = Article.objects.using('read').filter(author_id=user_id)
     article_ids = list(articles.values_list('id', flat=True))
-    query_condition = (Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id__in=article_ids))
 
     comments = Comment.objects.using('read').filter(commentator_id=user_id)
     comment_ids = list(comments.values_list('id', flat=True))
-    query_condition |= (Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comment_ids))
-
+    query_condition = Q(praise_type=Praise.TYPE.ARTICLE, parent_id__in=article_ids) | Q(praise_type=Praise.TYPE.COMMENT,
+                                                                                        parent_id__in=comment_ids)
     praises = Praise.objects.using('read').filter(query_condition)
     return praises
 

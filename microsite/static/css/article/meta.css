@@ -78,6 +78,10 @@
     background-color: #c8c7cc;
 }
 
+.comment:last-child:after, .comment-reply:last-child:after, li.praise:last-child:after, .user-item:last-child:after {
+    height: 0;
+}
+
 .comment.no-border-after:after {
     height: 0;
 }

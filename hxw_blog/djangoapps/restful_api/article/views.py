@@ -182,7 +182,7 @@ class ArticleList(CustomListAPIView):
             order_field_names = ('-release_at',)
             if earliest_time and last_time:
                 query_condition &= (
-                Q(release_at__gt=(earliest_time + timedelta(seconds=1))) | Q(release_at__lt=last_time))
+                    Q(release_at__gt=(earliest_time + timedelta(seconds=1))) | Q(release_at__lt=last_time))
             if earliest_time and not last_time:
                 query_condition &= Q(release_at__gt=(earliest_time + timedelta(seconds=1)))
             if not earliest_time and last_time:
@@ -190,8 +190,8 @@ class ArticleList(CustomListAPIView):
         else:
             order_field_names = ('-update_at',)
             if earliest_time and last_time:
-                query_condition &= Q(update_at__gt=(earliest_time + timedelta(seconds=1))) | Q(
-                    update_at__lt=last_time)
+                query_condition &= (Q(update_at__gt=(earliest_time + timedelta(seconds=1))) | Q(
+                    update_at__lt=last_time))
             if earliest_time and not last_time:
                 query_condition &= Q(update_at__gt=(earliest_time + timedelta(seconds=1)))
             if not earliest_time and last_time:
@@ -223,7 +223,7 @@ class CommentList(CustomListAPIView):
 
         article = get_object_or_404(Article, id=article_id)
 
-        query_condition = Q(article_id=article_id) & Q(parent_id=0)
+        query_condition = Q(article_id=article_id, parent_id=0)
         if min_primary_id and max_primary_id:
             query_condition &= (Q(id__gt=max_primary_id) | Q(id__lt=min_primary_id))
         if max_primary_id and not min_primary_id:
@@ -373,8 +373,8 @@ class UserPraiseList(CustomListAPIView):
         comments = Comment.objects.using('read').filter(commentator_id=user_id)
         comment_ids = list(comments.values_list('id', flat=True))
 
-        query_condition &= ((Q(praise_type=Praise.TYPE.ARTICLE) & Q(parent_id__in=article_ids)) | (
-            Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=comment_ids)))
+        query_condition &= (Q(praise_type=Praise.TYPE.ARTICLE, parent_id__in=article_ids) | Q(
+            praise_type=Praise.TYPE.COMMENT, parent_id__in=comment_ids))
 
         if min_primary_id and max_primary_id:
             query_condition &= (Q(id__gt=max_primary_id) | Q(id__lt=min_primary_id))
@@ -432,7 +432,7 @@ class DeleteCommentView(generics.DestroyAPIView):
         comment_replies = Comment.objects.using('write').filter(parent_id=comment_id)
         comment_replies_id = list(comment_replies.values_list('id', flat=True))
         praises = Praise.objects.using('write').filter(
-            Q(praise_type=Praise.TYPE.COMMENT) & Q(parent_id__in=[comment_id] + comment_replies_id))
+            Q(praise_type=Praise.TYPE.COMMENT, parent_id__in=[comment_id] + comment_replies_id))
         praises.delete()
         comment_replies.delete()
         instance.delete()
@@ -519,15 +519,16 @@ class UpdateIsViewedStatusView(generics.UpdateAPIView):
             model_class = Comment
         else:
             model_class = Praise
-        instances = get_list_or_404(model_class, id=parent_id)
-        return instances
+        instance = get_object_or_404(model_class, id=parent_id)
+        return instance
 
-    def perform_update(self, instances):
-        instances.update(is_viewed=1)
+    def perform_update(self, instance):
+        instance.is_viewed = 1
+        instance.save(using='write')
 
     def update(self, request, *args, **kwargs):
-        instances = self.get_queryset()
-        self.perform_update(instances)
+        instance = self.get_queryset()
+        self.perform_update(instance)
         return Response({'code': 200, 'msg': '更新成功'})
 
 
