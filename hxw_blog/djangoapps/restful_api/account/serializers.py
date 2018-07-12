@@ -90,7 +90,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         ]
     )
     gender = serializers.CharField(source='profile.gender')
-    bio = serializers.CharField(required=False, max_length=48, default='')
+    bio = serializers.CharField(required=False, max_length=64, default='')
 
     class Meta:
         model = User
@@ -124,7 +124,7 @@ class UpdateUserAvatarSerializer(serializers.Serializer):
         return None
 
     def update(self, instance, validated_data):
-        thumbnail, error = get_thumbnail(validated_data.get('avatar'))
+        thumbnail = get_thumbnail(validated_data.get('avatar'))
         if thumbnail is None:
             raise serializers.ValidationError('头像上传失败，请稍后重试。')
         instance.avatar = thumbnail

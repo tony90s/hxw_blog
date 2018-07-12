@@ -23,6 +23,6 @@ def get_thumbnail(orig, width=180, height=180):
         thumb.save(thumb_io, format="JPEG", quality=quality)
         thumb_file = InMemoryUploadedFile(thumb_io, None, filename, 'image/jpeg',
                                           None, None)
-        return thumb_file, ''
+        return thumb_file
     except Exception as e:
-        return None, e
+        return None

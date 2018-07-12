@@ -52,6 +52,14 @@
         window.location.href = this.href;
     });
 
+    window.addEventListener('touchmove', function(e) {
+        var target = e.target;
+        if (target && target.tagName === 'TEXTAREA') {
+            //textarea阻止冒泡
+            e.stopPropagation();
+        }
+    }, true);
+
     mui.ready(function () {
         var isLogin = {% if user.is_authenticated %}true{% else %}false{% endif %};
         var not_viewed_count_badge = mui('#not_viewed_count');

@@ -53,9 +53,9 @@
     </nav>
     <div id="comment-popover" class="mui-popover mui-popover-action mui-popover-bottom">
         <div class="comment-box">
-            <textarea id="textarea" placeholder="添加评论···" onchange="this.value=this.value.substring(0, 72)"
-                      onkeydown="this.value=this.value.substring(0, 72)"
-                      onkeyup="this.value=this.value.substring(0, 72)"></textarea>
+            <textarea id="textarea" placeholder="添加评论···" onchange="this.value=this.value.substring(0, 140)"
+                      onkeydown="this.value=this.value.substring(0, 140)"
+                      onkeyup="this.value=this.value.substring(0, 140)"></textarea>
             <a id="send-text" data-article_id="{{ article_details.article_id }}"
                class="mui-icon mui-icon-paperplane"></a>
         </div>
@@ -499,7 +499,7 @@
             mui('body').on('hidden', '#comment-popover', function (e) {
                 cleanData()
             });
-
+            
             mui('body').on('tap', '.share-btn', function (e) {
                 mui('#social_share').popover('hide');
                 var share_type = this.dataset.share_type;

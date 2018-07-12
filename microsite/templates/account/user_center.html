@@ -98,9 +98,9 @@
                 <div class="mui-input-row" style="height: 100px">
                     <label>简介</label>
                     <textarea name="bio" class="bio" rows="6" placeholder="暂无简介..."
-                              onchange="this.value=this.value.substring(0, 48)"
-                              onkeydown="this.value=this.value.substring(0, 48)"
-                              onkeyup="this.value=this.value.substring(0, 48)"
+                              onchange="this.value=this.value.substring(0, 64)"
+                              onkeydown="this.value=this.value.substring(0, 64)"
+                              onkeyup="this.value=this.value.substring(0, 64)"
                               data-bio="{{ user.profile.bio }}">{{ user.profile.bio }}</textarea>
                 </div>
             </form>

@@ -47,9 +47,9 @@
     <div id="comment-popover" class="mui-popover mui-popover-action mui-popover-bottom">
         <div class="comment-box">
             <textarea id="textarea" placeholder="回复 {{ comment.commentator.username }}"
-                      onchange="this.value=this.value.substring(0, 72)"
-                      onkeydown="this.value=this.value.substring(0, 72)"
-                      onkeyup="this.value=this.value.substring(0, 72)"></textarea>
+                      onchange="this.value=this.value.substring(0, 140)"
+                      onkeydown="this.value=this.value.substring(0, 140)"
+                      onkeyup="this.value=this.value.substring(0, 140)"></textarea>
             <a id="send-text" data-parent_id="{{ comment.comment_id }}" data-comment_id="{{ comment.comment_id }}"
                data-receiver_id="{{ comment.commentator.user_id }}" class="mui-icon mui-icon-paperplane"></a>
         </div>

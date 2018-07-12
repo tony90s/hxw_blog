@@ -87,7 +87,7 @@ def logout_view(request):
     logout(request)
     response = redirect(target)
 
-    # Clear the cookie used by the edx.org marketing site
+    # Clear the cookie when logout
     delete_logged_in_cookies(response)
     return response
 
