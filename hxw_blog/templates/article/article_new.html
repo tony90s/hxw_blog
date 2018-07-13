@@ -14,7 +14,7 @@
     <div class="container">
         <div class="row">
 
-            <div class="col-sm-10">
+            <div class="col-sm-10" style="min-height:500px;">
                 <form class="form-horizontal" id="form_create_article" role="form" action="" method="post">
                     <div class="form-group">
                         <label for="type" class="col-sm-2 control-label">类别</label>
@@ -61,16 +61,16 @@
             </div>
 
             <div class="col-sm-2">
-                <div class="sidebar-box">
-                    <div class="list-group">
-                        <a class="list-group-item" href="{% url "article:user_articles" user.id %}" title="我的文章"><i class="iconfont icon-article"></i>我的文章</a>
-                        <a class="list-group-item" href="{% url "article:user_drafts" %}" title="草稿箱"><i class="iconfont icon-drafts"></i>草稿箱</a>
-                    </div>
-                </div>
+                <ul class="menu">
+                    <li class="menu-item">
+                        <a href="{% url "article:user_articles" user.id %}"><i class="iconfont icon-article"></i>我的文章</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{% url "article:user_drafts" %}"><i class="iconfont icon-drafts"></i>草稿箱</a>
+                    </li>
+                </ul>
             </div>
-
         </div>
-
     </div>
 {% endblock %}
 

@@ -46,7 +46,7 @@
                 <li><a id="login_link" href="javascript:void(0)" data-login_url="{% url 'account:login' %}">登录</a></li>
             </ul>
             {% endif %}
-            <form class="search-form navbar-right" name="search" action="{% url 'search' %}" method="get" onsubmit="return validateSearchForm( );">
+            <form class="search-form" name="search" action="{% url 'search' %}" method="get" onsubmit="return validateSearchForm( );">
                 <a class="search-btn" href="javascript:void(0)"><i class="iconfont icon-search"></i></a>
                 <input type="text" name="key_word" autocomplete="off" class="form-control" placeholder="文章或用户">
             </form>

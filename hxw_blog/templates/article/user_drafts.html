@@ -42,16 +42,17 @@
             </div>
 
             <div class="col-sm-3">
-                <div class="sidebar-box">
-                    <div class="list-group">
-                        <a class="list-group-item" href="{% url "article:user_articles" user.id %}" title="我的文章"><i
-                                class="iconfont icon-article"></i>我的文章</a>
-                        <a class="list-group-item active" href="{% url "article:user_drafts" %}" title="草稿箱"><i
-                                class="iconfont icon-drafts"></i>草稿箱</a>
-                        <a class="list-group-item" href="{% url "article:create_article" %}" title="写文章"
-                           target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
-                    </div>
-                </div>
+                <ul class="menu">
+                    <li class="menu-item">
+                        <a href="{% url "article:user_articles" user.id %}"><i class="iconfont icon-article"></i>我的文章</a>
+                    </li>
+                    <li class="menu-item active">
+                        <a href="{% url "article:user_drafts" %}"><i class="iconfont icon-drafts"></i>草稿箱</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{% url "article:create_article" %}" target="_blank"><i class="iconfont icon-552ce439609c3"></i>写文章</a>
+                    </li>
+                </ul>
             </div>
         </div><!--/row-->
     </div><!--/.container-->

@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 {% block title %}<title>关于我们</title>{% endblock %}
 {% block extra_header %}
-<link href="/static/css/site_info/site_info.css" rel="stylesheet">
+    <link href="/static/css/site_info/site_info.css" rel="stylesheet">
 {% endblock %}
 {% block content %}
     <div class="container">
 
         <div class="row">
-            <div class="col-sm-2">
-                <div class="sidebar-box">
-                    <div class="list-group">
-                        <a class="list-group-item active" href="{% url 'aboutus' %}" title="关于我们">关于我们</a>
-                        <a class="list-group-item" href="{% url 'disclaimer' %}" title="免责声明">免责声明</a>
-                        <a class="list-group-item" href="{% url 'downloads' %}" target="_blank" title="资料下载">资料下载</a>
-                    </div>
-                </div>
+            <div class="col-sm-3">
+                <ul class="menu">
+                    <li class="menu-item active">
+                        <a href="{% url 'aboutus' %}">关于我们</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{% url 'disclaimer' %}">免责声明</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{% url 'downloads' %}">资料下载</a>
+                    </li>
+                </ul>
             </div>
-            <div class="col-sm-8" style="min-height:500px;">
+            <div class="col-sm-9" style="min-height:500px;">
                 <div class="article">
                     <div class="article-heading">
                         <h2>关于我们</h2>

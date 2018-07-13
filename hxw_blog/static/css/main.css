@@ -507,7 +507,8 @@ p.abstract {
 
 .search-form {
     position: relative;
-    margin-top: 7px;
+    float: right;
+    margin: 7px 32px;
     width: 160px;
 }
 
@@ -531,16 +532,30 @@ p.abstract {
     text-decoration: none;
 }
 
+.menu {
+    font-size: 14px;
+}
+
+.menu a {
+    display: block;
+    color: #333;
+}
+
 .menu .menu-item {
     width: 150px;
-    padding: 16px;
+    padding: 16px 0 16px 6px;
     border-bottom: 2px solid rgba(32, 33, 47, 0.1);;
 }
 
-.menu .menu-item.active {
+.menu-item .badge {
+    float: right;
+    margin-top: 4px;
+}
+
+.menu .menu-item.active, .menu .menu-item:hover {
     border-color: rgba(23, 28, 240, 0.35);
 }
 
-.menu .menu-item .menu-name {
-    margin-left: 8px;
+.menu .menu-item i {
+    margin-right: 8px;
 }

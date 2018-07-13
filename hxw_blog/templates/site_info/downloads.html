@@ -7,16 +7,20 @@
     <div class="container">
 
         <div class="row">
-            <div class="col-sm-2">
-                <div class="sidebar-box">
-                    <div class="list-group">
-                        <a class="list-group-item" href="{% url 'aboutus' %}" title="关于我们">关于我们</a>
-                        <a class="list-group-item" href="{% url 'disclaimer' %}">免责声明</a>
-                        <a class="list-group-item active" href="{% url 'downloads' %}" title="资料下载">资料下载</a>
-                    </div>
-                </div>
+            <div class="col-sm-3">
+                <ul class="menu">
+                    <li class="menu-item">
+                        <a href="{% url 'aboutus' %}">关于我们</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{% url 'disclaimer' %}">免责声明</a>
+                    </li>
+                    <li class="menu-item active">
+                        <a href="{% url 'downloads' %}">资料下载</a>
+                    </li>
+                </ul>
             </div>
-            <div class="col-sm-8">
+            <div class="col-sm-9">
                 <div class="article">
                     <div class="article-heading">
                         <h2>资料下载</h2>
