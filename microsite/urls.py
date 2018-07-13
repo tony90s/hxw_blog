@@ -19,7 +19,8 @@ from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from microsite_index.views import index_view, search_view
+from microsite_index.views import index_view
+from index.views import search_view
 
 urlpatterns = [
     url(r'^$', index_view, name='index'),

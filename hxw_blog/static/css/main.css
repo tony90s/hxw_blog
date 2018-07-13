@@ -498,3 +498,49 @@ p.abstract {
     -webkit-box-orient:vertical;
     -webkit-line-clamp: 3;
 }
+
+.container-fluid {
+    width: 100%;
+    margin: 0;
+    padding: 0 30px
+}
+
+.search-form {
+    position: relative;
+    margin-top: 7px;
+}
+
+.search-form input {
+    box-sizing: border-box;
+    width: 160px;
+    padding: 8px 40px 8px 16px;
+    height: 36px;
+    border-radius: 18px;
+    outline: none;
+}
+
+.search-form .search-btn {
+    position: absolute;
+    display: block;
+    right: 0;
+    top: 0;
+    width: 32px;
+    height: 32px;
+    line-height: 36px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.menu .menu-item {
+    width: 150px;
+    padding: 16px;
+    border-bottom: 2px solid rgba(32, 33, 47, 0.1);;
+}
+
+.menu .menu-item.active {
+    border-color: rgba(23, 28, 240, 0.35);
+}
+
+.menu .menu-item .menu-name {
+    margin-left: 8px;
+}

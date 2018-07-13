@@ -14,8 +14,3 @@ logger = logging.getLogger('microsite_index.views')
 def index_view(request):
     template = 'index.html'
     return render(request, template)
-
-
-def search_view(request):
-    template = 'search.html'
-    return render(request, template)

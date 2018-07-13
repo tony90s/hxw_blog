@@ -592,3 +592,68 @@ a, body {
 .sidebar-box {
     max-width: 165px;
 }
+
+.users-container {
+    width: 100%;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.users-list {
+    padding: 0;
+    margin: 0;
+}
+
+.user-item {
+    position: relative;
+    padding: 15px;
+}
+
+.user-item:after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 88px;
+    height: 1px;
+    content: '';
+    -webkit-transform: scaleY(.5);
+    transform: scaleY(.5);
+    background-color: #c8c7cc;
+}
+
+.user-item .avatar {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+}
+
+.user-item .avatar {
+    width: 60px;
+    height: 60px;
+}
+
+.user-item .user-info {
+    position: relative;
+    margin-left: 74px;
+}
+
+.user-item .user-info p {
+    margin: 2px 0;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.user-item .user-info p:last-child {
+    margin-bottom: 0;
+}
+
+.user-item .user-info .nickname {
+    font-size: 16px;
+    color: #333;
+}
+
+.user-item .user-info .bio {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

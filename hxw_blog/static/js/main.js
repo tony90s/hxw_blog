@@ -42,6 +42,14 @@ function bind_dismiss_msg_container(container) {
     });
 }
 
+function validateSearchForm() {
+    if(document.search.key_word.value.trim() == ""){ //通过form名来获取form
+        document.search.key_word.focus();
+        return false;
+    }
+    return true;
+}
+
 $(document).ready(function () {
 
     $(".back-to-top").click(function (event) {
@@ -76,5 +84,12 @@ $(document).ready(function () {
         var login_url =  this.dataset.login_url;
         var next = window.location.href;
         window.location.href = login_url + '?next=' + next;
+    });
+
+    $(".search-btn").click(function () {
+        var input = $(this).siblings('input[name="key_word"]');
+        if (input.val().trim() != '') {
+            $('.search-form').submit()
+        }
     })
 });

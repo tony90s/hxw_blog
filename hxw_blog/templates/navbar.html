@@ -1,6 +1,6 @@
 <header>
 <nav class="navbar navbar-inverse navbar-fixed-top header" role="navigation">
-    <div class="container">
+    <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
                     aria-expanded="false" aria-controls="navbar">
@@ -46,11 +46,10 @@
                 <li><a id="login_link" href="javascript:void(0)" data-login_url="{% url 'account:login' %}">登录</a></li>
             </ul>
             {% endif %}
-            <!--
-            <form class="navbar-form navbar-right">
-              <input type="text" class="form-control" placeholder="Search...">
+            <form class="search-form navbar-right" name="search" action="{% url 'search' %}" method="get" onsubmit="return validateSearchForm( );">
+                <a class="search-btn" href="javascript:void(0)"><i class="iconfont icon-search"></i></a>
+                <input type="text" name="key_word" autocomplete="off" class="form-control" placeholder="文章或用户">
             </form>
-            -->
         </div>
     </div>
 </nav>

@@ -22,12 +22,13 @@ from django.conf.urls.static import static
 from django.views.static import serve
 
 from error_handler.views import page_forbidden, page_not_found, page_error
-from index.views import index_views
+from index.views import index_views, search_view
 from ueditor.controller import handler
 from site_info.views import disclaimer_views, about_us_views, downloads_views
 
 urlpatterns = [
     url(r'^$', index_views, name='index'),
+    url(r'^search$', search_view, name='search'),
     url(r'^aboutus$', about_us_views, name='aboutus'),
     url(r'^disclaimer$', disclaimer_views, name='disclaimer'),
     url(r'^downloads$', downloads_views, name='downloads'),

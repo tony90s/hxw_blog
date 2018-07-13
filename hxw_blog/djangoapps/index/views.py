@@ -19,3 +19,12 @@ def index_views(request):
         'article_type': {'value': 0, 'display_name': Article.get_type_name(0)}
     }
     return render(request, template, context)
+
+
+def search_view(request):
+    template = 'search.html'
+    context = {
+        'key_word': request.GET.get('key_word', '')
+    }
+    return render(request, template, context=context)
+

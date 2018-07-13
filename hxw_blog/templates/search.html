@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% block title %}<title>搜索</title>{% endblock %}
+{% block extra_header %}
+    <link href="/static/css/index.css" rel="stylesheet">
+    <style>
+        .list-container {
+            display: none;
+        }
+
+        .list-container.active {
+            display: block;
+        }
+    </style>
+    <script src="/static/js/jquery.easing.1.3.js"></script>
+    <script src="/static/js/time_desc.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="container index">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="menu">
+                    <li class="menu-item active" data-container_id="article_list_container" data-type="article">
+                        <i class="iconfont icon-article"></i>
+                        <span class="menu-name">文章</span>
+                    </li>
+                    <li class="menu-item" data-container_id="user_list_container" data-type="user">
+                        <i class="iconfont icon-1USER"></i>
+                        <span class="menu-name">用户</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-6 main">
+                <div class="list-container active" id="article_list_container">
+                    <ul class="note-list" id="note_list">
+                    </ul>
+                    <div class="read-more text-center">
+                        <button class="btn btn-info get-more-btn" data-type="article">获取更多</button>
+                        <p class="text-center not-more-content">没有更多搜索结果了...</p>
+                    </div>
+                </div>
+                <div class="list-container" id="user_list_container">
+                    <ul class="users-list" id="user_list" data-page="1">
+                    </ul>
+                    <div class="read-more text-center">
+                        <button class="btn btn-info get-more-btn" data-type="user">获取更多</button>
+                        <p class="text-center not-more-content">没有更多搜索结果了...</p>
+                    </div>
+                </div>
+            </div>
+        </div><!--/row-->
+    </div><!--/.container-->
+{% endblock %}
+
+{% block extra_js %}
+    <script src="/static/js/jquery.lazyload.js"></script>
+    <script type="text/javascript">
+        var ajaxMap = {
+            'article': ajax_get_article,
+            'user': ajax_get_users
+        };
+        var note_list = document.getElementById('note_list');
+        var user_list = document.getElementById('user_list');
+        function ajax_get_article() {
+            var earliest_time = note_list.dataset.earliest_time;
+            var last_time = note_list.dataset.last_time;
+            var data = {
+                'is_released': 1,
+                'key_word': "{{ key_word }}"
+            };
+            if (typeof earliest_time != 'undefined') {
+                data['earliest_time'] = earliest_time
+            }
+            if (typeof last_time != 'undefined') {
+                data['last_time'] = last_time
+            }
+            $.getJSON("{% url 'api:articles' %}",
+                    data, function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            var str = "";
+                            $.each(json.results, function (index, array) {
+                                var earliest_time = note_list.dataset.earliest_time;
+                                var last_time = note_list.dataset.last_time;
+                                var article_id = array['article_id'];
+                                var title = array['title'];
+                                var type = array['type'];
+                                var cover_photo = array['cover_photo'];
+                                var abstract = array['abstract'];
+                                var comment_times = array['comment_times'];
+                                var praise_times = array['praise_times'];
+                                var release_time = array['release_time'];
+                                var release_time_desc = getDateDiff(release_time);
+                                var page_views = array['page_views'];
+                                var author = array['author'];
+                                if ((typeof earliest_time == 'undefined') || (new Date(release_time.replace(/-/g, "/")) > new Date(earliest_time.replace(/-/g, "/")))) {
+                                    note_list.dataset.earliest_time = release_time
+                                }
+                                if ((typeof last_time == 'undefined') || (new Date(release_time.replace(/-/g, "/")) < new Date(last_time.replace(/-/g, "/")))) {
+                                    note_list.dataset.last_time = release_time
+                                }
+                                var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
+
+                                str += '<div class="content">' +
+                                        '<div class="author">' +
+                                        '<a class="avatar" target="_blank" href="/article/author/' + author['user_id'] + '">' +
+                                        '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
+                                        '</a>' +
+                                        '<div class="info">' +
+                                        '<a class="nickname" target="_blank" href="/article/author/' + author['user_id'] + '">' +
+                                        author['username'] + '</a>' +
+                                        '<span class="time">' + release_time_desc + '</span>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '<div class="article-info';
+                                if (cover_photo) {
+                                    str += ' with-img'
+                                }
+                                str += '">';
+                                if (cover_photo) {
+                                    str += '<a class="wrap-img" href="/article/details/' + article_id + '" target="_blank">' +
+                                            '<img class="img-blur lazy" data-original="' + cover_photo + '" alt="' + title + '"/>' +
+                                            '</a>';
+                                }
+                                str += '<a class="title" target="_blank" href="/article/details/' + article_id + '">' + title + '</a>' +
+                                        '<p class="abstract">' + abstract + '</p>' +
+                                        '</div>' +
+                                        '<div class="meta">' +
+                                        '<a class="collection-tag" target="_blank" href="/article/category/' + type['value'] +
+                                        '">' + type['display_name'] + '</a>' +
+                                        '<a target="_blank" href="/article/details/' + article_id + '">' +
+                                        '<i class="iconfont icon-view"></i>' + page_views +
+                                        '</a>' +
+                                        '<a target="_blank" href="/article/details/' + article_id + '#comments">' +
+                                        '<i class="iconfont icon-message"></i>' + comment_times +
+                                        '</a>' +
+                                        '<span><i class="iconfont icon-like"></i>' + praise_times + '</span>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</li>';
+                                $(".note-list").append(str);
+                            });
+                            $("img.lazy").lazyload({
+                                effect: "fadeIn"
+                            });
+                            if (!json.has_more) {
+                                $("#article_list_container .get-more-btn").hide();
+                                $("#article_list_container .not-more-content").show();
+                                return false;
+                            }
+                        } else {
+                            $("#article_list_container .get-more-btn").hide();
+                            $("#article_list_container .not-more-content").show();
+                            return false;
+                        }
+                    });
+        }
+
+        function ajax_get_users() {
+            var page = user_list.dataset.page;
+            var data = {
+                'page': page,
+                'key_word': "{{ key_word }}"
+            };
+            $.getJSON("{% url 'api:users' %}",
+                    data, function (json) {
+                        if (json.hasOwnProperty('results') && json.results.length > 0) {
+                            $.each(json.results, function (index, array) {
+                                var user_id = array['user_id'];
+                                var username = array['username'];
+                                var avatar = array['avatar'];
+                                var bio = array['bio'] || '这个同学很懒，什么都没留下...';
+                                var article_count = array['article_count'];
+
+                                var str = '<li class="user-item" data-author_id="' + user_id + '"><a class="avatar" target="_blank" href="/article/author/' + user_id + '">' +
+                                        '<img src="' + avatar + '" alt="' + username + '">' +
+                                        '</a>' +
+                                        '<div class="user-info">' +
+                                        '<p class="nickname"><a target="_blank" href="/article/author/' + user_id + '">' + username + '</a></p>' +
+                                        '<p class="bio">' + bio + '</p>' +
+                                        '<p class="article-count">文章：' + article_count + '</p>' +
+                                        '</div></li>';
+
+                                $(".users-list").append(str);
+                            });
+                            if (!json.next) {
+                                $("#user_list_container .get-more-btn").hide();
+                                $("#user_list_container .not-more-content").show();
+                                return false;
+                            }
+                            user_list.dataset.page = parseInt(page) + 1;
+                        } else {
+                            $("#user_list_container .get-more-btn").hide();
+                            $("#user_list_container .not-more-content").show();
+                            return false;
+                        }
+                    });
+        }
+    </script>
+    <script>
+        $(function () {
+            $(".get-more-btn").click(function () {
+                var type = this.dataset.type;
+                var ajax_function = ajaxMap[type];
+                ajax_function()
+            });
+            ajax_get_article();
+
+            $('.menu-item').click(function () {
+                var self = this;
+                $(self).addClass('active');
+                $(self).siblings("li").removeClass('active');
+                var container_id = self.dataset.container_id;
+                var type = self.dataset.type;
+                var select_container = $("#" + container_id);
+                select_container.addClass('active');
+                select_container.siblings(".list-container").removeClass('active');
+                if (select_container.find('ul li').length == 0) {
+                    var ajax_function = ajaxMap[type];
+                    ajax_function()
+                }
+            })
+        });
+    </script>
+{% endblock %}
