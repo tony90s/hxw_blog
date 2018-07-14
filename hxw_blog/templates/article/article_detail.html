@@ -23,8 +23,9 @@
                             <img src="{{ article_details.author.avatar }}" alt="{{ article_details.author.username }}">
                         </a>
                         <div class="info">
-                            <span class="name"><a target="_blank"
-                                                  href="{% url 'article:user_articles' article_details.author.user_id %}">{{ article_details.author.username }}</a></span>
+                            <p class="nickname">
+                                <a target="_blank" href="{% url 'article:user_articles' article_details.author.user_id %}">{{ article_details.author.username }}</a>
+                            </p>
                             <div class="meta">
                                 <span class="release-time">{{ article_details.release_time }}</span>
                                 <span class="page-views">阅读 {{ article_details.page_views }}</span>

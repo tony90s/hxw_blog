@@ -15,9 +15,7 @@
                         <a href="javascript:void(0)">
                             <img class="user-avatar" src="{{ user_data.avatar }}" alt="{{ user_data.username }}">
                         </a>
-                        <h5 class="user-name">
-                            <a class="link" href="javascript:void(0)">{{ user_data.username }}</a>
-                        </h5>
+                        <p class="user-name">{{ user_data.username }}</p>
                         <p class="user-bio">{{ user_data.bio }}</p>
                         <ul class="meta">
                             <li class="list-item">
@@ -168,8 +166,7 @@
                                     note_list.dataset.last_time = update_time
                                 }
                                 var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
-                                str += '<div class="content">' +
-                                        '<div class="author">' +
+                                str += '<div class="author">' +
                                         '<a class="avatar" target="_blank" href="/article/author/' + author['user_id'] + '">' +
                                         '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
                                         '</a>' +
@@ -190,7 +187,6 @@
                                 }
                                 str += '<a class="title" target="_blank" href="/article/edit/' + article_id + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
-                                        '</div>' +
                                         '<div class="meta">' +
                                         '<a href="javascript:void(0);" onclick="release(this)" data-article_id="' + article_id + '">' +
                                         '<i class="iconfont icon-send"></i> 发布' +

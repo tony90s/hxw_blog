@@ -1,9 +1,3 @@
-h5 {
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.2;
-}
-
 .user-summation {
     position: relative;
     display: -webkit-box;
@@ -54,7 +48,10 @@ h5 {
 }
 
 .user-summation .user-name {
-    margin-bottom: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+    margin: 10px 0;
 }
 
 .user-summation .link, .user-summation .link:hover, .user-summation .link:focus {

@@ -491,7 +491,13 @@ label {
     font-size: 90%;
 }
 
-p.abstract {
+.user-name, .nickname, .comment-size-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+p.abstract, p.user-bio {
     overflow:hidden;
     text-overflow:ellipsis;
     display:-webkit-box;

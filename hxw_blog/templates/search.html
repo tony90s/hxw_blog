@@ -99,8 +99,7 @@
                                 }
                                 var str = '<li id="article-' + article_id + '" data-article_id="' + article_id + '">';
 
-                                str += '<div class="content">' +
-                                        '<div class="author">' +
+                                str += '<div class="author">' +
                                         '<a class="avatar" target="_blank" href="/article/author/' + author['user_id'] + '">' +
                                         '<img src="' + author['avatar'] + '" alt="' + author['username'] + '"/>' +
                                         '</a>' +
@@ -122,7 +121,6 @@
                                 }
                                 str += '<a class="title" target="_blank" href="/article/details/' + article_id + '">' + title + '</a>' +
                                         '<p class="abstract">' + abstract + '</p>' +
-                                        '</div>' +
                                         '<div class="meta">' +
                                         '<a class="collection-tag" target="_blank" href="/article/category/' + type['value'] +
                                         '">' + type['display_name'] + '</a>' +

@@ -95,9 +95,13 @@ a, body {
     position: relative;
     width: 100%;
     padding: 20px;
-    border: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
     margin-bottom: -1px;
     word-wrap: break-word
+}
+
+.note-list li:first-child {
+    border-top: 1px solid #f0f0f0;
 }
 
 .note-list li .with-img {
@@ -143,21 +147,21 @@ a, body {
 }
 
 .note-list .author {
+    position: relative;
     margin-bottom: 14px;
     font-size: 13px
 }
 
-.note-list .author-restyle {
-    margin-bottom: 0
-}
-
 .note-list .author .avatar {
-    margin: 0 5px 0 0
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
-.note-list .author .avatar, .note-list .author .info {
-    display: inline-block;
-    vertical-align: middle
+.note-list .author .info {
+    display: block;
+    width: 100%;
+    padding: 0 50px;
 }
 
 .note-list .author .info .nickname {
@@ -184,8 +188,8 @@ a, body {
 
 .note-list .author .dropdown {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 0;
+    right: 0;
 }
 
 .note-list .author .dropdown-menu {
@@ -217,12 +221,16 @@ a, body {
 }
 
 .note-list .title {
-    margin: -7px 0 4px;
-    padding-top: 5px;
+    margin-bottom: 10px;
     display: inherit;
     font-size: 18px;
     font-weight: 700;
-    line-height: 1.5
+    line-height: 1.5;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp: 2;
 }
 
 .note-list .title:hover {
@@ -233,37 +241,17 @@ a, body {
     color: #969696
 }
 
-.note-list .title:empty:before {
-    content: "\65E0\9898"
-}
-
-.note-list .origin-author {
-    display: inline;
-    margin-bottom: 5px;
-    font-size: 12px;
-    color: #969696
-}
-
-.note-list .origin-author a {
-    margin-right: 5px;
-    color: #3194d0 !important
-}
-
-.note-list .origin-author a:hover {
-    color: #3194d0 !important
-}
-
 .note-list .comment {
     font-size: 15px;
     line-height: 1.7
 }
 
-.note-list .comment a, .note-list a.maleskine-author {
+.note-list .comment a {
     color: #3194d0
 }
 
 .note-list .abstract {
-    margin: 0 0 8px;
+    margin-bottom: 10px;
     font-size: 14px;
     line-height: 24px
 }
@@ -298,59 +286,7 @@ a, body {
     border-color: #ec6149
 }
 
-.note-list .follow-detail {
-    padding: 20px;
-    background-color: hsla(0, 0%, 71%, .1);
-    border: 1px solid #e1e1e1;
-    border-radius: 4px;
-    font-size: 12px
-}
-
-.note-list .follow-detail .avatar, .note-list .follow-detail .avatar-collection {
-    float: left;
-    margin-right: 10px;
-    width: 48px;
-    height: 48px
-}
-
-.note-list .follow-detail .info .title {
-    margin: 0;
-    font-size: 17px;
-    font-weight: 400
-}
-
-.note-list .follow-detail .info .title:visited {
-    color: inherit
-}
-
-.note-list .follow-detail .info p {
-    margin-bottom: 0;
-    color: #969696
-}
-
-.note-list .follow-detail .creater, .note-list .follow-detail .creater:hover {
-    color: #3194d0
-}
-
-.note-list .follow-detail .btn {
-    float: right;
-    margin-top: 4px;
-    padding: 8px 0;
-    width: 100px
-}
-
-.note-list .follow-detail .signature {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #e1e1e1;
-    color: #969696;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap
-}
-
 .note-list .meta {
-    margin-top: 5px;
     font-size: 12px;
     font-weight: 400;
     line-height: 20px
@@ -377,6 +313,7 @@ a, body {
 
 .note-list .meta i {
     vertical-align: middle;
+    margin-right: 2px;
 }
 
 .note-list .meta span {
@@ -384,199 +321,9 @@ a, body {
     color: #b4b4b4
 }
 
-.note-list .push-action {
-    margin-top: 10px
-}
-
-.note-list .btn-gray, .note-list .hollow {
-    margin: 0 10px;
-    padding: 4px 12px;
-    font-size: 12px
-}
-
-.note-list .push-status, .note-list .push-time {
-    font-size: 12px;
-    color: #969696
-}
-
-.note-list .push-status {
-    margin-right: 5px;
-    font-weight: 700
-}
-
-.note-list .push-remove {
-    font-weight: 400;
-    color: #ea6f5a
-}
-
-.index .row .slide {
-    margin-left: 15px;
-    border-radius: 0 0 6px 6px;
-    overflow: hidden;
-    z-index: 1000
-}
-
-.index .row .slide img {
-    width: 100%;
-    background-color: hsla(0, 0%, 71%, .2)
-}
-
-.index .row .carousel-indicators {
-    margin-bottom: 8px;
-    width: 80%;
-    left: 40%
-}
-
-.index .row .carousel-indicators li {
-    background-color: hsla(0, 0%, 47%, .4)
-}
-
-.index .row .carousel-indicators .active, .index .row .carousel-indicators li {
-    width: 25px;
-    height: 2px;
-    transition: .3s ease-in;
-    -webkit-transition: .3s ease-in;
-    -moz-transition: .3s ease-in;
-    -o-transition: .3s ease-in;
-    -ms-transition: .3s ease-in
-}
-
-.index .row .carousel-indicators .active {
-    background-color: #fff
-}
-
-.index .row .banner {
-    display: inline-block;
-    width: 33.333%
-}
-
-.index .row .banner:first-child {
-    width: 66.666%;
-    float: left;
-    transform: translateZ(0) !important;
-    -webkit-transform: translateZ(0) !important
-}
-
-.index .row .banner a:before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transition: .1s ease-in;
-    -webkit-transition: .1s ease-in;
-    -moz-transition: .1s ease-in;
-    -o-transition: .1s ease-in;
-    -ms-transition: .1s ease-in
-}
-
-.index .row .banner:hover a:before {
-    background-color: rgba(0, 0, 0, .08)
-}
-
-.index .row .carousel-inner .item.active .banner, .index .row .carousel-inner .item.active.left, .index .row .carousel-inner .item.active.right, .index .row .carousel-inner .item.next, .index .row .carousel-inner .item.next.left .banner, .index .row .carousel-inner .item.prev, .index .row .carousel-inner .item.prev.right .banner {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0)
-}
-
-.index .row .carousel-inner .item.active .banner:first-child, .index .row .carousel-inner .item.next.left .banner:first-child, .index .row .carousel-inner .item.prev.right .banner:first-child {
-    opacity: 1
-}
-
-.index .row .carousel-inner .item.active.left .banner, .index .row .carousel-inner .item.prev .banner {
-    transform: translate3d(0, -100%, 0);
-    -webkit-transform: translate3d(0, -100%, 0)
-}
-
-.index .row .carousel-inner .item.active.left .banner:first-child, .index .row .carousel-inner .item.prev .banner:first-child {
-    opacity: 0
-}
-
-.index .row .carousel-inner .item.active.right .banner, .index .row .carousel-inner .item.next .banner {
-    transform: translate3d(0, 100%, 0);
-    -webkit-transform: translate3d(0, 100%, 0)
-}
-
-.index .row .carousel-inner .item.active.right .banner:first-child, .index .row .carousel-inner .item.next .banner:first-child {
-    opacity: 0
-}
-
-.index .row .carousel-inner .item .banner {
-    transition: .6s cubic-bezier(.6, 0, .2, 1);
-    -webkit-transition: .6s cubic-bezier(.6, 0, .2, 1)
-}
-
-.index .row .carousel-control {
-    opacity: 0;
-    transition: .1s ease-in;
-    -webkit-transition: .1s ease-in;
-    -moz-transition: .1s ease-in;
-    -o-transition: .1s ease-in;
-    -ms-transition: .1s ease-in
-}
-
-.index .row .carousel-control i {
-    position: absolute;
-    top: 50%;
-    margin-top: -14px
-}
-
-.index .row .carousel-control .ic-previous-s {
-    left: 10px
-}
-
-.index .row .carousel-control .ic-next-s {
-    right: 10px
-}
-
-.index .row .slide:hover .carousel-control {
-    opacity: 1;
-    transition: .1s ease-in;
-    -webkit-transition: .1s ease-in;
-    -moz-transition: .1s ease-in;
-    -o-transition: .1s ease-in;
-    -ms-transition: .1s ease-in
-}
-
 .index .main .split-line {
     margin: -5px 0 15px;
     border-top: 1px solid #f0f0f0
-}
-
-.index .main .recommend-collection {
-    margin-bottom: 20px
-}
-
-.index .main .recommend-collection .collection {
-    display: inline-block;
-    margin: 0 18px 18px 0;
-    min-height: 32px;
-    background-color: #f7f7f7;
-    border: 1px solid #dcdcdc;
-    border-radius: 4px;
-    vertical-align: top;
-    overflow: hidden
-}
-
-.index .main .recommend-collection .collection img {
-    width: 32px;
-    height: 32px
-}
-
-.index .main .recommend-collection .collection .name {
-    display: inline-block;
-    padding: 0 11px 0 6px;
-    font-size: 14px
-}
-
-.index .main .recommend-collection .more-hot-collection {
-    display: inline-block;
-    margin-top: 7px;
-    font-size: 14px;
-    color: #787878
-}
-
-.index .main .recommend-collection .more-hot-collection i {
-    margin-left: -5px
 }
 
 .index .main .load-more {
