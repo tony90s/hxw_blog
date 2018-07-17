@@ -11,7 +11,7 @@ from utils.decorator import redirect_to_microsite
 logger = logging.getLogger('index.views')
 
 
-@redirect_to_microsite
+@redirect_to_microsite()
 @ensure_csrf_cookie
 def index_views(request):
     template = 'index.html'

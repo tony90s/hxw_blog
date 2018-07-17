@@ -66,7 +66,7 @@ def article_category_index_views(request, article_type):
     return render(request, template, context)
 
 
-@redirect_to_microsite
+@redirect_to_microsite()
 def article_details(request, article_id):
     template_name = 'article/article_detail.html'
 
@@ -96,7 +96,7 @@ def drafts(request):
     return render(request, 'article/user_drafts.html', context)
 
 
-@redirect_to_microsite
+@redirect_to_microsite()
 def user_articles(request, author_id):
     author = get_object_or_404(User, id=author_id)
     author_data = render_user_info(author)
