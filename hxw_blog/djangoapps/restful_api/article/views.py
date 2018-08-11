@@ -156,7 +156,7 @@ class ArticleList(CustomListAPIView):
 
     # pagination_class = SmallResultsSetPagination
     serializer_class = ArticleSerializer
-    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
+    page_size = settings.PAGINATORS['STANDARD_PAGE_SIZE']
 
     def get_queryset(self):
         form = ArticleListForm(self.request.query_params)
@@ -210,7 +210,7 @@ class CommentList(CustomListAPIView):
 
     # pagination_class = SmallResultsSetPagination
     serializer_class = CommentSerializer
-    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
+    page_size = settings.PAGINATORS['STANDARD_PAGE_SIZE']
 
     def get_queryset(self):
         form = ArticleCommentsForm(self.request.query_params)
@@ -245,7 +245,7 @@ class CommentReplyList(CustomListAPIView):
 
     # pagination_class = SmallResultsSetPagination
     serializer_class = CommentReplySerializer
-    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
+    page_size = settings.PAGINATORS['STANDARD_PAGE_SIZE']
 
     def get_queryset(self):
         form = CommentRepliesForm(self.request.query_params)
@@ -279,7 +279,7 @@ class UserCommentList(CustomListAPIView):
 
     # pagination_class = SmallResultsSetPagination
     serializer_class = UserCommentsSerializer
-    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
+    page_size = settings.PAGINATORS['STANDARD_PAGE_SIZE']
 
     def get_queryset(self):
         form = UserCommentListForm(self.request.query_params)
@@ -354,7 +354,7 @@ class UserPraiseList(CustomListAPIView):
 
     # pagination_class = SmallResultsSetPagination
     serializer_class = UserPraiseSerializer
-    page_size = settings.PAGINATORS['SMALL_PAGE_SIZE']
+    page_size = settings.PAGINATORS['STANDARD_PAGE_SIZE']
 
     def get_queryset(self):
         form = UserPraiseListForm(self.request.query_params)
